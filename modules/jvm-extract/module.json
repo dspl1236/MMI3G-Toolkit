@@ -1,0 +1,26 @@
+{
+    "name": "jvm-extract",
+    "version": "1.0.0",
+    "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering — the first step toward custom MMI menu entries",
+    "author": "dspl1236",
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "jvm_extract.sh",
+    "installs_to_flash": false,
+    "scripts": [
+        "jvm_extract.sh - Copy JVM, JARs, configs, and run string analysis on lsd.jxe"
+    ],
+    "extracts": [
+        "lsd/lsd.jxe - Main UI application (~25MB J9 JXE blob)",
+        "lsd/AppDevelopment.jar - GEM plugin (decompile to understand bundle architecture)",
+        "lsd/lsd.sh - JVM startup script (classpath, JVM flags, system properties)",
+        "lsd/*.jar - All JARs (DSITracer, texts, myAudi connect, etc.)",
+        "lsd/*.properties - Runtime configuration",
+        "j9/ - J9 JVM binary and java.properties",
+        "config/ - mmelauncher.cfg, mmi3g-srv-starter.cfg, DefaultScope.hbtc",
+        "gem/ - All existing .esd screen definitions",
+        "jxe-analysis/ - Extracted strings: bundle config, class names, CAN refs, menu structure"
+    ],
+    "notes": "Read-only operation — copies files to SD card, changes nothing on the MMI. Output is ~30-50MB depending on firmware. The jxe-analysis folder contains pre-extracted strings from lsd.jxe highlighting bundle registration, Java class names, CAN/vehicle data references, and menu/screen structure — no decompiler needed for initial reconnaissance."
+}
