@@ -1,10 +1,29 @@
 {
     "name": "system-info",
-    "version": "0.1.0",
-    "description": "One-shot system information reporter - dumps comprehensive MMI3G system state to SD card on insert",
+    "version": "1.0.0",
+    "description": "One-shot system information reporter - dumps comprehensive MMI3G state to SD card on insert. Non-destructive, installs nothing to flash.",
     "author": "dspl1236",
-    "status": "planned",
+    "status": "ready",
     "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "sysinfo_dump.sh",
     "script_dir": "/scripts/SystemInfo",
-    "notes": "Inspired by DrGER2/MMI3G-Info. Auto-runs on SD insert without needing GEM access."
+    "installs_to_flash": false,
+    "scripts": [
+        "sysinfo_dump.sh - Comprehensive system report to SD card"
+    ],
+    "report_sections": [
+        "System identity & variant detection",
+        "Firmware & software versions",
+        "Hardware & memory",
+        "Storage & filesystems (HDD, SD, mounts)",
+        "Navigation database (acios_db.ini, PKG, FSC, unblocker status)",
+        "Network & connectivity (interfaces, routes, DNS, ARP)",
+        "Green Engineering Menu (engdefs, custom scripts)",
+        "Splash screens",
+        "USB devices",
+        "Running processes (full pidin output)",
+        "System log (last 200 lines via sloginfo)"
+    ],
+    "notes": "Inspired by DrGER2/MMI3G-Info. Outputs both a single combined report and individual data files for easy parsing. Does not modify anything on the MMI - read-only operation."
 }
