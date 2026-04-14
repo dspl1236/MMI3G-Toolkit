@@ -1,9 +1,17 @@
 {
     "name": "nav-unblocker",
-    "version": "0.1.0",
-    "description": "Bypass navigation database activation check - based on DrGER2/MMI3G-Navdb-Unblocker",
+    "version": "1.0.0",
+    "description": "Bypass navigation database activation check - uses DrGER2's improved manage_cd.sh patch method (Keldo's discovery)",
     "author": "dspl1236",
-    "status": "planned",
-    "compatible": ["MMI3G", "MMI3G+"],
-    "notes": "Patches manage_cd.sh to bypass FSC activation. Persistent across reboots, reset by firmware update."
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "nav_unblocker.sh",
+    "script_dir": "/scripts/NavUnblocker",
+    "scripts": [
+        "nav_unblocker.sh - Apply navdb activation bypass patch",
+        "nav_restore.sh - Remove patch, restore factory activation",
+        "nav_status.sh - Check patch state and nav database status"
+    ],
+    "notes": "Appends Keldo's vdev-logvolmgr termination command to manage_cd.sh (DrGER2 method). Works on both MMI3G High and 3G+ without needing sed binary. Persistent across reboots. Overwritten by efs-system firmware reinstall. Detects and coexists with legacy Keldo/Vlasoff/DarkDll activator scripts."
 }

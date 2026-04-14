@@ -33,7 +33,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **gauges-dashboard** | ✅ Ready | Live telemetry — battery voltage, GPS, system info, data logging |
 | **system-info** | 🔧 Planned | One-shot system reporter — dumps full MMI state to SD on insert |
 | **gem-activator** | ✅ Ready | Enable the Green Engineering Menu without VCDS |
-| **nav-unblocker** | 🔧 Planned | Bypass nav database activation (based on DrGER2) |
+| **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
 | **lte-setup** | 🔧 Planned | Provision LTE mobile data via USB Ethernet (based on DrGER2) |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
 
