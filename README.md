@@ -34,7 +34,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **system-info** | ✅ Ready | One-shot system reporter — full MMI state dump to SD |
 | **gem-activator** | ✅ Ready | Enable the Green Engineering Menu without VCDS |
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
-| **lte-setup** | 🔧 Planned | Provision LTE mobile data via USB Ethernet (based on DrGER2) |
+| **lte-setup** | ✅ Ready | Provision LTE mobile data via USB Ethernet (3G+ only) |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
 
 ## Quick Start
@@ -113,7 +113,7 @@ MMI3G-Toolkit/
 │   ├── system-info/        # System reporter (planned)
 │   ├── gem-activator/      # GEM enabler (planned)
 │   ├── nav-unblocker/      # Nav DB bypass (planned)
-│   ├── lte-setup/          # LTE provisioning (planned)
+│   └── lte-setup/          # LTE provisioning (3G+ only)
 │   └── splash-screen/      # Boot screen (planned)
 └── docs/
     ├── SUPPORTED_VEHICLES.md

@@ -1,9 +1,22 @@
 {
     "name": "lte-setup",
-    "version": "0.1.0",
-    "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter - based on DrGER2/MMI3GP-LAN-Setup",
+    "version": "1.0.0",
+    "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter — replaces defunct internal 3G modem with external LTE router",
     "author": "dspl1236",
-    "status": "planned",
-    "compatible": ["MMI3G+"],
-    "notes": "Reconfigures network stack from internal 3G modem to external USB Ethernet/LTE router. Requires ASIX-chipset USB adapter and LTE router hardware."
+    "status": "ready",
+    "compatible": ["MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "lte_setup.sh",
+    "script_dir": "/scripts/LTE",
+    "scripts": [
+        "lte_setup.sh - Configure fair/DLINK mode for USB Ethernet",
+        "lte_restore.sh - Remove fair mode, restore factory PPP config",
+        "lte_status.sh - Diagnose USB Ethernet, DHCP, DNS, connectivity"
+    ],
+    "hardware": {
+        "adapter": "D-Link DUB-E100 rev A4/B1 or Gembird NIC-U1 (ASIX AX88772)",
+        "router": "TP-Link TL-MR3020 or any router on 192.168.0.1 subnet",
+        "cable": "AMI-to-USB Type A adapter cable"
+    },
+    "notes": "Based on DrGER2/MMI3GP-LAN-Setup. Creates DLinkReplacesPPP flag, enables DHCP client for en5 interface, installs dhcp-up script for DNS. MMI3G High does NOT have the ASIX driver — this module is for 3G+ and RNS-850 only."
 }
