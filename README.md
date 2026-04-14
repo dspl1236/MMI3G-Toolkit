@@ -4,6 +4,8 @@
 
 Pick the tools you want, build an SD card, insert it, done.
 
+**[Launch Web App →](https://dspl1236.github.io/MMI3G-Toolkit/app/)** — Module selector, splash screen formatter, and build instructions right in your browser.
+
 ---
 
 ## What Is This?

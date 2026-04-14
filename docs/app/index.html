@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMI3G-Toolkit — SD Card Builder</title>
+  <meta name="description" content="Modular SD card toolkit for Audi/VW MMI 3G, MMI 3G+, and RNS-850 infotainment systems">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23c41e3a'/><text y='72' x='12' font-size='56' font-family='monospace' font-weight='bold' fill='white'>M3</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0c; }
+    #root { min-height: 100vh; }
+    input[type="range"] { height: 4px; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #c41e3a; cursor: pointer; }
+    ::selection { background: rgba(196,30,58,0.3); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0c; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useRef, useCallback, useEffect } = React;
+
+const MMI_W = 800;
+const MMI_H = 480;
+const PREVIEW_SCALE = 0.72;
+
+const MODULES = [
+  {
+    id: "gem-activator", name: "GEM Activator", status: "ready",
+    desc: "Enable Green Engineering Menu without VCDS",
+    compat: ["3G", "3G+", "RNS-850"], category: "system",
+    prereq: null, detail: "Sets adaptation 5F channel 6 = 1 via persistent flash write. Prerequisite for all GEM screen modules."
+  },
+  {
+    id: "gauges-dashboard", name: "Gauges Dashboard", status: "ready",
+    desc: "Live telemetry — voltage, GPS, system info, data logging",
+    compat: ["3G", "3G+", "RNS-850"], category: "gem",
+    prereq: "gem-activator", detail: "3 GEM screens with 500ms battery polling, GPS satellite tracking, and one-tap data logging to SD card."
+  },
+  {
+    id: "splash-screen", name: "Splash Screen", status: "ready",
+    desc: "Custom boot logo — use the formatter tab to prepare your image",
+    compat: ["3G", "3G+", "RNS-850"], category: "visual",
+    prereq: null, detail: "Copies 800×480 PNG to /mnt/efs-system/etc/splashscreens/. Backs up factory screens automatically."
+  },
+  {
+    id: "nav-unblocker", name: "Nav Unblocker", status: "ready",
+    desc: "Bypass navigation database activation check",
+    compat: ["3G", "3G+", "RNS-850"], category: "nav",
+    prereq: null, detail: "Patches manage_cd.sh to terminate vdev-logvolmgr (Keldo/DrGER2 method). Persistent, reversed by firmware reinstall."
+  },
+  {
+    id: "system-info", name: "System Info", status: "ready",
+    desc: "One-shot system reporter — full MMI state dump to SD card",
+    compat: ["3G", "3G+", "RNS-850"], category: "diag",
+    prereq: null, detail: "11-section report + individual data files. Read-only — installs nothing to flash. Safe first-run diagnostic."
+  },
+  {
+    id: "lte-setup", name: "LTE Setup", status: "ready",
+    desc: "Provision USB Ethernet for LTE data after 3G sunset",
+    compat: ["3G+", "RNS-850"], category: "net",
+    prereq: null, detail: "Creates DLinkReplacesPPP flag, enables DHCP on en5. Requires D-Link DUB-E100 + LTE router hardware."
+  },
+];
+
+const MODELS = [
+  { id: "a6c7", label: "A6/A7 C7" },
+  { id: "a4b85", label: "A4/A5 B8.5" },
+  { id: "a8d4", label: "A8 D4" },
+  { id: "q5", label: "Q5 8R" },
+  { id: "q7", label: "Q7 4L" },
+  { id: "rs", label: "RS4/RS5" },
+  { id: "rns850", label: "RNS-850" },
+];
+
+const CAT_COLORS = { system: "#f59e0b", gem: "#10b981", visual: "#8b5cf6", nav: "#3b82f6", diag: "#6b7280", net: "#ef4444" };
+const CAT_LABELS = { system: "System", gem: "GEM Screens", visual: "Visual", nav: "Navigation", diag: "Diagnostics", net: "Network" };
+
+function App() {
+  const [tab, setTab] = useState("modules");
+  const [selected, setSelected] = useState(new Set(["system-info"]));
+  const [model, setModel] = useState("a6c7");
+  const [expandedMod, setExpandedMod] = useState(null);
+  const [buildState, setBuildState] = useState("idle");
+  const [sourceImg, setSourceImg] = useState(null);
+  const [processedUrl, setProcessedUrl] = useState(null);
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [exported, setExported] = useState(false);
+  const canvasRef = useRef(null);
+  const fileRef = useRef(null);
+
+  const processImage = useCallback(() => {
+    if (!sourceImg) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = MMI_W; canvas.height = MMI_H;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, MMI_W, MMI_H);
+    const imgA = sourceImg.width / sourceImg.height;
+    const mmiA = MMI_W / MMI_H;
+    let dw, dh;
+    if (imgA > mmiA) { dh = MMI_H * zoom; dw = dh * imgA; }
+    else { dw = MMI_W * zoom; dh = dw / imgA; }
+    ctx.drawImage(sourceImg, (MMI_W - dw) / 2 + panX, (MMI_H - dh) / 2 + panY, dw, dh);
+    setProcessedUrl(canvas.toDataURL("image/png"));
+    setExported(false);
+  }, [sourceImg, zoom, panX, panY]);
+
+  useEffect(() => { processImage(); }, [processImage]);
+
+  const handleFile = (f) => {
+    if (!f || !f.type.startsWith("image/")) return;
+    const r = new FileReader();
+    r.onload = (e) => {
+      const img = new Image();
+      img.onload = () => { setSourceImg(img); setZoom(1); setPanX(0); setPanY(0); };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(f);
+  };
+
+  const toggle = (id) => {
+    const s = new Set(selected);
+    if (s.has(id)) s.delete(id); else s.add(id);
+    MODULES.forEach(m => { if (s.has(m.id) && m.prereq && !s.has(m.prereq)) s.add(m.prereq); });
+    setSelected(s);
+  };
+
+  const selectAll = () => setSelected(new Set(MODULES.map(m => m.id)));
+  const selectNone = () => setSelected(new Set());
+  const pw = MMI_W * PREVIEW_SCALE;
+  const ph = MMI_H * PREVIEW_SCALE;
+
+  const handleBuild = () => { setBuildState("building"); setTimeout(() => setBuildState("done"), 1800); };
+
+  const sdTree = () => {
+    let l = ["SD Root/", "\u251C\u2500\u2500 copie_scr.sh  (encoded)", "\u251C\u2500\u2500 run.sh        (auto-generated)"];
+    if (selected.has("splash-screen")) l.push("\u251C\u2500\u2500 splashscreens/", "\u2502   \u2514\u2500\u2500 startup_generic.png");
+    if ([...selected].some(id => { const m = MODULES.find(x => x.id === id); return m && m.category === "gem"; }))
+      l.push("\u251C\u2500\u2500 engdefs/", "\u2502   \u2514\u2500\u2500 *.esd");
+    l.push("\u251C\u2500\u2500 scripts/", "\u2502   \u2514\u2500\u2500 *.sh", "\u251C\u2500\u2500 bin/", "\u251C\u2500\u2500 lib/", "\u2514\u2500\u2500 var/  (logs saved here)");
+    return l.join("\n");
+  };
+
+  const S = (props) => React.createElement("span", props);
+  const repoUrl = "https://github.com/dspl1236/MMI3G-Toolkit";
+
+  return React.createElement("div", { style: { minHeight: "100vh", background: "#0a0a0c", color: "#e0ddd8", fontFamily: "'DM Sans', system-ui, sans-serif" } },
+    React.createElement("link", { href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap", rel: "stylesheet" }),
+
+    // Header
+    React.createElement("div", { style: { borderBottom: "1px solid #1c1c20", padding: "14px 20px", display: "flex", alignItems: "center", gap: 14, background: "#0e0e11" } },
+      React.createElement("div", { style: { width: 34, height: 34, background: "linear-gradient(135deg, #c41e3a, #7a1225)", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "#fff", fontFamily: "IBM Plex Mono" } }, "M3"),
+      React.createElement("div", { style: { flex: 1 } },
+        React.createElement("div", { style: { fontSize: 15, fontWeight: 700 } }, "MMI3G-Toolkit"),
+        React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono" } }, "Audi / VW MMI 3G \u00b7 SD Card Builder")
+      ),
+      React.createElement("a", { href: repoUrl, target: "_blank", rel: "noopener", style: { color: "#555", fontSize: 11, fontFamily: "IBM Plex Mono", textDecoration: "none", padding: "5px 10px", border: "1px solid #252528", borderRadius: 5, marginRight: 8 } }, "GitHub \u2197"),
+      React.createElement("div", { style: { display: "flex", gap: 1, background: "#151518", borderRadius: 8, padding: 3 } },
+        [{ id: "modules", label: "Modules" }, { id: "splash", label: "Splash Screen" }, { id: "build", label: "Build SD" }].map(t =>
+          React.createElement("button", { key: t.id, onClick: () => setTab(t.id), style: { padding: "7px 18px", borderRadius: 6, border: "none", background: tab === t.id ? "#c41e3a" : "transparent", color: tab === t.id ? "#fff" : "#777", fontSize: 12, fontWeight: 600, cursor: "pointer" } }, t.label)
+        )
+      )
+    ),
+
+    React.createElement("div", { style: { maxWidth: 920, margin: "0 auto", padding: "20px 20px 60px" } },
+
+      // MODULES TAB
+      tab === "modules" && React.createElement("div", null,
+        React.createElement("div", { style: { display: "flex", gap: 12, alignItems: "center", marginBottom: 16, flexWrap: "wrap" } },
+          React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Vehicle"),
+          ...MODELS.map(m => React.createElement("button", { key: m.id, onClick: () => setModel(m.id), style: { padding: "5px 12px", borderRadius: 5, fontSize: 11, fontWeight: 500, cursor: "pointer", border: model === m.id ? "1px solid #c41e3a" : "1px solid #252528", background: model === m.id ? "rgba(196,30,58,0.1)" : "#111114", color: model === m.id ? "#e84a6a" : "#777" } }, m.label)),
+          React.createElement("div", { style: { flex: 1 } }),
+          React.createElement("button", { onClick: selectAll, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "All"),
+          React.createElement("button", { onClick: selectNone, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "None")
+        ),
+        React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
+          MODULES.map(m => {
+            const isOn = selected.has(m.id), isExp = expandedMod === m.id, cc = CAT_COLORS[m.category];
+            return React.createElement("div", { key: m.id, style: { borderRadius: 8, border: "1px solid " + (isOn ? cc + "44" : "#1e1e22"), background: isOn ? cc + "08" : "#111114", transition: "all 0.15s" } },
+              React.createElement("div", { style: { padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }, onClick: () => toggle(m.id) },
+                React.createElement("div", { style: { width: 20, height: 20, borderRadius: 5, flexShrink: 0, border: "2px solid " + (isOn ? cc : "#333"), background: isOn ? cc : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" } }, isOn && React.createElement("span", { style: { color: "#fff", fontSize: 13, fontWeight: 700, lineHeight: 1 } }, "\u2713")),
+                React.createElement("div", { style: { flex: 1 } },
+                  React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                    React.createElement("span", { style: { fontSize: 13, fontWeight: 600, fontFamily: "IBM Plex Mono" } }, m.name),
+                    React.createElement("span", { style: { fontSize: 9, padding: "1px 6px", borderRadius: 3, background: cc + "18", color: cc, fontFamily: "IBM Plex Mono", fontWeight: 500 } }, CAT_LABELS[m.category])
+                  ),
+                  React.createElement("div", { style: { fontSize: 11, color: "#888", marginTop: 2 } }, m.desc)
+                ),
+                React.createElement("div", { style: { display: "flex", gap: 3 } }, m.compat.map(c => React.createElement("span", { key: c, style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1a1a1e", color: "#555", fontFamily: "IBM Plex Mono" } }, c))),
+                React.createElement("button", { onClick: (e) => { e.stopPropagation(); setExpandedMod(isExp ? null : m.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 16, padding: "0 4px" } }, isExp ? "\u25BE" : "\u25B8")
+              ),
+              isExp && React.createElement("div", { style: { padding: "0 14px 12px 48px", fontSize: 11, color: "#777", lineHeight: 1.6 } }, m.detail)
+            );
+          })
+        ),
+        React.createElement("div", { style: { marginTop: 16, padding: "12px 16px", borderRadius: 8, background: "#111114", border: "1px solid #1e1e22", display: "flex", alignItems: "center", gap: 16 } },
+          React.createElement("div", { style: { fontSize: 12, color: "#888" } }, React.createElement("span", { style: { color: "#e0ddd8", fontWeight: 600, fontFamily: "IBM Plex Mono" } }, selected.size), " module" + (selected.size !== 1 ? "s" : "") + " selected"),
+          React.createElement("div", { style: { flex: 1 } }),
+          React.createElement("button", { onClick: () => setTab("build"), style: { padding: "8px 20px", borderRadius: 6, border: "none", background: selected.size > 0 ? "linear-gradient(135deg, #c41e3a, #8b0000)" : "#252528", color: selected.size > 0 ? "#fff" : "#555", fontSize: 12, fontWeight: 700, cursor: selected.size > 0 ? "pointer" : "default", boxShadow: selected.size > 0 ? "0 3px 10px rgba(196,30,58,0.25)" : "none" } }, "Build SD Card \u2192")
+        )
+      ),
+
+      // SPLASH TAB
+      tab === "splash" && React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 260px", gap: 20, alignItems: "start" } },
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "MMI Display Preview"),
+          React.createElement("div", { style: { background: "#131316", borderRadius: 10, padding: 28, border: "1px solid #1e1e22" } },
+            React.createElement("div", {
+              style: { background: "#080809", borderRadius: 5, border: "2px solid #2a2a2e", overflow: "hidden", width: pw, height: ph, cursor: sourceImg ? (dragging ? "grabbing" : "grab") : "pointer", boxShadow: "0 0 24px rgba(0,0,0,0.5), inset 0 0 16px rgba(0,0,0,0.3)", position: "relative" },
+              onClick: () => !sourceImg && fileRef.current?.click(),
+              onDrop: (e) => { e.preventDefault(); handleFile(e.dataTransfer?.files?.[0]); },
+              onDragOver: (e) => e.preventDefault(),
+              onMouseDown: (e) => { if (!sourceImg) return; setDragging(true); setDragStart({ x: e.clientX - panX, y: e.clientY - panY }); },
+              onMouseMove: (e) => { if (!dragging) return; setPanX(e.clientX - dragStart.x); setPanY(e.clientY - dragStart.y); },
+              onMouseUp: () => setDragging(false), onMouseLeave: () => setDragging(false)
+            },
+              processedUrl ? React.createElement("img", { src: processedUrl, style: { width: pw, height: ph, display: "block" }, alt: "preview", draggable: false })
+              : React.createElement("div", { style: { width: pw, height: ph, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } },
+                  React.createElement("div", { style: { fontSize: 32, opacity: 0.2, marginBottom: 6 } }, "\u2B06"),
+                  React.createElement("div", { style: { color: "#444", fontSize: 13, fontWeight: 500 } }, "Drop image or click to browse"),
+                  React.createElement("div", { style: { marginTop: 8, padding: "3px 10px", border: "1px solid #2a2a2e", borderRadius: 4, fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono" } }, "800 \u00d7 480 PNG")
+                )
+            ),
+            React.createElement("div", { style: { textAlign: "center", marginTop: 8, fontSize: 9, color: "#3a3a3e", fontFamily: "IBM Plex Mono", letterSpacing: "0.15em", textTransform: "uppercase" } }, (MODELS.find(m => m.id === model)?.label || "MMI 3G+") + " \u2014 800\u00d7480")
+          ),
+          sourceImg && React.createElement("div", { style: { marginTop: 10, display: "flex", gap: 10, alignItems: "center", padding: "8px 14px", background: "#111114", borderRadius: 7, border: "1px solid #1e1e22" } },
+            React.createElement("span", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", minWidth: 34 } }, "Zoom"),
+            React.createElement("input", { type: "range", min: 0.5, max: 3, step: 0.05, value: zoom, onChange: (e) => setZoom(parseFloat(e.target.value)), style: { flex: 1, accentColor: "#c41e3a" } }),
+            React.createElement("span", { style: { fontSize: 11, fontFamily: "IBM Plex Mono", color: "#777", minWidth: 38, textAlign: "right" } }, Math.round(zoom * 100) + "%"),
+            React.createElement("button", { onClick: () => { setZoom(1); setPanX(0); setPanY(0); }, style: { padding: "3px 8px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer" } }, "Reset")
+          )
+        ),
+        React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
+          React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", style: { display: "none" }, onChange: (e) => handleFile(e.target.files?.[0]) }),
+          React.createElement("button", { onClick: () => fileRef.current?.click(), style: { padding: "11px 14px", borderRadius: 7, border: "1px dashed #3a3a3e", background: "#111114", color: "#bbb", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center" } }, sourceImg ? "\u21BB Replace Image" : "\u2B06 Upload Image"),
+          sourceImg && React.createElement("div", { style: { padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Source"),
+            React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 10px", fontSize: 11 } },
+              React.createElement("span", { style: { color: "#555" } }, "Original"), React.createElement("span", { style: { color: "#999", fontFamily: "IBM Plex Mono" } }, sourceImg.width + "\u00d7" + sourceImg.height),
+              React.createElement("span", { style: { color: "#555" } }, "Output"), React.createElement("span", { style: { color: "#999", fontFamily: "IBM Plex Mono" } }, "800\u00d7480 PNG")
+            )
+          ),
+          processedUrl && React.createElement("button", { onClick: () => { const a = document.createElement("a"); a.href = processedUrl; a.download = "startup_generic.png"; a.click(); setExported(true); if (!selected.has("splash-screen")) { const s = new Set(selected); s.add("splash-screen"); setSelected(s); } }, style: { padding: "12px 14px", borderRadius: 7, border: "none", background: exported ? "linear-gradient(135deg, #166534, #0a3d1f)" : "linear-gradient(135deg, #c41e3a, #8b0000)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: exported ? "none" : "0 3px 10px rgba(196,30,58,0.25)" } }, exported ? "\u2713 Downloaded" : "\u2193 Export startup_generic.png"),
+          React.createElement("div", { style: { padding: 12, borderRadius: 7, background: "rgba(196,30,58,0.05)", border: "1px solid rgba(196,30,58,0.12)" } },
+            React.createElement("div", { style: { fontSize: 10, color: "#e84a6a", fontWeight: 600, marginBottom: 4 } }, "Tips"),
+            React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 10, color: "#888", lineHeight: 1.7 } },
+              React.createElement("li", null, "Drag the preview to reposition"),
+              React.createElement("li", null, "Dark images look best on boot"),
+              React.createElement("li", null, "Exported PNG goes in splashscreens/ on SD"),
+              React.createElement("li", null, "Factory screens backed up automatically")
+            )
+          )
+        )
+      ),
+
+      // BUILD TAB
+      tab === "build" && React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "start" } },
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 10, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Selected Modules (" + selected.size + ")"),
+          selected.size === 0
+            ? React.createElement("div", { style: { padding: 20, borderRadius: 8, background: "#111114", border: "1px solid #1e1e22", textAlign: "center" } },
+                React.createElement("div", { style: { color: "#555", fontSize: 13 } }, "No modules selected"),
+                React.createElement("button", { onClick: () => setTab("modules"), style: { marginTop: 10, padding: "6px 14px", borderRadius: 5, border: "1px solid #2a2a2e", background: "#151518", color: "#888", fontSize: 11, cursor: "pointer" } }, "\u2190 Select Modules")
+              )
+            : React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
+                MODULES.filter(m => selected.has(m.id)).map(m =>
+                  React.createElement("div", { key: m.id, style: { padding: "8px 12px", borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", display: "flex", alignItems: "center", gap: 8 } },
+                    React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
+                    React.createElement("span", { style: { fontSize: 12, fontFamily: "IBM Plex Mono", fontWeight: 500, flex: 1 } }, m.name),
+                    React.createElement("button", { onClick: () => toggle(m.id), style: { background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: 14, padding: 0 } }, "\u00d7")
+                  )
+                )
+              ),
+          React.createElement("div", { style: { marginTop: 14, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "SD Card Structure"),
+            React.createElement("pre", { style: { fontSize: 10, color: "#777", fontFamily: "IBM Plex Mono", margin: 0, lineHeight: 1.5, whiteSpace: "pre" } }, sdTree())
+          )
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 10, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Build"),
+          React.createElement("div", { style: { padding: 14, borderRadius: 8, background: "#111114", border: "1px solid #1e1e22", marginBottom: 12 } },
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", marginBottom: 6 } }, "CLI Command"),
+            React.createElement("pre", { style: { background: "#0a0a0c", borderRadius: 6, padding: 10, fontSize: 11, fontFamily: "IBM Plex Mono", color: "#e84a6a", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", border: "1px solid #1a1a1e" } },
+              "python builder/build_sd.py" + (selected.size === MODULES.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"
+            ),
+            React.createElement("button", { onClick: () => { navigator.clipboard?.writeText("python builder/build_sd.py" + (selected.size === MODULES.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"); }, style: { marginTop: 8, padding: "4px 10px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "Copy command")
+          ),
+          React.createElement("button", { onClick: handleBuild, disabled: selected.size === 0 || buildState === "building", style: { width: "100%", padding: "14px 16px", borderRadius: 8, border: "none", background: buildState === "done" ? "linear-gradient(135deg, #166534, #0a3d1f)" : buildState === "building" ? "#252528" : selected.size > 0 ? "linear-gradient(135deg, #c41e3a, #8b0000)" : "#1a1a1e", color: buildState === "building" ? "#888" : selected.size > 0 ? "#fff" : "#444", fontSize: 14, fontWeight: 700, cursor: selected.size > 0 && buildState !== "building" ? "pointer" : "default", boxShadow: selected.size > 0 && buildState === "idle" ? "0 4px 14px rgba(196,30,58,0.3)" : "none", transition: "all 0.2s" } },
+            buildState === "building" ? "\u27F3 Encoding copie_scr.sh..." : buildState === "done" ? "\u2713 SD Card Package Ready" : "Build SD Card Package"
+          ),
+          buildState === "done" && React.createElement("div", { style: { marginTop: 12, padding: 14, borderRadius: 8, background: "rgba(22,101,52,0.08)", border: "1px solid rgba(22,101,52,0.2)" } },
+            React.createElement("div", { style: { fontSize: 12, color: "#4ade80", fontWeight: 600, marginBottom: 6 } }, "Ready to flash"),
+            React.createElement("ol", { style: { margin: 0, padding: "0 0 0 16px", fontSize: 11, color: "#888", lineHeight: 1.8 } },
+              React.createElement("li", null, "Format 32GB SDHC as FAT32"),
+              React.createElement("li", null, "Copy SD card contents to root"),
+              React.createElement("li", null, "Boot MMI fully (wait 3+ min)"),
+              React.createElement("li", null, "Insert SD card, wait 30 sec"),
+              React.createElement("li", null, "Remove card, reboot MMI"),
+              React.createElement("li", null, React.createElement("span", null, "Open GEM: "), React.createElement("code", { style: { color: "#e84a6a", fontSize: 10 } }, "CAR + BACK"), " (C7)")
+            )
+          ),
+          React.createElement("div", { style: { marginTop: 12, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Requirements"),
+            React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 10, color: "#777", lineHeight: 1.7 } },
+              React.createElement("li", null, "Python 3.6+ (for build_sd.py)"),
+              React.createElement("li", null, "32GB SDHC card (not SDXC)"),
+              React.createElement("li", null, "FAT32 format (use Windows, not macOS)"),
+              React.createElement("li", null, "MMI fully booted before SD insert")
+            )
+          )
+        )
+      )
+    ),
+    React.createElement("canvas", { ref: canvasRef, style: { display: "none" } })
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+  </script>
+</body>
+</html>
