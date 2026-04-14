@@ -37,6 +37,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **gem-activator** | ✅ Ready | Enable the Green Engineering Menu without VCDS |
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
 | **lte-setup** | ✅ Ready | Provision LTE mobile data via USB Ethernet (3G+ only) |
+| **can-scanner** | ✅ Ready | CAN bus address scanner — discover RPM, boost, coolant, speed data |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
 
 ## Quick Start

@@ -1,0 +1,24 @@
+{
+    "name": "can-scanner",
+    "version": "1.0.0",
+    "description": "CAN bus / namespace address scanner - discovers what vehicle data is available via GEM key-value polling on your specific MMI3G system",
+    "author": "dspl1236",
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "script_dir": "/scripts/Scanner",
+    "gem_path": "/scanner",
+    "prereq": "gem-activator",
+    "screens": [
+        "ScannerPer3Low.esd - Per 3 addresses 0x0001-0x000a (CAN low range)",
+        "ScannerPer3Mid1.esd - Per 3 addresses 0x0010-0x0024 (includes known voltage)",
+        "ScannerPer3Engine.esd - Per 3 addresses 0x0001xxxx (possible engine ECU data)",
+        "ScannerMixed.esd - Per 3 high range + Per 1 system addresses",
+        "ScannerStrings.esd - String values that identify data sources"
+    ],
+    "scripts": [
+        "scanner_install.sh - Install scanner screens and scripts",
+        "scan_log.sh - Log GEM visible data + shmem + syslog CAN entries",
+        "scan_shmem.sh - Deep dump of shared memory for offline analysis"
+    ],
+    "notes": "The per 3 namespace carries CAN bus data but addresses are undocumented. This scanner probes address ranges so you can visually identify which ones return live data (RPM, speed, boost, coolant, etc.) on your specific vehicle. Results are logged to SD card for analysis. This is an exploration tool — results will vary by vehicle platform and firmware version."
+}

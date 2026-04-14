@@ -1,0 +1,27 @@
+# Scanner - Per 3 Range 0x10-0x30
+# Includes known voltage at 0x23
+
+screen ScannerPer3Mid1 Scanner
+
+keyValue value int per 3 0x00000010 label "per3 0x00000010:"
+poll 500
+keyValue value int per 3 0x00000015 label "per3 0x00000015:"
+poll 500
+keyValue value int per 3 0x00000018 label "per3 0x00000018:"
+poll 500
+keyValue value int per 3 0x0000001a label "per3 0x0000001a:"
+poll 500
+keyValue value int per 3 0x0000001f label "per3 0x0000001f:"
+poll 500
+keyValue value int per 3 0x00000020 label "per3 0x00000020:"
+poll 500
+keyValue value int per 3 0x00000021 label "per3 0x00000021:"
+poll 500
+keyValue value int per 3 0x00000022 label "per3 0x00000022:"
+poll 500
+keyValue value int per 3 0x00000023 label "per3 0x23 (KNOWN=voltage):"
+poll 500
+keyValue value int per 3 0x00000024 label "per3 0x00000024:"
+poll 500
+
+script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log All Scanner Data <<"

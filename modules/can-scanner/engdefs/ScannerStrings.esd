@@ -1,0 +1,17 @@
+# Scanner - String Values Discovery
+# Some addresses return strings that help identify data sources
+
+screen ScannerStrings Scanner
+
+keyValue value String per 3 0x00120004 label "per3 0x120004 (KNOWN=train):"
+keyValue value String per 3 0x00120000 label "per3 0x00120000:"
+keyValue value String per 3 0x00120001 label "per3 0x00120001:"
+keyValue value String per 3 0x00120002 label "per3 0x00120002:"
+keyValue value String per 3 0x00120003 label "per3 0x00120003:"
+keyValue value String per 3 0x00110006 label "per3 0x110006 (KNOWN=VW PN):"
+keyValue value String per 3 0x000103EE label "per3 0x103EE (KNOWN=FrontDisp):"
+keyValue value String per 1 0x0000100d label "per1 0x100d (KNOWN=MU ver):"
+keyValue value String per 1 0x0003001a label "per1 0x3001a (KNOWN=NavDB):"
+keyValue value String per 1 0x00000001 label "per1 0x00000001:"
+
+script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log All Scanner Data <<"
