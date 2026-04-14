@@ -1,0 +1,9 @@
+{
+    "name": "splash-screen",
+    "version": "0.1.0",
+    "description": "Custom boot splash screen installer - load custom PNG boot images via SD card",
+    "author": "dspl1236",
+    "status": "planned",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "notes": "Copies custom PNG to /mnt/efs-system/etc/splashscreens/ and updates StartupImageConfig.txt"
+}

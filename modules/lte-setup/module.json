@@ -1,0 +1,9 @@
+{
+    "name": "lte-setup",
+    "version": "0.1.0",
+    "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter - based on DrGER2/MMI3GP-LAN-Setup",
+    "author": "dspl1236",
+    "status": "planned",
+    "compatible": ["MMI3G+"],
+    "notes": "Reconfigures network stack from internal 3G modem to external USB Ethernet/LTE router. Requires ASIX-chipset USB adapter and LTE router hardware."
+}

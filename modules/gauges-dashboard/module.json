@@ -1,0 +1,26 @@
+{
+    "name": "gauges-dashboard",
+    "version": "1.0.0",
+    "description": "Live vehicle telemetry dashboard - battery voltage, GPS status, system info with data logging to SD card",
+    "author": "dspl1236",
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "script_dir": "/scripts/Gauges",
+    "gem_path": "/gauges",
+    "screens": [
+        "GaugesDashboard.esd - Main gauges (voltage, GPS, USB)",
+        "GaugesSystem.esd - Firmware, nav DB, full reports",
+        "GaugesNetwork.esd - Network diagnostics (LTE retrofit)"
+    ],
+    "scripts": [
+        "snapshot.sh - Vehicle data snapshot to SD",
+        "syslog.sh - QNX syslog dump",
+        "fullreport.sh - Complete system report",
+        "proclist.sh - Running processes",
+        "diskinfo.sh - Partition and disk info",
+        "netstatus.sh - Network status dump",
+        "ifconfig.sh - Interface config (GEM console)",
+        "routetable.sh - Routing table (GEM console)",
+        "dnscheck.sh - DNS and connection status"
+    ]
+}

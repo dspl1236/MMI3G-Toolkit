@@ -1,0 +1,9 @@
+{
+    "name": "gem-activator",
+    "version": "0.1.0",
+    "description": "Enable the Green Engineering Menu via SD card script - no VCDS required",
+    "author": "dspl1236",
+    "status": "planned",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "notes": "Activates GEM by setting adaptation value. Prerequisite for all GEM screen modules."
+}

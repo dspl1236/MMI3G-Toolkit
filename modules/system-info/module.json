@@ -1,0 +1,10 @@
+{
+    "name": "system-info",
+    "version": "0.1.0",
+    "description": "One-shot system information reporter - dumps comprehensive MMI3G system state to SD card on insert",
+    "author": "dspl1236",
+    "status": "planned",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "script_dir": "/scripts/SystemInfo",
+    "notes": "Inspired by DrGER2/MMI3G-Info. Auto-runs on SD insert without needing GEM access."
+}

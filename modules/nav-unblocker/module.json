@@ -1,0 +1,9 @@
+{
+    "name": "nav-unblocker",
+    "version": "0.1.0",
+    "description": "Bypass navigation database activation check - based on DrGER2/MMI3G-Navdb-Unblocker",
+    "author": "dspl1236",
+    "status": "planned",
+    "compatible": ["MMI3G", "MMI3G+"],
+    "notes": "Patches manage_cd.sh to bypass FSC activation. Persistent across reboots, reset by firmware update."
+}

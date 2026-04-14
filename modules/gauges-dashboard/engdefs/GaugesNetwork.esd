@@ -1,0 +1,25 @@
+# ============================================================
+# GaugesNetwork.esd
+# MMI3G+ Gauges Dashboard - Network Screen
+# Network and connectivity status (pairs with LTE retrofit)
+# ============================================================
+# Access via GEM: /gauges/network
+# ============================================================
+
+screen GaugesNetwork Gauges
+
+# --- Connection Status ---
+keyValue value int per 1 0x00180000 label "USB Devices:"
+poll 2000
+
+keyValue value int per 3 0x00000023 label "Term.30 Voltage (x100mV):"
+poll 2000
+
+# --- Network Diagnostics ---
+script value sys 1 0x0100 "/scripts/Gauges/netstatus.sh" label ">> Network Status <<"
+
+script value sys 1 0x0100 "/scripts/Gauges/ifconfig.sh" label ">> Interface Config <<"
+
+script value sys 1 0x0100 "/scripts/Gauges/routetable.sh" label ">> Routing Table <<"
+
+script value sys 1 0x0100 "/scripts/Gauges/dnscheck.sh" label ">> DNS Config <<"
