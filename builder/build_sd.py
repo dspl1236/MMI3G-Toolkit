@@ -114,38 +114,64 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         lines.append(f'# --- Module: {mod_name} ---')
         lines.append(f'echo "[MODULE] Installing {mod_name}..."')
         
-        # Install engdefs
-        lines.append(f'if [ -d "${{SDPATH}}/engdefs" ]; then')
-        
-        mod_dir = modules[mod_name]['_dir']
-        engdefs_dir = os.path.join(mod_dir, 'engdefs')
-        if os.path.isdir(engdefs_dir):
-            for esd in sorted(os.listdir(engdefs_dir)):
-                if esd.endswith('.esd'):
-                    lines.append(f'    if [ -f "${{SDPATH}}/engdefs/{esd}" ]; then')
-                    lines.append(f'        cp -v "${{SDPATH}}/engdefs/{esd}" "${{ENGDEFS}}/{esd}"')
-                    lines.append(f'        echo "[INST] {esd}"')
-                    lines.append(f'    fi')
-        
-        lines.append('fi')
-        
-        # Install scripts
-        scripts_dir = os.path.join(mod_dir, 'scripts')
-        if os.path.isdir(scripts_dir):
-            script_dest = meta.get('script_dir', f'/scripts/{mod_name}')
-            lines.append(f'SCRIPTDIR="${{EFSDIR}}{script_dest}"')
-            lines.append(f'mkdir -p ${{SCRIPTDIR}}')
-            lines.append(f'if [ -d "${{SDPATH}}/scripts" ]; then')
+        # Check if module has a standalone run script
+        # (e.g. gem-activator runs its own install logic)
+        if meta.get('standalone') and meta.get('run_script'):
+            run_script = meta['run_script']
+            lines.append(f'if [ -f "${{SDPATH}}/scripts/{run_script}" ]; then')
+            lines.append(f'    ksh "${{SDPATH}}/scripts/{run_script}" "${{SDPATH}}"')
+            lines.append(f'    echo "[OK] {mod_name} standalone script executed"')
+            lines.append(f'else')
+            lines.append(f'    echo "[WARN] {run_script} not found for {mod_name}"')
+            lines.append(f'fi')
             
-            for script in sorted(os.listdir(scripts_dir)):
-                if script.endswith('.sh'):
-                    lines.append(f'    if [ -f "${{SDPATH}}/scripts/{script}" ]; then')
-                    lines.append(f'        cp -v "${{SDPATH}}/scripts/{script}" "${{SCRIPTDIR}}/{script}"')
-                    lines.append(f'        chmod +x "${{SCRIPTDIR}}/{script}"')
-                    lines.append(f'        echo "[INST] {script}"')
-                    lines.append(f'    fi')
+            # Also install scripts to flash for future use from GEM
+            scripts_dir = os.path.join(meta['_dir'], 'scripts')
+            if os.path.isdir(scripts_dir):
+                script_dest = meta.get('script_dir', f'/scripts/{mod_name}')
+                lines.append(f'SCRIPTDIR="${{EFSDIR}}{script_dest}"')
+                lines.append(f'mkdir -p ${{SCRIPTDIR}}')
+                for script in sorted(os.listdir(scripts_dir)):
+                    if script.endswith('.sh'):
+                        lines.append(f'if [ -f "${{SDPATH}}/scripts/{script}" ]; then')
+                        lines.append(f'    cp -v "${{SDPATH}}/scripts/{script}" "${{SCRIPTDIR}}/{script}"')
+                        lines.append(f'    chmod +x "${{SCRIPTDIR}}/{script}"')
+                        lines.append(f'fi')
+        else:
+            # Standard module — install engdefs and scripts
+            
+            # Install engdefs
+            lines.append(f'if [ -d "${{SDPATH}}/engdefs" ]; then')
+            
+            mod_dir = modules[mod_name]['_dir']
+            engdefs_dir = os.path.join(mod_dir, 'engdefs')
+            if os.path.isdir(engdefs_dir):
+                for esd in sorted(os.listdir(engdefs_dir)):
+                    if esd.endswith('.esd'):
+                        lines.append(f'    if [ -f "${{SDPATH}}/engdefs/{esd}" ]; then')
+                        lines.append(f'        cp -v "${{SDPATH}}/engdefs/{esd}" "${{ENGDEFS}}/{esd}"')
+                        lines.append(f'        echo "[INST] {esd}"')
+                        lines.append(f'    fi')
             
             lines.append('fi')
+            
+            # Install scripts
+            scripts_dir = os.path.join(mod_dir, 'scripts')
+            if os.path.isdir(scripts_dir):
+                script_dest = meta.get('script_dir', f'/scripts/{mod_name}')
+                lines.append(f'SCRIPTDIR="${{EFSDIR}}{script_dest}"')
+                lines.append(f'mkdir -p ${{SCRIPTDIR}}')
+                lines.append(f'if [ -d "${{SDPATH}}/scripts" ]; then')
+                
+                for script in sorted(os.listdir(scripts_dir)):
+                    if script.endswith('.sh'):
+                        lines.append(f'    if [ -f "${{SDPATH}}/scripts/{script}" ]; then')
+                        lines.append(f'        cp -v "${{SDPATH}}/scripts/{script}" "${{SCRIPTDIR}}/{script}"')
+                        lines.append(f'        chmod +x "${{SCRIPTDIR}}/{script}"')
+                        lines.append(f'        echo "[INST] {script}"')
+                        lines.append(f'    fi')
+                
+                lines.append('fi')
         
         lines.append(f'echo "[OK] {mod_name} installed"')
         lines.append('echo ""')
