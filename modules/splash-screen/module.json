@@ -1,9 +1,24 @@
 {
     "name": "splash-screen",
-    "version": "0.1.0",
-    "description": "Custom boot splash screen installer - load custom PNG boot images via SD card",
+    "version": "1.0.0",
+    "description": "Custom boot splash screen installer - upload any image, auto-formatted to 800x480 PNG via the desktop app",
     "author": "dspl1236",
-    "status": "planned",
+    "status": "ready",
     "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
-    "notes": "Copies custom PNG to /mnt/efs-system/etc/splashscreens/ and updates StartupImageConfig.txt"
+    "standalone": true,
+    "run_script": "splash_install.sh",
+    "script_dir": "/scripts/Splash",
+    "scripts": [
+        "splash_install.sh - Install custom boot screen from SD card",
+        "splash_restore.sh - Restore factory splash screens from backup"
+    ],
+    "image_specs": {
+        "width": 800,
+        "height": 480,
+        "format": "PNG",
+        "bit_depth": [8, 24],
+        "filename": "startup_generic.png",
+        "mmi_path": "/mnt/efs-system/etc/splashscreens/"
+    },
+    "notes": "Use the MMI3G-Toolkit desktop app to upload any image and auto-format it to the correct resolution. The installer backs up existing splash screens to SD card before overwriting."
 }

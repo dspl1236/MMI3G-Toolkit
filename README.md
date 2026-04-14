@@ -35,7 +35,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **gem-activator** | ✅ Ready | Enable the Green Engineering Menu without VCDS |
 | **nav-unblocker** | 🔧 Planned | Bypass nav database activation (based on DrGER2) |
 | **lte-setup** | 🔧 Planned | Provision LTE mobile data via USB Ethernet (based on DrGER2) |
-| **splash-screen** | 🔧 Planned | Custom boot splash screen installer |
+| **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
 
 ## Quick Start
 
