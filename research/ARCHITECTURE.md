@@ -205,3 +205,67 @@ de.audi.tghu.development/
 - Decompilation: CFR 0.152
 - EFS extraction: Custom Python parser
 - Research context: DrGER2's MMI3G documentation, Audizine/VWVortex community
+
+
+## V850 IOC (I/O Controller) Firmware Analysis
+
+### What the IOC Does
+The V850 microcontroller is the CAN bus interface chip on the MMI3G board.
+It sits between the physical CAN buses and the SH4 main CPU (which runs QNX + Java).
+All CAN data passes through the IOC before reaching the Java layer.
+
+### Firmware: V850app.bin (589,760 bytes)
+- Build: `AUDI-3G-9411-C0-Version:-T01` (2015-12-07)
+- Compiled with Renesas V850 C/C++ compiler
+
+### CAN Bus Architecture (from IOC firmware strings)
+The IOC manages these CAN buses:
+
+| Bus ID | Name           | Purpose                          |
+|--------|----------------|----------------------------------|
+| 1      | Antrieb        | Powertrain (Engine, TCU, ABS)    |
+| 2      | Flexray        | FlexRay bus                      |
+| 3      | Clamp15        | Ignition-switched power          |
+| 5      | Dashboard      | Instrument cluster CAN           |
+| 6      | Infotainment   | MMI head unit CAN                |
+| 7      | Extended       | Extended CAN                     |
+| 8      | Fahrwerk       | Chassis/Suspension               |
+
+### Key IOC Subsystems
+- `cfappgateway` — CAN Application Gateway (routes messages between buses)
+- `PERS` — Personality/Persistence (maps CAN data → per 3 namespace)
+- `GATW` — Gateway configuration
+- `HPIPC` — High Performance IPC (V850 ↔ SH4 shared memory)
+- `TP20` — VAG Transport Protocol 2.0 (diagnostics)
+
+### CAN Message IDs Found in IOC Firmware
+All major VAG drivetrain CAN IDs are present in the V850 binary:
+
+| CAN ID | LE matches | BE matches | Message      |
+|--------|-----------|-----------|--------------|
+| 0x280  | 18        | 68        | Motor_1 (RPM)|
+| 0x288  | 23        | 19        | Motor_2 (CLT)|
+| 0x320  | 9         | 57        | Speed/Fuel   |
+| 0x380  | 110       | 59        | Intake temp  |
+| 0x480  | 54        | 69        | Motor extra  |
+| 0x1A0  | 28        | 2         | Wheel speed  |
+| 0x621  | 1         | 2         | Tank/fuel    |
+
+### Implications
+The IOC firmware PROCESSES all engine CAN messages. The `cfappgateway`
+function decides which messages get routed to the Infotainment bus (bus 6)
+and which get mapped to PERS (per 3 namespace) addresses.
+
+The fact that `FOT temperature` appears at per 3 `0x00000004` proves that
+SOME sensor data crosses from the IOC to the per 3 namespace. The IOC
+firmware is where the address mapping lives — it's in compiled V850 machine
+code, not in configurable tables.
+
+### V850 Disassembly
+The V850 can be disassembled with:
+- GCC V850 binutils: `v850-elf-objdump -m v850 -b binary -D V850app.bin`
+- Ghidra with `ghidra_v850` plugin (github.com/esaulenka/ghidra_v850)
+- IDA Pro with V850 processor module
+
+Full disassembly and function-level analysis of the `cfappgateway` routing
+logic would reveal the exact CAN ID → per 3 address mapping table.
