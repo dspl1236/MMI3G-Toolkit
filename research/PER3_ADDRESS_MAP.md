@@ -200,3 +200,48 @@
 | 0x000200dd  | int    | (GPS related)                |
 | 0x0002021b  | int    | (GPS related)                |
 | 0x00020226  | int    | (GPS related)                |
+
+
+## RAW VAG CAN BUS IDs (Drivetrain Bus, 500kbps)
+## Cross-reference for scanner results
+
+These are the RAW CAN message IDs on the VAG drivetrain bus.
+The GEM per 3 namespace is an abstraction — the CAN gateway
+may or may not map these to per 3 addresses.
+
+⚠️  The per 3 address numbers are NOT the same as raw CAN IDs.
+    per 3 0x00000023 (voltage) does not mean CAN ID 0x023.
+    The mapping is internal to Harman Becker's native code.
+
+| CAN ID | Name     | Byte Layout                                     | Scaling                    |
+|--------|----------|-------------------------------------------------|----------------------------|
+| 0x280  | Motor_1  | b2=torque, b3:b2=RPM, b5=pedal%, b7=torque_req  | RPM = (b3<<8+b2) / 4      |
+| 0x288  | Motor_2  | b1=coolant_temp, b6=power                        | Temp = b1 * 0.75 - 48 (°C)|
+| 0x320  | Kombi    | b2=fuel_level, b4:b3=speed, b6:b5=speed_adj     | Speed in km/h              |
+| 0x351  | Speed    | b1:b2=speed                                      | Speed = (b2<<8+b1) / 100  |
+| 0x380  | Motor_3  | b1=intake_air_temp, b2=pedal_pos                 | Temp = b1 * 0.75 - 48 (°C)|
+| 0x621  | Tank     | b3=fuel_level+warning                             |                            |
+| 0x1A0  | Wheel    | b4=wheel_speed                                   | Speed = b4 * 1.25 (km/h)  |
+
+Source: iDoka/awesome-automotive-can-id, v-ivanyshyn/parse_can_logs,
+        RabbitECUProject, EVA2 CAN analysis, Audiforum CAN protocol thread
+
+### How This Relates to Our Scanner
+
+The scanner probes per 3 addresses through the GEM's DSI persistence layer.
+If Harman Becker's CAN gateway maps Motor_1/Motor_2/etc. into per 3 address
+space, those addresses would show RPM/coolant/speed values when polled.
+
+If the scanner finds NO engine data in per 3 gaps, it means the CAN gateway
+does NOT bridge drivetrain messages to the Java namespace. In that case,
+the alternative approach would be:
+
+1. **USB CAN adapter** — Arduino/ESP32 with MCP2515 reading the raw drivetrain
+   bus, formatting data, and passing it to the MMI via USB serial
+2. **Direct QNX CAN access** — The QNX RTOS has native CAN drivers. A shell
+   script could potentially read /dev/can0 (if the device exists) and feed
+   data through the GEM script console
+3. **OBD-II PID queries** — Standard OBD-II PIDs (mode 01) work on all cars:
+   PID 0x0C = RPM, PID 0x0D = Speed, PID 0x05 = Coolant temp,
+   PID 0x0B = Intake MAP, PID 0x0F = Intake air temp
+   An Arduino/ESP32 on the OBD port could query these and relay to MMI
