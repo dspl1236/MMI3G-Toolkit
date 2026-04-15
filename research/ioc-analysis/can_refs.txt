@@ -1,0 +1,738 @@
+=== V850 IOC - CAN ID and Per3 Address References ===
+Functions: 754
+
+=== WHICH FUNCTIONS HANDLE EACH CAN ID ===
+PER3_FOT_temp:
+  FUN_00000772@0x772
+  FUN_0002182a@0x2182a
+  FUN_00021e96@0x21e96
+  FUN_0002233a@0x2233a
+  FUN_00022e9c@0x22e9c
+  FUN_00022f2e@0x22f2e
+  FUN_00023030@0x23030
+  FUN_000234c6@0x234c6
+  FUN_000235a8@0x235a8
+  FUN_000239d2@0x239d2
+  FUN_00023b74@0x23b74
+  FUN_00024b72@0x24b72
+  FUN_00024b82@0x24b82
+  FUN_00024f00@0x24f00
+  FUN_000250fc@0x250fc
+  FUN_00025354@0x25354
+  FUN_000254bc@0x254bc
+  FUN_000258bc@0x258bc
+  FUN_000258e6@0x258e6
+  FUN_00025950@0x25950
+  FUN_000260d8@0x260d8
+  FUN_000264e8@0x264e8
+  FUN_000279a4@0x279a4
+  FUN_00027cca@0x27cca
+  FUN_0002ded4@0x2ded4
+  FUN_0002df20@0x2df20
+  FUN_0002dfec@0x2dfec
+  FUN_0002e3ca@0x2e3ca
+  FUN_0002fc9e@0x2fc9e
+  FUN_0002fffa@0x2fffa
+  FUN_000303e6@0x303e6
+  FUN_00030780@0x30780
+  FUN_000308c0@0x308c0
+  FUN_0003623a@0x3623a
+  FUN_0003624c@0x3624c
+  FUN_0003625e@0x3625e
+  FUN_00036498@0x36498
+  FUN_00036838@0x36838
+  FUN_00036964@0x36964
+  FUN_00036a18@0x36a18
+  FUN_00036ca4@0x36ca4
+  FUN_00036e24@0x36e24
+  FUN_00037706@0x37706
+  FUN_000378ac@0x378ac
+  FUN_00037c44@0x37c44
+  FUN_00037d48@0x37d48
+  FUN_00037e32@0x37e32
+  FUN_0003893e@0x3893e
+  FUN_00039222@0x39222
+  FUN_0003946c@0x3946c
+  FUN_00039718@0x39718
+  FUN_00039d70@0x39d70
+  FUN_00039ddc@0x39ddc
+  FUN_00039e84@0x39e84
+  FUN_00039ef4@0x39ef4
+  FUN_0003a01c@0x3a01c
+  FUN_0003a0b8@0x3a0b8
+  FUN_0003a71a@0x3a71a
+  FUN_0003a772@0x3a772
+  FUN_0003a956@0x3a956
+  FUN_0003a9c2@0x3a9c2
+  FUN_0003ab12@0x3ab12
+  FUN_0003b13c@0x3b13c
+  FUN_0003b16c@0x3b16c
+  FUN_0003bbba@0x3bbba
+  FUN_0003f554@0x3f554
+  FUN_0004113a@0x4113a
+  FUN_00041196@0x41196
+  FUN_00041428@0x41428
+  FUN_00043200@0x43200
+  FUN_00043238@0x43238
+  FUN_00043b3c@0x43b3c
+  FUN_000449ae@0x449ae
+  FUN_0004549c@0x4549c
+  FUN_0004941c@0x4941c
+  FUN_000499a8@0x499a8
+  FUN_00049a4c@0x49a4c
+  FUN_0004a742@0x4a742
+  FUN_0004a8ec@0x4a8ec
+  FUN_0004ab24@0x4ab24
+  FUN_0004c246@0x4c246
+  FUN_0004fc18@0x4fc18
+  FUN_0004fc64@0x4fc64
+  FUN_0004fcf6@0x4fcf6
+  FUN_0004fd70@0x4fd70
+  FUN_0004ff00@0x4ff00
+  FUN_00050522@0x50522
+  FUN_0005135a@0x5135a
+  FUN_0005191a@0x5191a
+  FUN_00051b7c@0x51b7c
+  FUN_00051ece@0x51ece
+  FUN_0005201c@0x5201c
+  FUN_00052050@0x52050
+  FUN_00052196@0x52196
+  FUN_00052238@0x52238
+  FUN_0005242a@0x5242a
+  FUN_00052dba@0x52dba
+  FUN_00052dc4@0x52dc4
+  FUN_00052df0@0x52df0
+  FUN_00052e34@0x52e34
+  FUN_00052f16@0x52f16
+  FUN_00052f92@0x52f92
+  FUN_00052f9e@0x52f9e
+  FUN_00052fbc@0x52fbc
+  FUN_00053014@0x53014
+  FUN_000530d0@0x530d0
+  FUN_00053252@0x53252
+  FUN_000532ba@0x532ba
+  FUN_00053354@0x53354
+  FUN_000533c8@0x533c8
+  FUN_000533d8@0x533d8
+  FUN_00053730@0x53730
+  FUN_000539ac@0x539ac
+  FUN_00053a8c@0x53a8c
+  FUN_00053ae4@0x53ae4
+  FUN_00053b6c@0x53b6c
+  FUN_00053d40@0x53d40
+  FUN_00053db6@0x53db6
+  FUN_00053ea8@0x53ea8
+  FUN_00053f5c@0x53f5c
+  FUN_00054024@0x54024
+  FUN_000542bc@0x542bc
+  FUN_0005441c@0x5441c
+  FUN_00054716@0x54716
+  FUN_00055234@0x55234
+  FUN_00055428@0x55428
+  FUN_000554a8@0x554a8
+  FUN_000554f4@0x554f4
+  FUN_00055c86@0x55c86
+  FUN_00055e24@0x55e24
+  FUN_00055ec8@0x55ec8
+  FUN_000565cc@0x565cc
+  FUN_000566ec@0x566ec
+  FUN_0005687a@0x5687a
+  FUN_00056cce@0x56cce
+  FUN_0005701a@0x5701a
+  FUN_00057136@0x57136
+  FUN_00057768@0x57768
+  FUN_00057e94@0x57e94
+  FUN_00057ff4@0x57ff4
+  FUN_00058056@0x58056
+  FUN_00058084@0x58084
+  FUN_00058982@0x58982
+  FUN_00058992@0x58992
+  FUN_0005944c@0x5944c
+  FUN_00059646@0x59646
+  FUN_0005aac4@0x5aac4
+  FUN_0005abfc@0x5abfc
+  FUN_0005c1cc@0x5c1cc
+  FUN_0005c994@0x5c994
+  FUN_0005cc82@0x5cc82
+  FUN_0005d164@0x5d164
+  FUN_000601f8@0x601f8
+  FUN_000610d2@0x610d2
+  FUN_000615fe@0x615fe
+  FUN_00062b3c@0x62b3c
+  FUN_00062b9e@0x62b9e
+  FUN_00066aae@0x66aae
+  FUN_00066b7c@0x66b7c
+  FUN_00066c9c@0x66c9c
+  FUN_00066e4e@0x66e4e
+  FUN_0006749e@0x6749e
+  FUN_000677a4@0x677a4
+  FUN_00067f8a@0x67f8a
+  FUN_00067fe6@0x67fe6
+  FUN_000683ae@0x683ae
+  FUN_000684c8@0x684c8
+  FUN_0006864c@0x6864c
+  FUN_000686cc@0x686cc
+  FUN_000686f8@0x686f8
+  FUN_000687e2@0x687e2
+  FUN_000689c6@0x689c6
+  FUN_00068bd4@0x68bd4
+  FUN_00068c28@0x68c28
+  FUN_00068e22@0x68e22
+  FUN_0006904a@0x6904a
+  FUN_000693ca@0x693ca
+  FUN_000694aa@0x694aa
+  FUN_00069732@0x69732
+  FUN_00069912@0x69912
+  FUN_00069a16@0x69a16
+  FUN_00069ed2@0x69ed2
+  FUN_00069f34@0x69f34
+  FUN_0006a026@0x6a026
+  FUN_0006a708@0x6a708
+  FUN_0006a84a@0x6a84a
+  FUN_0006ad8a@0x6ad8a
+  FUN_0006af1c@0x6af1c
+  FUN_0006bd80@0x6bd80
+  FUN_0006d0ae@0x6d0ae
+  FUN_0006d1b4@0x6d1b4
+  FUN_0006d7f2@0x6d7f2
+  FUN_0006d830@0x6d830
+  FUN_0006d8b0@0x6d8b0
+  FUN_0006db74@0x6db74
+  FUN_0006f57a@0x6f57a
+  FUN_0006f796@0x6f796
+  FUN_000702b2@0x702b2
+  FUN_000704e0@0x704e0
+  FUN_0007057a@0x7057a
+  FUN_0007060a@0x7060a
+  FUN_000713ea@0x713ea
+  FUN_000715c0@0x715c0
+  FUN_00071d4c@0x71d4c
+  FUN_00071f5c@0x71f5c
+  FUN_0007223e@0x7223e
+  FUN_00072efc@0x72efc
+  FUN_000730ca@0x730ca
+  FUN_00073158@0x73158
+  FUN_000731ee@0x731ee
+  FUN_0007391c@0x7391c
+  FUN_000739ba@0x739ba
+  FUN_00073b02@0x73b02
+  FUN_00073b72@0x73b72
+  FUN_00073c82@0x73c82
+  FUN_00073cd4@0x73cd4
+  FUN_00073cf6@0x73cf6
+  FUN_00074142@0x74142
+  FUN_00074546@0x74546
+  FUN_00074802@0x74802
+  FUN_00074c80@0x74c80
+  FUN_00074d08@0x74d08
+  FUN_00074e8c@0x74e8c
+  FUN_0007616e@0x7616e
+  FUN_000763ca@0x763ca
+  FUN_000764f4@0x764f4
+  FUN_00076588@0x76588
+  FUN_000773ba@0x773ba
+  FUN_00080b98@0x80b98
+  FUN_000811d2@0x811d2
+  FUN_00081588@0x81588
+  FUN_000833ee@0x833ee
+  FUN_0008355c@0x8355c
+  FUN_000835be@0x835be
+  FUN_000835dc@0x835dc
+  FUN_000835e6@0x835e6
+  FUN_00083818@0x83818
+  FUN_00083880@0x83880
+  FUN_000839d6@0x839d6
+  FUN_00083a38@0x83a38
+  FUN_00083a6a@0x83a6a
+  FUN_00083b08@0x83b08
+  FUN_00083db2@0x83db2
+  FUN_00083dfe@0x83dfe
+  FUN_00083e22@0x83e22
+  FUN_00083e80@0x83e80
+  FUN_00083f70@0x83f70
+  FUN_00083fda@0x83fda
+  FUN_00084000@0x84000
+  FUN_0008407a@0x8407a
+  FUN_000843c4@0x843c4
+  FUN_000844a2@0x844a2
+  FUN_00084596@0x84596
+  FUN_000846d0@0x846d0
+  FUN_000846e4@0x846e4
+  FUN_000847d8@0x847d8
+  FUN_000847fe@0x847fe
+  FUN_00084916@0x84916
+  FUN_0008498a@0x8498a
+  FUN_00084f18@0x84f18
+  FUN_000853fc@0x853fc
+  FUN_00085468@0x85468
+  FUN_000854e2@0x854e2
+  no_func
+
+PER3_cable:
+  FUN_00000772@0x772
+  FUN_000239d2@0x239d2
+  FUN_00024f00@0x24f00
+  FUN_00024f8c@0x24f8c
+  FUN_0002fffa@0x2fffa
+  FUN_00042eea@0x42eea
+  FUN_00043238@0x43238
+  FUN_00043b3c@0x43b3c
+  FUN_000449ae@0x449ae
+  FUN_00053730@0x53730
+  FUN_00054716@0x54716
+  FUN_00055428@0x55428
+  FUN_00055c86@0x55c86
+  FUN_00055ec8@0x55ec8
+  FUN_0005687a@0x5687a
+  FUN_00056cce@0x56cce
+  FUN_0005aa4a@0x5aa4a
+  FUN_0005d164@0x5d164
+  FUN_000684c8@0x684c8
+  FUN_0006864c@0x6864c
+  FUN_00068bd4@0x68bd4
+  FUN_000693ca@0x693ca
+  FUN_00069912@0x69912
+  FUN_00069a16@0x69a16
+  FUN_0006ad8a@0x6ad8a
+  FUN_0006d0ae@0x6d0ae
+  FUN_000730ca@0x730ca
+  FUN_00073158@0x73158
+  FUN_00080a90@0x80a90
+  FUN_00081588@0x81588
+  FUN_0008385c@0x8385c
+  FUN_00083880@0x83880
+  FUN_000844a2@0x844a2
+  FUN_000853fc@0x853fc
+  FUN_00085468@0x85468
+  no_func
+
+PER3_voltage:
+  FUN_000449ae@0x449ae
+  FUN_0005201c@0x5201c
+  FUN_00054716@0x54716
+  FUN_00056cce@0x56cce
+  FUN_0006f52a@0x6f52a
+  FUN_0007378a@0x7378a
+  FUN_0008361c@0x8361c
+  FUN_00083880@0x83880
+  FUN_00083a38@0x83a38
+  FUN_00083f44@0x83f44
+  FUN_00084f18@0x84f18
+
+=== FUNCTIONS REFERENCING MULTIPLE CAN IDs (likely dispatch/routing) ===
+FUN_00000772@0x772 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_000239d2@0x239d2 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00024f00@0x24f00 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_0002fffa@0x2fffa references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00043238@0x43238 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00043b3c@0x43b3c references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_000449ae@0x449ae references 3 values:
+  PER3_FOT_temp
+  PER3_cable
+  PER3_voltage
+
+FUN_0005201c@0x5201c references 2 values:
+  PER3_FOT_temp
+  PER3_voltage
+
+FUN_00053730@0x53730 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00054716@0x54716 references 3 values:
+  PER3_FOT_temp
+  PER3_cable
+  PER3_voltage
+
+FUN_00055428@0x55428 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00055c86@0x55c86 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00055ec8@0x55ec8 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_0005687a@0x5687a references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00056cce@0x56cce references 3 values:
+  PER3_FOT_temp
+  PER3_cable
+  PER3_voltage
+
+FUN_0005d164@0x5d164 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_000684c8@0x684c8 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_0006864c@0x6864c references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00068bd4@0x68bd4 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_000693ca@0x693ca references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00069912@0x69912 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00069a16@0x69a16 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_0006ad8a@0x6ad8a references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_0006d0ae@0x6d0ae references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_000730ca@0x730ca references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00073158@0x73158 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00081588@0x81588 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00083880@0x83880 references 3 values:
+  PER3_FOT_temp
+  PER3_cable
+  PER3_voltage
+
+FUN_00083a38@0x83a38 references 2 values:
+  PER3_FOT_temp
+  PER3_voltage
+
+FUN_000844a2@0x844a2 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00084f18@0x84f18 references 2 values:
+  PER3_FOT_temp
+  PER3_voltage
+
+FUN_000853fc@0x853fc references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+FUN_00085468@0x85468 references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+no_func references 2 values:
+  PER3_FOT_temp
+  PER3_cable
+
+=== DECOMPILED DISPATCH FUNCTIONS ===
+--- FUN_000449ae@0x449ae ---
+
+void FUN_000449ae(uint param_1,uint param_2,undefined1 param_3)
+
+{
+  undefined4 uVar1;
+  
+  switch(param_2 & 0xff | (param_1 & 0xff) << 4) {
+  case 0:
+    uVar1 = 0x1d;
+    break;
+  case 1:
+    uVar1 = 0x66;
+    break;
+  case 2:
+    uVar1 = 0x67;
+    break;
+  case 3:
+    uVar1 = 0x56;
+    break;
+  default:
+    return;
+  case 5:
+    uVar1 = 0xcd;
+    break;
+  case 6:
+    uVar1 = 0x25;
+    break;
+  case 7:
+    uVar1 = 0x24;
+    break;
+  case 8:
+    uVar1 = 0x2b;
+    break;
+  case 9:
+    uVar1 = 0x2a;
+    break;
+  case 0x10:
+    uVar1 = 0x20;
+    break;
+  case 0x11:
+    uVar1 = 0x68;
+    break;
+  case 0x12:
+    uVar1 = 0x69;
+    break;
+  case 0x15:
+    uVar1 = 0xce;
+    break;
+  case 0x16:
+    uVar1 = 0x27;
+    break;
+  case 0x17:
+    uVar1 = 0x26;
+    break;
+  case 0x18:
+    uVar1 = 0x2d;
+    break;
+  case 0x19:
+    uVar1 = 0x2c;
+    break;
+  case 0x20:
+    uVar1 = 0x23;
+    break;
+  case 0x21:
+    uVar1 = 0x6a;
+    break;
+  case 0x22:
+    uVar1 = 0x6b;
+    break;
+  case 0x25:
+    uVar1 = 0xcf;
+    break;
+  case 0x26:
+    uVar1 = 0x29;
+    break;
+  case 0x27:
+    uVar1 = 0x28;
+    break;
+  case 0x28:
+    uVar1 = 0x2f;
+    break;
+  case 0x29:
+    uVar1 = 0x2e;
+  }
+  FUN_00044964(param_3,uVar1);
+  return;
+}
+
+--- FUN_00054716@0x54716 ---
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_00054716(void)
+
+{
+  undefined2 uVar1;
+  undefined1 *puVar2;
+  
+  uVar1 = 0;
+  puVar2 = &DAT_0020be50;
+  _DAT_0020be52 = 0;
+  _DAT_0020be54 = 0;
+  _DAT_0020be50 = 0;
+  DAT_0020bf90 = 0;
+  DAT_0020bf91 = 0;
+  _DAT_0020be60 = 0;
+  _DAT_0020be62 = 0;
+  FUN_00053816();
+  if (*(code **)(puVar2 + 0xa4) != (code *)0x0) {
+                    /* WARNING: Could not recover jumptable at 0x00054748. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    (**(code **)(puVar2 + 0xa4))();
+    return;
+  }
+  if ((0x1e0 < *(ushort *)(puVar2 + 0xae) - 0x14) && (*(ushort *)(puVar2 + 0xae) != 0xffff)) {
+    *(undefined2 *)(puVar2 + 0xae) = 500;
+  }
+  *(ushort *)(puVar2 + 0x38) =
+       *(ushort *)(puVar2 + 0xae) - (short)((int)(uint)*(ushort *)(puVar2 + 0xae) >> 2);
+  *(undefined2 *)(puVar2 + 0x88) = 0;
+  if (puVar2[0xb3] == '\0') {
+    puVar2[0xb3] = 1;
+  }
+  puVar2[0x18] = 0xff;
+  puVar2[0x23] = 2;
+  puVar2[0x24] = 1;
+  puVar2[0x25] = 7;
+  puVar2[0x26] = 0xd0;
+  puVar2[0x14] = 0;
+  puVar2[0x15] = 0;
+  puVar2[0x16] = 0;
+  puVar2[0x142] = 0;
+  *(undefined2 *)(puVar2 + 0x3c) = uVar1;
+  *(undefined2 *)(puVar2 + 0x3e) = 0;
+  *(undefined2 *)(puVar2 + 0x40) = 0;
+  *(undefined2 *)(puVar2 + 0x42) = 0;
+  *(undefined4 *)(puVar2 + 0x44) = 0;
+  puVar2[0x4c] = 0;
+  *(undefined4 *)(puVar2 + 0x48) = 0;
+  puVar2[0x58] = 0;
+  *(undefined4 *)(puVar2 + 0x5c) = 0;
+  FUN_000542bc(puVar2 + 0x60,&LAB_00063bac,0x40);
+  FUN_000542bc(puVar2 + 0x74,&LAB_00063bac,0x400);
+  FUN_00053ae4(puVar2 + 0x60,3000,0);
+  return;
+}
+
+--- FUN_00056cce@0x56cce ---
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_00056cce(void)
+
+{
+  DAT_0020bf98 = 0;
+  DAT_0020bf99 = 0xee;
+  DAT_0020bf9a = 0;
+  DAT_0020bf9b = 0;
+  DAT_0020bf9c = 0;
+  DAT_0020bf9d = 0;
+  DAT_0020bf9f = 0xee;
+  DAT_0020bfa3 = 0xee;
+  DAT_0020bfa4 = 0xee;
+  DAT_0020bfa9 = 0xee;
+  DAT_0020bfaa = 0;
+  _DAT_0020bfac = 0xffff;
+  DAT_0020bfab = 0xee;
+  DAT_0020bfae = 0xee;
+  DAT_0020bfa5 = 0xee;
+  DAT_0020bfa6 = 0xee;
+  DAT_0020bfa7 = 0xee;
+  DAT_0020bfa8 = 0xee;
+  DAT_0020bfaf = 0xee;
+  DAT_0020bfdc = 0;
+  _DAT_0020bfb0 = 0xeeee;
+  DAT_0020bfa0 = 0;
+  DAT_0020bfa2 = 0;
+  DAT_0020bfa1 = 0;
+  DAT_0020bfb2 = 0xee;
+  DAT_0020bfb3 = 0xee;
+  DAT_0020bfb4 = 0xee;
+  DAT_0020bfb5 = 0xff;
+  DAT_0020bfb6 = 0xff;
+  DAT_0020bfb7 = 0xff;
+  DAT_0020bfb8 = 0xff;
+  _DAT_0020c000 = 0;
+  DAT_0020c004 = 0;
+  _DAT_0020c008 = 0;
+  DAT_0020bfe0 = 0;
+  DAT_0020bfe1 = 0;
+  DAT_0020bfe2 = 0;
+  _DAT_0020bfe4 = 0;
+  return;
+}
+
+--- FUN_00083880@0x83880 ---
+
+uint FUN_00083880(uint *param_1,char *param_2)
+
+{
+  char *pcVar1;
+  char cVar2;
+  int unaff_gp;
+  uint uVar3;
+  undefined4 uVar4;
+  code *UNRECOVERED_JUMPTABLE_00;
+  char *pcVar5;
+  char *pcStack00000000;
+  uint uStack00000004;
+  uint *puStack0000000c;
+  uint uStack00000010;
+  
+  uStack00000010 = param_1[2];
+  UNRECOVERED_JUMPTABLE_00 = (code *)param_1[3];
+  pcStack00000000 = param_2;
+  if (param_2 == (char *)0x0) {
+    pcStack00000000 = (char *)(unaff_gp + 0x22faa4);
+  }
+  pcVar5 = pcStack00000000;
+  puStack0000000c = param_1;
+  uVar3 = FUN_00084178(pcStack00000000);
+  if ((*(char *)((int)puStack0000000c + 0x15) != '\0') && (puStack0000000c[1] < uVar3)) {
+    uVar3 = puStack0000000c[1];
+  }
+  pcVar1 = pcVar5 + uVar3;
+  uStack00000004 = *puStack0000000c;
+  if ((int)(uStack00000004 - uVar3) < 0 !=
+      ((int)uStack00000004 < 0 != (int)uVar3 < 0 &&
+      (int)uVar3 < 0 == (int)(uStack00000004 - uVar3) < 0)) {
+    uStack00000004 = uVar3;
+  }
+  if ((char)puStack0000000c[4] == '\0') {
+    uVar4 = 0x20;
+  }
+  else {
+    cVar2 = *pcVar5;
+    if (((cVar2 == '-') || (cVar2 == '+')) || (cVar2 == ' ')) {
+      pcVar5 = pcVar5 + 1;
+    }
+    if ((*pcVar5 == '0') && ((byte)(pcVar5[1] | 0x20U) == 0x78)) {
+      pcVar5 = pcVar5 + 2;
+    }
+    uVar4 = 0x30;
+  }
+  if (pcStack00000000 < pcVar5) {
+    cVar2 = *pcStack00000000;
+    pcStack00000000 = pcStack00000000 + 1;
+                    /* WARNING: Could not recover jumptable at 0x0008394a. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar3 = (*UNRECOVERED_JUMPTABLE_00)((int)cVar2,uStack00000010);
+    return uVar3;
+  }
+  if ((*(char *)((int)puStack0000000c + 0x11) == '\0') &&
+     (-1 < (int)(uStack00000004 - uVar3) && uStack00000004 != uVar3)) {
+                    /* WARNING: Could not recover jumptable at 0x00083972. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar3 = (*UNRECOVERED_JUMPTABLE_00)(uVar4,uStack00000010);
+    return uVar3;
+  }
+  if (pcVar5 < pcVar1) {
+                    /* WARNING: Could not recover jumptable at 0x00083990. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar3 = (*UNRECOVERED_JUMPTABLE_00)((int)*pcVar5,uStack00000010);
+    return uVar3;
+  }
+  if (-1 < (int)(uStack00000004 - uVar3) && uStack00000004 != uVar3) {
+                    /* WARNING: Could not recover jumptable at 0x000839ac. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar3 = (*UNRECOVERED_JUMPTABLE_00)(0x20,uStack00000010);
+    return uVar3;
+  }
+  return uStack00000004;
+}
+

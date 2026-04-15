@@ -1,0 +1,503 @@
+=== TRACING PER3 VOLTAGE (0x23) DATA PATH ===
+
+=== per3_write_handler at 0x39222 ===
+
+undefined4 FUN_00039222(uint param_1)
+
+{
+  char cVar1;
+  int unaff_gp;
+  int iVar2;
+  int iVar3;
+  int iVar4;
+  undefined **ppuVar5;
+  uint uVar6;
+  undefined1 *puVar7;
+  uint uVar8;
+  uint local_28;
+  undefined1 auStack_24 [2];
+  undefined1 auStack_22 [34];
+  
+  ppuVar5 = &PTR_DAT_00015ddc;
+  iVar3 = 0;
+  iVar4 = *(int *)(unaff_gp + -0x5308);
+  param_1 = param_1 & 0xffff;
+  uVar6 = param_1;
+  if (0x56 < param_1) {
+    uVar6 = (uint)*(ushort *)(&DAT_00015d2e + param_1 * 2);
+  }
+  puVar7 = &DAT_00204df8;
+  uVar6 = (uint)*(ushort *)(&DAT_00015c7c + uVar6 * 2) * 100;
+  if (DAT_00204df9 == 0) {
+    __disable_irq();
+    local_28 = (uint)DAT_00204df9;
+    FUN_00036838(&local_28,auStack_24,auStack_22);
+    if (puVar7[1] == '\0') {
+      if (*(char *)(unaff_gp + -0x68c4) == '\0') {
+        return 6;
+      }
+      FUN_0003aa22(&DAT_0000c541);
+      return 6;
+    }
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003aa22();
+    }
+  }
+  if ((0xe7 < param_1) || (iVar2 = FUN_0003602a(param_1), iVar2 == 1)) {
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003a71a(&DAT_0000c543,param_1);
+    }
+    return 1;
+  }
+  iVar2 = FUN_00035ffc(param_1);
+  if (iVar2 != 0) {
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003a71a(&DAT_0000c544,param_1);
+    }
+    return 2;
+  }
+  if (puVar7[2] == '\x01') {
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003a71a(&DAT_0000c545,param_1);
+    }
+    return 6;
+  }
+  if (*(int *)(&DAT_000023e0 + (int)puVar7) != 0) {
+    uVar8 = param_1;
+    if (0x56 < param_1) {
+      uVar8 = (uint)*(ushort *)((int)ppuVar5 + param_1 * 2 + -0xae);
+    }
+    if ((*(byte *)((int)&DAT_00015aac + uVar8 * 2 + 1) & 0x10) != 0) {
+      if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+        FUN_0003a71a(&DAT_0000c546,param_1);
+      }
+      return 7;
+    }
+  }
+  __disable_irq();
+  if (*(char *)((int)&PTR_PTR_DAT_00001604 + (int)(puVar7 + param_1)) != '\x02') {
+    *(undefined1 *)((int)&PTR_PTR_DAT_00001604 + (int)(puVar7 + param_1)) = 2;
+    cVar1 = *(char *)((int)&PTR_DAT_000016ec + (int)(puVar7 + param_1));
+    if (cVar1 == '\0') {
+      *(short *)(puVar7 + (uint)*(ushort *)(puVar7 + 0x1e2e) * 2 + 0x1b74) = (short)param_1;
+      *(short *)(puVar7 + 0x1e2e) = *(short *)(puVar7 + 0x1e2e) + 1;
+      if (0xe8 < *(ushort *)(puVar7 + 0x1e2e)) {
+        *(undefined2 *)(puVar7 + 0x1e2e) = 0;
+      }
+    }
+    if (cVar1 != '\x02') {
+      if ((cVar1 == '\x01') &&
+         (__nop(), uVar6 <= (uint)(iVar4 - *(int *)(puVar7 + param_1 * 4 + 0x17d4)))) {
+        iVar3 = 1;
+      }
+      *(int *)(puVar7 + param_1 * 4 + 0x17d4) = iVar4;
+    }
+    *(undefined1 *)((int)&PTR_DAT_000016ec + (int)(puVar7 + param_1)) = 2;
+    if (iVar3 == 1) {
+      if (*(char *)(unaff_gp + -0x68b3) != '\0') {
+        FUN_0003a71a(&DAT_0000c547,param_1);
+      }
+      FUN_0003694e(0xee);
+    }
+    else if (*(char *)(unaff_gp + -0x68b3) != '\0') {
+      uVar6 = param_1;
+      if (0x56 < param_1) {
+        uVar6 = (uint)*(ushort *)((int)ppuVar5 + param_1 * 2 + -0xae);
+      }
+      FUN_0003a9c2(&PTR_LAB_0000c548,param_1,*(undefined2 *)(&DAT_000159fc + uVar6 * 2));
+    }
+  }
+  return 0;
+}
+
+
+
+=== per3_read_handler at 0x3946c ===
+
+undefined4 FUN_0003946c(uint param_1)
+
+{
+  char cVar1;
+  int unaff_gp;
+  int iVar2;
+  int iVar3;
+  int iVar4;
+  uint uVar5;
+  undefined **ppuVar6;
+  undefined2 *puVar7;
+  undefined1 *puVar8;
+  uint uVar9;
+  uint uVar10;
+  uint local_2c;
+  undefined1 auStack_28 [2];
+  undefined1 auStack_26 [38];
+  
+  ppuVar6 = &PTR_DAT_00015ddc;
+  iVar3 = 0;
+  iVar4 = *(int *)(unaff_gp + -0x5308);
+  uVar9 = param_1 & 0xffff;
+  uVar5 = uVar9;
+  if (0x56 < uVar9) {
+    uVar5 = (uint)*(ushort *)(&DAT_00015d2e + uVar9 * 2);
+  }
+  puVar8 = &DAT_00204df8;
+  uVar5 = (uint)*(ushort *)(&DAT_00015d2c + uVar5 * 2) * 100;
+  if (DAT_00204df9 == 0) {
+    __disable_irq();
+    local_2c = (uint)DAT_00204df9;
+    FUN_00036838(&local_2c,auStack_28,auStack_26);
+    if (puVar8[1] == '\0') {
+      if (*(char *)(unaff_gp + -0x68c4) == '\0') {
+        return 6;
+      }
+      FUN_0003aa22(&DAT_0000c52a);
+      return 6;
+    }
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003aa22();
+    }
+  }
+  if (0xe7 < uVar9) {
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003a71a(&DAT_0000c52c,uVar9);
+    }
+    return 1;
+  }
+  iVar2 = FUN_00035ffc(uVar9);
+  if (iVar2 != 0) {
+    if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+      FUN_0003a71a(&DAT_0000c52d,uVar9);
+    }
+    return 2;
+  }
+  iVar2 = FUN_0003602a(uVar9);
+  if (iVar2 != 1) {
+    uVar10 = uVar9;
+    if (0x56 < uVar9) {
+      uVar10 = (uint)*(ushort *)((int)ppuVar6 + uVar9 * 2 + -0xae);
+    }
+    puVar7 = &DAT_00015aac;
+    if (((*(byte *)((int)&DAT_00015aac + uVar10 * 2 + 1) & 8) != 0) &&
+       (iVar2 = FUN_0003604c(), iVar2 == 0)) {
+      if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+        FUN_0003aa22(&DAT_0000c52f);
+      }
+      (&DAT_000023d8)[(int)puVar8] = 1;
+      return 3;
+    }
+    if (puVar8[2] == '\x01') {
+      if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+        FUN_0003a71a(&DAT_0000c530,uVar9);
+      }
+      return 6;
+    }
+    if (*(int *)(&DAT_000023e0 + (int)puVar8) != 0) {
+      uVar10 = uVar9;
+      if (0x56 < uVar9) {
+        uVar10 = (uint)*(ushort *)((int)ppuVar6 + uVar9 * 2 + -0xae);
+      }
+      if ((*(byte *)((int)puVar7 + uVar10 * 2 + 1) & 0x10) != 0) {
+        if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+          FUN_0003a71a(&DAT_0000c531,uVar9);
+        }
+        return 7;
+      }
+    }
+    __disable_irq();
+    if (*(char *)((int)&PTR_PTR_DAT_00001604 + (int)(puVar8 + uVar9)) != '\x01') {
+      *(undefined1 *)((int)&PTR_PTR_DAT_00001604 + (int)(puVar8 + uVar9)) = 1;
+      cVar1 = *(char *)((int)&PTR_DAT_000016ec + (int)(puVar8 + uVar9));
+      if (cVar1 == '\0') {
+        *(short *)(puVar8 + (uint)*(ushort *)(puVar8 + 0x1e2e) * 2 + 0x1b74) = (short)uVar9;
+        *(short *)(puVar8 + 0x1e2e) = *(short *)(puVar8 + 0x1e2e) + 1;
+        if (0xe8 < *(ushort *)(puVar8 + 0x1e2e)) {
+          *(undefined2 *)(puVar8 + 0x1e2e) = 0;
+        }
+      }
+      if (cVar1 != '\x01') {
+        if ((cVar1 == '\x02') &&
+           (__nop(), uVar5 <= (uint)(iVar4 - *(int *)(puVar8 + uVar9 * 4 + 0x17d4)))) {
+          iVar3 = 1;
+        }
+        *(int *)(puVar8 + uVar9 * 4 + 0x17d4) = iVar4;
+      }
+      *(undefined1 *)((int)&PTR_DAT_000016ec + (int)(puVar8 + uVar9)) = 1;
+      if (iVar3 == 1) {
+        if (*(char *)(unaff_gp + -0x68b3) != '\0') {
+          FUN_0003a71a(&DAT_0000c532,uVar9);
+        }
+        FUN_0003694e(0xbb);
+      }
+      else if (*(char *)(unaff_gp + -0x68b3) != '\0') {
+        uVar5 = uVar9;
+        if (0x56 < uVar9) {
+          uVar5 = (uint)*(ushort *)((int)ppuVar6 + uVar9 * 2 + -0xae);
+        }
+        FUN_0003a9c2(&DAT_0000c533,uVar9,*(undefined2 *)(&DAT_000159fc + uVar5 * 2));
+      }
+    }
+    return 0;
+  }
+  if (*(char *)(unaff_gp + -0x68c4) != '\0') {
+    FUN_0003a71a(&DAT_0000c52e,uVar9);
+  }
+  (&DAT_00001d46)[(int)(puVar8 + param_1)] = 1;
+  return 1;
+}
+
+
+
+=== debug_log1 at 0x3a71a ===
+
+void FUN_0003a71a(undefined2 param_1,undefined4 param_2)
+
+{
+  int unaff_gp;
+  int iVar1;
+  uint in_PSW;
+  uint uVar2;
+  byte *local_10 [4];
+  
+  local_10[0] = (byte *)0x0;
+  uVar2 = in_PSW & 0xfffffff0;
+  *(short *)(unaff_gp + -0x6854) = *(short *)(unaff_gp + -0x6854) + 1;
+  iVar1 = FUN_0007024e();
+  if (((iVar1 != 0x6e) || ((DAT_fffff1fa == '\0' && ((uVar2 & 0x20) == 0)))) &&
+     (iVar1 = FUN_0003b16c(1,local_10,*(undefined4 *)(unaff_gp + -0x6870)), iVar1 == 1)) {
+    local_10[0][8] = 1;
+    *(undefined4 *)(local_10[0] + 4) = param_2;
+    *(undefined2 *)(local_10[0] + 2) = param_1;
+    *local_10[0] = *local_10[0] | 0x80;
+  }
+  return;
+}
+
+
+
+=== debug_log2 at 0x3a9c2 ===
+
+void FUN_0003a9c2(undefined2 param_1,undefined2 param_2,undefined2 param_3)
+
+{
+  int unaff_gp;
+  int iVar1;
+  uint in_PSW;
+  uint uVar2;
+  byte *local_14 [5];
+  
+  local_14[0] = (byte *)0x0;
+  uVar2 = in_PSW & 0xfffffff0;
+  *(short *)(unaff_gp + -0x6854) = *(short *)(unaff_gp + -0x6854) + 1;
+  iVar1 = FUN_0007024e();
+  if (((iVar1 != 0x6e) || ((DAT_fffff1fa == '\0' && ((uVar2 & 0x20) == 0)))) &&
+     (iVar1 = FUN_0003b16c(1,local_14,*(undefined4 *)(unaff_gp + -0x6870)), iVar1 == 1)) {
+    local_14[0][8] = 1;
+    *(undefined2 *)(local_14[0] + 6) = param_3;
+    *(undefined2 *)(local_14[0] + 4) = param_2;
+    *(undefined2 *)(local_14[0] + 2) = param_1;
+    *local_14[0] = *local_14[0] | 0x80;
+  }
+  return;
+}
+
+
+
+=== DATA TABLE AT 0x00204dfc ===
+(FUN_0003893e uses param_1 * 0x10 + 0x204dfc)
+(This is likely the per3 personality data store)
+
+=== DATA TABLE AT 0x0020827c ===
+(FUN_0004941c references this for bus data)
+
+=== SCANNING RAM DATA AREA (0x200000 range) ===
+Looking for CAN ID values stored in data tables...
+=== PER3 LOOKUP TABLES ===
+
+DAT_00015f00 (per3 data sizes, 1 byte per entry):
+  per3[0x08] = 164 bytes
+  per3[0x09] = 253 bytes
+  per3[0x0a] = 1 bytes
+  per3[0x14] = 200 bytes
+  per3[0x15] = 253 bytes
+  per3[0x16] = 1 bytes
+  per3[0x20] = 236 bytes
+  per3[0x21] = 253 bytes
+  per3[0x22] = 1 bytes
+  per3[0x2c] = 16 bytes
+  per3[0x2d] = 254 bytes
+  per3[0x2e] = 1 bytes
+  per3[0x38] = 52 bytes
+  per3[0x39] = 254 bytes
+  per3[0x3a] = 1 bytes
+  per3[0x44] = 88 bytes
+  per3[0x45] = 254 bytes
+  per3[0x46] = 1 bytes
+  per3[0x50] = 124 bytes
+  per3[0x51] = 254 bytes
+  per3[0x52] = 1 bytes
+  per3[0x5c] = 160 bytes
+  per3[0x5d] = 254 bytes
+  per3[0x5e] = 1 bytes
+  per3[0x60] = 132 bytes
+  per3[0x61] = 11 bytes
+  per3[0x62] = 34 bytes
+  per3[0x68] = 196 bytes
+  per3[0x69] = 254 bytes
+  per3[0x6a] = 1 bytes
+  per3[0x6c] = 148 bytes
+  per3[0x6d] = 11 bytes
+  per3[0x6e] = 34 bytes
+  per3[0x74] = 232 bytes
+  per3[0x75] = 254 bytes
+  per3[0x76] = 1 bytes
+  per3[0x80] = 12 bytes
+  per3[0x81] = 255 bytes
+  per3[0x82] = 1 bytes
+  per3[0x8c] = 48 bytes
+  per3[0x8d] = 255 bytes
+  per3[0x8e] = 1 bytes
+  per3[0x98] = 84 bytes
+  per3[0x99] = 255 bytes
+  per3[0x9a] = 1 bytes
+  per3[0x9c] = 164 bytes
+  per3[0x9d] = 11 bytes
+  per3[0x9e] = 34 bytes
+  per3[0xa4] = 120 bytes
+  per3[0xa5] = 255 bytes
+  per3[0xa6] = 1 bytes
+  per3[0xa8] = 184 bytes
+  per3[0xa9] = 11 bytes
+  per3[0xaa] = 34 bytes
+  per3[0xb0] = 156 bytes
+  per3[0xb1] = 255 bytes
+  per3[0xb2] = 1 bytes
+  per3[0xb4] = 200 bytes
+  per3[0xb5] = 11 bytes
+  per3[0xb6] = 34 bytes
+  per3[0xbc] = 192 bytes
+  per3[0xbd] = 255 bytes
+  per3[0xbe] = 1 bytes
+  per3[0xc0] = 220 bytes
+  per3[0xc1] = 11 bytes
+  per3[0xc2] = 34 bytes
+  per3[0xc8] = 228 bytes
+  per3[0xc9] = 255 bytes
+  per3[0xca] = 1 bytes
+  per3[0xcc] = 80 bytes
+  per3[0xcd] = 12 bytes
+  per3[0xce] = 34 bytes
+  per3[0xd4] = 8 bytes
+  per3[0xd6] = 2 bytes
+  per3[0xd8] = 100 bytes
+  per3[0xd9] = 12 bytes
+  per3[0xda] = 34 bytes
+  per3[0xe0] = 44 bytes
+  per3[0xe2] = 2 bytes
+  per3[0xec] = 80 bytes
+  per3[0xee] = 2 bytes
+  per3[0xf8] = 116 bytes
+  per3[0xfa] = 2 bytes
+  per3[0xfc] = 124 bytes
+  per3[0xfd] = 12 bytes
+  per3[0xfe] = 34 bytes
+
+DAT_00015aac (per3 attribute flags, 2 bytes per entry):
+  per3[0x00] flags=0xf090
+  per3[0x01] flags=0x0001
+  per3[0x06] flags=0xf0b4
+  per3[0x07] flags=0x0001
+  per3[0x08] flags=0x0840
+  per3[0x09] flags=0x0022
+  per3[0x0c] flags=0xf0d8
+  per3[0x0d] flags=0x0001
+  per3[0x12] flags=0xf0fc
+  per3[0x13] flags=0x0001
+  per3[0x14] flags=0x0854
+  per3[0x15] flags=0x0022
+  per3[0x18] flags=0xf120
+  per3[0x19] flags=0x0001
+  per3[0x1a] flags=0x0864
+  per3[0x1b] flags=0x0022
+  per3[0x1e] flags=0xf144
+  per3[0x1f] flags=0x0001
+  per3[0x20] flags=0x0874
+  per3[0x21] flags=0x0022
+  per3[0x24] flags=0xf168
+  per3[0x25] flags=0x0001
+  per3[0x26] flags=0x0888
+  per3[0x27] flags=0x0022
+  per3[0x2a] flags=0xf18c
+  per3[0x2b] flags=0x0001
+  per3[0x2c] flags=0x089c
+  per3[0x2d] flags=0x0022
+  per3[0x30] flags=0xf1b0
+  per3[0x31] flags=0x0001
+  per3[0x36] flags=0xf1d4
+  per3[0x37] flags=0x0001
+  per3[0x3c] flags=0xf1f8
+  per3[0x3d] flags=0x0001
+  per3[0x42] flags=0xf21c
+  per3[0x43] flags=0x0001
+  per3[0x48] flags=0xf240
+  per3[0x49] flags=0x0001
+  per3[0x4e] flags=0xf264
+  per3[0x4f] flags=0x0001
+  per3[0x50] flags=0x08ac
+  per3[0x51] flags=0x0022
+  per3[0x54] flags=0xf288
+  per3[0x55] flags=0x0001
+  per3[0x56] flags=0x07b8
+  per3[0x57] flags=0x0022
+  per3[0x5a] flags=0xf2ac
+  per3[0x5b] flags=0x0001
+  per3[0x5c] flags=0x0814
+  per3[0x5d] flags=0x0022
+
+DAT_00015e8c (per3 data offsets, 4 bytes per entry):
+  per3[0x01] offset=0x0001fc3c
+  per3[0x04] offset=0x0001fc60
+  per3[0x07] offset=0x0001fc84
+  per3[0x08] offset=0x00220af8
+  per3[0x0a] offset=0x0001fca8
+  per3[0x0b] offset=0x00220b08
+  per3[0x0d] offset=0x0001fccc
+  per3[0x0e] offset=0x00220b44
+  per3[0x10] offset=0x0001fcf0
+  per3[0x11] offset=0x00220b58
+  per3[0x13] offset=0x0001fd14
+  per3[0x16] offset=0x0001fd38
+  per3[0x19] offset=0x0001fd5c
+  per3[0x1a] offset=0x00220b70
+  per3[0x1c] offset=0x0001fd80
+  per3[0x1f] offset=0x0001fda4
+  per3[0x22] offset=0x0001fdc8
+  per3[0x25] offset=0x0001fdec
+  per3[0x28] offset=0x0001fe10
+  per3[0x2b] offset=0x0001fe34
+  per3[0x2e] offset=0x0001fe58
+  per3[0x31] offset=0x0001fe7c
+  per3[0x34] offset=0x0001fea0
+  per3[0x35] offset=0x00220b84
+  per3[0x37] offset=0x0001fec4
+  per3[0x38] offset=0x00220b94
+  per3[0x3a] offset=0x0001fee8
+  per3[0x3d] offset=0x0001ff0c
+  per3[0x40] offset=0x0001ff30
+  per3[0x43] offset=0x0001ff54
+  per3[0x44] offset=0x00220ba4
+  per3[0x46] offset=0x0001ff78
+  per3[0x47] offset=0x00220bb8
+  per3[0x49] offset=0x0001ff9c
+  per3[0x4a] offset=0x00220bc8
+  per3[0x4c] offset=0x0001ffc0
+  per3[0x4d] offset=0x00220bdc
+  per3[0x4f] offset=0x0001ffe4
+  per3[0x50] offset=0x00220c50
+  per3[0x52] offset=0x00020008
+  per3[0x53] offset=0x00220c64
+  per3[0x55] offset=0x0002002c
+  per3[0x58] offset=0x00020050
+  per3[0x5b] offset=0x00020074
+  per3[0x5c] offset=0x00220c7c
+  per3[0x5e] offset=0x00020098
+

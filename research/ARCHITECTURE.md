@@ -269,3 +269,72 @@ The V850 can be disassembled with:
 
 Full disassembly and function-level analysis of the `cfappgateway` routing
 logic would reveal the exact CAN ID → per 3 address mapping table.
+
+
+## V850 IOC Ghidra Decompilation Results
+
+### Analysis Setup
+- Ghidra 11.3 with esaulenka/ghidra_v850 plugin (V850E2M variant)
+- 754 functions discovered by auto-analysis
+- Key functions decompiled with Ghidra's built-in decompiler
+
+### Per 3 Internal Index System
+
+The IOC uses an internal index system (0x00-0xE7) for per 3 data slots.
+`FUN_000449ae` maps `(bus_type, signal_id)` pairs to per 3 indices:
+
+```
+Formula: switch(param_2 & 0xff | (param_1 & 0xff) << 4)
+
+bus=0 sig=7 (case 0x07) -> per3[0x24] = Cable code
+bus=2 sig=0 (case 0x20) -> per3[0x23] = Battery voltage
+```
+
+The per 3 address visible from Java (e.g., `per 3 0x00000023`) maps directly
+to the internal index (0x23). The IOC manages up to 232 slots (max 0xE7).
+
+### Per 3 Data Storage
+
+Three lookup tables define per 3 slot properties:
+
+| Table | Address | Purpose |
+|-------|---------|---------|
+| `DAT_00015f00` | Size table | Bytes per slot (1-253 bytes) |
+| `DAT_00015aac` | Attribute flags | Read/write permissions, change notification |
+| `DAT_00015e8c` | Data offsets | RAM addresses for slot data |
+
+Data is stored in V850 RAM (0x00220xxx range) and shared with the SH4
+via HPIPC (High Performance IPC) shared memory.
+
+### Read/Write Handlers
+
+- `FUN_00039222` (per3_write_handler): Writes data to per 3 slots with
+  rate limiting via timestamp comparison. Queues write requests at
+  `0x204df8 + 0x1b74`.
+
+- `FUN_0003946c` (per3_read_handler): Reads data from per 3 slots with
+  similar rate limiting. Triggers HPIPC notification to SH4.
+
+### CAN Message Processing
+
+The IOC firmware references all major VAG CAN IDs but the mapping from
+raw CAN messages to per 3 slots happens in the CAN reception handler code.
+The `cfappgateway` function routes messages between the physical CAN buses.
+
+### Key Finding
+
+The per 3 data is populated by the V850 firmware's CAN message handlers.
+Adding new per 3 data (e.g., RPM from CAN ID 0x280) would require:
+
+1. Identifying the CAN reception handler for the Infotainment bus
+2. Adding code to extract RPM from Motor_1 (0x280) byte 2-3
+3. Writing the extracted value to a per 3 slot
+4. Registering the new slot in the size, flags, and offset tables
+
+This is a V850 firmware modification — not a simple configuration change.
+The IOC firmware (V850app.bin) would need to be patched and re-flashed
+via the MMI firmware update mechanism.
+
+Alternative: Gateway re-parameterization via ODIS to forward Motor_1/Motor_2
+to the Infotainment CAN bus, where existing IOC handlers might pick them up
+if there are unused reception slots in the firmware.
