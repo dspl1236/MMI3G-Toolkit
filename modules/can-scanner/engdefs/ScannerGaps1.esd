@@ -1,0 +1,50 @@
+# ============================================================
+# Scanner - Unexplored Per 3 Gaps
+# ============================================================
+# Factory firmware uses these per 3 ranges:
+#   0x00000001-0x00000024 (IOC/system - voltage, FOT temp)
+#   0x000103EE-0x00010402 (display HW/SW versions)
+#   0x00100000-0x001000xx (device/function lists)
+#   0x00110006-0x0011000F (spare parts, region, watchdog)
+#   0x00120000-0x00120004 (train, version, HW index)
+#   0x00130002-0x0013FFFF (BEM, coding)
+#   0x00140000-0x00140107 (CAN assignment, power timers)
+#   0x00150001-0x0015001B (telephony, features)
+#   0x00300007 (connected BTHS)
+#   0x00500000-0x0050000F (touchpad, baud rate)
+#
+# ENGINE DATA (RPM/speed/boost/coolant) IS NOT IN ANY
+# FACTORY ESD FILE. If it exists in per 3, it's in the
+# UNEXPLORED GAPS between these ranges.
+#
+# NOTE: These addresses are STUBS. Run this on your car
+# and watch for any non-zero, changing values. Rev the
+# engine, drive slowly, turn on AC — any value that
+# responds to those actions is live vehicle data.
+# ============================================================
+
+screen ScannerGaps1 Scanner
+
+# Gap: 0x0000000B - 0x0000001F (between IOC and voltage)
+keyValue value int per 3 0x0000000B label "0x0B (gap):"
+poll 500
+keyValue value int per 3 0x0000000C label "0x0C (gap):"
+poll 500
+keyValue value int per 3 0x0000000D label "0x0D (gap):"
+poll 500
+keyValue value int per 3 0x0000000E label "0x0E (gap):"
+poll 500
+keyValue value int per 3 0x0000000F label "0x0F (gap):"
+poll 500
+keyValue value int per 3 0x00000010 label "0x10 (gap):"
+poll 500
+keyValue value int per 3 0x00000011 label "0x11 (gap):"
+poll 500
+keyValue value int per 3 0x00000012 label "0x12 (gap):"
+poll 500
+keyValue value int per 3 0x00000013 label "0x13 (gap):"
+poll 500
+keyValue value int per 3 0x00000014 label "0x14 (gap):"
+poll 500
+
+script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log Results <<"

@@ -1,0 +1,30 @@
+# Scanner - 0x0002xxxx Range
+# This range is COMPLETELY UNUSED in factory ESD files.
+# The CAN gateway might route engine ECU data here.
+# Per 7 uses 0x000200xx for GPS — per 3 might mirror
+# a similar structure for engine data.
+
+screen ScannerEngine1 Scanner
+
+keyValue value int per 3 0x00020000 label "0x20000:"
+poll 500
+keyValue value int per 3 0x00020001 label "0x20001:"
+poll 500
+keyValue value int per 3 0x00020002 label "0x20002:"
+poll 500
+keyValue value int per 3 0x00020003 label "0x20003:"
+poll 500
+keyValue value int per 3 0x00020004 label "0x20004:"
+poll 500
+keyValue value int per 3 0x00020005 label "0x20005:"
+poll 500
+keyValue value int per 3 0x00020010 label "0x20010:"
+poll 500
+keyValue value int per 3 0x00020020 label "0x20020:"
+poll 500
+keyValue value int per 3 0x00020100 label "0x20100:"
+poll 500
+keyValue value int per 3 0x00020200 label "0x20200:"
+poll 500
+
+script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log Results <<"

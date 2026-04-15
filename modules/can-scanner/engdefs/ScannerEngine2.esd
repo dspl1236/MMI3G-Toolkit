@@ -1,0 +1,30 @@
+# Scanner - 0x0003-0x0004 Ranges + Reference Values
+# 0x00030xxx is used by per 1 for GPS/nav data.
+# On per 3 it might hold engine sensor data.
+# Reference values included so you can verify the scanner works.
+
+screen ScannerEngine2 Scanner
+
+# REFERENCE - these are KNOWN to return data:
+keyValue value int per 3 0x00000023 label "VOLTS (known):"
+poll 500
+keyValue value int per 3 0x00000004 label "FOT TEMP (known):"
+poll 1000
+
+# UNEXPLORED per 3 ranges:
+keyValue value int per 3 0x00030000 label "0x30000:"
+poll 500
+keyValue value int per 3 0x00030001 label "0x30001:"
+poll 500
+keyValue value int per 3 0x00030010 label "0x30010:"
+poll 500
+keyValue value int per 3 0x00030020 label "0x30020:"
+poll 500
+keyValue value int per 3 0x00040000 label "0x40000:"
+poll 500
+keyValue value int per 3 0x00040001 label "0x40001:"
+poll 500
+keyValue value int per 3 0x00050000 label "0x50000:"
+poll 500
+
+script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log Results <<"
