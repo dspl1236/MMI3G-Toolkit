@@ -1,0 +1,4 @@
+name=Snake
+main=Snake
+args=
+vmargs=-Xmx2048k

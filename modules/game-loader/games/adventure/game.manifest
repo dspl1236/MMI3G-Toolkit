@@ -1,0 +1,4 @@
+name=The Quattro Quest
+main=QuattroQuest
+args=
+vmargs=-Xmx2048k

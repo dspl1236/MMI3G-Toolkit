@@ -39,6 +39,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **lte-setup** | ✅ Ready | Provision LTE mobile data via USB Ethernet (3G+ only) |
 | **can-scanner** | ✅ Ready | CAN bus address scanner — discover RPM, boost, coolant, speed data |
 | **jvm-extract** | ✅ Ready | Extract J9 JVM and UI framework for reverse engineering custom menus |
+| **game-loader** | ✅ Ready | Java game launcher — run games from SD card on the MMI's J9 JVM |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
 
 ## Quick Start
