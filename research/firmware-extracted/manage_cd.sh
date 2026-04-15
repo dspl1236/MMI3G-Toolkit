@@ -1,0 +1,18 @@
+#!/bin/ksh
+
+for i in 1 2 3 4
+do
+   mount -t udf -r -o format=udf:joliet:iso9660e:iso9660:audio,case=asis /dev/cd0 /fs/cd0
+   mount_ret=$?
+   if test $mount_ret -eq 0; then
+      touch /dev/shmem/CD0_STARTED
+      echo cd0 mounted after $i try
+      break
+   fi
+done
+
+if test $mount_ret -ne 0; then echo cd0 mount failed!; fi
+
+# the mount loop is required as a temporary workaround to an io-blk race
+# condition (QNX PR/55354)
+

@@ -1,0 +1,207 @@
+# MMI3G UI Framework — Decompiled Architecture Analysis
+
+## Source
+Extracted from `efs-system.efs` in firmware `HN+R_EU_AU_K0942_4` (MU9411 variant 61).
+Decompiled with CFR 0.152. 152 Java source files recovered from `AppDevelopment.jar`.
+
+## Overview
+
+The MMI3G user interface runs on an IBM J9 JVM (Java 1.5 / J2SE 5.0 equivalent) on
+QNX 6.3.x RTOS (Renesas SH4 CPU). The UI framework uses a proprietary OSGi-like
+bundle system built by Harman Becker.
+
+## Plugin Architecture
+
+### Bundle Registration
+The JVM loads bundles defined in `bundles.properties` inside `lsd.jxe`. Each bundle has:
+- A name (`Bundle.Name.XX`)
+- An activator class (`Bundle.Activator.XX`)
+- A startup priority
+
+The GEM is bundle 53: `AppDevelopment` with activator `de.audi.tghu.development.Activator`
+
+### Activator Pattern
+Every plugin implements `org.osgi.framework.BundleActivator`:
+
+```java
+public class Activator implements BundleActivator {
+    private BundleActivator appActivator = new AppActivator();
+    private BundleActivator smActivator = new SMActivator();
+    private BundleActivator hmiActivator = new HMIActivator();
+
+    public void start(BundleContext ctx) throws Exception {
+        appActivator.start(ctx);   // App logic
+        smActivator.start(ctx);    // State machine
+        hmiActivator.start(ctx);   // UI rendering
+    }
+    public void stop(BundleContext ctx) throws Exception { ... }
+}
+```
+
+Three sub-activators handle different concerns:
+- **AppActivator** — Registers the development app, loads ESD screen definitions
+- **SMActivator** — Registers with the state machine framework
+- **HMIActivator** — Registers HMI widgets for rendering
+
+### JVM Startup (lsd.sh)
+The bootclasspath is built dynamically:
+```
+BOOTCLASSPATH=-Xbootclasspath
+BOOTCLASSPATH="$BOOTCLASSPATH:/lsd/DSITracer.jar"    # Optional tracing
+BOOTCLASSPATH="$BOOTCLASSPATH:/lsd/AppDevelopment.jar" # GEM plugin
+BOOTCLASSPATH="$BOOTCLASSPATH:/lsd/texts.jar"         # Localization
+BOOTCLASSPATH="$BOOTCLASSPATH:/lsd/lsd.jxe"           # Main application
+```
+
+**To add a custom plugin:** Add a JAR to `/mnt/efs-system/lsd/` and add it to the
+bootclasspath in `lsd.sh` before the JXE line.
+
+### Key JVM Parameters
+- Resolution: 800x480 LVDS display
+- Heap: 13312KB max (`-Xmx13312k`)
+- JIT: 2048KB code cache
+- DSI channel: QNX message passing (`-Ddsi.channel=msgpassing`)
+- GEM screens dir: `/HBpersistence/engdefs` (also `/mnt/efs-system/engdefs`)
+
+## Data Access Layer
+
+### Two Data Sources
+The `EngineeringInfoService` uses two data sources:
+- **DATASOURCE_PERSISTENCE (0)** — DSI persistence (per 1/3/7 namespace data)
+- **DATASOURCE_SYSTEM (1)** — JVM system data (free memory, GC, script exec)
+
+### PersistenceAccessor (CAN Bus / Vehicle Data)
+Reads data via `org.dsi.ifc.persistence.DSIPersistence`:
+```java
+persistence.readInt(namespace, key, false);    // per X 0xKEY int
+persistence.readString(namespace, key, false); // per X 0xKEY String
+persistence.readBuffer(namespace, key, false); // per X 0xKEY raw bytes
+persistence.readArray(namespace, key, false);  // per X 0xKEY int array
+```
+
+Where `namespace` is the "per" number from the ESD file:
+- **per 1** = MMI system data (namespace 1)
+- **per 3** = CAN bus / vehicle data (namespace 3)
+- **per 7** = GPS / navigation data (namespace 7)
+
+The DSIPersistence interface is a native bridge — the actual data retrieval
+happens in QNX native code, not Java. The namespace/key addressing maps
+to Harman Becker's internal CAN gateway configuration.
+
+### SystemAccessor (JVM Internal Data)
+Only handles namespace 1 with three fixed keys:
+- Key 1 = JVM free memory (int)
+- Key 2 = JVM total memory (int)
+- Key 3 = Trigger garbage collection
+- Key 256 (0x100) = Execute shell script (string = script path)
+
+**Key finding:** The `script` element in ESD files uses `sys 1 0x0100` which
+maps to SystemAccessor key 256, which calls `Runtime.exec()` to run a shell
+script. Output is piped through `/scripts/script.fifo` (a QNX named pipe)
+back to the GEM console display.
+
+### Polling Mechanism
+When an ESD element has a `poll XXXX` line, the `EngineeringInfoService` creates
+a `Timer` that fires at that interval and calls `pollModel()` on the
+`ScreenElementModel`. This triggers `PersistenceAccessor._poll_hb()` which
+calls the DSI persistence read methods.
+
+## ESD Screen Model
+
+### Screen Element Types (from model/ package)
+- **KeyValueModel** — Displays a polled value (int, string, buffer, array)
+- **ChoiceModel** — Selection control
+- **SliderModel** — Slider control (min/max range)
+- **ButtonModel** — Action button
+- **ScriptModel** — Shell script execution button
+- **ExportModel** — Data export control
+- **LinkModel** — Navigation link to sub-screen
+- **TableModel** — Tabular data display
+- **BIOSCtrlModel** — Low-level BIOS control
+- **LabelModel** — Static text label
+
+### Widget Rendering (from widget/ package)
+Each model type has a corresponding widget renderer. The rendering framework
+uses Harman Becker's proprietary display layer, not standard Java AWT/Swing.
+
+## Key Findings for Custom Development
+
+### Adding a Custom JAR Plugin
+1. Write a Java 1.5 compatible JAR with an OSGi `BundleActivator`
+2. Copy to `/mnt/efs-system/lsd/`
+3. Modify `lsd.sh` to add it to the bootclasspath
+4. The JAR can use `EngineeringInfoService` to poll CAN bus data
+5. The JAR can use `SystemAccessor.execScript()` to run QNX shell commands
+
+### Adding to the CAR Menu (Advanced)
+The normal MMI menus are defined inside `lsd.jxe`, not in the GEM framework.
+Adding a CAR menu entry requires either:
+1. Modifying `lsd.jxe` (needs J9 JXE tools — high risk)
+2. Hooking into the HMI framework's menu registration from a custom bundle
+   (needs decompilation of `lsd.jxe` to find the registration API)
+3. Hijacking an unused menu slot via adaptation coding
+
+### CAN Bus Address Discovery
+The per 3 namespace addresses are defined in native QNX code, not Java.
+The Java layer just passes through namespace + key to the DSI persistence
+layer. A systematic scan of address ranges from GEM screens is the most
+practical approach to discovering available vehicle data.
+
+### Available Data Types
+The DSI persistence supports:
+- `readInt()` — 32-bit integer (e.g., voltage in centimillivolts)
+- `readString()` — Text string (e.g., software version)
+- `readBuffer()` — Raw byte array
+- `readArray()` — Integer array
+
+All four types can be polled at configurable intervals via ESD screen definitions.
+
+## Package Structure
+
+```
+de.audi.tghu.development/
+├── Activator.java                    # Bundle entry point (OSGi)
+├── EngineeringException.java
+├── app/
+│   ├── AppActivator.java             # App registration
+│   ├── ATIPServices.java             # ATIP framework services
+│   ├── DevelopmentApp.java           # Main app controller
+│   ├── DevelopmentScreenFactory.java # ESD file parser
+│   └── Logger.java
+├── config/
+│   ├── RendererConfigBasic.java      # 400x240 layout
+│   ├── RendererConfigHigh.java       # 800x480 layout
+│   └── RendererConfigFactory.java
+├── eis/                              # Engineering Info Service
+│   ├── EngineeringInfoService.java   # Core data polling engine
+│   ├── Namespace.java                # Namespace container
+│   ├── PersistenceAccessor.java      # DSI → CAN bus bridge
+│   ├── SystemAccessor.java           # JVM internals + script exec
+│   ├── PersistenceListener.java      # Async data callbacks
+│   └── EISListener.java              # Listener interface
+├── model/                            # Data models for ESD elements
+│   ├── KeyValueModel.java
+│   ├── ScreenModel.java
+│   ├── ScriptModel.java
+│   ├── SliderModel.java
+│   └── ... (15 model classes)
+├── renderer/                         # UI rendering
+│   ├── ScreenRenderer.java           # Main screen renderer
+│   ├── ConsoleScreen.java            # Script output console
+│   └── ... (10 renderer classes)
+├── sm/
+│   └── DevelopmentSMM.java           # State machine module
+├── widget/                           # UI widget implementations
+│   ├── KeyValueWidget.java
+│   ├── ScriptWidget.java
+│   ├── SliderWidget.java
+│   └── ... (18 widget classes)
+└── util/
+    └── HashtableOfLong.java          # Long-keyed hashtable
+```
+
+## Credits
+- Firmware: Audi `HN+R_EU_AU_K0942_4` (8R0906961FB)
+- Decompilation: CFR 0.152
+- EFS extraction: Custom Python parser
+- Research context: DrGER2's MMI3G documentation, Audizine/VWVortex community
