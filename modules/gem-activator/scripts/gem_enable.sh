@@ -43,8 +43,38 @@
 # ============================================================
 
 SDPATH="${1:-$(dirname $0)}"
-LOGFILE="${SDPATH}/var/gem-setup-$(date +%Y%m%d-%H%M%S).log"
 EFSDIR="/mnt/efs-system"
+
+# Source shared platform helper (with inline fallback)
+if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
+    . "${SDPATH}/scripts/common/platform.sh"
+else
+    MMI_VARIANT="UNKNOWN"
+    for f in /etc/pci-3g_*.cfg; do
+        [ -f "$f" ] || continue
+        VID="$(echo "$f" | sed -n 's,^/etc/pci-3g_\([0-9]*\)\.cfg$,\1,p')"
+        case "$VID" in
+            9304) MMI_VARIANT="MMI3G_BASIC" ;;
+            9308) MMI_VARIANT="MMI3G_HIGH" ;;
+            9411|9478) MMI_VARIANT="MMI3GP" ;;
+        esac
+        break
+    done
+    MMI_TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+    [ -z "$MMI_TRAIN" ] && MMI_TRAIN="$(sloginfo -m 10000 -s 5 2>/dev/null | sed -n 's/^.* +++ Train //p' | sed -n 1p)"
+    if [ "$MMI_VARIANT" = "MMI3GP" ] && echo "$MMI_TRAIN" | grep -q "_VW_"; then
+        MMI_VARIANT="RNS850"
+    fi
+    mmi_logstamp() {
+        if command -v getTime >/dev/null 2>&1; then
+            T="$(getTime 2>/dev/null)"
+            [ -n "$T" ] && { date -r "$T" +%Y%m%d-%H%M%S 2>/dev/null || echo "epoch-$T"; return 0; }
+        fi
+        date +%Y%m%d-%H%M%S 2>/dev/null
+    }
+fi
+
+LOGFILE="${SDPATH}/var/gem-setup-$(mmi_logstamp).log"
 
 # Make the log dir in case /var doesn't exist on this SD layout
 mkdir -p "$(dirname ${LOGFILE})" 2>/dev/null
@@ -52,32 +82,20 @@ exec > ${LOGFILE} 2>&1
 
 echo "============================================"
 echo " GEM Infrastructure Setup"
-echo " $(date)"
-echo " Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+echo " $(date) [QNX date — may be since-boot]"
+echo " Variant: ${MMI_VARIANT}"
+echo " Train:   ${MMI_TRAIN:-n/a}"
 echo "============================================"
 echo ""
 
-# --- Detect MMI variant ---
-TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
-if echo "$TRAIN" | grep -qi "HN+"; then
-    VARIANT="MMI3GP"
-    KEYCOMBO="CAR + BACK (hold ~5s)"
-    echo "[INFO]  Detected MMI 3G+ (HN+)"
-elif echo "$TRAIN" | grep -qi "HNav\|HN_"; then
-    VARIANT="MMI3G"
-    KEYCOMBO="CAR + SETUP (hold ~5s)"
-    echo "[INFO]  Detected MMI 3G High (HNav)"
-elif echo "$TRAIN" | grep -qi "RNS"; then
-    VARIANT="RNS850"
-    KEYCOMBO="CAR + SETUP (hold ~5s)"
-    echo "[INFO]  Detected RNS-850"
-else
-    VARIANT="UNKNOWN"
-    KEYCOMBO="CAR + BACK or CAR + SETUP (hold ~5s)"
-    echo "[WARN]  Unknown train string: $TRAIN"
-    echo "[WARN]  Proceeding with generic setup"
-fi
-echo ""
+# Key combo for the summary at the end
+case "$MMI_VARIANT" in
+    MMI3GP)        KEYCOMBO="CAR + BACK (hold ~5s)" ;;
+    MMI3G_HIGH)    KEYCOMBO="CAR + SETUP (hold ~5s)" ;;
+    MMI3G_BASIC)   KEYCOMBO="CAR + SETUP (hold ~5s)" ;;
+    RNS850)        KEYCOMBO="CAR + SETUP (hold ~5s)" ;;
+    *)             KEYCOMBO="CAR + BACK or CAR + SETUP (hold ~5s)" ;;
+esac
 
 # --- Remount efs-system read-write ---
 echo "[STEP]  Remounting ${EFSDIR} rw..."

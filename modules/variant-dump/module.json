@@ -1,7 +1,7 @@
 {
     "name": "variant-dump",
-    "version": "1.0.0",
-    "description": "Comprehensive adaptation and coding extraction — dumps all known per3 car-function, car-device, and CAN-assignment addresses to a structured SD card report. Read-only.",
+    "version": "2.0.0",
+    "description": "MMI identification + configuration dumper — captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
     "author": "dspl1236",
     "status": "ready",
     "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
@@ -10,17 +10,24 @@
     "script_dir": "/scripts/VariantDump",
     "installs_to_flash": false,
     "scripts": [
-        "variant_dump.sh - Dump all 90+ per3 adaptation addresses and decode"
+        "variant_dump.sh - Captures MMI identification + config to SD card"
     ],
-    "decodes": [
-        "Car Device list (0x00100000-0x0010003F) — installed feature flags",
-        "Car Function list (0x00100040-0x0010008F)",
-        "CAN Bus assignment (0x0014003D-0x00140098) — Komfort vs Dashboard routing",
-        "Feature CAN channel assignment (0x00140000-0x0014001E)",
-        "Telephony/feature settings (0x00150000-0x0015001F)",
-        "Hardware/SW version strings (0x00500000-0x0050000F)",
-        "Spare-part numbers (0x00110006-0x0011000C)"
+    "captures": [
+        "Train name (from /dev/shmem/sw_trainname.txt or sloginfo)",
+        "MU software version (from /etc/version/MainUnit-version.txt)",
+        "MU variant (from /etc/mmi3g-srv-starter.cfg)",
+        "hwSample (from /etc/hwSample)",
+        "HMI type + region (3G+ only, from /etc/hmi_type.txt + /etc/hmi_country.txt)",
+        "QNX kernel info (uname -a, pidin info)",
+        "HDD geometry and partition table (fdisk /dev/hd0)",
+        "Mounted filesystems and free space (mount, df)",
+        "Nav database info (from /mnt/nav/db/DBInfo.txt + .pkg)",
+        "FSC activation file status (/mnt/efs-persist/FSC/)",
+        "LVM unblocker patch state (grep manage_cd.sh and mmelauncher.cfg)",
+        "vdev-logvolmgr process state (pidin)",
+        "Gracenote CD database version",
+        "Persistence directory inventory"
     ],
-    "notes": "Inspired by the 'Adaptations' and 'VariantInfo' screens in jilleb/mib2-toolbox. MIB2 uses BAP/UDS adaptation channels. MMI3G uses the per3 namespace directly, so this module reads per3 addresses via the GEM keyValue system (requires GEM activated + a booted MMI). Output is a labeled table of what each address reported.",
-    "credits": "Concept from jilleb/mib2-toolbox Adaptations/VariantInfo screens. Uses per3 address map documented in research/PER3_ADDRESS_MAP.md."
+    "notes": "Previous version (1.0.0) tried to dump per3 adaptation addresses (car-device list, CAN-channel assignment) via a `per3_read` CLI tool. That binary does not exist on MMI3G — per3 / keyValue data is only readable from inside the J9 Java VM via DSIPersistence IPC, not from a shell script. This version follows DrGER2's mmi3ginfo3 pattern and reads real filesystem files instead. To read adaptation values, use VCDS/ODIS or the long-coding module's GEM screens (which run inside Java and can call DSIPersistence).",
+    "credits": "Approach and most of the /etc file paths and sloginfo/pidin/fdisk patterns come directly from DrGER2's mmi3ginfo3-230701."
 }

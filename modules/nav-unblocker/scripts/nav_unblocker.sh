@@ -39,15 +39,46 @@
 # ============================================================
 
 SDPATH="${1:-$(dirname $0)}"
-LOGFILE="${SDPATH}/var/navunblocker-$(date +%Y%m%d-%H%M%S).log"
 EFSDIR="/mnt/efs-system"
+
+# Source shared platform helper (with inline fallback)
+if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
+    . "${SDPATH}/scripts/common/platform.sh"
+else
+    MMI_VARIANT="UNKNOWN"
+    for f in /etc/pci-3g_*.cfg; do
+        [ -f "$f" ] || continue
+        VID="$(echo "$f" | sed -n 's,^/etc/pci-3g_\([0-9]*\)\.cfg$,\1,p')"
+        case "$VID" in
+            9304) MMI_VARIANT="MMI3G_BASIC" ;;
+            9308) MMI_VARIANT="MMI3G_HIGH" ;;
+            9411|9478) MMI_VARIANT="MMI3GP" ;;
+        esac
+        break
+    done
+    MMI_TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+    [ -z "$MMI_TRAIN" ] && MMI_TRAIN="$(sloginfo -m 10000 -s 5 2>/dev/null | sed -n 's/^.* +++ Train //p' | sed -n 1p)"
+    if [ "$MMI_VARIANT" = "MMI3GP" ] && echo "$MMI_TRAIN" | grep -q "_VW_"; then
+        MMI_VARIANT="RNS850"
+    fi
+    mmi_logstamp() {
+        if command -v getTime >/dev/null 2>&1; then
+            T="$(getTime 2>/dev/null)"
+            [ -n "$T" ] && { date -r "$T" +%Y%m%d-%H%M%S 2>/dev/null || echo "epoch-$T"; return 0; }
+        fi
+        date +%Y%m%d-%H%M%S 2>/dev/null
+    }
+fi
+
+LOGFILE="${SDPATH}/var/navunblocker-$(mmi_logstamp).log"
 
 exec > ${LOGFILE} 2>&1
 
 echo "============================================"
 echo " MMI3G Nav Database Unblocker"
-echo " $(date)"
-echo " Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+echo " $(date) [QNX date — may be since-boot]"
+echo " Variant: ${MMI_VARIANT}"
+echo " Train:   ${MMI_TRAIN:-n/a}"
 echo "============================================"
 echo ""
 
@@ -60,17 +91,14 @@ PATCH_CMD='(waitfor /mnt/lvm/acios_db.ini 180 && sleep 10 && slay vdev-logvolmgr
 PATCH_MARKER="acios_db.ini"
 MANAGE_CD="${EFSDIR}/usr/bin/manage_cd.sh"
 
-# --- Detect variant ---
-TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
-if echo "$TRAIN" | grep -qi "HN+"; then
-    echo "[INFO]  MMI 3G+ (HN+) detected"
-elif echo "$TRAIN" | grep -qi "HNav\|HN_"; then
-    echo "[INFO]  MMI 3G High (HNav) detected"
-elif echo "$TRAIN" | grep -qi "RNS"; then
-    echo "[INFO]  RNS-850 detected"
-else
-    echo "[INFO]  Variant: $TRAIN"
-fi
+# --- Detect variant (info only — patch is the same on all variants) ---
+case "$MMI_VARIANT" in
+    MMI3G_HIGH)  echo "[INFO]  MMI 3G High (HNav) detected" ;;
+    MMI3G_BASIC) echo "[INFO]  MMI 3G Basic detected" ;;
+    MMI3GP)      echo "[INFO]  MMI 3G+ (HN+) detected" ;;
+    RNS850)      echo "[INFO]  VW RNS-850 detected" ;;
+    *)           echo "[INFO]  Variant: UNKNOWN (train: ${MMI_TRAIN:-n/a})" ;;
+esac
 echo ""
 
 # --- Remount efs-system read-write ---
@@ -136,20 +164,29 @@ fi
 echo ""
 
 # --- Apply patch ---
+# This follows DrGER2's canonical approach (navunblocker-230308):
+#   1. mv -> .sh-ORIG, then cp -p back (preserves perms/timestamps)
+#   2. Append TimeLogger marker line (also makes the patch visible to
+#      DrGER2's mmi3ginfo3 detection via grep)
+#   3. Append the waitfor/slay patch line
+#   4. chmod 0777
+#   5. touch -r to copy the original mtime (avoids tripping any
+#      file-integrity / change-detection heuristics)
 echo "[ACTI]  Applying nav database unblocker patch..."
-echo "" >> "${MANAGE_CD}"
-echo "# MMI3G-Toolkit Nav Unblocker (Keldo method via DrGER2)" >> "${MANAGE_CD}"
-echo "# Disables H-B nav database activation process" >> "${MANAGE_CD}"
-echo "# Installed: $(date)" >> "${MANAGE_CD}"
+mv -v "${MANAGE_CD}" "${MANAGE_CD}-ORIG"
+cp -v "${MANAGE_CD}-ORIG" "${MANAGE_CD}"
+echo '/usr/apps/bench/TimeLogger "Starting MMI3G NavUnblocker patch"' >> "${MANAGE_CD}"
 echo "${PATCH_CMD}" >> "${MANAGE_CD}"
+chmod 0777 "${MANAGE_CD}"
+touch -r "${MANAGE_CD}-ORIG" "${MANAGE_CD}"
 
 # Verify
 if grep -q "${PATCH_MARKER}" "${MANAGE_CD}" 2>/dev/null; then
     echo "[OK]    Patch applied successfully to manage_cd.sh"
 else
     echo "[ERROR] Patch verification failed!"
-    echo "[ERROR] Restoring backup..."
-    cp -v "${BACKUPDIR}/manage_cd.sh.original" "${MANAGE_CD}"
+    echo "[ERROR] Restoring from -ORIG backup..."
+    cp -v "${MANAGE_CD}-ORIG" "${MANAGE_CD}"
     exit 1
 fi
 echo ""

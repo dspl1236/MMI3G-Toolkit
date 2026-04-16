@@ -1,90 +1,154 @@
 #!/bin/ksh
 # ============================================================
-# Coding Dump — triggered from GEM CodingMain screen
-# Writes adaptation snapshot to SD card
+# Coding Context Dump
+# Writes a context report to the SD card: MMI identification,
+# installed coding screens, and instructions for reading actual
+# adaptation values.
+# ============================================================
+#
+# WHY THIS DOES NOT DUMP ADAPTATION VALUES:
+#
+# The per3 / keyValue namespace where adaptation values live
+# (car-device list 0x00100000-0x0010003F, CAN-assignment
+# 0x00140000-0x001400FF, etc.) is only readable through the
+# DSI persistence API. That API is Java-only and IPC-based —
+# a shell script on the MMI cannot call it.
+#
+# The long-coding module's GEM SCREENS (CodingMain.esd,
+# CodingCarConfig.esd, CodingBusRouting.esd) do work, because
+# they render inside the J9 Java VM which speaks DSI natively.
+# Open them from the GEM after activating this module.
+#
+# This script instead captures the context around a coding
+# session: identifier info, what screens are installed, and
+# whether the vehicle has been modified (unblocker patch,
+# engineering menu status).
+#
 # ============================================================
 
 SDPATH="${1:-/fs/sda1}"
-# Try common SD paths
 for sd in /fs/sda1 /fs/sda0 /fs/sd1 /fs/sd0; do
-    if [ -d "$sd" ]; then
-        SDPATH=$sd
-        break
-    fi
+    [ -d "$sd" ] && SDPATH="$sd" && break
 done
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 OUTDIR="${SDPATH}/var/coding"
-OUTFILE="${OUTDIR}/coding-${TIMESTAMP}.txt"
+OUTFILE="${OUTDIR}/coding-context-${TIMESTAMP}.txt"
 mkdir -p ${OUTDIR} 2>/dev/null
-
-# Re-use the per3 reader approach from variant-dump
-PER3_READ=""
-for candidate in /usr/bin/per3_read /opt/bin/per3_read /usr/bin/readper3 /bin/per3; do
-    if [ -x "$candidate" ]; then
-        PER3_READ="$candidate"
-        break
-    fi
-done
-
-read_per3() {
-    ADDR=$1
-    if [ -n "$PER3_READ" ]; then
-        "$PER3_READ" $ADDR 2>/dev/null
-    else
-        echo "n/a"
-    fi
-}
 
 {
 echo "################################################################"
-echo "# MMI3G Coding/Adaptation Snapshot"
-echo "# Generated: $(date)"
-echo "# Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+echo "#  MMI3G Long-Coding Context Report"
+echo "#  Generated: $(date)"
 echo "################################################################"
 echo ""
-echo "This is a snapshot of adaptation values at one moment in time."
-echo "Use this BEFORE and AFTER VCDS/ODIS changes to see what moved."
+echo "This report captures the context around a coding session."
+echo "It does NOT contain the actual per3 adaptation values —"
+echo "those are only readable through the GEM screens installed"
+echo "by this module (they run in Java and can hit the DSI"
+echo "persistence namespace directly)."
 echo ""
 
-echo "=== CAR DEVICE LIST (0x001000xx) ==="
-for addr in \
-    00100000 00100001 00100002 00100010 00100011 00100012 00100013 \
-    00100014 00100015 00100016 00100017 00100018 00100019 0010001A \
-    0010001B 0010001C 0010001D 0010001E 0010001F 00100020 00100021 \
-    00100022 00100023 00100024 00100025 00100026 00100027 00100028 \
-    00100029 0010002A 0010002B 0010002C 0010002D 0010002E 0010002F \
-    00100030 00100031 00100032 00100033 00100034 00100035 00100036 \
-    00100037 00100064 00100070 00100071 00100088 00100089; do
-    VAL=$(read_per3 0x$addr)
-    printf "  0x%s = %s\n" $addr "$VAL"
+# ---------- Identification ----------
+echo "================================================================"
+echo "  VEHICLE / MMI IDENTIFICATION"
+echo "================================================================"
+
+TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+printf "  %-32s %s\n" "Train name:" "${TRAIN:-n/a}"
+
+MU_VERSION="$(sed -n 's/^version = //p' /etc/version/MainUnit-version.txt 2>/dev/null | head -1)"
+printf "  %-32s %s\n" "MU software version:" "${MU_VERSION:-n/a}"
+
+MU_VARIANT="$(sed -n 's,^<VariantName>,,;s,</VariantName>\r\?$,,p' /etc/mmi3g-srv-starter.cfg 2>/dev/null | head -1)"
+printf "  %-32s %s\n" "MU variant:" "${MU_VARIANT:-n/a}"
+
+HW_SAMPLE="$([ -f /etc/hwSample ] && cat /etc/hwSample 2>/dev/null)"
+printf "  %-32s %s\n" "MU hwSample:" "${HW_SAMPLE:-n/a}"
+
+echo ""
+
+# ---------- Installed coding screens ----------
+echo "================================================================"
+echo "  INSTALLED LONG-CODING GEM SCREENS"
+echo "================================================================"
+COUNT=0
+for f in /mnt/efs-system/engdefs/Coding*.esd; do
+    if [ -f "$f" ]; then
+        SIZE=$(ls -la "$f" | awk '{print $5}')
+        printf "  %-50s %s bytes\n" "$(basename $f)" "$SIZE"
+        COUNT=$((COUNT + 1))
+    fi
 done
+if [ $COUNT -eq 0 ]; then
+    echo "  No Coding*.esd screens found."
+    echo "  Run coding_install.sh first to install them."
+fi
 echo ""
 
-echo "=== CAN BUS ASSIGNMENT (0x001400xx) ==="
-for addr in \
-    0014003D 0014003F 00140040 00140041 00140042 00140043 00140044 \
-    00140045 00140046 00140047 00140048 00140049 0014004A 0014004B \
-    0014004C 0014004D 0014004E 0014004F 00140050 00140051 00140053 \
-    00140054 00140055 00140056 00140057 00140059 0014005A 0014005B \
-    0014005D 0014005E 0014005F 0014007C 0014007D 0014007E 00140098; do
-    VAL=$(read_per3 0x$addr)
-    printf "  0x%s = %s\n" $addr "$VAL"
-done
+# ---------- Engineering menu state ----------
+echo "================================================================"
+echo "  GEM / ENGINEERING MENU STATE"
+echo "================================================================"
+if [ -d /mnt/efs-system/engdefs ]; then
+    ESDCOUNT=$(ls /mnt/efs-system/engdefs/*.esd 2>/dev/null | wc -l)
+    printf "  %-32s %s files\n" "engdefs/ screens total:" "$ESDCOUNT"
+else
+    echo "  engdefs/ not present — GEM infrastructure missing"
+fi
+
+if [ -f /mnt/efs-system/lsd/AppDevelopment.jar ]; then
+    JARSIZE=$(ls -la /mnt/efs-system/lsd/AppDevelopment.jar | awk '{print $5}')
+    printf "  %-32s %s bytes\n" "AppDevelopment.jar:" "$JARSIZE"
+else
+    echo "  AppDevelopment.jar NOT FOUND — GEM cannot render"
+fi
 echo ""
 
-echo "=== FEATURE CAN CHANNEL SLIDERS (0x001400xx sliders) ==="
-i=0
-while [ $i -le 30 ]; do
-    ADDR=$(printf "001400%02x" $i)
-    VAL=$(read_per3 0x$ADDR)
-    printf "  0x%s (channel %d) = %s\n" $ADDR $i "$VAL"
-    i=$((i+1))
-done
+# ---------- Nav unblocker state ----------
+echo "================================================================"
+echo "  NAV UNBLOCKER STATE (affects what coding changes stick)"
+echo "================================================================"
+if grep -q 'acios_db.ini' /usr/bin/manage_cd.sh 2>/dev/null; then
+    echo "  LVM unblocker patch:  PRESENT (manage_cd.sh method)"
+elif [ -f /etc/mmelauncher.cfg ] && grep -q 'mme-becker.sh' /etc/mmelauncher.cfg 2>/dev/null; then
+    echo "  LVM unblocker patch:  PRESENT (legacy Keldo/Vlasoff method)"
+else
+    echo "  LVM unblocker patch:  not present"
+fi
 echo ""
 
-echo "Done. Report at: $OUTFILE"
-} > "$OUTFILE" 2>&1
+# ---------- Instructions ----------
+echo "================================================================"
+echo "  HOW TO READ AND CHANGE ADAPTATION VALUES"
+echo "================================================================"
+echo ""
+echo "  1. READ current values:"
+echo "       Open the GEM (CAR + BACK on 3G+, CAR + SETUP on 3G High)"
+echo "       Navigate to /coding (the screens this module installs)."
+echo "       Screens use DSI keyValue bindings so values are live."
+echo ""
+echo "  2. CHANGE values (safely):"
+echo "       Use VCDS or ODIS — address 5F (Information Electr.),"
+echo "       Adaptation (10). The channel number maps to the per3"
+echo "       address: channel N is at 0x001000<N> for car-device"
+echo "       or 0x0014<addr> for CAN-assignment (see"
+echo "       research/PER3_ADDRESS_MAP.md)."
+echo ""
+echo "  3. CONFIRM changes:"
+echo "       Re-run this script and re-open the coding GEM screens"
+echo "       after rebooting the MMI."
+echo ""
 
+echo "################################################################"
+echo "# Report written to: ${OUTFILE}"
+echo "################################################################"
+
+} > ${OUTFILE} 2>&1
+
+echo "Coding context report written."
+echo "Output: ${OUTFILE}"
+echo ""
+echo "For actual per3 adaptation values, open the coding screens"
+echo "in the GEM (under /coding)."
 sync
-echo "Coding snapshot saved to: $OUTFILE"

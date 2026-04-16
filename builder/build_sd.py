@@ -106,6 +106,15 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         'echo "[OK] efs-system remounted rw"',
         'echo ""',
         '',
+        '# Install shared platform.sh helper (sourced by module scripts)',
+        'if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then',
+        '    mkdir -p "${EFSDIR}/scripts/common"',
+        '    cp -v "${SDPATH}/scripts/common/platform.sh" "${EFSDIR}/scripts/common/platform.sh"',
+        '    chmod 0644 "${EFSDIR}/scripts/common/platform.sh"',
+        '    echo "[OK] platform.sh installed to ${EFSDIR}/scripts/common/"',
+        'fi',
+        'echo ""',
+        '',
     ]
     
     # Add install section for each module
@@ -250,6 +259,16 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
         print(f"  [OK] copie_scr.sh encoded ({len(encoded)} bytes)")
     else:
         print(f"  [WARN] {template_path} not found - you'll need to add copie_scr.sh manually")
+
+    # Ship the platform.sh helper to scripts/common/ so modules can source it
+    platform_src = os.path.join(CORE_DIR, 'platform.sh')
+    if os.path.isfile(platform_src):
+        common_dir = os.path.join(output_dir, 'scripts', 'common')
+        os.makedirs(common_dir, exist_ok=True)
+        with open(platform_src, 'rb') as src, open(os.path.join(common_dir, 'platform.sh'), 'wb') as dst:
+            # Force LF line endings
+            dst.write(src.read().replace(b'\r\n', b'\n'))
+        print(f"  [OK] scripts/common/platform.sh")
     
     # Copy module files
     for mod_name in selected_modules:
