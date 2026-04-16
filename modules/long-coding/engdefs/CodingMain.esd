@@ -1,0 +1,38 @@
+# ============================================================
+# CodingMain.esd
+# MMI3G Long-Coding Overview (READ-ONLY)
+# Shows current adaptation values live
+# ============================================================
+# Access via GEM: /coding
+# ============================================================
+
+screen CodingMain Coding
+
+# --- Identification (for reference) ---
+keyValue value String per 3 0x00120004 label "Software Train:"
+
+keyValue value String per 1 0x0000100d label "MU Software:"
+
+# --- Car Equipment Summary (live reads) ---
+keyValue value int per 3 0x00100000 label "Air Condition:"
+poll 5000
+
+keyValue value int per 3 0x00100010 label "Head-up Display:"
+poll 5000
+
+keyValue value int per 3 0x00100011 label "Adaptive Cruise Ctrl:"
+poll 5000
+
+keyValue value int per 3 0x00100018 label "Park Distance Ctrl:"
+poll 5000
+
+keyValue value int per 3 0x00100019 label "Rearview Camera:"
+poll 5000
+
+keyValue value int per 3 0x00100022 label "Drive Select (Charisma):"
+poll 5000
+
+# --- Hotkey actions ---
+script value sys 1 0x0100 "/scripts/Coding/coding_dump.sh" label ">> Dump ALL codings to SD <<"
+
+script value sys 1 0x0100 "/scripts/Coding/coding_changelog.sh" label ">> Show last 10 changes <<"
