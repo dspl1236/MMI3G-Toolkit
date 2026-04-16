@@ -1,0 +1,17 @@
+{
+    "name": "diag-tool",
+    "version": "0.1.0-alpha",
+    "description": "UDS diagnostic scanner for VAG modules — simulated transport + full UDS client (alpha). Live mode requires external VAG-COM interface (VCDS HEX, VNCI 6154a). Installed as a Java JAR artifact; no GEM screens.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": false,
+    "script_dir": "/scripts/DiagTool",
+    "artifact": "diag-tool.jar",
+    "notes": [
+        "This module ships a compiled JAR (modules/diag-tool/diag-tool.jar) and its Java source.",
+        "The JAR is NOT auto-installed by the builder at this time — it is a development artifact for reverse-engineering and integration work.",
+        "Live mode against real ECUs requires a VAG-COM cable (VCDS HEX or VNCI 6154a) and a laptop host. The MMI itself does not originate UDS traffic.",
+        "Simulated mode runs offline against SimulatedTransport — useful for development without a vehicle."
+    ]
+}

@@ -199,7 +199,36 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
     print(f"Building SD card -> {output_dir}")
     print(f"Modules: {', '.join(selected_modules)}")
     print()
-    
+
+    # ---- Collision detection pass ----
+    # Detect .sh and .esd filename collisions across modules BEFORE we copy
+    # anything. The SD card uses a flat engdefs/ and scripts/ directory, so
+    # two modules shipping a file with the same name will silently overwrite.
+    seen_files = {}  # filename -> module_name that claimed it first
+    collisions = []
+    for mod_name in selected_modules:
+        mod_dir = modules[mod_name]['_dir']
+        for subdir, ext in (('engdefs', '.esd'), ('scripts', '.sh')):
+            src = os.path.join(mod_dir, subdir)
+            if not os.path.isdir(src):
+                continue
+            for fname in os.listdir(src):
+                if not fname.endswith(ext):
+                    continue
+                key = (subdir, fname)
+                if key in seen_files:
+                    collisions.append((subdir, fname, seen_files[key], mod_name))
+                else:
+                    seen_files[key] = mod_name
+
+    if collisions:
+        print("[ERROR] Filename collisions detected across selected modules:")
+        for subdir, fname, first, second in collisions:
+            print(f"  {subdir}/{fname}  (both '{first}' and '{second}' ship this)")
+        print()
+        print("  Rename one of the files or deselect one module.")
+        sys.exit(1)
+
     # Create directory structure
     for d in ['bin', 'lib', 'var', 'engdefs', 'scripts']:
         os.makedirs(os.path.join(output_dir, d), exist_ok=True)
@@ -274,6 +303,62 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
     print("  5. Open GEM (CAR + BACK) to see new screens")
 
 
+def build_uninstall_sd(output_dir: str):
+    """Build an SD card that runs the toolkit uninstaller when inserted.
+
+    The SD contains an encoded copie_scr.sh (proc_scriptlauncher finds this
+    automatically on insert) whose chained run.sh is the uninstaller.
+    """
+    print(f"Building UNINSTALL SD card -> {output_dir}")
+    print()
+
+    for d in ['bin', 'lib', 'var']:
+        os.makedirs(os.path.join(output_dir, d), exist_ok=True)
+
+    # Encode copie_scr.sh from the standard template
+    template_path = os.path.join(CORE_DIR, 'copie_scr_plain.sh')
+    if not os.path.isfile(template_path):
+        print(f"[ERROR] {template_path} not found")
+        sys.exit(1)
+
+    from encoder import MMI3GCipher
+    with open(template_path, 'rb') as f:
+        plaintext = f.read()
+    encoded = MMI3GCipher().process(plaintext)
+    with open(os.path.join(output_dir, 'copie_scr.sh'), 'wb') as f:
+        f.write(encoded)
+    print(f"  [OK] copie_scr.sh encoded ({len(encoded)} bytes)")
+
+    # Copy uninstall.sh in as the run.sh (proc_scriptlauncher chains to run.sh)
+    uninstall_src = os.path.join(CORE_DIR, 'uninstall.sh')
+    if not os.path.isfile(uninstall_src):
+        print(f"[ERROR] {uninstall_src} not found")
+        sys.exit(1)
+
+    run_path = os.path.join(output_dir, 'run.sh')
+    with open(uninstall_src, 'rb') as src, open(run_path, 'wb') as dst:
+        # Force LF line endings — CRLF breaks ksh on QNX
+        dst.write(src.read().replace(b'\r\n', b'\n'))
+    print(f"  [OK] run.sh (uninstaller) written with LF line endings")
+
+    # Also drop a copy as uninstall.sh so users can re-run manually if needed
+    shutil.copy2(uninstall_src, os.path.join(output_dir, 'uninstall.sh'))
+
+    print()
+    print("=" * 50)
+    print("Uninstall SD card ready.")
+    print()
+    print("To use:")
+    print(f"  1. Copy contents of {output_dir}/ to FAT32 SD card")
+    print("  2. Boot MMI fully, then insert SD")
+    print("  3. Wait 30–60s")
+    print("  4. Remove SD, reboot MMI (MENU + knob + upper-right)")
+    print()
+    print("Modules that install outside engdefs/scripts")
+    print("(splash-screen, lte-setup, nav-unblocker) need their own")
+    print("restore scripts — see uninstall.sh output for details.")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='MMI3G-Toolkit SD Card Builder',
@@ -293,6 +378,8 @@ Examples:
                         help='Module to include (can specify multiple)')
     parser.add_argument('--all', action='store_true',
                         help='Include all ready modules')
+    parser.add_argument('--uninstall', action='store_true',
+                        help='Build an SD card that removes all toolkit modules from the MMI')
     parser.add_argument('-o', '--output', default='./sdcard',
                         help='Output directory (default: ./sdcard)')
     
@@ -307,7 +394,12 @@ Examples:
     if args.list:
         list_modules(available)
         return
-    
+
+    # Handle --uninstall: build an SD whose run.sh just calls uninstall.sh
+    if args.uninstall:
+        build_uninstall_sd(args.output)
+        return
+
     # Determine which modules to build
     if args.all:
         selected = [n for n, m in available.items() if m.get('status') == 'ready']
