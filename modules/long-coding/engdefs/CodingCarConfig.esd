@@ -1,0 +1,54 @@
+# ============================================================
+# CodingCarConfig.esd
+# Car Device List — shows all installed equipment flags
+# ============================================================
+
+screen CodingCarConfig Coding
+
+# Each entry is a feature bit from the Car Device list
+# 0 = not installed, non-zero = installed variant
+
+keyValue value int per 3 0x00100000 label "Air Condition:"
+poll 10000
+
+keyValue value int per 3 0x00100001 label "Aux Heating:"
+poll 10000
+
+keyValue value int per 3 0x00100010 label "Head-up Display:"
+poll 10000
+
+keyValue value int per 3 0x00100011 label "ACC (Adaptive Cruise):"
+poll 10000
+
+keyValue value int per 3 0x00100012 label "Air Suspension:"
+poll 10000
+
+keyValue value int per 3 0x00100013 label "Tyre Pressure (RDK):"
+poll 10000
+
+keyValue value int per 3 0x00100023 label "Lane Departure (HCA):"
+poll 10000
+
+keyValue value int per 3 0x00100024 label "Lane Change Assist:"
+poll 10000
+
+keyValue value int per 3 0x00100028 label "Hybrid:"
+poll 10000
+
+keyValue value int per 3 0x0010002D label "Traffic Sign Recognition:"
+poll 10000
+
+keyValue value int per 3 0x00100032 label "Battery Gauge:"
+poll 10000
+
+keyValue value int per 3 0x00100033 label "Oil Level Gauge:"
+poll 10000
+
+keyValue value int per 3 0x00100034 label "Sliding Roof:"
+poll 10000
+
+keyValue value int per 3 0x00100035 label "Trailer:"
+poll 10000
+
+keyValue value int per 3 0x00100088 label "Day/Night Map Mode:"
+poll 10000
