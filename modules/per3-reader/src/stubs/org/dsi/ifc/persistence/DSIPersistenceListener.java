@@ -3,41 +3,69 @@ package org.dsi.ifc.persistence;
 import org.dsi.ifc.base.DSIListener;
 
 /**
- * Stub of org.dsi.ifc.persistence.DSIPersistenceListener.
+ * Stub of org.dsi.ifc.persistence.DSIPersistenceListener for offline compilation.
  *
- * Callback signatures extracted from FakePersistence.java:
- *   this.listener.readInt(ns, addr, value, errcode)     // errcode 0 = OK
- *   this.listener.readString(ns, addr, value, errcode)
- *   this.listener.writeInt(ns, addr, errcode)
- *   this.listener.writeString(ns, addr, errcode)
+ * GROUND-TRUTH SIGNATURES extracted from de.audi.tghu.development.eis.PersistenceListener
+ * (which "implements DSIPersistenceListener") via javap -p on the real
+ * AppDevelopment.jar carved from HN+R_EU_AU_K0942_4 MU9411 variant 61
+ * efs-system.efs. This is not inferred from FakePersistence callback
+ * invocations — this is the actual interface any concrete DSIPersistenceListener
+ * must satisfy.
  *
- * Note the unusual naming: the listener's methods have the SAME names as
- * DSIPersistence's read* / write* methods. The difference is the arg list —
- * listener callbacks include the result/errcode, DSIPersistence requests do not.
+ * If our Per3Reader pretends to implement this interface without all 18
+ * methods below, the bundle will fail to load on-device with
+ * AbstractMethodError. Earlier versions of this stub had only 8 methods
+ * and were MISSING 10 (asyncException, readIntSet, readStringSet,
+ * updateDTCErrorMemoryStatus, writeIntSet, writeStringSet,
+ * flushSQLDatabase, getVisibleSystemLanguages,
+ * updateActiveSQLDatabaseMedium, updateGlobalPersistenceAvailabilityStatus).
  *
- * Error codes observed in FakePersistence:
- *    0  OK
- *    1  no namespace found
- *    2  no data found at address
- *    5  unexpected type
- * (other codes likely exist in the real implementation — these are what
- * the fake uses).
- *
- * A listener must register itself as an OSGi service of this interface type.
- * DSIPersistence implementations track listeners via their own ServiceTracker
- * on DSIPersistenceListener.
+ * Error code convention (from FakePersistence bytecode):
+ *     0  OK
+ *     1  no namespace
+ *     2  no data at address
+ *     5  unexpected type
  */
 public interface DSIPersistenceListener extends DSIListener {
 
-    // Read result callbacks
+    // --- Read result callbacks (the ones Per3Reader actually cares about) ---
+
     void readInt(int namespace, long address, int value, int errorCode);
     void readString(int namespace, long address, String value, int errorCode);
     void readArray(int namespace, long address, int[] value, int errorCode);
     void readBuffer(int namespace, long address, byte[] value, int errorCode);
 
-    // Write ack callbacks
+    // --- Write ack callbacks --------------------------------------------------
+
     void writeInt(int namespace, long address, int errorCode);
     void writeString(int namespace, long address, int errorCode);
     void writeArray(int namespace, long address, int errorCode);
     void writeBuffer(int namespace, long address, int errorCode);
+
+    // --- Set-style bulk callbacks (DSI supports bulk reads) ------------------
+
+    void readIntSet(int namespace, long address, int[] values, int errorCode);
+    void readStringSet(int namespace, long address, String[] values, int errorCode);
+    void writeIntSet(int namespace, long address, int errorCode);
+    void writeStringSet(int namespace, long address, int errorCode);
+
+    // --- Error + system-state callbacks --------------------------------------
+
+    /** Delivered when the DSI daemon hits an async fault during a pending op. */
+    void asyncException(int namespace, String message, int errorCode);
+
+    /** Status change for the DTC error memory — used by diagnostic screens. */
+    void updateDTCErrorMemoryStatus(int status, int errorCode);
+
+    /** Response to enterEngineeringSession / flush calls. */
+    void flushSQLDatabase(int errorCode);
+
+    /** Response to getVisibleSystemLanguages — delivers language code string. */
+    void getVisibleSystemLanguages(String languages);
+
+    /** Status change when DSI switches between SQL storage media. */
+    void updateActiveSQLDatabaseMedium(int medium, int errorCode);
+
+    /** Global persistence service availability — tracks daemon uptime. */
+    void updateGlobalPersistenceAvailabilityStatus(int status, int errorCode);
 }

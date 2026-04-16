@@ -106,21 +106,41 @@ public class MockDSIPersistence implements DSIPersistence {
     public void readStringSet(int ns, long addr, int n) { }
     public void readIntArraySet(int ns, long addr, int n) { }
     public void readObjectSet(int ns, long addr, int n) { }
+
     public void writeInt(int ns, long addr, int v) { }
+    public void writeInt(int ns, long addr, int v, boolean nb) { }
     public void writeString(int ns, long addr, String v) { }
+    public void writeString(int ns, long addr, String v, boolean nb) { }
     public void writeArray(int ns, long addr, int[] v) { }
+    public void writeArray(int ns, long addr, int[] v, boolean nb) { }
     public void writeBuffer(int ns, long addr, byte[] v) { }
+    public void writeBuffer(int ns, long addr, byte[] v, boolean nb) { }
+
+    public void writeIntSet(int ns, long addr, int n, int[] v) { }
+    public void writeStringSet(int ns, long addr, int n, String[] v) { }
+    public void writIntArraySet(int ns, long addr, int n, int[] v) { }
+    public void writeObjectSet(int ns, long addr, int n, byte[] v) { }
+
     public void addNotification(int ns, long[] addrs) { }
+    public void removeNotification(int ns, long[] addrs) { }
+
+    public void setNotification(DSIListener l) { }
+    public void setNotification(short ns, DSIListener l) { }
+    public void setNotification(short[] ns, DSIListener l) { }
+
     public void clearNotification(DSIListener l) { }
     public void clearNotification(short ns, DSIListener l) { }
     public void clearNotification(short[] ns, DSIListener l) { }
+
     public void enterEngineeringSession(int s) { }
     public void exitEngineeringSession(int s) { }
     public void enterGreenEngineeringMenu() { }
     public void leaveGreenEngineeringMenu() { }
     public void flushSQLDatabase() { }
     public void flushSQLDatabase(boolean s) { }
+    public void setSQLDatabaseMedium(int m) { }
     public void getVisibleSystemLanguages() { }
+
     public String getName() { return "MockDSIPersistence"; }
-    public String getServiceAdapterVersion() { return "mock-0.1"; }
+    public String getServiceAdapterVersion() { return "mock-0.2"; }
 }

@@ -55,16 +55,14 @@ for CLASS in de/dspl/per3reader/Activator.class \
     fi
 done
 
-echo "[build] jar (only de/dspl/per3reader/, NOT stubs)"
+echo "[build] jar (only de/dspl/per3reader/, NOT stubs, NOT test/)"
 # Strip the stub packages from the output — at runtime, the real OSGi
 # and DSI classes come from the bootclasspath.
 # Also strip the test/ subpackage — not needed at runtime, only in dev.
-mkdir -p "$OUT-jar"
-cp -r "$OUT/de/dspl/per3reader" "$OUT-jar/de/dspl/per3reader" 2>/dev/null || {
-    mkdir -p "$OUT-jar/de/dspl/per3reader"
-    find "$OUT/de/dspl/per3reader" -maxdepth 1 -name '*.class' -exec cp {} "$OUT-jar/de/dspl/per3reader/" \;
-}
-rm -rf "$OUT-jar/de/dspl/per3reader/test"
+rm -rf "$OUT-jar"
+mkdir -p "$OUT-jar/de/dspl/per3reader"
+# Copy only the .class files directly under de/dspl/per3reader/ (NOT subdirs)
+find "$OUT/de/dspl/per3reader" -maxdepth 1 -name '*.class' -exec cp {} "$OUT-jar/de/dspl/per3reader/" \;
 jar cfm "$JAR" MANIFEST.MF -C "$OUT-jar" de/dspl/per3reader
 
 echo "[build] verify jar contents"

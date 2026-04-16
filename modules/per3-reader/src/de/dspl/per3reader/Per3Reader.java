@@ -114,6 +114,25 @@ public class Per3Reader implements DSIPersistenceListener {
     public void writeArray(int ns, long address, int errorCode)  { /* no-op */ }
     public void writeBuffer(int ns, long address, int errorCode) { /* no-op */ }
 
+    // Set-style bulk callbacks — not used by our single-address reads but
+    // part of the real DSIPersistenceListener interface (verified via javap
+    // on the real AppDevelopment.jar's PersistenceListener class).
+    public void readIntSet(int ns, long address, int[] values, int errorCode) { /* no-op */ }
+    public void readStringSet(int ns, long address, String[] values, int errorCode) { /* no-op */ }
+    public void writeIntSet(int ns, long address, int errorCode) { /* no-op */ }
+    public void writeStringSet(int ns, long address, int errorCode) { /* no-op */ }
+
+    // Error + system-state callbacks — also required by the real interface.
+    // We log async exceptions so the operator can see DSI faults in sloginfo.
+    public void asyncException(int ns, String message, int errorCode) {
+        System.err.println("[per3-reader] asyncException ns=" + ns + " errcode=" + errorCode + " msg=" + message);
+    }
+    public void updateDTCErrorMemoryStatus(int status, int errorCode) { /* no-op */ }
+    public void flushSQLDatabase(int errorCode) { /* no-op */ }
+    public void getVisibleSystemLanguages(String languages) { /* no-op */ }
+    public void updateActiveSQLDatabaseMedium(int medium, int errorCode) { /* no-op */ }
+    public void updateGlobalPersistenceAvailabilityStatus(int status, int errorCode) { /* no-op */ }
+
     // --- Internals ---------------------------------------------------------
 
     private Long keyOf(int ns, long address) {
