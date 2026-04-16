@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# per3-reader: intermediate build outputs (jar itself IS tracked)
+modules/per3-reader/build/
+modules/per3-reader/build-jar/

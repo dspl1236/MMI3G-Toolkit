@@ -296,6 +296,22 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
                         os.path.join(output_dir, 'scripts', f)
                     )
                     print(f"  [OK] scripts/{f}")
+
+        # Copy pre-built artifact if the manifest declares one (e.g. a JAR that
+        # the module installs into flash rather than a .sh/.esd).
+        artifact = meta.get('artifact')
+        if artifact:
+            artifact_src = os.path.join(mod_dir, artifact)
+            if os.path.isfile(artifact_src):
+                # Artifacts go into modules/{name}/ on the SD to keep them
+                # separate from engdefs/ and scripts/ (which are flat).
+                art_dest_dir = os.path.join(output_dir, 'modules', mod_name)
+                os.makedirs(art_dest_dir, exist_ok=True)
+                shutil.copy2(artifact_src, os.path.join(art_dest_dir, artifact))
+                print(f"  [OK] modules/{mod_name}/{artifact}")
+            else:
+                print(f"  [WARN] {mod_name} declares artifact '{artifact}' but file not found at {artifact_src}")
+                print(f"         Build it first — see {mod_dir}/build.sh")
     
     # Generate combined run.sh
     run_sh = generate_run_sh(selected_modules, modules)

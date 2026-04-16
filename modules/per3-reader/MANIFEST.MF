@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MMI3G per3-reader
+Bundle-SymbolicName: de.dspl.per3reader
+Bundle-Version: 0.1.0.alpha
+Bundle-Activator: de.dspl.per3reader.Activator
+Bundle-Vendor: dspl1236
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Import-Package: org.osgi.framework,
+ org.osgi.util.tracker,
+ org.dsi.ifc.base,
+ org.dsi.ifc.persistence

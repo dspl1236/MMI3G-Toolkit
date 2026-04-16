@@ -1,0 +1,40 @@
+{
+    "name": "per3-reader",
+    "version": "0.1.0-alpha",
+    "description": "Read per3 / DSI persistence values from shell scripts. Ships an OSGi bundle that installs into the DSITracer.jar slot on /mnt/efs-system/lsd/ — on MMI boot, the bundle registers as a DSIPersistenceListener and serves synchronous reads through a file-based trigger mechanism. Answers the long-standing 'how do I read per3 addresses without writing a Java GEM screen' question.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "per3_install.sh",
+    "script_dir": "/scripts/Per3Reader",
+    "artifact": "per3-reader.jar",
+    "requires_reboot": true,
+    "scripts": [
+        "per3_install.sh - Install per3-reader.jar into /mnt/efs-system/lsd/ (requires MMI reboot)",
+        "per3_restore.sh - Remove the bundle, restore original DSITracer.jar if one was backed up",
+        "per3_read.sh - Shell client that issues reads through the bundle's file-trigger interface"
+    ],
+    "usage": [
+        "After install + reboot:",
+        "  ksh ./scripts/per3_read.sh int 0x00100015     # car-device value",
+        "  ksh ./scripts/per3_read.sh string 0x00120004  # train name",
+        "  ksh ./scripts/per3_read.sh int 0x00000023     # battery voltage x 100 mV"
+    ],
+    "how_it_works": [
+        "1. per3_install.sh drops per3-reader.jar into /mnt/efs-system/lsd/DSITracer.jar",
+        "2. On next MMI boot, lsd.sh detects it and prepends to -Xbootclasspath, MODULAR=yes",
+        "3. The OSGi framework finds Bundle-Activator: de.dspl.per3reader.Activator",
+        "4. Activator opens a ServiceTracker on org.dsi.ifc.persistence.DSIPersistence",
+        "5. When DSIPersistence appears (DEVICE_NAME != *[FakePer]*), we wrap it in Per3Reader",
+        "6. Per3Reader is registered as an OSGi DSIPersistenceListener service so the DSI implementation routes callbacks to us",
+        "7. A TriggerLoop thread watches /fs/sda1/per3req/ for {ns}.{addr}.{type}.req files",
+        "8. Each request triggers an async DSI read, the callback wakes a per-address monitor, the result is written atomically to {ns}.{addr}.{type}.resp"
+    ],
+    "risks": [
+        "ALPHA: not yet verified on real hardware. Offline tests (9/9 passing) exercise the logic against an in-memory DSIPersistence mock, but the real dsi.jar interface may have additional methods we didn't stub, which would cause AbstractMethodError at class-load time. Run tools/extract_jars_from_efs.py against the firmware to cross-check before deploying.",
+        "Takes the DSITracer.jar slot — if you're actively debugging with DSITracer installed, this will replace it. per3_install.sh preserves the original as .bak so restoring is straightforward.",
+        "Requires MMI reboot to take effect (drops onto the bootclasspath at JVM start)."
+    ],
+    "credits": "DSIPersistence interface inferred from decompiled FakePersistence and PersistenceAccessor under research/decompiled/. Extension-point pattern (DSITracer.jar slot) documented by Harman-Becker in /mnt/efs-system/lsd/lsd.sh. Motivation and validation: DrGER2's 2026-04 review of this toolkit."
+}
