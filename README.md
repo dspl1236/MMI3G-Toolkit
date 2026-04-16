@@ -142,6 +142,10 @@ This project builds on years of community research:
 - **[romangarms](https://github.com/romangarms)** — Java-on-Audi-MMI-3G JVM research
 - **Audizine, A5OC, VWVortex, ClubTouareg** communities — Thousands of posts of collective knowledge
 
+## Related Projects
+
+- **[PCM-Forge](https://github.com/dspl1236/PCM-Forge)** — Sister project for Porsche PCM 3.1 (same Harman Becker platform). Activation code algorithm fully cracked via SH4 firmware reverse engineering. Web tool at [dspl1236.github.io/PCM-Forge](https://dspl1236.github.io/PCM-Forge/)
+
 ## Disclaimer
 
 This toolkit modifies files on your MMI3G head unit's flash storage. While all changes are reversible and the risk of bricking is very low (the QNX OS runs from separate NVRAM, not the HDD/flash we modify), **use at your own risk**. No warranty is expressed or implied. This project is not affiliated with Audi, Volkswagen, or Harman Becker.
