@@ -1,0 +1,26 @@
+{
+    "name": "variant-dump",
+    "version": "1.0.0",
+    "description": "Comprehensive adaptation and coding extraction — dumps all known per3 car-function, car-device, and CAN-assignment addresses to a structured SD card report. Read-only.",
+    "author": "dspl1236",
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "variant_dump.sh",
+    "script_dir": "/scripts/VariantDump",
+    "installs_to_flash": false,
+    "scripts": [
+        "variant_dump.sh - Dump all 90+ per3 adaptation addresses and decode"
+    ],
+    "decodes": [
+        "Car Device list (0x00100000-0x0010003F) — installed feature flags",
+        "Car Function list (0x00100040-0x0010008F)",
+        "CAN Bus assignment (0x0014003D-0x00140098) — Komfort vs Dashboard routing",
+        "Feature CAN channel assignment (0x00140000-0x0014001E)",
+        "Telephony/feature settings (0x00150000-0x0015001F)",
+        "Hardware/SW version strings (0x00500000-0x0050000F)",
+        "Spare-part numbers (0x00110006-0x0011000C)"
+    ],
+    "notes": "Inspired by the 'Adaptations' and 'VariantInfo' screens in jilleb/mib2-toolbox. MIB2 uses BAP/UDS adaptation channels. MMI3G uses the per3 namespace directly, so this module reads per3 addresses via the GEM keyValue system (requires GEM activated + a booted MMI). Output is a labeled table of what each address reported.",
+    "credits": "Concept from jilleb/mib2-toolbox Adaptations/VariantInfo screens. Uses per3 address map documented in research/PER3_ADDRESS_MAP.md."
+}
