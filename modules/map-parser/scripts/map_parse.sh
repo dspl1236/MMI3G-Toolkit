@@ -35,7 +35,7 @@ else
         case "$MMI_VARIANT_ID" in
             9304) MMI_VARIANT="MMI3G_BASIC" ;;
             9308) MMI_VARIANT="MMI3G_HIGH" ;;
-            9411|9478) MMI_VARIANT="MMI3GP" ;;
+            9411|9436|9478) MMI_VARIANT="MMI3GP" ;;
         esac
         break
     done

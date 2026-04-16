@@ -11,6 +11,7 @@
 - Audi Q7 (4L) — 2009–2015
 
 ### MMI 3G+ / MMI 3GP (HN+)
+- Audi A1 (8X) — 2012–2018 (**variant ID 9436** — smaller/cheaper HU, same 3G+ class)
 - Audi A4/S4/RS4 (B8.5) — 2012–2016
 - Audi A5/S5/RS5 (B8.5) — 2012–2017
 - Audi A6/S6/RS6 (C7) — 2012–2018
@@ -22,6 +23,19 @@
 
 ### VW RNS-850
 - VW Touareg (7P) — 2011–2018
+
+## Variant IDs
+
+The `/etc/pci-3g_XXXX.cfg` file tells you which variant the unit is. Current
+known IDs:
+
+| ID   | Platform           | Notes |
+|------|--------------------|-------|
+| 9304 | MMI 3G Basic       | Entry-level HU, no MMI High / Plus features |
+| 9308 | MMI 3G High        | Hard-drive navigation, 8GB HDD on early units |
+| 9411 | MMI 3G Plus        | Main A4/A5/A6/A7/A8/Q5/Q7 3G+ hardware |
+| 9436 | MMI 3G Plus (A1)   | Audi A1 8X — same software class, smaller physical unit |
+| 9478 | RNS-850 (VW)       | VW Touareg 7P — `_VW_` train name infix confirms |
 
 ## Not Compatible
 

@@ -24,6 +24,7 @@ Any Audi or VW with a Harman Becker MMI 3G family head unit:
 |----------|-------|----------|
 | **MMI 3G High** | 2008–2012 | A4/A5/A6/A8/Q5/Q7 (B8, C6, D3) |
 | **MMI 3G+** | 2012–2018 | A4/A5/A6/A7/A8/Q5/Q7 (B8.5, C7, D4) |
+| **MMI 3G+ (A1)** | 2012–2018 | A1 8X (variant ID 9436, smaller HU but same 3G+ class) |
 | **RNS-850** | 2011–2018 | VW Touareg (7P) |
 
 See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.

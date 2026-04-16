@@ -8,10 +8,17 @@
 # Provides these variables / functions to the sourcing script:
 #
 #   $MMI_VARIANT      "MMI3G_BASIC" | "MMI3G_HIGH" | "MMI3GP" | "RNS850" | "UNKNOWN"
-#   $MMI_VARIANT_ID   "9304" | "9308" | "9411" | "9411" | ""
+#   $MMI_VARIANT_ID   "9304" | "9308" | "9411" | "9436" | "9478" | ""
 #   $MMI_TRAIN        the train name string (e.g. "HN+R_EU_AU_K0942_4"), or "n/a"
 #   $MMI_SW_VERSION   main unit software version string, or "n/a"
 #   $MMI_HW_SAMPLE    /etc/hwSample contents, or "n/a"
+#
+# Known variant IDs:
+#     9304  MMI 3G Basic
+#     9308  MMI 3G High
+#     9411  MMI 3G Plus (A4/A5/A6/A7/A8/Q5/Q7 etc)
+#     9436  MMI 3G Plus, Audi A1 8X variant  (per DrGER2)
+#     9478  MMI 3G Plus, RNS-850 / VW
 #
 #   mmi_getTime       wall-clock timestamp (seconds since epoch) —
 #                     prefers Harman-Becker getTime over QNX date
@@ -42,17 +49,24 @@ elif [ -f /etc/pci-3g_9308.cfg ]; then
 elif [ -f /etc/pci-3g_9411.cfg ]; then
     MMI_VARIANT="MMI3GP"
     MMI_VARIANT_ID="9411"
+elif [ -f /etc/pci-3g_9436.cfg ]; then
+    # DrGER2 2026-04: Audi A1 8X uses a distinct variant ID.
+    MMI_VARIANT="MMI3GP"
+    MMI_VARIANT_ID="9436"
+elif [ -f /etc/pci-3g_9478.cfg ]; then
+    MMI_VARIANT="MMI3GP"
+    MMI_VARIANT_ID="9478"
 else
     # Fallback if the pci-3g_*.cfg pattern is missing for some reason —
-    # try globbing
+    # try globbing. New variant IDs can be slotted into the case below.
     for f in /etc/pci-3g_*.cfg; do
         [ -f "$f" ] || continue
         MMI_VARIANT_ID="$(echo "$f" | sed -n 's,^/etc/pci-3g_\([0-9]*\)\.cfg$,\1,p')"
         case "$MMI_VARIANT_ID" in
-            9304) MMI_VARIANT="MMI3G_BASIC" ;;
-            9308) MMI_VARIANT="MMI3G_HIGH" ;;
-            9411|9478) MMI_VARIANT="MMI3GP" ;;
-            *)    MMI_VARIANT="UNKNOWN" ;;
+            9304)           MMI_VARIANT="MMI3G_BASIC" ;;
+            9308)           MMI_VARIANT="MMI3G_HIGH" ;;
+            9411|9436|9478) MMI_VARIANT="MMI3GP" ;;
+            *)              MMI_VARIANT="UNKNOWN" ;;
         esac
         break
     done
@@ -72,7 +86,9 @@ fi
 
 # -------- RNS-850 disambiguation --------
 # RNS-850 has the "_VW_" infix (e.g. HN+_US_VW_K0711).
-# Otherwise a 9411 unit is a regular MMI 3G+.
+# A 9411 unit without _VW_ is a regular A4/A5/A6/A7/A8/Q5/Q7 MMI 3G+;
+# 9436 is the A1 8X variant (smaller/cheaper hardware, same MMI 3G+ class);
+# 9478 is the VW RNS-850 variant.
 if [ "$MMI_VARIANT" = "MMI3GP" ] && echo "$MMI_TRAIN" | grep -q "_VW_"; then
     MMI_VARIANT="RNS850"
 fi
