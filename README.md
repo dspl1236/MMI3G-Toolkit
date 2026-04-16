@@ -34,7 +34,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 |--------|--------|-------------|
 | **gauges-dashboard** | ✅ Ready | Live telemetry — battery voltage, GPS, system info, data logging |
 | **system-info** | ✅ Ready | One-shot system reporter — full MMI state dump to SD |
-| **gem-activator** | ✅ Ready | Enable the Green Engineering Menu without VCDS |
+| **gem-activator** ⚠️ | ✅ Ready | GEM infrastructure setup (engdefs/, AppDevelopment.jar check). **Setting the enable bit requires VCDS/ODIS** — adaptation 5F channel 6 = 1. No SD-script method exists for that step |
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
 | **lte-setup** ⚠️ | ✅ Ready | Provision LTE mobile data via USB Ethernet (**requires hardware — see below**) |
 | **can-scanner** | ✅ Ready | CAN bus address scanner — discover RPM, boost, coolant, speed data |
@@ -47,7 +47,20 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **map-parser** | ✅ Ready | Extract nav database descriptor (acios_db.ini), FSC activation state, map metadata |
 | **long-coding** | 🔧 Alpha | Live display of current adaptation values via GEM screens. Read-only — edit with VCDS/ODIS |
 
-> **⚠️ = external hardware required.** Every other module is pure software — SD card in, job done. The hardware-required modules are flagged so you know before building your SD card.
+> **⚠️ = external tool required.** Every other module is pure software — SD card in, job done. The flagged modules need either VCDS/ODIS (gem-activator), extra hardware (lte-setup), or both (diag-tool).
+
+## One-Time Prerequisite: Enable GEM with VCDS
+
+Before any GEM-screen module does anything visible, the MMI's GEM enable bit must be set. This is a **one-time** operation performed with a diagnostic tool — not from an SD card.
+
+| Tool | Path |
+|------|------|
+| VCDS / VCP | Address `5F` (Information Electr.) → Adaptation (10) → Channel `6` → Value `1` → Save |
+| ODIS E17 | Address `5F` → Adaptation → Channel `6` → Value `1` |
+
+Reboot the MMI after saving (hold MENU + rotary knob + upper-right soft key for ~3 seconds). Then hold **CAR + BACK** (MMI 3G+) or **CAR + SETUP** (3G High) for ~5 seconds to open the GEM.
+
+**Why can't an SD script do this?** The adaptation value lives in module 5F's persistent memory and is only writable over UDS (the OBD diagnostic protocol). The MMI's QNX system does not ship a UDS client binary, so there is no way for a shell script running on the head unit to set the flag. The `gem-activator` module in this toolkit only prepares the filesystem — the enable bit itself must be set with VCDS or ODIS.
 
 ## Hardware Requirements
 
@@ -83,7 +96,7 @@ Live mode is currently alpha and undocumented; use VCDS or ODIS for production d
 - Python 3.6+
 - A 32GB SDHC card (not SDXC) formatted as FAT32
 - An Audi/VW with MMI 3G, 3G+, or RNS-850
-- Green Engineering Menu enabled (via VCDS or gem-activator module)
+- Green Engineering Menu enabled (via VCDS: address 5F, adaptation channel 6 = 1)
 
 ### Build an SD Card
 
@@ -148,7 +161,7 @@ MMI3G-Toolkit/
 ├── modules/
 │   ├── gauges-dashboard/    # Live telemetry — voltage, GPS, data logging
 │   ├── system-info/         # One-shot system state dump to SD
-│   ├── gem-activator/       # Enable GEM without VCDS
+│   ├── gem-activator/       # engdefs/ setup (enable bit still needs VCDS)
 │   ├── nav-unblocker/       # Nav database activation bypass
 │   ├── can-scanner/         # CAN bus address discovery tool
 │   ├── jvm-extract/         # Extract J9 JVM + UI framework

@@ -35,24 +35,20 @@ else
 fi
 echo ""
 
-echo "--- GEM State Marker ---"
-GEM_STATE="${EFSDIR}/engdefs/.gem_enabled"
-if [ -f "${GEM_STATE}" ]; then
-    echo "EXISTS: $(cat ${GEM_STATE})"
+echo "--- Legacy marker file (old gem_enable.sh left this; it's a no-op) ---"
+LEGACY_MARKER="${EFSDIR}/engdefs/.gem_enabled"
+if [ -f "${LEGACY_MARKER}" ]; then
+    echo "PRESENT (harmless placebo — ignore, or let gem_disable.sh remove it)"
 else
-    echo "NOT FOUND (may still be enabled via adaptation)"
+    echo "Not present"
 fi
 echo ""
 
-echo "--- Adaptation Data ---"
-if [ -x "/usr/bin/persist_data" ]; then
-    echo "persist_data binary: available"
-    VAL=$(/usr/bin/persist_data -r 5F 6 2>/dev/null)
-    echo "Channel 5F/6 value: ${VAL:-unknown}"
-else
-    echo "persist_data binary: not available"
-    echo "(adaptation value can only be read via VCDS)"
-fi
+echo "--- GEM enable bit (adaptation 5F channel 6) ---"
+echo "This value lives in persistent adaptation data on module 5F and"
+echo "cannot be read from the MMI's SD-script environment — the QNX"
+echo "system on the head unit does not ship a UDS client binary."
+echo "Use VCDS (address 5F -> Adaptation -> channel 6) to read it."
 echo ""
 
 echo "--- Scripts Directory ---"

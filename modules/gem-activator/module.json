@@ -1,7 +1,7 @@
 {
     "name": "gem-activator",
-    "version": "1.0.0",
-    "description": "Enable the Green Engineering Menu via SD card script - no VCDS required. Prerequisite for all GEM screen modules.",
+    "version": "2.0.0",
+    "description": "GEM infrastructure setup — ensures /mnt/efs-system/engdefs/ exists and verifies AppDevelopment.jar is present. Does NOT flip the GEM enable bit — that requires VCDS/ODIS on adaptation 5F channel 6. This module just prepares the filesystem so other modules' screens load correctly once GEM is enabled by a diagnostic tool.",
     "author": "dspl1236",
     "status": "ready",
     "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
@@ -9,9 +9,14 @@
     "standalone": true,
     "run_script": "gem_enable.sh",
     "scripts": [
-        "gem_enable.sh - Enable GEM (main activator)",
-        "gem_disable.sh - Disable GEM (reverses activation)",
-        "gem_status.sh - Check GEM status without changes"
+        "gem_enable.sh - Set up engdefs infrastructure (prints VCDS instructions)",
+        "gem_disable.sh - Clean up infrastructure (prints VCDS instructions)",
+        "gem_status.sh - Report what is present on the MMI (read-only)"
     ],
-    "notes": "Activates GEM by writing to persistent flash memory. Same mechanism as VCDS adaptation 5F channel 6 = 1. Survives reboots. Reversed by firmware reinstall or gem_disable.sh."
+    "requires_external_tool": {
+        "tool": "VCDS, ODIS E17, or equivalent UDS diagnostic interface",
+        "action": "Set adaptation on module 5F, channel 6, value 1",
+        "reason": "The GEM enable bit lives in persistent adaptation memory and is only writable over UDS. There is no SD-script method to set it."
+    },
+    "notes": "Older versions of this module claimed to enable GEM from an SD script. That was wrong — the 'Keldo activator' everyone references is the nav-database unblocker (see nav-unblocker module), not a GEM enabler. This version is honest about what SD scripts can and cannot do."
 }

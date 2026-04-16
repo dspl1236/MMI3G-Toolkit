@@ -61,7 +61,7 @@ class MMI3GCipher {
 const MANIFEST_URL = "./manifest.json";
 const MODULES_DISPLAY = [
   { id: "gem-activator", name: "GEM Activator", status: "ready",
-    desc: "Enable Green Engineering Menu without VCDS",
+    desc: "GEM infrastructure setup — flipping the enable bit still needs VCDS (address 5F channel 6 = 1)",
     compat: ["3G", "3G+", "RNS-850"], category: "system",
     prereq: null, detail: "Sets adaptation 5F channel 6 = 1 via persistent flash write. Prerequisite for all GEM screen modules." },
   { id: "gauges-dashboard", name: "Gauges Dashboard", status: "ready",

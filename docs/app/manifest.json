@@ -80,18 +80,24 @@
     },
     "diag-tool": {
       "status": "alpha",
-      "description": "UDS diagnostic scanner (alpha \u2014 requires VAG-COM cable)",
+      "description": "UDS diagnostic scanner for VAG modules \u2014 simulated transport + full UDS client (alpha). Live mode requires external VAG-COM interface (VCDS HEX, VNCI 6154a). Installed as a Java JAR artifact; no GEM screens.",
       "standalone": false,
       "run_script": null,
-      "script_dir": "/scripts/diag-tool",
+      "script_dir": "/scripts/DiagTool",
       "installs_to_flash": true,
       "compatible": [
-        "MMI3G+"
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
       ],
       "files": [
         {
           "path": "diag-tool.jar",
           "size": 23061
+        },
+        {
+          "path": "module.json",
+          "size": 1021
         },
         {
           "path": "src/de/audi/mmi3g/diag/DiagApp.java",
@@ -259,7 +265,7 @@
     },
     "gem-activator": {
       "status": "ready",
-      "description": "Enable the Green Engineering Menu via SD card script - no VCDS required. Prerequisite for all GEM screen modules.",
+      "description": "GEM infrastructure setup \u2014 ensures /mnt/efs-system/engdefs/ exists and verifies AppDevelopment.jar is present. Does NOT flip the GEM enable bit \u2014 that requires VCDS/ODIS on adaptation 5F channel 6. This module just prepares the filesystem so other modules' screens load correctly once GEM is enabled by a diagnostic tool.",
       "standalone": true,
       "run_script": "gem_enable.sh",
       "script_dir": "/scripts/GEM",
@@ -272,19 +278,19 @@
       "files": [
         {
           "path": "module.json",
-          "size": 773
+          "size": 1474
         },
         {
           "path": "scripts/gem_disable.sh",
-          "size": 1137
+          "size": 2991
         },
         {
           "path": "scripts/gem_enable.sh",
-          "size": 7601
+          "size": 5756
         },
         {
           "path": "scripts/gem_status.sh",
-          "size": 2319
+          "size": 2389
         }
       ]
     },
