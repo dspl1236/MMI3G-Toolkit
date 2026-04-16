@@ -106,21 +106,28 @@ The GEM screens use the MMI's built-in Java VM to display live vehicle data thro
 ```
 MMI3G-Toolkit/
 ├── builder/
-│   ├── build_sd.py         # SD card assembler
-│   └── encoder.py          # copie_scr.sh XOR encoder
+│   ├── build_sd.py          # SD card assembler
+│   └── encoder.py           # copie_scr.sh XOR encoder
 ├── core/
-│   ├── copie_scr_plain.sh  # Launcher template (auto-encoded)
-│   └── uninstall.sh        # Universal uninstaller
+│   ├── copie_scr_plain.sh   # Launcher template (auto-encoded)
+│   └── uninstall.sh         # Universal uninstaller
 ├── modules/
-│   ├── gauges-dashboard/   # Live telemetry screens
-│   │   ├── module.json
-│   │   ├── engdefs/        # GEM screen definitions
-│   │   └── scripts/        # Helper scripts
-│   ├── system-info/        # System reporter (planned)
-│   ├── gem-activator/      # GEM enabler (planned)
-│   ├── nav-unblocker/      # Nav DB bypass (planned)
-│   └── lte-setup/          # LTE provisioning (3G+ only)
-│   └── splash-screen/      # Boot screen (planned)
+│   ├── gauges-dashboard/    # Live telemetry — voltage, GPS, data logging
+│   ├── system-info/         # One-shot system state dump to SD
+│   ├── gem-activator/       # Enable GEM without VCDS
+│   ├── nav-unblocker/       # Nav database activation bypass
+│   ├── can-scanner/         # CAN bus address discovery tool
+│   ├── jvm-extract/         # Extract J9 JVM + UI framework
+│   ├── game-loader/         # Java game launcher for MMI
+│   ├── diag-tool/           # UDS diagnostic scanner (alpha)
+│   ├── lte-setup/           # LTE mobile data provisioning (3G+)
+│   └── splash-screen/       # Custom boot splash screen
+├── research/
+│   ├── ARCHITECTURE.md      # Decompiled Java UI framework (152 classes)
+│   ├── PER3_ADDRESS_MAP.md  # CAN/vehicle data address map
+│   ├── IOACTIVE_V850_REFERENCE.md  # V850 IOC RE methodology
+│   └── custom-dash/         # Custom dashboard development guide
+├── app/                     # Web app (GitHub Pages)
 └── docs/
     ├── SUPPORTED_VEHICLES.md
     └── CONTRIBUTING.md
