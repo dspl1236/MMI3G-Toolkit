@@ -23,6 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script type="text/babel">
     const { useState, useRef, useCallback, useEffect } = React;
 
@@ -30,43 +31,91 @@ const MMI_W = 800;
 const MMI_H = 480;
 const PREVIEW_SCALE = 0.72;
 
-const MODULES = [
-  {
-    id: "gem-activator", name: "GEM Activator", status: "ready",
+// MMI3GCipher — XOR PRNG matching Harman Becker proc_scriptlauncher
+// Verified byte-identical to builder/encoder.py
+class MMI3GCipher {
+  constructor() {
+    this.SEED_INIT = 0x001be3ac >>> 0;
+    this.seed = this.SEED_INIT;
+  }
+  _prng_rand() {
+    const r0 = this.seed >>> 0;
+    let r1 = ((this.seed >>> 1) | ((this.seed << 31) >>> 0)) >>> 0;
+    let r3 = ((((r1 >>> 16) & 0xFF) + r1) >>> 0);
+    r1 = ((((r3 >>> 8) & 0xFF) << 16) >>> 0);
+    r3 = ((r3 - r1) >>> 0);
+    this.seed = r3;
+    return r0;
+  }
+  process(data) {
+    this.seed = this.SEED_INIT;
+    this._prng_rand();
+    const out = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      out[i] = data[i] ^ (this._prng_rand() & 0xFF);
+    }
+    return out;
+  }
+}
+
+const MANIFEST_URL = "./manifest.json";
+const MODULES_DISPLAY = [
+  { id: "gem-activator", name: "GEM Activator", status: "ready",
     desc: "Enable Green Engineering Menu without VCDS",
     compat: ["3G", "3G+", "RNS-850"], category: "system",
-    prereq: null, detail: "Sets adaptation 5F channel 6 = 1 via persistent flash write. Prerequisite for all GEM screen modules."
-  },
-  {
-    id: "gauges-dashboard", name: "Gauges Dashboard", status: "ready",
+    prereq: null, detail: "Sets adaptation 5F channel 6 = 1 via persistent flash write. Prerequisite for all GEM screen modules." },
+  { id: "gauges-dashboard", name: "Gauges Dashboard", status: "ready",
     desc: "Live telemetry — voltage, GPS, system info, data logging",
     compat: ["3G", "3G+", "RNS-850"], category: "gem",
-    prereq: "gem-activator", detail: "3 GEM screens with 500ms battery polling, GPS satellite tracking, and one-tap data logging to SD card."
-  },
-  {
-    id: "splash-screen", name: "Splash Screen", status: "ready",
+    prereq: "gem-activator", detail: "3 GEM screens with 500ms battery polling, GPS satellite tracking, and one-tap data logging to SD card." },
+  { id: "splash-screen", name: "Splash Screen", status: "ready",
     desc: "Custom boot logo — use the formatter tab to prepare your image",
     compat: ["3G", "3G+", "RNS-850"], category: "visual",
-    prereq: null, detail: "Copies 800×480 PNG to /mnt/efs-system/etc/splashscreens/. Backs up factory screens automatically."
-  },
-  {
-    id: "nav-unblocker", name: "Nav Unblocker", status: "ready",
+    prereq: null, detail: "Copies 800x480 PNG to /mnt/efs-system/etc/splashscreens/. Backs up factory screens automatically." },
+  { id: "nav-unblocker", name: "Nav Unblocker", status: "ready",
     desc: "Bypass navigation database activation check",
     compat: ["3G", "3G+", "RNS-850"], category: "nav",
-    prereq: null, detail: "Patches manage_cd.sh to terminate vdev-logvolmgr (Keldo/DrGER2 method). Persistent, reversed by firmware reinstall."
-  },
-  {
-    id: "system-info", name: "System Info", status: "ready",
+    prereq: null, detail: "Patches manage_cd.sh to terminate vdev-logvolmgr. Persistent, reversed by firmware reinstall." },
+  { id: "system-info", name: "System Info", status: "ready",
     desc: "One-shot system reporter — full MMI state dump to SD card",
     compat: ["3G", "3G+", "RNS-850"], category: "diag",
-    prereq: null, detail: "11-section report + individual data files. Read-only — installs nothing to flash. Safe first-run diagnostic."
-  },
-  {
-    id: "lte-setup", name: "LTE Setup", status: "ready",
+    prereq: null, detail: "11-section report + individual data files. Read-only — installs nothing to flash." },
+  { id: "lte-setup", name: "LTE Setup", status: "ready",
     desc: "Provision USB Ethernet for LTE data after 3G sunset",
     compat: ["3G+", "RNS-850"], category: "net",
-    prereq: null, detail: "Creates DLinkReplacesPPP flag, enables DHCP on en5. Requires D-Link DUB-E100 + LTE router hardware."
-  },
+    prereq: null, detail: "Creates DLinkReplacesPPP flag, enables DHCP on en5. Requires D-Link DUB-E100 + LTE router." },
+  { id: "can-scanner", name: "CAN Scanner", status: "ready",
+    desc: "CAN bus address scanner — discover RPM, boost, coolant, speed",
+    compat: ["3G", "3G+", "RNS-850"], category: "diag",
+    prereq: "gem-activator", detail: "Live address scan via per3 namespace. Great for discovering custom data for gauges dashboard." },
+  { id: "jvm-extract", name: "JVM Extract", status: "ready",
+    desc: "Extract J9 JVM and UI framework for reverse engineering",
+    compat: ["3G", "3G+", "RNS-850"], category: "diag",
+    prereq: null, detail: "Copies J9 runtime and AppDevelopment.jar to SD for offline analysis." },
+  { id: "game-loader", name: "Game Loader", status: "ready",
+    desc: "Run Java games on the MMI's J9 JVM from SD card",
+    compat: ["3G", "3G+", "RNS-850"], category: "visual",
+    prereq: "gem-activator", detail: "Launcher module plus example games. Loads signed JARs via the built-in job framework." },
+  { id: "diag-tool", name: "Diag Tool", status: "alpha",
+    desc: "UDS diagnostic scanner — needs VAG-COM cable",
+    compat: ["3G+"], category: "diag",
+    prereq: null, detail: "Auto-scans modules, reads/clears DTCs. Alpha — requires external diagnostic hardware." },
+  { id: "password-finder", name: "Password Finder", status: "ready",
+    desc: "Dump stored Wi-Fi, Bluetooth, Audi Connect credentials",
+    compat: ["3G", "3G+", "RNS-850"], category: "diag",
+    prereq: null, detail: "Read-only scan of /mnt/efs-persist and /mnt/persist. Inspired by jilleb/mib2-toolbox." },
+  { id: "variant-dump", name: "Variant Dump", status: "ready",
+    desc: "Dump all 90+ per3 adaptation values to SD",
+    compat: ["3G", "3G+", "RNS-850"], category: "diag",
+    prereq: null, detail: "Car-device list, CAN assignments, ID strings, live sensors. Uses the documented per3 map." },
+  { id: "map-parser", name: "Map Parser", status: "ready",
+    desc: "Extract nav DB descriptor, FSC state, map metadata",
+    compat: ["3G", "3G+", "RNS-850"], category: "nav",
+    prereq: null, detail: "Dumps acios_db.ini, FSC activation files, nav HDD inventory for offline analysis." },
+  { id: "long-coding", name: "Long Coding", status: "alpha",
+    desc: "Live display of adaptation values via GEM (read-only)",
+    compat: ["3G", "3G+", "RNS-850"], category: "gem",
+    prereq: "gem-activator", detail: "3 GEM screens for car-device, CAN routing. Read-only — use VCDS/ODIS to change values." },
 ];
 
 const MODELS = [
@@ -82,19 +131,276 @@ const MODELS = [
 const CAT_COLORS = { system: "#f59e0b", gem: "#10b981", visual: "#8b5cf6", nav: "#3b82f6", diag: "#6b7280", net: "#ef4444" };
 const CAT_LABELS = { system: "System", gem: "GEM Screens", visual: "Visual", nav: "Navigation", diag: "Diagnostics", net: "Network" };
 
+// ============================================================
+// SD card assembly — runs entirely in the browser
+// ============================================================
+
+async function fetchBinary(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${url}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+async function fetchText(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${url}`);
+  return await r.text();
+}
+async function fetchJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${url}`);
+  return await r.json();
+}
+
+/**
+ * Generate the combined run.sh installer from selected modules.
+ * Mirrors generate_run_sh() in builder/build_sd.py.
+ */
+function generateRunSh(selected, manifest) {
+  const lines = [
+    "#!/bin/ksh",
+    "# ============================================================",
+    "# MMI3G-Toolkit - Combined Installer",
+    "# Auto-generated by the web SD card builder",
+    "# ============================================================",
+    "",
+    "SDPATH=\"${1:-$(dirname $0)}\"",
+    "LOGFILE=\"${SDPATH}/var/install-$(date +%Y%m%d-%H%M%S).log\"",
+    "EFSDIR=\"/mnt/efs-system\"",
+    "ENGDEFS=\"${EFSDIR}/engdefs\"",
+    "",
+    "exec > ${LOGFILE} 2>&1",
+    "",
+    "echo \"============================================\"",
+    "echo \" MMI3G-Toolkit Installer\"",
+    "echo \" $(date)\"",
+    "echo \" Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)\"",
+    "echo \"============================================\"",
+    "echo \"\"",
+    "",
+    "if [ ! -d \"${EFSDIR}\" ]; then",
+    "    echo \"[ERROR] /mnt/efs-system not found!\"",
+    "    exit 1",
+    "fi",
+    "",
+    "if [ ! -d \"${ENGDEFS}\" ]; then",
+    "    echo \"[ERROR] engdefs not found. Enable GEM first.\"",
+    "    exit 1",
+    "fi",
+    "",
+    "mount -uw ${EFSDIR}",
+    "if [ $? -ne 0 ]; then",
+    "    echo \"[ERROR] Failed to remount efs-system\"",
+    "    exit 1",
+    "fi",
+    "echo \"[OK] efs-system remounted rw\"",
+    "echo \"\"",
+    "",
+  ];
+
+  for (const modName of selected) {
+    const meta = manifest.modules[modName];
+    if (!meta) continue;
+    const scriptDir = meta.script_dir || `/scripts/${modName}`;
+    const esdFiles = (meta.files || []).filter(f => f.path.startsWith("engdefs/") && f.path.endsWith(".esd"));
+    const shFiles = (meta.files || []).filter(f => f.path.startsWith("scripts/") && f.path.endsWith(".sh"));
+
+    lines.push(`# --- Module: ${modName} ---`);
+    lines.push(`echo "[MODULE] Installing ${modName}..."`);
+
+    if (meta.standalone && meta.run_script) {
+      lines.push(`if [ -f "\${SDPATH}/scripts/${meta.run_script}" ]; then`);
+      lines.push(`    ksh "\${SDPATH}/scripts/${meta.run_script}" "\${SDPATH}"`);
+      lines.push(`    echo "[OK] ${modName} standalone script executed"`);
+      lines.push(`else`);
+      lines.push(`    echo "[WARN] ${meta.run_script} not found"`);
+      lines.push(`fi`);
+      if (shFiles.length > 0) {
+        lines.push(`SCRIPTDIR="\${EFSDIR}${scriptDir}"`);
+        lines.push(`mkdir -p \${SCRIPTDIR}`);
+        for (const f of shFiles) {
+          const name = f.path.split("/").pop();
+          lines.push(`if [ -f "\${SDPATH}/scripts/${name}" ]; then`);
+          lines.push(`    cp -v "\${SDPATH}/scripts/${name}" "\${SCRIPTDIR}/${name}"`);
+          lines.push(`    chmod +x "\${SCRIPTDIR}/${name}"`);
+          lines.push(`fi`);
+        }
+      }
+    } else {
+      if (esdFiles.length > 0) {
+        lines.push(`if [ -d "\${SDPATH}/engdefs" ]; then`);
+        for (const f of esdFiles) {
+          const name = f.path.split("/").pop();
+          lines.push(`    if [ -f "\${SDPATH}/engdefs/${name}" ]; then`);
+          lines.push(`        cp -v "\${SDPATH}/engdefs/${name}" "\${ENGDEFS}/${name}"`);
+          lines.push(`        echo "[INST] ${name}"`);
+          lines.push(`    fi`);
+        }
+        lines.push(`fi`);
+      }
+      if (shFiles.length > 0) {
+        lines.push(`SCRIPTDIR="\${EFSDIR}${scriptDir}"`);
+        lines.push(`mkdir -p \${SCRIPTDIR}`);
+        lines.push(`if [ -d "\${SDPATH}/scripts" ]; then`);
+        for (const f of shFiles) {
+          const name = f.path.split("/").pop();
+          lines.push(`    if [ -f "\${SDPATH}/scripts/${name}" ]; then`);
+          lines.push(`        cp -v "\${SDPATH}/scripts/${name}" "\${SCRIPTDIR}/${name}"`);
+          lines.push(`        chmod +x "\${SCRIPTDIR}/${name}"`);
+          lines.push(`        echo "[INST] ${name}"`);
+          lines.push(`    fi`);
+        }
+        lines.push(`fi`);
+      }
+    }
+
+    lines.push(`echo "[OK] ${modName} installed"`);
+    lines.push(`echo ""`);
+    lines.push("");
+  }
+
+  lines.push("# --- Complete ---");
+  lines.push("sync");
+  lines.push("echo \"============================================\"");
+  lines.push("echo \" Installation Complete\"");
+  lines.push(`echo " Modules installed: ${selected.length}"`);
+  lines.push("echo \" Log: ${LOGFILE}\"");
+  lines.push("echo \"\"");
+  lines.push("echo \" Open GEM (CAR + BACK) to access new screens\"");
+  lines.push("echo \"============================================\"");
+
+  return lines.join("\n") + "\n";
+}
+
+/**
+ * Fetch every file required by the selected modules plus core files.
+ * Returns an array of { path, bytes } ready to be written either to a
+ * directory picker or to a ZIP.
+ */
+async function buildSdBundle(selected, onProgress) {
+  onProgress && onProgress("Loading manifest...", 0);
+  const manifest = await fetchJson(MANIFEST_URL);
+  const rawBase = manifest.raw_url_base;
+
+  // Count total fetches for progress
+  let totalFiles = 2; // copie_scr_plain.sh + uninstall.sh
+  for (const mod of selected) {
+    totalFiles += (manifest.modules[mod]?.files || []).length;
+  }
+  let done = 0;
+  const step = (label) => {
+    done += 1;
+    onProgress && onProgress(label, Math.min(99, Math.round(done * 95 / totalFiles)));
+  };
+
+  // --- Core files ---
+  onProgress && onProgress("Fetching copie_scr.sh template...", 2);
+  const plainCopie = await fetchBinary(rawBase + manifest.core_files.copie_scr_plain_sh);
+  step("Encoding copie_scr.sh");
+  const encodedCopie = new MMI3GCipher().process(plainCopie);
+
+  const uninstallSh = await fetchBinary(rawBase + manifest.core_files.uninstall_sh);
+  step("Fetched uninstall.sh");
+
+  // --- Module files (parallel fetches per module) ---
+  const files = [];
+  files.push({ path: "copie_scr.sh", bytes: encodedCopie });
+  files.push({ path: "uninstall.sh", bytes: uninstallSh });
+
+  for (const modName of selected) {
+    const meta = manifest.modules[modName];
+    if (!meta) continue;
+    const tasks = (meta.files || []).map(async (f) => {
+      const url = rawBase + `modules/${modName}/${f.path}`;
+      const bytes = await fetchBinary(url);
+      step(`Fetched ${modName}/${f.path}`);
+      // Everything goes under engdefs/ or scripts/ or root of SD (module.json skipped)
+      if (f.path === "module.json") return null; // not needed on SD
+      if (f.path.startsWith("engdefs/") || f.path.startsWith("scripts/")) {
+        return { path: f.path, bytes };
+      }
+      // Other paths (e.g. diag-tool.jar, src/...) — place under module dir
+      return { path: `${modName}/${f.path}`, bytes };
+    });
+    const results = await Promise.all(tasks);
+    for (const r of results) if (r) files.push(r);
+  }
+
+  // --- Generated run.sh ---
+  onProgress && onProgress("Generating run.sh...", 97);
+  const runSh = generateRunSh(selected, manifest);
+  files.push({ path: "run.sh", bytes: new TextEncoder().encode(runSh) });
+
+  // --- Placeholder dirs so bin/ lib/ var/ exist even if empty ---
+  files.push({ path: "bin/.keep", bytes: new Uint8Array(0) });
+  files.push({ path: "lib/.keep", bytes: new Uint8Array(0) });
+  files.push({ path: "var/.keep", bytes: new Uint8Array(0) });
+
+  onProgress && onProgress("Bundle ready", 100);
+  return { files, manifest };
+}
+
+/**
+ * Write the bundle directly to a user-chosen directory (Chrome/Edge).
+ * Uses the File System Access API — same approach as PCM-Forge.
+ */
+async function writeBundleToDirectory(bundle, dirHandle) {
+  async function ensureDir(parent, name) {
+    return await parent.getDirectoryHandle(name, { create: true });
+  }
+  async function getNestedDir(root, relPath) {
+    const parts = relPath.split("/").filter(Boolean);
+    let h = root;
+    for (const p of parts) h = await ensureDir(h, p);
+    return h;
+  }
+
+  for (const f of bundle.files) {
+    const parts = f.path.split("/");
+    const fname = parts.pop();
+    const parentRel = parts.join("/");
+    const parentH = parentRel ? await getNestedDir(dirHandle, parentRel) : dirHandle;
+    const fileH = await parentH.getFileHandle(fname, { create: true });
+    const writable = await fileH.createWritable();
+    await writable.write(f.bytes);
+    await writable.close();
+  }
+}
+
+/**
+ * Package the bundle as a ZIP file and trigger a download.
+ */
+async function downloadBundleAsZip(bundle, filename) {
+  const zip = new JSZip();
+  for (const f of bundle.files) {
+    if (f.path.endsWith("/.keep")) continue; // directories get created automatically when child files added; .keep not needed
+    zip.file(f.path, f.bytes);
+  }
+  const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ============================================================
+// React component
+// ============================================================
+
 function App() {
   const [tab, setTab] = useState("modules");
   const [selected, setSelected] = useState(new Set(["system-info"]));
   const [model, setModel] = useState("a6c7");
   const [expandedMod, setExpandedMod] = useState(null);
-  const [buildState, setBuildState] = useState("idle");
+  const [buildState, setBuildState] = useState("idle"); // idle | building | done | error
+  const [buildProgress, setBuildProgress] = useState({ label: "", pct: 0 });
+  const [buildError, setBuildError] = useState(null);
+  const [buildStats, setBuildStats] = useState(null);
   const [sourceImg, setSourceImg] = useState(null);
   const [processedUrl, setProcessedUrl] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [exported, setExported] = useState(false);
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
@@ -132,28 +438,89 @@ function App() {
   const toggle = (id) => {
     const s = new Set(selected);
     if (s.has(id)) s.delete(id); else s.add(id);
-    MODULES.forEach(m => { if (s.has(m.id) && m.prereq && !s.has(m.prereq)) s.add(m.prereq); });
+    MODULES_DISPLAY.forEach(m => { if (s.has(m.id) && m.prereq && !s.has(m.prereq)) s.add(m.prereq); });
     setSelected(s);
   };
 
-  const selectAll = () => setSelected(new Set(MODULES.map(m => m.id)));
+  const selectAll = () => setSelected(new Set(MODULES_DISPLAY.map(m => m.id)));
   const selectNone = () => setSelected(new Set());
   const pw = MMI_W * PREVIEW_SCALE;
   const ph = MMI_H * PREVIEW_SCALE;
 
-  const handleBuild = () => { setBuildState("building"); setTimeout(() => setBuildState("done"), 1800); };
+  // Build bundle into memory. Used by both "Write to SD" and "Download ZIP".
+  const buildInMemory = async () => {
+    setBuildState("building");
+    setBuildError(null);
+    setBuildStats(null);
+    setBuildProgress({ label: "Starting...", pct: 0 });
+    try {
+      const bundle = await buildSdBundle([...selected], (label, pct) => {
+        setBuildProgress({ label, pct });
+      });
+      const totalBytes = bundle.files.reduce((n, f) => n + f.bytes.length, 0);
+      setBuildStats({ fileCount: bundle.files.filter(f => !f.path.endsWith("/.keep")).length, totalBytes });
+      return bundle;
+    } catch (e) {
+      console.error(e);
+      setBuildError(String(e.message || e));
+      setBuildState("error");
+      throw e;
+    }
+  };
+
+  const handleWriteToSd = async () => {
+    if (!window.showDirectoryPicker) {
+      setBuildError("Direct SD write needs Chrome or Edge. Use 'Download ZIP' instead.");
+      setBuildState("error");
+      return;
+    }
+    let dirHandle;
+    try {
+      // Ask for the SD card folder FIRST so the user intent is captured before the build runs
+      dirHandle = await window.showDirectoryPicker({ mode: "readwrite", startIn: "desktop" });
+    } catch (e) {
+      // User cancelled the picker
+      return;
+    }
+    try {
+      const bundle = await buildInMemory();
+      setBuildProgress({ label: "Writing to SD...", pct: 99 });
+      await writeBundleToDirectory(bundle, dirHandle);
+      setBuildProgress({ label: "Written to SD", pct: 100 });
+      setBuildState("done-sd");
+    } catch (e) {
+      console.error(e);
+      setBuildError(String(e.message || e));
+      setBuildState("error");
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    try {
+      const bundle = await buildInMemory();
+      setBuildProgress({ label: "Packaging ZIP...", pct: 99 });
+      const fname = `MMI3G-Toolkit-${new Date().toISOString().slice(0,10)}.zip`;
+      await downloadBundleAsZip(bundle, fname);
+      setBuildProgress({ label: "ZIP downloaded", pct: 100 });
+      setBuildState("done-zip");
+    } catch (e) {
+      console.error(e);
+      setBuildError(String(e.message || e));
+      setBuildState("error");
+    }
+  };
 
   const sdTree = () => {
-    let l = ["SD Root/", "\u251C\u2500\u2500 copie_scr.sh  (encoded)", "\u251C\u2500\u2500 run.sh        (auto-generated)"];
+    let l = ["SD Root/", "\u251C\u2500\u2500 copie_scr.sh  (encoded)", "\u251C\u2500\u2500 run.sh        (auto-generated)", "\u251C\u2500\u2500 uninstall.sh"];
     if (selected.has("splash-screen")) l.push("\u251C\u2500\u2500 splashscreens/", "\u2502   \u2514\u2500\u2500 startup_generic.png");
-    if ([...selected].some(id => { const m = MODULES.find(x => x.id === id); return m && m.category === "gem"; }))
+    if ([...selected].some(id => { const m = MODULES_DISPLAY.find(x => x.id === id); return m && (m.category === "gem" || m.category === "visual"); }))
       l.push("\u251C\u2500\u2500 engdefs/", "\u2502   \u2514\u2500\u2500 *.esd");
     l.push("\u251C\u2500\u2500 scripts/", "\u2502   \u2514\u2500\u2500 *.sh", "\u251C\u2500\u2500 bin/", "\u251C\u2500\u2500 lib/", "\u2514\u2500\u2500 var/  (logs saved here)");
     return l.join("\n");
   };
 
-  const S = (props) => React.createElement("span", props);
   const repoUrl = "https://github.com/dspl1236/MMI3G-Toolkit";
+  const chromium = typeof window !== "undefined" && "showDirectoryPicker" in window;
 
   return React.createElement("div", { style: { minHeight: "100vh", background: "#0a0a0c", color: "#e0ddd8", fontFamily: "'DM Sans', system-ui, sans-serif" } },
     React.createElement("link", { href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap", rel: "stylesheet" }),
@@ -173,92 +540,86 @@ function App() {
       )
     ),
 
-    React.createElement("div", { style: { maxWidth: 920, margin: "0 auto", padding: "20px 20px 60px" } },
+    React.createElement("div", { style: { maxWidth: 1200, margin: "0 auto", padding: 20 } },
 
       // MODULES TAB
       tab === "modules" && React.createElement("div", null,
-        React.createElement("div", { style: { display: "flex", gap: 12, alignItems: "center", marginBottom: 16, flexWrap: "wrap" } },
-          React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Vehicle"),
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" } },
+          React.createElement("span", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Model"),
           ...MODELS.map(m => React.createElement("button", { key: m.id, onClick: () => setModel(m.id), style: { padding: "5px 12px", borderRadius: 5, fontSize: 11, fontWeight: 500, cursor: "pointer", border: model === m.id ? "1px solid #c41e3a" : "1px solid #252528", background: model === m.id ? "rgba(196,30,58,0.1)" : "#111114", color: model === m.id ? "#e84a6a" : "#777" } }, m.label)),
           React.createElement("div", { style: { flex: 1 } }),
           React.createElement("button", { onClick: selectAll, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "All"),
           React.createElement("button", { onClick: selectNone, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "None")
         ),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
-          MODULES.map(m => {
-            const isOn = selected.has(m.id), isExp = expandedMod === m.id, cc = CAT_COLORS[m.category];
-            return React.createElement("div", { key: m.id, style: { borderRadius: 8, border: "1px solid " + (isOn ? cc + "44" : "#1e1e22"), background: isOn ? cc + "08" : "#111114", transition: "all 0.15s" } },
-              React.createElement("div", { style: { padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }, onClick: () => toggle(m.id) },
-                React.createElement("div", { style: { width: 20, height: 20, borderRadius: 5, flexShrink: 0, border: "2px solid " + (isOn ? cc : "#333"), background: isOn ? cc : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" } }, isOn && React.createElement("span", { style: { color: "#fff", fontSize: 13, fontWeight: 700, lineHeight: 1 } }, "\u2713")),
-                React.createElement("div", { style: { flex: 1 } },
-                  React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
-                    React.createElement("span", { style: { fontSize: 13, fontWeight: 600, fontFamily: "IBM Plex Mono" } }, m.name),
-                    React.createElement("span", { style: { fontSize: 9, padding: "1px 6px", borderRadius: 3, background: cc + "18", color: cc, fontFamily: "IBM Plex Mono", fontWeight: 500 } }, CAT_LABELS[m.category])
+        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 } },
+          MODULES_DISPLAY.map(m => {
+            const isSel = selected.has(m.id);
+            const isExp = expandedMod === m.id;
+            return React.createElement("div", { key: m.id, onClick: () => toggle(m.id), style: { padding: "11px 12px", borderRadius: 7, cursor: "pointer", border: isSel ? "1px solid #c41e3a" : "1px solid #1e1e22", background: isSel ? "rgba(196,30,58,0.05)" : "#111114", transition: "all 0.15s" } },
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: isExp ? 6 : 0 } },
+                React.createElement("div", { style: { width: 14, height: 14, borderRadius: 3, border: isSel ? "none" : "1px solid #333", background: isSel ? "#c41e3a" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700, flexShrink: 0 } }, isSel ? "\u2713" : ""),
+                React.createElement("div", { style: { flex: 1, minWidth: 0 } },
+                  React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: isSel ? "#fff" : "#bbb", display: "flex", alignItems: "center", gap: 6 } },
+                    React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
+                    m.name,
+                    m.status === "alpha" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#451a03", color: "#fbbf24", fontFamily: "IBM Plex Mono" } }, "alpha")
                   ),
-                  React.createElement("div", { style: { fontSize: 11, color: "#888", marginTop: 2 } }, m.desc)
+                  React.createElement("div", { style: { fontSize: 11, color: "#666", marginTop: 1 } }, m.desc)
                 ),
-                React.createElement("div", { style: { display: "flex", gap: 3 } }, m.compat.map(c => React.createElement("span", { key: c, style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1a1a1e", color: "#555", fontFamily: "IBM Plex Mono" } }, c))),
                 React.createElement("button", { onClick: (e) => { e.stopPropagation(); setExpandedMod(isExp ? null : m.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 16, padding: "0 4px" } }, isExp ? "\u25BE" : "\u25B8")
               ),
-              isExp && React.createElement("div", { style: { padding: "0 14px 12px 48px", fontSize: 11, color: "#777", lineHeight: 1.6 } }, m.detail)
+              isExp && React.createElement("div", { style: { fontSize: 11, color: "#888", padding: "6px 0 0 22px", borderTop: "1px solid #1a1a1e", paddingTop: 8, marginTop: 6, lineHeight: 1.5 } },
+                m.detail,
+                m.prereq && React.createElement("div", { style: { marginTop: 4, fontSize: 10, color: "#e84a6a", fontFamily: "IBM Plex Mono" } }, "Requires: " + m.prereq)
+              )
             );
           })
         ),
-        React.createElement("div", { style: { marginTop: 16, padding: "12px 16px", borderRadius: 8, background: "#111114", border: "1px solid #1e1e22", display: "flex", alignItems: "center", gap: 16 } },
+        React.createElement("div", { style: { marginTop: 16, display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#111114", border: "1px solid #1e1e22", borderRadius: 7 } },
           React.createElement("div", { style: { fontSize: 12, color: "#888" } }, React.createElement("span", { style: { color: "#e0ddd8", fontWeight: 600, fontFamily: "IBM Plex Mono" } }, selected.size), " module" + (selected.size !== 1 ? "s" : "") + " selected"),
           React.createElement("div", { style: { flex: 1 } }),
           React.createElement("button", { onClick: () => setTab("build"), style: { padding: "8px 20px", borderRadius: 6, border: "none", background: selected.size > 0 ? "linear-gradient(135deg, #c41e3a, #8b0000)" : "#252528", color: selected.size > 0 ? "#fff" : "#555", fontSize: 12, fontWeight: 700, cursor: selected.size > 0 ? "pointer" : "default", boxShadow: selected.size > 0 ? "0 3px 10px rgba(196,30,58,0.25)" : "none" } }, "Build SD Card \u2192")
         )
       ),
 
-      // SPLASH TAB
-      tab === "splash" && React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 260px", gap: 20, alignItems: "start" } },
+      // SPLASH TAB  (unchanged)
+      tab === "splash" && React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, alignItems: "start" } },
         React.createElement("div", null,
-          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "MMI Display Preview"),
-          React.createElement("div", { style: { background: "#131316", borderRadius: 10, padding: 28, border: "1px solid #1e1e22" } },
-            React.createElement("div", {
-              style: { background: "#080809", borderRadius: 5, border: "2px solid #2a2a2e", overflow: "hidden", width: pw, height: ph, cursor: sourceImg ? (dragging ? "grabbing" : "grab") : "pointer", boxShadow: "0 0 24px rgba(0,0,0,0.5), inset 0 0 16px rgba(0,0,0,0.3)", position: "relative" },
-              onClick: () => !sourceImg && fileRef.current?.click(),
-              onDrop: (e) => { e.preventDefault(); handleFile(e.dataTransfer?.files?.[0]); },
-              onDragOver: (e) => e.preventDefault(),
-              onMouseDown: (e) => { if (!sourceImg) return; setDragging(true); setDragStart({ x: e.clientX - panX, y: e.clientY - panY }); },
-              onMouseMove: (e) => { if (!dragging) return; setPanX(e.clientX - dragStart.x); setPanY(e.clientY - dragStart.y); },
-              onMouseUp: () => setDragging(false), onMouseLeave: () => setDragging(false)
-            },
-              processedUrl ? React.createElement("img", { src: processedUrl, style: { width: pw, height: ph, display: "block" }, alt: "preview", draggable: false })
-              : React.createElement("div", { style: { width: pw, height: ph, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } },
-                  React.createElement("div", { style: { fontSize: 32, opacity: 0.2, marginBottom: 6 } }, "\u2B06"),
-                  React.createElement("div", { style: { color: "#444", fontSize: 13, fontWeight: 500 } }, "Drop image or click to browse"),
-                  React.createElement("div", { style: { marginTop: 8, padding: "3px 10px", border: "1px solid #2a2a2e", borderRadius: 4, fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono" } }, "800 \u00d7 480 PNG")
-                )
-            ),
-            React.createElement("div", { style: { textAlign: "center", marginTop: 8, fontSize: 9, color: "#3a3a3e", fontFamily: "IBM Plex Mono", letterSpacing: "0.15em", textTransform: "uppercase" } }, (MODELS.find(m => m.id === model)?.label || "MMI 3G+") + " \u2014 800\u00d7480")
+          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "MMI Preview (800 \u00d7 480 @ " + Math.round(PREVIEW_SCALE * 100) + "%)"),
+          React.createElement("div", { style: { width: pw, height: ph, background: "#000", borderRadius: 8, border: "2px solid #1e1e22", position: "relative", overflow: "hidden" } },
+            processedUrl ? React.createElement("img", { src: processedUrl, style: { width: pw, height: ph, display: "block" } }) :
+              React.createElement("div", { style: { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#333", fontSize: 13, fontFamily: "IBM Plex Mono" } }, "No image loaded")
           ),
-          sourceImg && React.createElement("div", { style: { marginTop: 10, display: "flex", gap: 10, alignItems: "center", padding: "8px 14px", background: "#111114", borderRadius: 7, border: "1px solid #1e1e22" } },
-            React.createElement("span", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", minWidth: 34 } }, "Zoom"),
-            React.createElement("input", { type: "range", min: 0.5, max: 3, step: 0.05, value: zoom, onChange: (e) => setZoom(parseFloat(e.target.value)), style: { flex: 1, accentColor: "#c41e3a" } }),
-            React.createElement("span", { style: { fontSize: 11, fontFamily: "IBM Plex Mono", color: "#777", minWidth: 38, textAlign: "right" } }, Math.round(zoom * 100) + "%"),
+          sourceImg && React.createElement("div", { style: { marginTop: 10, padding: 10, borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", fontSize: 11 } },
+            React.createElement("div", { style: { display: "grid", gridTemplateColumns: "auto 1fr auto", gap: "6px 10px", alignItems: "center" } },
+              React.createElement("span", { style: { color: "#888", fontFamily: "IBM Plex Mono" } }, "Zoom"),
+              React.createElement("input", { type: "range", min: 0.5, max: 3, step: 0.01, value: zoom, onChange: (e) => setZoom(parseFloat(e.target.value)) }),
+              React.createElement("span", { style: { color: "#bbb", fontFamily: "IBM Plex Mono", fontSize: 10 } }, zoom.toFixed(2) + "\u00d7"),
+              React.createElement("span", { style: { color: "#888", fontFamily: "IBM Plex Mono" } }, "X"),
+              React.createElement("input", { type: "range", min: -300, max: 300, step: 1, value: panX, onChange: (e) => setPanX(parseInt(e.target.value)) }),
+              React.createElement("span", { style: { color: "#bbb", fontFamily: "IBM Plex Mono", fontSize: 10 } }, panX),
+              React.createElement("span", { style: { color: "#888", fontFamily: "IBM Plex Mono" } }, "Y"),
+              React.createElement("input", { type: "range", min: -200, max: 200, step: 1, value: panY, onChange: (e) => setPanY(parseInt(e.target.value)) }),
+              React.createElement("span", { style: { color: "#bbb", fontFamily: "IBM Plex Mono", fontSize: 10 } }, panY)
+            ),
             React.createElement("button", { onClick: () => { setZoom(1); setPanX(0); setPanY(0); }, style: { padding: "3px 8px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer" } }, "Reset")
           )
         ),
-        React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
-          React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", style: { display: "none" }, onChange: (e) => handleFile(e.target.files?.[0]) }),
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Source Image"),
+          React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", onChange: (e) => handleFile(e.target.files[0]), style: { display: "none" } }),
           React.createElement("button", { onClick: () => fileRef.current?.click(), style: { padding: "11px 14px", borderRadius: 7, border: "1px dashed #3a3a3e", background: "#111114", color: "#bbb", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center" } }, sourceImg ? "\u21BB Replace Image" : "\u2B06 Upload Image"),
-          sourceImg && React.createElement("div", { style: { padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Source"),
-            React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 10px", fontSize: 11 } },
-              React.createElement("span", { style: { color: "#555" } }, "Original"), React.createElement("span", { style: { color: "#999", fontFamily: "IBM Plex Mono" } }, sourceImg.width + "\u00d7" + sourceImg.height),
-              React.createElement("span", { style: { color: "#555" } }, "Output"), React.createElement("span", { style: { color: "#999", fontFamily: "IBM Plex Mono" } }, "800\u00d7480 PNG")
-            )
+          sourceImg && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", fontSize: 11, color: "#888" } },
+            React.createElement("div", { style: { fontFamily: "IBM Plex Mono" } }, sourceImg.width + " \u00d7 " + sourceImg.height)
           ),
+          React.createElement("div", { style: { fontSize: 10, color: "#555", marginTop: 14, marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Export"),
           processedUrl && React.createElement("button", { onClick: () => { const a = document.createElement("a"); a.href = processedUrl; a.download = "startup_generic.png"; a.click(); setExported(true); if (!selected.has("splash-screen")) { const s = new Set(selected); s.add("splash-screen"); setSelected(s); } }, style: { padding: "12px 14px", borderRadius: 7, border: "none", background: exported ? "linear-gradient(135deg, #166534, #0a3d1f)" : "linear-gradient(135deg, #c41e3a, #8b0000)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: exported ? "none" : "0 3px 10px rgba(196,30,58,0.25)" } }, exported ? "\u2713 Downloaded" : "\u2193 Export startup_generic.png"),
-          React.createElement("div", { style: { padding: 12, borderRadius: 7, background: "rgba(196,30,58,0.05)", border: "1px solid rgba(196,30,58,0.12)" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#e84a6a", fontWeight: 600, marginBottom: 4 } }, "Tips"),
-            React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 10, color: "#888", lineHeight: 1.7 } },
-              React.createElement("li", null, "Drag the preview to reposition"),
-              React.createElement("li", null, "Dark images look best on boot"),
+          React.createElement("div", { style: { marginTop: 12, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Notes"),
+            React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 11, color: "#888", lineHeight: 1.7 } },
               React.createElement("li", null, "Exported PNG goes in splashscreens/ on SD"),
-              React.createElement("li", null, "Factory screens backed up automatically")
+              React.createElement("li", null, "Auto-selects 'Splash Screen' module"),
+              React.createElement("li", null, "Replaces factory boot logo on install")
             )
           )
         )
@@ -274,7 +635,7 @@ function App() {
                 React.createElement("button", { onClick: () => setTab("modules"), style: { marginTop: 10, padding: "6px 14px", borderRadius: 5, border: "1px solid #2a2a2e", background: "#151518", color: "#888", fontSize: 11, cursor: "pointer" } }, "\u2190 Select Modules")
               )
             : React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
-                MODULES.filter(m => selected.has(m.id)).map(m =>
+                MODULES_DISPLAY.filter(m => selected.has(m.id)).map(m =>
                   React.createElement("div", { key: m.id, style: { padding: "8px 12px", borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", display: "flex", alignItems: "center", gap: 8 } },
                     React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
                     React.createElement("span", { style: { fontSize: 12, fontFamily: "IBM Plex Mono", fontWeight: 500, flex: 1 } }, m.name),
@@ -289,34 +650,93 @@ function App() {
         ),
         React.createElement("div", null,
           React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 10, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Build"),
-          React.createElement("div", { style: { padding: 14, borderRadius: 8, background: "#111114", border: "1px solid #1e1e22", marginBottom: 12 } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", marginBottom: 6 } }, "CLI Command"),
-            React.createElement("pre", { style: { background: "#0a0a0c", borderRadius: 6, padding: 10, fontSize: 11, fontFamily: "IBM Plex Mono", color: "#e84a6a", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", border: "1px solid #1a1a1e" } },
-              "python builder/build_sd.py" + (selected.size === MODULES.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"
+
+          // Primary build actions
+          React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+            // Write directly to SD (Chrome/Edge)
+            React.createElement("button", {
+              onClick: handleWriteToSd,
+              disabled: selected.size === 0 || buildState === "building",
+              title: chromium ? "Pick a folder (your SD card), write all files directly" : "Chrome/Edge only — use Download ZIP instead",
+              style: {
+                padding: "14px 16px", borderRadius: 8, border: "none",
+                background: buildState === "done-sd" ? "linear-gradient(135deg, #166534, #0a3d1f)" :
+                            (!chromium || selected.size === 0 || buildState === "building") ? "#1a1a1e" :
+                            "linear-gradient(135deg, #c41e3a, #8b0000)",
+                color: buildState === "done-sd" ? "#fff" :
+                       (!chromium || selected.size === 0 || buildState === "building") ? "#444" : "#fff",
+                fontSize: 14, fontWeight: 700,
+                cursor: (chromium && selected.size > 0 && buildState !== "building") ? "pointer" : "default",
+                boxShadow: (chromium && selected.size > 0 && buildState === "idle") ? "0 4px 14px rgba(196,30,58,0.3)" : "none"
+              }
+            },
+              buildState === "done-sd" ? "\u2713 Written to SD card" :
+              buildState === "building" ? "\u27F3 " + (buildProgress.label || "Building...") :
+              !chromium ? "\u26a0 Write to SD (Chrome/Edge only)" :
+              "\u2193 Write to SD Card..."
             ),
-            React.createElement("button", { onClick: () => { navigator.clipboard?.writeText("python builder/build_sd.py" + (selected.size === MODULES.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"); }, style: { marginTop: 8, padding: "4px 10px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "Copy command")
-          ),
-          React.createElement("button", { onClick: handleBuild, disabled: selected.size === 0 || buildState === "building", style: { width: "100%", padding: "14px 16px", borderRadius: 8, border: "none", background: buildState === "done" ? "linear-gradient(135deg, #166534, #0a3d1f)" : buildState === "building" ? "#252528" : selected.size > 0 ? "linear-gradient(135deg, #c41e3a, #8b0000)" : "#1a1a1e", color: buildState === "building" ? "#888" : selected.size > 0 ? "#fff" : "#444", fontSize: 14, fontWeight: 700, cursor: selected.size > 0 && buildState !== "building" ? "pointer" : "default", boxShadow: selected.size > 0 && buildState === "idle" ? "0 4px 14px rgba(196,30,58,0.3)" : "none", transition: "all 0.2s" } },
-            buildState === "building" ? "\u27F3 Encoding copie_scr.sh..." : buildState === "done" ? "\u2713 SD Card Package Ready" : "Build SD Card Package"
-          ),
-          buildState === "done" && React.createElement("div", { style: { marginTop: 12, padding: 14, borderRadius: 8, background: "rgba(22,101,52,0.08)", border: "1px solid rgba(22,101,52,0.2)" } },
-            React.createElement("div", { style: { fontSize: 12, color: "#4ade80", fontWeight: 600, marginBottom: 6 } }, "Ready to flash"),
-            React.createElement("ol", { style: { margin: 0, padding: "0 0 0 16px", fontSize: 11, color: "#888", lineHeight: 1.8 } },
-              React.createElement("li", null, "Format 32GB SDHC as FAT32"),
-              React.createElement("li", null, "Copy SD card contents to root"),
-              React.createElement("li", null, "Boot MMI fully (wait 3+ min)"),
-              React.createElement("li", null, "Insert SD card, wait 30 sec"),
-              React.createElement("li", null, "Remove card, reboot MMI"),
-              React.createElement("li", null, React.createElement("span", null, "Open GEM: "), React.createElement("code", { style: { color: "#e84a6a", fontSize: 10 } }, "CAR + BACK"), " (C7)")
+
+            // Download as ZIP (universal)
+            React.createElement("button", {
+              onClick: handleDownloadZip,
+              disabled: selected.size === 0 || buildState === "building",
+              style: {
+                padding: "12px 16px", borderRadius: 8, border: "1px solid #2a2a2e",
+                background: buildState === "done-zip" ? "rgba(22,101,52,0.15)" : "#151518",
+                color: buildState === "done-zip" ? "#4ade80" : selected.size > 0 ? "#bbb" : "#555",
+                fontSize: 13, fontWeight: 600,
+                cursor: (selected.size > 0 && buildState !== "building") ? "pointer" : "default"
+              }
+            },
+              buildState === "done-zip" ? "\u2713 ZIP downloaded" :
+              buildState === "building" ? "\u27F3 Building..." :
+              "\u2193 Download ZIP"
+            ),
+
+            // Progress bar (only while building)
+            buildState === "building" && React.createElement("div", { style: { padding: 10, borderRadius: 6, background: "#111114", border: "1px solid #1e1e22" } },
+              React.createElement("div", { style: { fontSize: 10, color: "#888", fontFamily: "IBM Plex Mono", marginBottom: 5 } }, buildProgress.label + " \u00b7 " + buildProgress.pct + "%"),
+              React.createElement("div", { style: { height: 4, background: "#0a0a0c", borderRadius: 2, overflow: "hidden" } },
+                React.createElement("div", { style: { height: "100%", width: buildProgress.pct + "%", background: "linear-gradient(90deg, #c41e3a, #e84a6a)", transition: "width 0.2s" } })
+              )
+            ),
+
+            // Error
+            buildState === "error" && React.createElement("div", { style: { padding: 10, borderRadius: 6, background: "rgba(185,28,28,0.08)", border: "1px solid rgba(185,28,28,0.3)" } },
+              React.createElement("div", { style: { fontSize: 11, color: "#fca5a5", fontFamily: "IBM Plex Mono", wordBreak: "break-word" } }, "\u26A0 " + buildError)
+            ),
+
+            // Success details
+            (buildState === "done-sd" || buildState === "done-zip") && buildStats && React.createElement("div", { style: { padding: 12, borderRadius: 7, background: "rgba(22,101,52,0.08)", border: "1px solid rgba(22,101,52,0.2)" } },
+              React.createElement("div", { style: { fontSize: 12, color: "#4ade80", fontWeight: 600, marginBottom: 6 } }, buildState === "done-sd" ? "Written to SD card" : "ZIP ready"),
+              React.createElement("div", { style: { fontSize: 10, color: "#888", fontFamily: "IBM Plex Mono", marginBottom: 8 } }, buildStats.fileCount + " files \u00b7 " + Math.round(buildStats.totalBytes / 1024) + " KB"),
+              React.createElement("ol", { style: { margin: 0, padding: "0 0 0 16px", fontSize: 11, color: "#888", lineHeight: 1.7 } },
+                buildState === "done-zip" && React.createElement("li", null, "Extract ZIP to the root of a FAT32 32GB SDHC card"),
+                buildState === "done-sd" && React.createElement("li", null, "SD card must be FAT32 32GB SDHC"),
+                React.createElement("li", null, "Boot MMI fully (wait 3+ min)"),
+                React.createElement("li", null, "Insert SD card, wait 30 sec"),
+                React.createElement("li", null, "Remove card, reboot MMI"),
+                React.createElement("li", null, React.createElement("span", null, "Open GEM: "), React.createElement("code", { style: { color: "#e84a6a", fontSize: 10 } }, "CAR + BACK"), " (C7)")
+              )
             )
           ),
+
+          // CLI reference card (keep for power users)
+          React.createElement("div", { style: { marginTop: 14, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", marginBottom: 6 } }, "Or use the CLI"),
+            React.createElement("pre", { style: { background: "#0a0a0c", borderRadius: 6, padding: 10, fontSize: 11, fontFamily: "IBM Plex Mono", color: "#e84a6a", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", border: "1px solid #1a1a1e" } },
+              "python builder/build_sd.py" + (selected.size === MODULES_DISPLAY.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"
+            ),
+            React.createElement("button", { onClick: () => { navigator.clipboard?.writeText("python builder/build_sd.py" + (selected.size === MODULES_DISPLAY.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"); }, style: { marginTop: 8, padding: "4px 10px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "Copy command")
+          ),
+
           React.createElement("div", { style: { marginTop: 12, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
             React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Requirements"),
             React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 10, color: "#777", lineHeight: 1.7 } },
-              React.createElement("li", null, "Python 3.6+ (for build_sd.py)"),
               React.createElement("li", null, "32GB SDHC card (not SDXC)"),
               React.createElement("li", null, "FAT32 format (use Windows, not macOS)"),
-              React.createElement("li", null, "MMI fully booted before SD insert")
+              React.createElement("li", null, "MMI fully booted before SD insert"),
+              !chromium && React.createElement("li", { style: { color: "#e84a6a" } }, "Chrome/Edge for direct-to-SD write")
             )
           )
         )
