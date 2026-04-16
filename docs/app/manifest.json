@@ -1,0 +1,538 @@
+{
+  "generated": "2026-04-16",
+  "branch": "main",
+  "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
+  "core_files": {
+    "copie_scr_plain_sh": "core/copie_scr_plain.sh",
+    "uninstall_sh": "core/uninstall.sh"
+  },
+  "modules": {
+    "can-scanner": {
+      "status": "ready",
+      "description": "CAN bus / namespace address scanner - discovers what vehicle data is available via GEM key-value polling on your specific MMI3G system",
+      "standalone": false,
+      "run_script": null,
+      "script_dir": "/scripts/Scanner",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "engdefs/ScannerEngine1.esd",
+          "size": 967
+        },
+        {
+          "path": "engdefs/ScannerEngine2.esd",
+          "size": 974
+        },
+        {
+          "path": "engdefs/ScannerGPS.esd",
+          "size": 852
+        },
+        {
+          "path": "engdefs/ScannerGaps1.esd",
+          "size": 1952
+        },
+        {
+          "path": "engdefs/ScannerGaps2.esd",
+          "size": 852
+        },
+        {
+          "path": "engdefs/ScannerMixed.esd",
+          "size": 930
+        },
+        {
+          "path": "engdefs/ScannerPer3Engine.esd",
+          "size": 922
+        },
+        {
+          "path": "engdefs/ScannerPer3Low.esd",
+          "size": 947
+        },
+        {
+          "path": "engdefs/ScannerPer3Mid1.esd",
+          "size": 903
+        },
+        {
+          "path": "engdefs/ScannerStrings.esd",
+          "size": 926
+        },
+        {
+          "path": "module.json",
+          "size": 1449
+        },
+        {
+          "path": "scripts/scan_log.sh",
+          "size": 1915
+        },
+        {
+          "path": "scripts/scan_shmem.sh",
+          "size": 981
+        },
+        {
+          "path": "scripts/scanner_install.sh",
+          "size": 3914
+        }
+      ]
+    },
+    "diag-tool": {
+      "status": "alpha",
+      "description": "UDS diagnostic scanner (alpha \u2014 requires VAG-COM cable)",
+      "standalone": false,
+      "run_script": null,
+      "script_dir": "/scripts/diag-tool",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G+"
+      ],
+      "files": [
+        {
+          "path": "diag-tool.jar",
+          "size": 23061
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/DiagApp.java",
+          "size": 9148
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/scanner/ModuleScanner.java",
+          "size": 6786
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/scanner/VAGModules.java",
+          "size": 4714
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/transport/SimulatedTransport.java",
+          "size": 8742
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/transport/TransportLayer.java",
+          "size": 1979
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/uds/DiagException.java",
+          "size": 874
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/uds/UDSClient.java",
+          "size": 13095
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/uds/UDSConstants.java",
+          "size": 10165
+        },
+        {
+          "path": "src/de/audi/mmi3g/diag/uds/UDSMessage.java",
+          "size": 4859
+        }
+      ]
+    },
+    "game-loader": {
+      "status": "ready",
+      "description": "Java game launcher for MMI3G \u2014 run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
+      "standalone": false,
+      "run_script": null,
+      "script_dir": "/scripts/game-loader",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "engdefs/GamesMenu.esd",
+          "size": 1370
+        },
+        {
+          "path": "games/adventure/QuattroQuest.java",
+          "size": 7641
+        },
+        {
+          "path": "games/adventure/game.jar",
+          "size": 4025
+        },
+        {
+          "path": "games/adventure/game.manifest",
+          "size": 64
+        },
+        {
+          "path": "games/snake/Snake.java",
+          "size": 6006
+        },
+        {
+          "path": "games/snake/game.jar",
+          "size": 2657
+        },
+        {
+          "path": "games/snake/game.manifest",
+          "size": 45
+        },
+        {
+          "path": "module.json",
+          "size": 1374
+        },
+        {
+          "path": "scripts/game_install.sh",
+          "size": 2459
+        },
+        {
+          "path": "scripts/game_loader.sh",
+          "size": 3734
+        },
+        {
+          "path": "scripts/launch_game.sh",
+          "size": 2541
+        }
+      ]
+    },
+    "gauges-dashboard": {
+      "status": "ready",
+      "description": "Live vehicle telemetry dashboard - battery voltage, GPS status, system info with data logging to SD card",
+      "standalone": false,
+      "run_script": null,
+      "script_dir": "/scripts/Gauges",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "engdefs/GaugesDashboard.esd",
+          "size": 1263
+        },
+        {
+          "path": "engdefs/GaugesNetwork.esd",
+          "size": 926
+        },
+        {
+          "path": "engdefs/GaugesSystem.esd",
+          "size": 1037
+        },
+        {
+          "path": "module.json",
+          "size": 1029
+        },
+        {
+          "path": "scripts/diskinfo.sh",
+          "size": 596
+        },
+        {
+          "path": "scripts/dnscheck.sh",
+          "size": 304
+        },
+        {
+          "path": "scripts/fullreport.sh",
+          "size": 1586
+        },
+        {
+          "path": "scripts/ifconfig.sh",
+          "size": 96
+        },
+        {
+          "path": "scripts/netstatus.sh",
+          "size": 695
+        },
+        {
+          "path": "scripts/proclist.sh",
+          "size": 377
+        },
+        {
+          "path": "scripts/routetable.sh",
+          "size": 95
+        },
+        {
+          "path": "scripts/snapshot.sh",
+          "size": 1707
+        },
+        {
+          "path": "scripts/syslog.sh",
+          "size": 356
+        }
+      ]
+    },
+    "gem-activator": {
+      "status": "ready",
+      "description": "Enable the Green Engineering Menu via SD card script - no VCDS required. Prerequisite for all GEM screen modules.",
+      "standalone": true,
+      "run_script": "gem_enable.sh",
+      "script_dir": "/scripts/GEM",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 773
+        },
+        {
+          "path": "scripts/gem_disable.sh",
+          "size": 1137
+        },
+        {
+          "path": "scripts/gem_enable.sh",
+          "size": 7601
+        },
+        {
+          "path": "scripts/gem_status.sh",
+          "size": 2319
+        }
+      ]
+    },
+    "jvm-extract": {
+      "status": "ready",
+      "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u2014 the first step toward custom MMI menu entries",
+      "standalone": true,
+      "run_script": "jvm_extract.sh",
+      "script_dir": "/scripts/jvm-extract",
+      "installs_to_flash": false,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 1565
+        },
+        {
+          "path": "scripts/jvm_extract.sh",
+          "size": 12343
+        }
+      ]
+    },
+    "long-coding": {
+      "status": "alpha",
+      "description": "Display current long-coding / adaptation values for each configurable MMI feature. Read-only display module \u2014 for safe editing use VCDS or ODIS.",
+      "standalone": false,
+      "run_script": null,
+      "script_dir": "/scripts/long-coding",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "engdefs/CodingBusRouting.esd",
+          "size": 1269
+        },
+        {
+          "path": "engdefs/CodingCarConfig.esd",
+          "size": 1439
+        },
+        {
+          "path": "engdefs/CodingMain.esd",
+          "size": 1217
+        },
+        {
+          "path": "module.json",
+          "size": 1353
+        },
+        {
+          "path": "scripts/coding_changelog.sh",
+          "size": 1490
+        },
+        {
+          "path": "scripts/coding_dump.sh",
+          "size": 2803
+        },
+        {
+          "path": "scripts/coding_install.sh",
+          "size": 2549
+        }
+      ]
+    },
+    "lte-setup": {
+      "status": "ready",
+      "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter \u2014 replaces defunct internal 3G modem with external LTE router",
+      "standalone": true,
+      "run_script": "lte_setup.sh",
+      "script_dir": "/scripts/LTE",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 1092
+        },
+        {
+          "path": "scripts/lte_restore.sh",
+          "size": 1753
+        },
+        {
+          "path": "scripts/lte_setup.sh",
+          "size": 7810
+        },
+        {
+          "path": "scripts/lte_status.sh",
+          "size": 2727
+        }
+      ]
+    },
+    "map-parser": {
+      "status": "ready",
+      "description": "Extract and analyze navigation database config \u2014 reads nav DB version, map regions, configured paths, and FSC activation state. Read-only.",
+      "standalone": true,
+      "run_script": "map_parse.sh",
+      "script_dir": "/scripts/MapParser",
+      "installs_to_flash": false,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 1261
+        },
+        {
+          "path": "scripts/map_parse.sh",
+          "size": 6132
+        }
+      ]
+    },
+    "nav-unblocker": {
+      "status": "ready",
+      "description": "Bypass navigation database activation check - uses DrGER2's improved manage_cd.sh patch method (Keldo's discovery)",
+      "standalone": true,
+      "run_script": "nav_unblocker.sh",
+      "script_dir": "/scripts/NavUnblocker",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 932
+        },
+        {
+          "path": "scripts/nav_restore.sh",
+          "size": 1924
+        },
+        {
+          "path": "scripts/nav_status.sh",
+          "size": 3062
+        },
+        {
+          "path": "scripts/nav_unblocker.sh",
+          "size": 6073
+        }
+      ]
+    },
+    "password-finder": {
+      "status": "ready",
+      "description": "Dump stored Wi-Fi hotspot passwords, Audi Connect credentials, and other stored secrets from the MMI's persistence partitions. Read-only \u2014 changes nothing on the unit.",
+      "standalone": true,
+      "run_script": "password_dump.sh",
+      "script_dir": "/scripts/PasswordFinder",
+      "installs_to_flash": false,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 1455
+        },
+        {
+          "path": "scripts/password_dump.sh",
+          "size": 6836
+        }
+      ]
+    },
+    "splash-screen": {
+      "status": "ready",
+      "description": "Custom boot splash screen installer - upload any image, auto-formatted to 800x480 PNG via the desktop app",
+      "standalone": true,
+      "run_script": "splash_install.sh",
+      "script_dir": "/scripts/Splash",
+      "installs_to_flash": true,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 973
+        },
+        {
+          "path": "scripts/splash_install.sh",
+          "size": 2938
+        },
+        {
+          "path": "scripts/splash_restore.sh",
+          "size": 1038
+        }
+      ]
+    },
+    "system-info": {
+      "status": "ready",
+      "description": "One-shot system information reporter - dumps comprehensive MMI3G state to SD card on insert. Non-destructive, installs nothing to flash.",
+      "standalone": true,
+      "run_script": "sysinfo_dump.sh",
+      "script_dir": "/scripts/SystemInfo",
+      "installs_to_flash": false,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 1272
+        },
+        {
+          "path": "scripts/sysinfo_dump.sh",
+          "size": 9690
+        }
+      ]
+    },
+    "variant-dump": {
+      "status": "ready",
+      "description": "Comprehensive adaptation and coding extraction \u2014 dumps all known per3 car-function, car-device, and CAN-assignment addresses to a structured SD card report. Read-only.",
+      "standalone": true,
+      "run_script": "variant_dump.sh",
+      "script_dir": "/scripts/VariantDump",
+      "installs_to_flash": false,
+      "compatible": [
+        "MMI3G",
+        "MMI3G+",
+        "RNS-850"
+      ],
+      "files": [
+        {
+          "path": "module.json",
+          "size": 1557
+        },
+        {
+          "path": "scripts/variant_dump.sh",
+          "size": 8853
+        }
+      ]
+    }
+  }
+}
