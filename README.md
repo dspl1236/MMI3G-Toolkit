@@ -42,6 +42,10 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **game-loader** | ✅ Ready | Java game launcher — run games from SD card on the MMI's J9 JVM |
 | **diag-tool** ⚠️ | 🔧 Alpha | UDS diagnostic scanner — auto-scan modules, read/clear DTCs (**needs VAG-COM cable for real hardware use**) |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
+| **password-finder** | ✅ Ready | Dump stored Wi-Fi/hotspot passwords, Bluetooth keys, Audi Connect credentials (read-only, inspired by jilleb/mib2-toolbox) |
+| **variant-dump** | ✅ Ready | Comprehensive per3 adaptation dump — 90+ car-device, CAN-assignment, and identification values to SD |
+| **map-parser** | ✅ Ready | Extract nav database descriptor (acios_db.ini), FSC activation state, map metadata |
+| **long-coding** | 🔧 Alpha | Live display of current adaptation values via GEM screens. Read-only — edit with VCDS/ODIS |
 
 > **⚠️ = external hardware required.** Every other module is pure software — SD card in, job done. The hardware-required modules are flagged so you know before building your SD card.
 
@@ -174,6 +178,7 @@ Module ideas welcome — open an issue to discuss before building.
 This project builds on years of community research:
 
 - **[DrGER2](https://github.com/DrGER2)** — MMI3G+ research pioneer. His repositories (MMI3G-Info, MMI3G-Navdb-Unblocker, MMI3GP-LAN-Setup, copie_src.sh, MMI3G-HDD-Prep-Tool, MMI3G-CRC32Sum, GEMMI-Monitor) are the foundation this toolkit extends
+- **[jilleb](https://github.com/jilleb)** — MIB1/MIB2 toolbox author. The mib1-toolbox and mib2-toolbox screen layouts inspired the `password-finder`, `variant-dump`, `map-parser`, and `long-coding` modules in this toolkit. Though MIB2 targets different hardware (ARM/Tegra vs our SH4), the GEM screen pattern, adaptation-channel concept, and toolbox structure all came from his work
 - **[megusta1337](https://github.com/megusta1337)** — copie_scr.sh decryption research
 - **[cmbsolutions](https://github.com/cmbsolutions)** — copie_scr.sh encoding tools
 - **[romangarms](https://github.com/romangarms)** — Java-on-Audi-MMI-3G JVM research
@@ -182,6 +187,11 @@ This project builds on years of community research:
 ## Related Projects
 
 - **[PCM-Forge](https://github.com/dspl1236/PCM-Forge)** — Sister project for Porsche PCM 3.1 (same Harman Becker platform). Activation code algorithm fully cracked via SH4 firmware reverse engineering. Web tool at [dspl1236.github.io/PCM-Forge](https://dspl1236.github.io/PCM-Forge/)
+- **[jilleb/mib2-toolbox](https://github.com/jilleb/mib2-toolbox)** — The canonical MIB2-HIGH toolbox (848 ⭐). Targets MIB2/MIB2.5 units in newer VAG vehicles (Tegra ARM + QNX 6.5). Different hardware from MMI3G+ but the GEM-screen approach is identical
+- **[jilleb/mib1-toolbox](https://github.com/jilleb/mib1-toolbox)** — MIB1-HIGH predecessor to the MIB2 toolbox. Closer in platform to our MMI3G+ work
+- **[jilleb/odis2vcp](https://github.com/jilleb/odis2vcp)** — Converts ODIS XML datasets to VCP XML format. Useful if you're extracting data via ODIS E17 and want to use it with VCP/VCDS-style tools
+- **[jilleb/binary_tools](https://github.com/jilleb/binary_tools)** — Simple Python scripts for binary file comparison. PCM-Forge's `tools/diff_fw.py` is an extended version of this approach
+- **[harman-f/MHI2_US_POG11_K5186_1-MU1476-AIO](https://github.com/harman-f/MHI2_US_POG11_K5186_1-MU1476-AIO)** — Porsche PCM 4 / MIB2 firmware patching (CarPlay/AndroidAuto/GEM enablement). Different platform, same activation-code identifier scheme
 
 ## Disclaimer
 
