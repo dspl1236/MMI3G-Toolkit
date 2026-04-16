@@ -36,12 +36,42 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **system-info** | ✅ Ready | One-shot system reporter — full MMI state dump to SD |
 | **gem-activator** | ✅ Ready | Enable the Green Engineering Menu without VCDS |
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
-| **lte-setup** | ✅ Ready | Provision LTE mobile data via USB Ethernet (3G+ only) |
+| **lte-setup** ⚠️ | ✅ Ready | Provision LTE mobile data via USB Ethernet (**requires hardware — see below**) |
 | **can-scanner** | ✅ Ready | CAN bus address scanner — discover RPM, boost, coolant, speed data |
 | **jvm-extract** | ✅ Ready | Extract J9 JVM and UI framework for reverse engineering custom menus |
 | **game-loader** | ✅ Ready | Java game launcher — run games from SD card on the MMI's J9 JVM |
-| **diag-tool** | 🔧 Alpha | UDS diagnostic scanner — auto-scan modules, read/clear DTCs, ECU info |
+| **diag-tool** ⚠️ | 🔧 Alpha | UDS diagnostic scanner — auto-scan modules, read/clear DTCs (**needs VAG-COM cable for real hardware use**) |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
+
+> **⚠️ = external hardware required.** Every other module is pure software — SD card in, job done. The hardware-required modules are flagged so you know before building your SD card.
+
+## Hardware Requirements
+
+Most modules run entirely on the MMI itself and need nothing beyond a FAT32 SD card. Two modules are different:
+
+### lte-setup (to replace the defunct 3G modem)
+
+After the 3G cellular network shutdown (US 2022, EU ongoing), the MMI3G+'s built-in modem is dead. This module reroutes the MMI's network stack through a USB Ethernet adapter to an external LTE router. You'll need:
+
+| Part | Specific models | Notes |
+|------|-----------------|-------|
+| **USB Ethernet adapter** | D-Link DUB-E100 rev A4/B1, or Gembird NIC-U1 | Must use the **ASIX AX88772** chipset — other chipsets have no QNX driver on the MMI |
+| **AMI-to-USB Type A cable** | Generic AMI/MDI adapter | The MMI has an AMI connector, not a standard USB port |
+| **LTE router** | TP-Link TL-MR3020, Digi WR11 XT, or similar | Any router that serves DHCP on the 192.168.0.x subnet |
+| **LTE SIM** | Any data-only plan | 1–2 GB/month is usually plenty |
+| **DC-DC power** | 12V → 5V converter | For powering the router from the fuse panel |
+
+**Platform compatibility:** MMI 3G+ and RNS-850 only. **MMI 3G High does NOT have the ASIX driver** — don't waste money on hardware for a 3G High unit.
+
+The module is based on [DrGER2/MMI3GP-LAN-Setup](https://github.com/DrGER2/MMI3GP-LAN-Setup). Total parts cost is typically $100–150. Once configured, you'll get Google Earth overlay, online POI, weather, and other Audi Connect services back via LTE.
+
+### diag-tool (for UDS diagnostics against real modules)
+
+The diag-tool module can run in two modes:
+- **Simulated mode** — no hardware required, exercises the UDS stack against simulated modules. Useful for development.
+- **Live mode** — talks to actual vehicle ECUs via the standard OBD-II port. Needs a VAG-COM compatible interface (VCDS HEX cable, VNCI 6154a, or similar) and a laptop to run the diagnostic host — the MMI itself doesn't originate UDS traffic to other modules.
+
+Live mode is currently alpha and undocumented; use VCDS or ODIS for production diagnostics work.
 
 ## Quick Start
 
