@@ -46,8 +46,9 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **variant-dump** | ✅ Ready | Comprehensive per3 adaptation dump — 90+ car-device, CAN-assignment, and identification values to SD |
 | **map-parser** | ✅ Ready | Extract nav database descriptor (acios_db.ini), FSC activation state, map metadata |
 | **long-coding** | 🔧 Alpha | Live display of current adaptation values via GEM screens. Read-only — edit with VCDS/ODIS |
+| **per3-reader** ⚠️ | 🧪 Alpha | OSGi bundle that exposes per3/DSI persistence reads to shell scripts. Installs into the `/lsd/DSITracer.jar` extension point, answers async reads through an atomic file-trigger mechanism. **Offline tests pass (9/9)** but on-device behavior depends on the real `dsi.jar` interface — see `research/PER3_READER.md` and `tools/verify_stubs_vs_dsi.py` before deploying |
 
-> **⚠️ = external tool required.** Every other module is pure software — SD card in, job done. The flagged modules need either VCDS/ODIS (gem-activator), extra hardware (lte-setup), or both (diag-tool).
+> **⚠️ = external tool required.** Every other module is pure software — SD card in, job done. The flagged modules need either VCDS/ODIS (gem-activator), extra hardware (lte-setup), both (diag-tool), or JDK + firmware image verification (per3-reader).
 
 ## One-Time Prerequisite: Enable GEM with VCDS
 
