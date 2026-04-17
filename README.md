@@ -16,6 +16,12 @@ MMI3G-Toolkit is a collection of modules that extend your MMI3G head unit throug
 
 The toolkit runs on the existing QNX operating system inside your head unit. Modules install custom screens into the Green Engineering Menu (GEM) and helper scripts into flash storage. Everything can be cleanly uninstalled.
 
+## Building Your Own Apps
+
+As of April 2026 the toolkit ships tools that extract the complete MMI3G+ firmware: the `efs-system` flash filesystem, the QNX `ifs-root` boot image (LZO-compressed), and individual QNX-deflate-wrapped binaries. Every SH4 ELF on your head unit — including `MMI3GApplication` itself — is now available for analysis and, with the right toolchain, for extension.
+
+See **[docs/CUSTOM_APPS.md](docs/CUSTOM_APPS.md)** for a developer guide covering the five mechanisms for running your own code: SD scripts, flash-persistent scripts, GEM screens, OSGi bundles, and native SH4 binaries. See **[research/HMI_ARCHITECTURE.md](research/HMI_ARCHITECTURE.md)** for the full 101-process boot graph and hook points.
+
 ## Supported Vehicles
 
 Any Audi or VW with a Harman Becker MMI 3G family head unit:
@@ -183,6 +189,7 @@ MMI3G-Toolkit/
 │   ├── PER3_READER.md       # DSI persistence read paths + per3-reader design
 │   ├── F3S_FORMAT.md        # MMI3G EFS on-disk format notes
 │   ├── IFS_FORMAT.md        # QNX IFS format + Harman LZO quirk
+│   ├── HMI_ARCHITECTURE.md  # Boot sequence, 101-process graph, hook points
 │   ├── IOACTIVE_V850_REFERENCE.md  # V850 IOC RE methodology
 │   └── custom-dash/         # Custom dashboard development guide
 ├── tools/                   # Maintainer/dev tools (not shipped to SD)
@@ -197,6 +204,7 @@ MMI3G-Toolkit/
 ├── app/                     # Web app (GitHub Pages)
 └── docs/
     ├── SUPPORTED_VEHICLES.md
+    ├── CUSTOM_APPS.md       # Developer guide: 5 ways to run your own code
     └── CONTRIBUTING.md
 ```
 
