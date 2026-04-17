@@ -149,6 +149,23 @@ field.
 ## The CRC algorithm
 
 Empirically verified against MU9411 K0942_4 variant 41 `ifs-root.ifs`
+
+### MetafileChecksum algorithm (empirically verified)
+
+Present in K0942_6+ firmware (8R0906961FE, DVDRNS850V711US). Algorithm:
+CRC32 of the entire metainfo2.txt with the MetafileChecksum line removed.
+
+```python
+# Remove the MetafileChecksum = "xxx" line
+stripped = re.sub(rb'^MetafileChecksum\s*=\s*"[^"]*"\s*\r?\n?', b'', raw, flags=re.MULTILINE)
+checksum = zlib.crc32(stripped) & 0xffffffff
+```
+
+Verified against:
+- K0942_6 (8R0906961FE): MetafileChecksum = 2c4174d ✓
+- K0711 (DVDRNS850V711US): MetafileChecksum = 54d8b9b3 ✓
+
+`tools/mu_crc_patcher.py --update-metafile-checksum` implements this
 (all 10 tested block CRCs match exactly, and the tool's round-trip test
 produces byte-identical output):
 
