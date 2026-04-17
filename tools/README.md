@@ -137,3 +137,77 @@ Verified on MU9411 K0942_4 variant 41:
   `MMI3GNavigation`, `MMI3GMisc`, `MMI3GTelephone`, and `NavCore`
 - `ifs-emg.ifs`: UCL, 161 files (emergency boot image)
 
+## repack_ifs.py  +  qnx_ifs_compress.c
+
+Recompresses a decompressed QNX IFS image back into the Harman
+LZO-compressed format. This is the inverse of `inflate_ifs.py` and the
+key tool that enables custom firmware: decompress, modify files, repack.
+
+The compressor uses `lzo1x_999` (the optimal LZO compressor), which
+produces **byte-identical output** to Harman's original encoder —
+verified across all 671 chunks of MU9411 K0942_4 variant 41.
+
+Two modes:
+
+```
+# Bit-identical recompression (for unmodified images or verification)
+python3 tools/repack_ifs.py decompressed.ifs repacked.ifs \
+    --reference original.ifs
+
+# Modified-image recompression (fixed 60KB chunks, ~3% larger)
+python3 tools/repack_ifs.py modified.ifs repacked.ifs
+```
+
+The `--reference` flag reads chunk boundaries from the original
+compressed IFS and applies them to the new data, producing output
+that is byte-for-byte identical when the content hasn't changed.
+Without `--reference`, the tool splits the imagefs payload into
+61,440-byte chunks (adjustable with `--chunk-size`).
+
+After repacking, update the firmware manifest CRCs:
+
+```
+# Recompute CRCs for the modified image
+python3 tools/mu_crc_patcher.py \
+    --metainfo path/to/metainfo2.txt \
+    --file repacked.ifs \
+    --section 'MU9411\ifs-root\41\default\Application'
+
+# Or bypass CRC checks entirely
+python3 tools/mu_crc_patcher.py \
+    --update-txt path/to/update.txt --skip-crc
+```
+
+The C source (`qnx_ifs_compress.c`, ~305 lines) is built automatically
+on first run — requires `liblzo2-dev`.
+
+### Full custom firmware pipeline
+
+```
+# 1. Decompress
+python3 tools/inflate_ifs.py ifs-root.ifs --extract working/
+
+# 2. Modify files in working/ (replace binaries, configs, scripts)
+
+# 3. (Future: rebuild IFS directory structure from modified tree)
+
+# 4. Recompress
+python3 tools/repack_ifs.py modified_decompressed.ifs new_ifs-root.ifs
+
+# 5. Fix CRCs
+python3 tools/mu_crc_patcher.py --metainfo metainfo2.txt \
+    --file new_ifs-root.ifs \
+    --section 'MU9411\ifs-root\41\default\Application'
+
+# 6. Flash via SD card SWDL or ODIS
+```
+
+Step 3 (rebuilding the IFS directory from a modified file tree) is
+future work — currently you must edit the decompressed blob directly
+or use binary patching. The QNX `mkxfs` source in OpenQNX provides
+the reference implementation for IFS directory construction.
+
+Verified: full decompress → recompress → decompress → extract
+round-trip on MU9411 K0942_4 variant 41. All 345 files including
+MMI3GApplication (10.7 MB), lsd.jxe (28 MB), and NavCore (6.8 MB)
+survive bit-identical.
