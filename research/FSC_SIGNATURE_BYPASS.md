@@ -162,3 +162,33 @@ The actual SH4 machine code is **100% identical**. This means:
 The only significant binary difference is lsd.jxe (Java HMI),
 which is fully recompiled between versions but contains the
 same EOL flag configuration and feature set.
+
+## AudiFSC.txt — Supported FSC Codes
+
+Extracted from 8R0906961ES (K0942_3) AudiSupportedFscs package.
+
+### FSC Code Ranges
+| Code Range | Count | Description |
+|-----------|:---:|------------|
+| 0006.0000 | 1 | ISO Image Language CD |
+| 0004.0000–0004.003F | 64 | Navigation database (map regions) |
+| 0004.0100 | 1 | Navigation feature |
+| 0004.0600–0004.063F | 64 | Navigation database (extended) |
+
+### Audi Signatures (MD5)
+8 MD5 signatures used for ExceptionList.txt validation:
+```
+7D436BDFAD0582AF0E3B013D8132590B
+92C63ECF027D5CFC637608E2767BC6CF
+8886438CAC25AD676D53F6E73D352E0F
+C272DE3D70841E4B2CFBC3618B0C9524
+F6B2876032119E6C1D1CAE7E21C7E511
+F85D56D5E0B065D9C5FC67F99D6D0F05
+FE0469FD144846E5B5348187D080C1D9
+0AEF736963183DC7A6B56943ADB137DB
+```
+
+These signatures are used for the ExceptionList mechanism (separate
+from the RSA signature verification bypassed at 0x001B11F6).
+The FSC code 0004.XXYY maps navigation regions where XX=major
+and YY=minor variant (0x00-0x3F = 64 regions per major).

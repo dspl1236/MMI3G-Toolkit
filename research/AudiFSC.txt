@@ -1,0 +1,76 @@
+﻿#############################################################################
+# List of supported FSCs
+#############################################################################
+
+[SupportedFSC]
+
+fsc = "00060000"
+fsc2 = "00040000;0004003f"
+fsc3 = "00040100"
+fsc4 = "00040600;0004063f"
+
+
+#############################################################################
+# SWID
+#############################################################################
+
+[SWID]
+
+0004.default = "navigation"
+0004.de_DE = "Navigation"
+0004.en_GB = "Navigation"
+0004.en_SA = "Navigation"
+0004.es_ES = "Navegación"
+0004.fr_FR = "Navigation"
+0004.it_IT = "Navigazione"
+0004.nl_NL = "Navigatie"
+0004.pt_PT = "Navegação"
+0004.ru_RU = "навигация"
+
+0006.default = "ISO Image Language CD"
+0006.de_DE = "ISO Image Language CD"
+0006.en_GB = "ISO Image Language CD"
+0006.en_SA = "ISO Image Language CD"
+0006.es_ES = "ISO Image Language CD"
+0006.fr_FR = "ISO Image Language CD"
+0006.it_IT = "ISO Image Language CD"
+0006.nl_NL = "ISO Image Language CD"
+0006.pt_PT = "ISO Image Language CD"
+0006.ru_RU = "ISO Image Language CD"
+
+
+#############################################################################
+# Major
+#############################################################################
+
+[Major]
+
+000400.default = "database"
+000400.de_DE = "Datenbank"
+000400.en_GB = "Database"
+000400.en_SA = "Database"
+000400.es_ES = "Banco de datos"
+000400.fr_FR = "Banque de données"
+000400.it_IT = "Banca dati"
+000400.nl_NL = "Databank"
+000400.pt_PT = "Base dados"
+000400.ru_RU = "базе данных"
+
+
+#############################################################################
+# Minor
+#############################################################################
+
+[Minor]
+
+00040000.default = "2008"
+
+[AudiSignature]
+signature1 = "7D436BDFAD0582AF0E3B013D8132590B"
+signature2 = "92C63ECF027D5CFC637608E2767BC6CF"
+signature3 = "8886438CAC25AD676D53F6E73D352E0F"
+signature4 = "C272DE3D70841E4B2CFBC3618B0C9524"
+signature5 = "F6B2876032119E6C1D1CAE7E21C7E511"
+signature6 = "F85D56D5E0B065D9C5FC67F99D6D0F05"
+signature7 = "FE0469FD144846E5B5348187D080C1D9"
+signature8 = "0AEF736963183DC7A6B56943ADB137DB"
