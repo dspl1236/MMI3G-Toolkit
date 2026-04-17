@@ -1,0 +1,42 @@
+#############################################
+#
+#  MMI3G-Toolkit Diagnostics Screen
+#  github.com/dspl1236/MMI3G-Toolkit
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Toolkit diagnostics
+#
+#######################################################
+screen	ToolkitDiag	Toolkit
+
+   table
+      content  per 2 0x00010003
+      label    "Active DTCs"
+      poll     30000
+      maxrows  10
+      orientation  horizontal
+      columns ( "ID" int 70 ) ( "Code" String 120 ) ( "Status" String 80 )
+
+   slider
+      value    per 2 0x00010001 0 100
+      label    "Select DTC by index"
+      poll     1000
+
+   table
+      content  per 2 0x00010002
+      label    "DTC Details"
+      poll     2000
+      maxrows  1
+      orientation  horizontal
+      columns ( "ID" int 70 ) ( "Code" String 120 ) ( "Status" String 80 )
+
+BIOSCtrl
+   value    int per 3 0x0011000E
+   label    "SH4 Watchdog"
+   entry    "8 minutes" 32
+   entry    "60 minutes" 240
+   entry    "disabled" 241
+   poll     1000

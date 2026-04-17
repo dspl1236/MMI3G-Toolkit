@@ -1,0 +1,46 @@
+#############################################
+#
+#  MMI3G-Toolkit SWDL Control Screen
+#  github.com/dspl1236/MMI3G-Toolkit
+#
+#  WARNING: Modifying SWDL settings can
+#  brick your head unit. Use with caution.
+#
+#############################################
+
+#######################################################
+#
+# SCREEN SWDL tools for firmware modding
+#
+#######################################################
+screen	ToolkitSWDL	Toolkit
+
+   keyValue
+      value    String per 3 0x00120001
+      label    "Current FW Version"
+      poll     1000
+
+   keyValue
+      value    int per 3 0x00120000
+      label    "SWDL Countdown"
+      poll     1000
+
+   keyValue
+      value    int per 3 0x00120002
+      label    "HW Index IT"
+
+   keyValue
+      value    int per 3 0x00120003
+      label    "Unexpected Resets"
+
+   choice
+      value    per 1 0x001E0000
+      label    "User Defined SWDL Mode"
+
+   choice
+      value    per 1 0x001E0004
+      label    "Ignore Region+Variant"
+
+   choice
+      value    per 3 0x00110013
+      label    "Production Mode"

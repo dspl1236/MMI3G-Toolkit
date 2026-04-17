@@ -1,0 +1,65 @@
+#############################################
+#
+#  MMI3G-Toolkit Engineering Screen
+#  github.com/dspl1236/MMI3G-Toolkit
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Main toolkit dashboard
+#
+#######################################################
+screen	Toolkit	Main
+
+   keyValue
+      value    int per 3 0x00000023
+      label    "Battery (x100 mV)"
+      poll     500
+
+   keyValue
+      value    int per 1 0x0005003b
+      label    "CPU Load"
+      poll     2000
+
+   keyValue
+      value    String per 3 0x00120001
+      label    "Firmware Version"
+      poll     0
+
+   keyValue
+      value    String per 3 0x0011000A
+      label    "Serial Number"
+
+   keyValue
+      value    String per 3 0x0011000C
+      label    "System Name"
+
+   keyValue
+      value    int per 3 0x00000004
+      label    "FOT Temperature"
+      poll     1000
+
+   keyValue
+      value    String per 1 0x00050038
+      label    "BT Address"
+
+   keyValue
+      value    String per 1 0x00050039
+      label    "WiFi Address"
+
+   keyValue
+      value    int sys 1 1
+      label    "Java Free Memory (KB)"
+      format   0.0009765625 "####.##"
+      poll     1000
+
+   keyValue
+      value    int sys 1 0x002
+      label    "Java Total Memory (KB)"
+      format   0.0009765625 "####.##"
+      poll     5000
+
+   button
+      value    sys 1 0x003 ""
+      label    "Java Garbage Collect"
