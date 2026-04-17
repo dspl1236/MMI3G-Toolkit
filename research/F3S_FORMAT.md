@@ -164,6 +164,105 @@ typical K0942_4 variant 41 EFS with blocks of 8 KB uncompressed.
 first use. Both are verified against real firmware output (14/17 of
 our carved wrapped files inflate to valid SH4 ELF executables).
 
+## Runtime mechanism: the `inflator` resource manager
+
+On a running MMI3G, iwlyfmbp files are decompressed **transparently on
+demand** by a QNX resource manager called `inflator`. It's one of the
+earliest processes to start — typically PID 12292, right after
+`procnto` (1) and `devf-generic`. The standard invocation from
+`/proc/boot/.script`:
+
+```
+inflator /mnt/efs-system/bin /mnt/efs-extended
+```
+
+This publishes a decompressed overlay at `/mnt/efs-extended/` that
+mirrors the compressed tree at `/mnt/efs-system/bin/`. When any
+process opens `/mnt/efs-extended/chat`, the resource manager:
+
+1. Intercepts the `open()` via `resmgr_attach` / `iofunc_open_default`
+2. Reads the compressed `/mnt/efs-system/bin/chat` (iwlyfmbp wrapped)
+3. Inflates on demand using the same LZO/UCL decoders we use offline
+4. Returns a normal file descriptor to the decompressed stream
+
+Key strings in the binary (`/mnt/ifs-root/sbin/inflator`, 22 KB):
+
+```
+NAME=inflator
+DESCRIPTION=Compressed filesystem resource manager
+DATE=2009/10/05-09:01:06-EDT
+VERSION=630SP2-1640
+STATE=experimental
+
+Check for compressed file on %s
+Opened compressed file %s
+iwlyfmbp
+```
+
+This is why Harman can store binaries compressed (saving scarce flash
+space on the NOR array) without any runtime code needing to know —
+every shell script, every service binary, every library link just
+opens `/mnt/efs-extended/<name>` and gets a normal file back.
+
+**For toolkit work this means:**
+
+- Shell scripts that need to read an iwlyfmbp-wrapped binary on a
+  running system should use `/mnt/efs-extended/<name>` (decompressed
+  view), not `/mnt/efs-system/bin/<name>` (raw compressed).
+- Our `tools/qnx_inflator.c` implements the exact same algorithm this
+  runtime resource manager uses — same openqnx source lineage.
+- The inflator is standard QNX 6.3 (`VERSION=630SP2-1640`), not
+  Harman-specific. Other QNX 6.3 products that ship a `deflate`d
+  filesystem would have the same runtime setup.
+
+## Write safety: the `/tmp/disableReclaim` interlock
+
+The F3S flash filesystem periodically runs a **reclaim** (garbage
+collection) pass that copies live blocks out of mostly-stale erase
+blocks, erases those blocks, and frees the space. On MMI3G this is
+driven by `mmi3g-flashctl` — a small ~9.7 KB utility that runs as
+process #40 with args `-f /HBpersistence -r 4096 -t 2048 -p 100 -c 16 -s 300`
+(loop every 5 min; reclaim 4 MB if free drops below 2 MB).
+
+`mmi3g-flashctl` refuses to run a reclaim if either of these files
+exists:
+
+```
+/HBpersistence/SWDL/update.txt     ← set during firmware update
+/tmp/disableReclaim                ← user-settable lock
+```
+
+The error messages are literally `"disabled reclaim because a SWDL is
+started"` and `"disabled reclaim, because persistence shutdown is
+active"`.
+
+**Toolkit convention:** any script that does multi-write operations
+against `/HBpersistence` (or wants a stable snapshot for dumping)
+should touch `/tmp/disableReclaim` first, do its work, then remove
+the flag. This prevents `mmi3g-flashctl` from erase-cycling blocks
+out from under you mid-operation:
+
+```sh
+touch /tmp/disableReclaim
+# ... write adaptation files, install OSGi bundle, etc. ...
+rm -f /tmp/disableReclaim
+```
+
+The flag also survives for as long as the script holds it — if the
+script crashes mid-run, a reclaim could kick in before cleanup. Wrap
+in a trap:
+
+```sh
+touch /tmp/disableReclaim
+trap 'rm -f /tmp/disableReclaim' EXIT INT TERM
+# ... critical-section work ...
+```
+
+Interaction with DCMD ioctls: `mmi3g-flashctl` uses
+`DCMD_F3S_ARRAYINFO` and `DCMD_F3S_PARTINFO` against `/HBpersistence`
+to query usage. Custom tools that want flash-health telemetry can
+issue the same ioctls through `devctl()` on any F3S mount point.
+
 ### Embedded JARs in plaintext
 
 JARs (`DSITracer.jar`, `AppDevelopment.jar`, HMI resource bundles, etc.)

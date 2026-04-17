@@ -91,6 +91,29 @@ echo " Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
 echo "============================================"
 echo ""
 
+# === Boot-window probe ====================================================
+# Several of the files we want to read (MMI3GApplication and friends under
+# /mnt/ifs-root/usr/apps/) disappear from shell visibility about 3 minutes
+# after boot. A script started after that window will silently produce
+# empty results. See research/HMI_ARCHITECTURE.md for the full picture.
+#
+# Detection: try to stat MMI3GApplication. If it's invisible, warn loudly
+# so the SD log makes the cause obvious to the user.
+echo "[PROBE] Checking boot-window timing..."
+if [ -f /mnt/ifs-root/usr/apps/MMI3GApplication ]; then
+    echo "[PROBE] MMI3GApplication is visible — within the early boot window."
+    JVM_EXTRACT_WINDOW_OK=1
+else
+    echo "[WARN] MMI3GApplication is NOT visible under /mnt/ifs-root/usr/apps/."
+    echo "[WARN] Most likely the system has been running for more than ~3 minutes,"
+    echo "[WARN] which is QNX's 'disappearing binaries' window. Fix: power off,"
+    echo "[WARN] insert SD card, then power on — have the card in before the chime."
+    echo "[WARN] See research/HMI_ARCHITECTURE.md for details."
+    echo "[WARN] Script will continue anyway but some steps will produce empty output."
+    JVM_EXTRACT_WINDOW_OK=0
+fi
+echo ""
+
 # === LSD (Layered Service Display) Directory ===
 echo "[SECT]  1/8 — LSD Application Files"
 echo "-------------------------------------------"

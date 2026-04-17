@@ -233,7 +233,85 @@ you could ship modified `ifs-root.ifs` via an MU update. Note that
 Harman's flasher does firmware signature verification — you'd need to
 bypass or re-sign that too.
 
-## Cross-compilation
+## The "disappearing binaries" timing window
+
+A surprise that every toolkit author eventually hits: **several key
+binaries become invisible from shell scripts after approximately 3
+minutes of uptime.** Community research (DrGER2 on AudiWorld,
+confirmed by ls-output comparisons) identifies at least these as
+affected:
+
+- `/mnt/ifs-root/usr/apps/MMI3GApplication`
+- `/mnt/ifs-root/usr/apps/MMI3GMedia` (and the other four HMI apps)
+- `/mnt/ifs-root/usr/bin/vdev-logvolmgr`
+- `/mnt/ifs-root/j9/bin/j9`
+- Likely others in `/usr/apps/` and `/usr/bin/`
+
+Before the window closes they `ls` and `stat` normally. After it
+closes, shell operations against them return "No such file or
+directory" — even though the processes started from those binaries
+continue running, and the files plainly exist in the extracted
+firmware image.
+
+**Timing:**
+- `lsd.sh` (which starts the J9 JVM) runs at roughly **5 seconds**
+  after boot
+- A shell script launched between **90-120 seconds** can still see
+  the full binary tree
+- By **~3 minutes**, the binaries are gone from the shell's view
+
+The underlying QNX mechanism is not fully understood publicly. Three
+plausible candidates:
+
+1. **Permission/ACL flip once loaded into RAM.** Once `procnto` has
+   faulted the code pages in, a file-mode change (or equivalent
+   resmgr-level gate) blocks further shell access while preserving
+   the running process's existing mappings.
+2. **The `inflator` resource manager dropping file visibility after
+   first read.** Inflator (`/mnt/ifs-root/sbin/inflator`) is a QNX
+   resmgr with full control over what its overlay exposes. A
+   post-cache policy ("once I've served it, hide it") would explain
+   the pattern. The binary's `"Remove attr %p [%s]"` and `"from list"`
+   strings point this direction.
+3. **A startup script in `mmi3g-srv-starter.cfg` explicitly
+   `mount -u`'ing the static copies** once all HMI processes have
+   finished their initial image loads.
+
+**For toolkit authors this means:**
+
+- Scripts that need to **read** binaries from `/mnt/ifs-root/usr/apps/`
+  must run in the early window. `copie_scr.sh` typically runs within
+  60-90 seconds of SD insertion, so if the SD card goes in shortly
+  after power-on you're fine. If the car has been running for 5
+  minutes and you then insert, you've missed the window.
+- **The IFS image itself is the safe source.** A module can ship a
+  pre-extracted copy of `MMI3GApplication` (or whatever it needs)
+  from a firmware MU update instead of trying to copy it off a
+  running system. This is how `jvm-extract` should eventually work.
+- **Scripts that execute known-invisible binaries may still work.**
+  The kernel keeps the inode alive; it's the path-lookup that breaks.
+  Direct exec through an already-open fd or a path not affected
+  by the mechanism sometimes still runs.
+
+### Affected toolkit module
+
+`jvm-extract` reads `/mnt/ifs-root/usr/apps/MMI3GApplication` via
+`strings` and lists `/mnt/ifs-root/usr/apps/` directly. On a system
+that's been running >3 minutes, these steps silently produce empty
+output. The module should either:
+
+1. Warn users to insert the SD card immediately after power-on, or
+2. Switch to reading the binaries out of a firmware MU update
+   (`ifs-root.ifs`) via `inflate_ifs.py`, which doesn't depend on
+   hitting the live timing window
+
+A future module `early-boot-probe` could be built specifically for
+the live-system case: a minimal SD script that races the window to
+capture state (binary inventory, syslog, `/proc/$PID/maps` for the
+HMI processes) while everything is still visible. Would ship as
+"insert within 30 seconds of hearing the chime".
+
+
 
 To build native SH4 ELF binaries for the MMI, you need:
 
