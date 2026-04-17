@@ -15,9 +15,8 @@ the scripts out before audit pass 2 (commit `f488ab7`) would have seen
 them dutifully return `n/a` for every address — the fallback branch of a
 path that never resolved.
 
-This document captures what's actually required, so the next time someone
-wants per3 values in a shell pipeline, they don't have to rediscover
-everything.
+This document captures what's actually required, which path we chose, and
+what remains to validate on real hardware.
 
 ## What per3 / DSI actually is
 
@@ -66,9 +65,7 @@ Addresses within per3 are 32-bit. Well-known ranges:
 
 ## What you CANNOT do
 
-- **Shell out to a per3 binary.** There isn't one. DrGER2 (who wrote
-  `mmi3ginfo3`, the canonical MMI3G info-dump script) explicitly
-  confirmed this during review.
+- **Shell out to a per3 binary.** There isn't one.
 - **Read persistence files directly off the filesystem.** The per3
   namespace is mediated by the DSI daemon, which owns the
   representation on disk (it's not plain files; the persistence layer
@@ -102,7 +99,7 @@ per3_read 0x00100015    # returns an integer
 per3_read --string 0x00120004    # returns the train name
 ```
 
-This is the answer DrGER2 was hoping for. It is also weeks of RE work.
+That's the nicest solution. It is also weeks of RE work.
 
 ### Path B: Java CLI running on the existing J9 VM
 
@@ -138,42 +135,72 @@ Trade-off: JVM startup is ~5 seconds per invocation. Fine for batch
 dumps, painful for interactive scripts. The right fix for that is
 Path C (keep the JVM warm).
 
-### Path C: OSGi bundle alongside AppDevelopment.jar
+### Path C: OSGi bundle alongside the HMI Java services
 
-Permanent resident bundle. Queried via a Unix-domain socket or a
-FIFO. Zero startup cost per query.
+**Status: IMPLEMENTED (alpha, awaiting on-device validation).** See
+`modules/per3-reader/`.
 
-Architecturally much heavier than B — bundle lifecycle, service
-registration, IPC protocol design. Worth considering only after B proves
-the Java-side reads work correctly in practice.
+A resident bundle that installs into Harman-Becker's OSGi
+extension-point slot (the `DSITracer.jar` location), registered as a
+`DSIPersistence` client at startup. Queries arrive via an atomic
+file-trigger mechanism — a shell script drops a request file into a
+known directory, the bundle picks it up, performs the DSI read, and
+writes a result file the shell script reads back.
+
+Zero JVM startup cost per query since the bundle is always resident.
+Architecturally heavier than Path B (bundle lifecycle, service
+registration, file-trigger protocol), but worth it because most
+callers want per3 values interactively, not batch-only.
 
 ## Current toolkit position
 
 - `long-coding` module ships GEM screens (`CodingMain.esd`,
   `CodingCarConfig.esd`, `CodingBusRouting.esd`) that render per3
   values live. These run inside the Java VM and Just Work.
-- `variant-dump` captures what a shell CAN see: train name, variants,
-  hwSample, kernel info, storage, nav DB state, FSC status, unblocker
-  state. It explicitly does NOT try to dump per3 values and directs
-  users at VCDS/ODIS or the long-coding screens.
-- **Nothing in the toolkit currently reads per3 from outside Java.**
-  That's accurate to what's actually possible today.
+- `variant-dump` captures what a shell CAN see directly: train name,
+  variants, hwSample, kernel info, storage, nav DB state, FSC status,
+  unblocker state. It deliberately does not invent a per3 reader.
+- `per3-reader` module (alpha) ships Path C — an OSGi bundle that
+  bridges DSI reads to shell scripts via file triggers. Offline tests
+  pass; on-device validation still pending.
+- Other modules can call `per3_read <namespace> <address>` once
+  per3-reader is installed and running. Scripts should still handle
+  the "not installed" case gracefully.
 
-## If we build something
+## What we built
 
-If someone (maintainer or contributor) wants to take Path B, the first
-deliverable is a single Java class under `modules/per3-reader/src/` that:
+The per3-reader module in this repo implements Path C. At a glance:
 
-1. Resolves a `DSIPersistence` reference through the OSGi
-   `ServiceRegistry`.
-2. Accepts `(namespace, address, type)` from command line.
-3. Calls the appropriate read method.
-4. Prints the value to stdout.
+- **Bundle:** `modules/per3-reader/per3-reader.jar` (~9 KB, 5 classes)
+  - `Activator` — OSGi lifecycle
+  - `Per3Reader` — `DSIPersistence` service client
+  - `TriggerLoop` — file-trigger request/response handler
+- **Scripts:** `per3_install.sh`, `per3_restore.sh`, `per3_read.sh`
+- **Bytecode target:** Java 1.7 (class file version 51) to match the
+  J9 runtime shipped in MMI3G+ firmware
+- **Interface compatibility:** stubs under `modules/per3-reader/src/stubs/`
+  verified against `DSIPersistence` (42/42 methods) and
+  `DSIPersistenceListener` (18/18 methods) from extracted firmware.
+  No `AbstractMethodError` risk at install time.
 
-Then a wrapper shell script in `modules/per3-reader/scripts/` that
-invokes J9 with the right classpath. Then the `variant-dump` and
-`long-coding` dump scripts can be upgraded from "direction" to
-"actual values" with a conditional:
+### What still needs on-device validation
+
+Offline: 9/9 tests pass with `MockDSIPersistence`. On-device behavior
+depends on two things we can't verify from the extracted firmware
+alone:
+
+1. **J9 bytecode version acceptance.** We compile to Java 7. If the
+   J9 runtime rejects this, the fallback is to recompile
+   `-source 1.6 -target 1.6`. No code changes required.
+2. **Listener registration mechanism.** We register through the OSGi
+   service registry. The real `DSITracer.jar` may register by calling
+   `addListener()` directly on the persistence service. If our events
+   don't fire, that's the thing to check.
+
+### How other modules should call it
+
+Modules that want per3 values should use the conditional pattern so
+they stay useful even when per3-reader isn't installed:
 
 ```bash
 if [ -x /mnt/efs-system/scripts/common/per3_read ]; then
@@ -188,10 +215,10 @@ never pretend a missing tool exists.
 
 ## Credits
 
-- DrGER2 for the review that caught the invented `per3_read`
-  references and for the specific feedback on how the DSI layer
-  actually works in practice.
 - `research/decompiled/de/audi/tghu/development/eis/PersistenceAccessor.java`
   and `SystemAccessor.java` — the Java API surface.
 - `research/PER3_ADDRESS_MAP.md` — the address map extracted from the
   factory ESD files.
+- Ground-truth interface signatures (`DSIPersistence`,
+  `DSIPersistenceListener`) extracted from the MU9411 K0942_4 firmware
+  dump, verified against our stubs via `tools/verify_stubs_vs_dsi.py`.
