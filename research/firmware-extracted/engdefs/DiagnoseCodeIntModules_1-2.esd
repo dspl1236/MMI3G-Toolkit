@@ -1,0 +1,70 @@
+#############################################
+#
+#   Engineering Screen Ch. Lukasch
+#   18.03.2010
+#############################################
+
+#############################################
+#
+# SCREEN coding for diagnosis
+#
+#############################################
+screen internal_modules_1+2 Coding
+
+   ##########################################
+   #  coding byte 16
+   ##########################################
+   choice
+      value    per 3 0x00150010
+      label    "SDS (Off): "
+      poll     0
+   
+   choice
+      value    per 3 0x00150011
+      label    "NAVI (Off): "
+      poll     0
+     
+   choice
+      value    per 3 0x00150012
+      label    "PSD (Off): "
+      poll     0
+    
+   choice
+      value    per 3 0x00150013
+      label    "VZA (Off): "
+      poll     0
+    
+   choice
+      value    per 3 0x00150014
+      label    "ECALL (Off): "
+      poll     0
+    
+   choice
+      value    per 3 0x00150015
+      label    "Online POI (Off): "
+      poll     0
+    
+   choice
+      value    per 3 0x00150016
+      label    "Online Portal (Off): "
+      poll     0
+   
+   choice
+      value    per 3 0x00150017
+      label    "Online Navi (Off): "
+      poll     0
+
+      
+   ##########################################
+   #  coding byte 19
+   ##########################################
+   choice
+      value    per 3 0x00150019
+      label    "Offroad Navigation (Off): "
+      poll     0
+   
+   choice
+      value    per 3 0x0015001A
+      label    "Online POI voice (Off): "
+      poll     0
+   

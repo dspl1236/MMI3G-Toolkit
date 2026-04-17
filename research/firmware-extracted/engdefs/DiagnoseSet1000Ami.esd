@@ -1,0 +1,34 @@
+#############################################
+#
+#   Engineering Screen Ch. Lukasch
+#   18.03.2010
+#############################################
+
+#######################################################
+#
+# SCREEN AMI AUX settings for diagnosis
+#
+#######################################################
+screen ami_aux Settings
+
+# settings adr 0xF01000
+   
+BIOSCtrl
+   value    int per 3 0x0015000B
+   label    "AMI"
+   entry    "enabled" 0
+   entry    "disabled" 1 
+   
+BIOSCtrl
+   value    int per 3 0x0015000C
+   label    "AMI BT"
+   entry    "enabled" 0
+   entry    "disabled" 1 
+   
+BIOSCtrl
+   value    int per 3 0x0015000D
+   label    "AUX"
+   entry    "enabled" 0
+   entry    "disabled" 1
+
+   

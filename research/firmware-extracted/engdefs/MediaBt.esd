@@ -1,0 +1,18 @@
+#############################################
+#
+#	Engineering Screen Dmitri
+#	12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer MediaPlayer
+#
+#######################################################
+screen	MediaBluetooth Media
+
+   keyValue 
+   	value		int per 4 0x00020000
+      format          8 hex
+   	label 	"SPD record (hex)"
+

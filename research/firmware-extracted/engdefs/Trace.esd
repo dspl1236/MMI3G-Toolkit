@@ -1,0 +1,21 @@
+#############################################
+#
+#	Engineering screeen definition
+#	2010
+#  This file will be populated at compile time by the executable
+#  <targetcfg>/tools/integration/updateTSEsd.exe and will be copied
+#  into the "products" folder. Basically, hbtc files in 
+#  <targetcfg>/project/engdefs will be counted and indexed.
+#  These index values are used also in the MMI3GApplication 
+#
+#  The source code is located at 
+#  //Audi_3GP/HMIController/Development/Main/thirdparty/updateTSEsd
+#  M.Ali Meram
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Trace	Main

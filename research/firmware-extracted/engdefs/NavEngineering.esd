@@ -1,0 +1,94 @@
+#############################################
+#
+#  Engineering screeen definition
+#  25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen Engineering   Nav
+
+keyValue
+   value    int per 1 0x00030000
+   label    "DB available"
+   poll     1000
+
+keyValue
+   value    int per 1 0x00030001
+   label    "Demo mode active"
+   poll     1000
+
+BIOSCtrl
+   value    String per 1 0x00030002
+   label    "NavLanguage"
+   entry    "ar_SA" "ar_SA"
+   entry    "cz_CZ" "cz_CZ"
+   entry    "da_DK" "da_DK"
+   entry    "de_DE" "de_DE"
+   entry    "en_GB" "en_GB"
+   entry    "en_SA" "en_SA"
+   entry    "en_US" "en_US"
+   entry    "es_ES" "es_ES"
+   entry    "es_US" "es_US"
+   entry    "fr_CA" "fr_CA"
+   entry    "it_IT" "it_IT"
+   entry    "nl_NL" "nl_NL"
+   entry    "pl_PL" "pl_PL"
+   entry    "pt_PT" "pt_PT"
+   entry    "ru_RU" "ru_RU"
+   entry    "sv_SE" "sv_SE"
+   entry    "tr_TR" "tr_TR"
+   poll     1000
+
+keyValue
+   value    int per 1 0x00030003
+   label    "metric system"
+   poll     1000
+
+BIOSCtrl
+   value    int per 1 0x000300AE
+   label    "distance unit"
+   entry    "unknown" -1
+   entry    "km" 0
+   entry    "mls" 1
+   poll     1000
+
+keyValue
+   value    int per 1 0x00030004
+   label    "ready to work"
+   poll     1000  
+
+keyValue
+   value    int per 1 0x00030014
+   label    "is busy"
+   poll     2000     
+
+keyValue
+   value    String per 1 0x00030018
+   label    "path to config base"
+   poll     0  
+   
+choice
+   value per 1418463180   648518346341285888
+   label "Kalibr. Screen aus"
+   poll 1000
+  
+script
+   value    sys 1 0x0100 "/scripts/setdatabase.cfg"
+   label    "set data base"         
+
+script
+   value    sys 1 0x0100 "/scripts/backupCVAFiles.sh"
+   label    "Backup .CVA files"
+
+script
+   value    sys 1 0x0100 "/scripts/removecal.sh"
+   label    "Remove calibration"
+
+script
+   value    sys 1 0x0100 "/scripts/restorecal.sh"
+   label    "Restore existing calibration data"
+      

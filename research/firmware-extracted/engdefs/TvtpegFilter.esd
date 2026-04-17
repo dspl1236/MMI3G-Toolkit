@@ -1,0 +1,29 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TpegFilter	Tvtpeg
+  button
+  value    per 1 0x0025000B "reset"
+  label    "Delete Filter"
+  poll     2000
+
+  keyValue
+  value		int per 1 0x0025000C
+	label		"filter status"
+	poll		1000	
+
+  table
+  content         per 1 0x0025000D
+	label		"Filter list"
+	poll            1000
+	maxrows         100
+	orientation     horizontal
+	columns ( "FilterNr" int 100 ) ( "TagFilter"  int 100 ) ( "SID_A" int 85 ) ( "SID_B" int 85 ) ( "SID_C" int 85  )  ( "Inc" int 70  ) ( "SCID" int 85  )		

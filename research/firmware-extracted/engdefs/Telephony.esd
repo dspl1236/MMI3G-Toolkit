@@ -1,0 +1,73 @@
+#############################################
+#
+#	Engineering screeen definition
+#	09.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Telephony	Main
+	
+keyValue
+	value		int per 1 0x00060002
+	label		"signal quality"
+	poll		1000		
+	
+keyValue
+	value		int per 1 0x00060003
+	label		"register state"
+	poll		1000			
+	
+keyValue
+	value		int per 1 0x00060005
+	label		"network type"
+	poll		1000
+
+keyValue
+    value       String per 1 0x0009000F
+    label       "UMTS module installed: "
+	poll		1000
+	
+table
+   content         per 1 0x00060006
+	label		   "network identifiers"
+	poll            1000
+	columns         ( "name" String 150 ) ( "Value" String 350 )
+	maxrows         4	
+	
+keyValue
+	value		int per 1 0x00060007
+	label		"mic mute state"
+	poll		1000
+   
+keyValue
+	value		String per 1 0x0006002B
+	label		"NAD temp state"
+   
+keyValue
+	value		int per 1 0x0006004F
+	label		"NAD temperature"
+	poll		1000
+
+keyValue
+	value		int per 1 0x0006003B
+	label		"handsfree activity"
+	poll		1000
+        
+keyValue
+	value		int per 1 0x000F0002
+	label		"number of connected devices"
+	poll		1000
+  
+keyValue
+	value		int per 1 0x000F0000
+	label		"BT connection state"
+	poll		1000
+   
+keyValue
+	value		int per 1 0x0006003F
+	label		"GSM power state"
+   poll     1000    

@@ -1,0 +1,27 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  26.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Current Component and Component-List
+#
+#######################################################
+screen   ComponentList DAB
+   table
+      content  per 1 0x00110020
+      label    "Current Component"
+      poll     2000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "SCIDI" String 70 ) ( "Prim" String 70 )
+      maxrows  1
+   table
+      content  per 1 0x00110023
+      label    "Component List"
+      poll     5000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "SCIDI" String 70 ) ( "Prim" String 70 )
+      maxrows  40

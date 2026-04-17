@@ -1,0 +1,20 @@
+#############################################
+#
+#	Engineering Screen Dmitri
+#	12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer OnOff
+#
+#######################################################
+screen	OnOff main
+
+   table
+        content         per 1 0x00050000
+	label		"activation state" 
+	poll            1000
+	maxrows         1
+	orientation     vertical
+	columns ( "State" int 80 ) ( "Mode" int 80 )	

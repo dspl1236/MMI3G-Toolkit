@@ -1,0 +1,37 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  17.Aug.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Test mode for testing single tuner modules
+#
+#######################################################
+screen   SingleTunerTest AMFM
+   choice
+      value    per 1 0x00010014
+      label    "Single Tuner Test Mode"
+      poll     2000
+   slider
+      value    per 1 0x0001001C 875 1080
+      label    "Select Tuner 1 Frequency"
+      limits   absolute
+   slider
+      value    per 1 0x0001001D 875 1080
+      label    "Select Tuner 2 Frequency"
+      limits   absolute
+   slider
+      value    per 1 0x0001001E 875 1080
+      label    "Select Tuner 3 Frequency"
+      limits   absolute
+   table
+      content  per 1 0x0001001B
+      label    "Frequency and FieldStrength"
+      poll     1000
+      columns ( "Tuner" int 80 ) ( "Frequency" int 130 0.001 "###.##" ) ( "FieldStrength" String 160 )
+      maxrows 3

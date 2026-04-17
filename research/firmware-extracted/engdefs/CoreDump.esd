@@ -1,0 +1,21 @@
+#############################################
+#
+#	Engineering screeen definition
+#	15.2.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	CoreDump	System
+
+   button
+      value         per 1 0x0005003C ""
+      label         "activate multiple core"
+
+   button
+      value         per 1 0x0005003D ""
+      label         "deactivate multiple core"
+      

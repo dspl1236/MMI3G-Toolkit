@@ -1,0 +1,29 @@
+#############################################
+#
+#	Engineering screeen definition
+#	16.7.2010
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Tvtpeg	Main
+  keyValue
+	value		int per 1 0x00250001
+	label		"switch status"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250002
+	label		"device available"
+	poll		1000	
+  keyValue
+	value		int per 1 0x00250004
+	label		"tpeg status"
+	poll		1000	
+  slider
+  value    per 1 0x00250000 0 1
+  label    "Tpeg switch"
+  poll     1000
+	

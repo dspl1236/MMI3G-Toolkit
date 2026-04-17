@@ -1,0 +1,21 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  29.Feb.2008
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Data Service List
+#
+#######################################################
+screen  DataServiceList DAB
+   table
+      content  per 1 0x00110061
+      label    "Data Service List"
+      poll     5000
+      columns  ( "Label" String 190 ) ( "EnsID" String 70 ) ( "SID" String 120 ) ( "SCIDI" String 70 ) ( "Type" String 60 ) ( "URL" String 70 ) ( "UC" int 50 )
+      maxrows  40

@@ -1,0 +1,52 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  11.Sep.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN DABDataServiceFilter
+#
+#######################################################
+screen DataServiceFilter DAB
+   choice
+      value    per 1 0x00110058
+      label    "Type Unknown"
+      poll     3000
+   choice
+      value    per 1 0x00110059
+      label    "Type SLS"
+      poll     3000
+   choice
+      value    per 1 0x0011005A
+      label    "Type BWS"
+      poll     3000
+   choice
+      value    per 1 0x0011005C
+      label    "PAD of Current SID"
+      poll     3000
+   choice
+      value    per 1 0x0011005D
+      label    "All PAD"
+      poll     3000
+   choice
+      value    per 1 0x0011005E
+      label    "All NPAD"
+      poll     3000
+   choice
+      value    per 1 0x0011005F
+      label    "All Ensembles"
+      poll     3000
+   choice
+      value    per 1 0x00110060
+      label    "Valid URL"
+      poll     3000
+   choice
+      value    per 1 0x0011005B
+      label    "Additional Dummy"
+      poll     3000
+      

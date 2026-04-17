@@ -1,0 +1,46 @@
+#############################################
+#
+#	Engineering screeen definition
+#	14.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TelephonyUMTSE2DTRIG	Telephony
+
+   slider
+      value    per 1 0x00060079 0 100
+      label    "E2D offset : "
+
+   slider
+      value    per 1 0x0006007A 0 50
+      label    "E3A offset : "
+
+   button
+      value    per 1 0x0006007B "activate"
+      label    "Set values"
+      
+   keyValue
+      value		int per 1 0x0006007C
+	  label		"Dataset CRC"
+	  poll		1000	
+	  		
+   keyValue
+      value		int per 1 0x0006007D
+	  label		"Dataset Version"
+	  poll		1000		  	     
+	  
+   slider
+      value    per 1 0x0006007E 0 50
+      label    "E1E offset : "
+
+   slider
+      value    per 1 0x0006007F 0 50
+      label    "E1F offset : "
+
+   button
+      value    per 1 0x00060080 "activate"
+      label    "Set E1 values"	  

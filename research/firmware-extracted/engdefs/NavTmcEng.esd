@@ -1,0 +1,89 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  31.Oct.2006
+#  SWagner
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Tmc Engineering Information
+#
+#######################################################
+screen  Tmc  Nav
+   choice
+      value    per 1 0x00080006
+      label    "Tmc Engeneering Mode"
+      poll     1000
+
+   keyValue
+      value    int per 1 0x00080002
+      label    "Messages in list."
+      poll     1000
+      
+   keyValue
+      value    int per 1 0x00080001
+      label    "Messages on route."
+      poll     1000
+      
+   keyValue
+      value    int per 1 0x00080008
+      label    "Messages in system"
+      poll     1000
+      
+   keyValue
+      value    int per 1 0x00080007
+      label    "Tmc available"
+      poll     1000
+      
+   keyValue
+      value    String per 1 0x0008000A
+      label    "TPEG selected provider"
+      poll     1000
+      
+   keyValue
+      value    int per 1 0x0008000B
+      label    "TPEG Number of TEC-messages"
+      poll     1000
+      
+   keyValue
+      value    int per 1 0x0008000C
+      label    "TPEG Number of TFP-messages"
+      poll     1000
+      
+   keyValue
+      value    int per 1 0x0008000D
+      label    "TPEG consumed data in Kbytes"
+      poll     1000
+      
+   button
+      value    per 1 0x0008000E "resetInformationData"
+      label    "TPEG reset information data"
+      poll     0
+
+BIOSCtrl
+   value    int per 1 0x0003008B
+   label    "TMC Sets"
+   entry    "OFF" 0xFFFF
+   entry    "Only free TMC" 0 
+   entry    "Audi TMCpro" 1
+   entry    "Audi w/o TMCpro" 2
+   entry    "VW TMCpro" 3
+   entry    "VW w/o TMCpro" 4
+   entry    "Bentley TMCpro" 5
+   entry    "Bentley w/o TMCpro" 6
+   entry    "2nd Bentley w/o TMCpro" 7
+   entry    "Audi TMCpro + infoBlu" 8
+   entry    "Audi w/o TMCpro + infoBlu" 9
+   entry    "VW TMCpro + infoBlu" 10
+   entry    "VW w/o TMCpro + infoBlu" 11
+   entry    "Bentley TMCpro + infoBlu" 12
+   entry    "Bentley w/o TMCpro + infoBlu" 13
+   entry    "Online Traffic + free TMC" 32768
+   entry    "Online Traffic + Audi TMCpro" 32769
+   entry    "Online Traffic + Audi w/o TMCpro" 32770
+   entry    "Online Traffic + VW TMCpro" 32771
+   entry    "Online Traffic + VW w/o TMCpro" 32772
+   poll     1000      

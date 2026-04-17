@@ -1,0 +1,21 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN SDARS Version Info
+#
+#######################################################
+screen   VersionInfo SDARS
+   table
+      content  per 1 0x0012001E
+      label    "Version Info"
+      poll     30000
+      columns  ( "Sys." int 60 ) ( "ID" int 60 ) ( "Ver." int 60 ) ( "Maj." int 60 ) ( "Min." int 60 ) ( "Description" String 200 )
+      maxrows  15

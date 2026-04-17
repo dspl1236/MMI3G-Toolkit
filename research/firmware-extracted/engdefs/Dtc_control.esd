@@ -1,0 +1,33 @@
+#############################################
+#
+#	Engineering screeen definition
+#  for displaying DTCs
+#  by M. Wolf
+#
+#############################################
+
+
+#######################################################
+#
+# DTC menu for doing some action on DTCs.
+#
+#######################################################
+screen	control	DTC
+
+slider
+   value    per 2 0x00010001 0 100
+   label    "select dtc"
+   poll     1000
+
+button
+   value          per 2 0x00010006 ClearErrmem
+   label          "Send test passed"
+
+button
+   value          per 2 0x00010007 ClearErrmem
+   label          "Send test failed"
+
+button
+   value          per 2 0x00010008 ClearErrmem
+   label          "Clear error memory"
+

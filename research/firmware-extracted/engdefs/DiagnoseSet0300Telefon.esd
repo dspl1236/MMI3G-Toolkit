@@ -1,0 +1,63 @@
+#############################################
+#
+#   Engineering Screen Ch. Lukasch
+#   18.03.2010
+#############################################
+
+#######################################################
+#
+# SCREEN TEL settings for diagnosis
+#
+#######################################################
+screen TEL_Settings Settings
+
+# settings adr 0xF00300
+slider
+   value    per 3 0x0014002C 0 12
+   label    "Delay reference signal (ms): "
+
+# settings adr 0xF00301   
+BIOSCtrl
+   value    int per 3 0x0014002D
+   label    "Mic sensiblity: "
+   entry    "-6 dB" 0
+   entry    "0 dB"  6
+   entry    "6 dB"  12
+   poll     3000
+
+# settings adr 0xF00302
+choice
+   value    per 3 0x00150001
+   label    "HFP activation: "
+   poll     0
+
+choice
+   value    per 3 0x00150002
+   label    "BT activation: "
+   poll     0
+
+choice
+   value    per 3 0x00150003
+   label    "NAD activation: "
+   poll     0
+
+choice
+   value    per 3 0x00150018
+   label    "NAD operation mode: "
+   poll     0
+
+choice
+   value    per 3 0x00150004
+   label    "HFP activation type: "
+   poll     0
+
+ BIOSCtrl
+   value    int per 3 0x00150005
+   label    "BT default visibility: "
+   entry    "auto" 0
+   entry    "on"   1
+   entry    "off"  2
+   poll     0  
+
+
+

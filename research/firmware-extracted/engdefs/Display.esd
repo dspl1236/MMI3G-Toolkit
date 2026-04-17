@@ -1,0 +1,26 @@
+#############################################
+#
+#	Engineering screeen definition
+#	15.9.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen   Display   Main
+
+   choice
+      value    per 3 0x00010027
+      label    "clamp 58d 0:=->100; 1:=->255"
+
+   button
+      value    per 3 0x0001001D ""
+      label    "override other brightness setting devices"
+
+   slider 
+      value	per 3 0x0001001C 2 255
+      label 	"Select brightness value"
+      poll		0 
+

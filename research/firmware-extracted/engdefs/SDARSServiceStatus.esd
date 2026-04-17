@@ -1,0 +1,43 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Service Status
+#
+#######################################################
+screen   ServiceStatus SDARS
+   keyValue
+      value    String per 1 0x00120019
+      label    "Audio status"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012001A
+      label    "Antenna status"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012001B
+      label    "Audio List update status"
+      poll     2000
+   keyValue
+      value    int per 1 0x0012001C
+      label    "Audio Update percentage"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012001D
+      label    "Audio Subscription"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012001F
+      label    "Data update status"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120020
+      label    "Data Subscription"
+      poll     2000

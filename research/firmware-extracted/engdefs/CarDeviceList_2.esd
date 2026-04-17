@@ -1,0 +1,30 @@
+#############################################
+#
+#   Engineering Screen Ch. Lukasch
+#   12.03.2010
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarDeviceList_2 Car
+
+choice
+   value    per 3 0x00100070
+   label    "Seat heating: "
+   
+choice
+   value    per 3 0x00100071
+   label    "Tilt angle display: "
+
+choice
+   value    per 3 0x00100088
+   label    "Day Night Map Mode: "
+
+choice
+   value    per 3 0x00100089
+   label    "RDK: "
+
+   

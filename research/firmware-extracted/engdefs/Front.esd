@@ -1,0 +1,40 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   29.08.2008
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen FrontCtrl Main
+
+BIOSCtrl
+   value int per 3 0x0050000B
+   label "Baud Rate Normal"
+   entry "320"    0
+   entry "9600"   1
+   entry "10400"  2
+   entry "19200"  3
+   entry "38400"  4
+   entry "57600"  5
+   entry "115200" 6
+      
+BIOSCtrl
+   value int per 3 0x0050000C
+   label "Baud Rate SWDL"
+   entry "320"    0
+   entry "9600"   1
+   entry "10400"  2
+   entry "19200"  3
+   entry "38400"  4
+   entry "57600"  5
+   entry "115200" 6
+
+button
+   value per 3 0x0050000D ""
+   label "activate baud rate"
+   
+   

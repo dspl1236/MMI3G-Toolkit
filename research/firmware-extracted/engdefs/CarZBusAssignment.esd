@@ -1,0 +1,468 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   05.09.2008
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarBusAssignment Car
+
+BIOSCtrl
+   value    int per 3 0x0014003D
+   label    "Air condition"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+  
+BIOSCtrl
+   value    int per 3 0x0014003F
+   label    "Auxiliary heating"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140040
+   label    "Headup display"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140041
+   label    "Adaptive cruise control"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140042
+   label    "Suspension"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140043
+   label    "Tyre pressure control (RDK)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140044
+   label    "Interior light"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140045
+   label    "Exterior light"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140046
+   label    "Park distance control"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140047
+   label    "Rearview camera"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140048
+   label    "Wiper"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140049
+   label    "Doorlocking"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014004A
+   label    "Mirror"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014004B
+   label    "On-board computer"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014004C
+   label    "Seat memory front"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014004D
+   label    "Clock"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014004E
+   label    "Service intervall"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014004F
+   label    "Central units master (ZEM)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140050
+   label    "univ. garage door opener"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140051
+   label    "Compass"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140053
+   label    "Charisma"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140054
+   label    "Night vision"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140055
+   label    "Lane departure warning (HCA)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140056
+   label    "Lane change assist (SWA)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140057
+   label    "Braking way reduction (AWV)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x00140059
+   label    "Hybrid"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014005A
+   label    "Sideview camera"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014005B
+   label    "rev. seat-belt tensionier (RGS)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014005D
+   label    "Traffic sign recognition (VZE)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014005F
+   label    "Rear seat entertainment"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014007C
+   label    "Vehicle IdentNo activate (VIN)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+
+BIOSCtrl
+   value    int per 3 0x0014007D
+   label    "Oil level gauge"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+   
+BIOSCtrl
+   value    int per 3 0x0014005E
+   label    "Weariness recognition (MKE)"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+   
+BIOSCtrl
+   value    int per 3 0x00140098
+   label    "Tilt angle display"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+   
+BIOSCtrl
+   value    int per 3 0x0014007E
+   label    "Seat Heat"
+   entry    "CAN Komfort" 0
+   entry    "CAN Dashboard" 1
+   entry    "CAN Antrieb" 2
+   entry    "CAN Infotainment" 3
+   entry    "CAN Extended" 4
+   entry    "Flexray" 5
+   entry    "CAN Fahrwerk" 6
+   entry    "Clamp 15" 127
+   entry    "unspecified" -1
+

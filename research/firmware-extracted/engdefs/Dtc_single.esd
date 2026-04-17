@@ -1,0 +1,28 @@
+#############################################
+#
+#	Engineering screeen definition
+#  for displaying DTCs
+#  by M. Wolf
+#
+#############################################
+
+
+#######################################################
+#
+# DTC menu for displaying information on a selectable DTC
+#
+#######################################################
+screen	Show_single_DTC	DTC
+
+   slider
+      value    per 2 0x00010001 0 100
+      label    "select dtc"
+      poll     1000
+
+   table
+   content        per 2 0x00010002
+   label          "dtc status"
+    poll          2000
+	maxrows        1
+	orientation   horizontal 
+	columns ( "intern" int 70 ) ( "extern" String 120 ) ( "status" String 80 ) ( "!T" String 20 ) ( "S" String 20 ) ( "A" String 20 ) ( "L" String 20 ) ( "name" String 300 )

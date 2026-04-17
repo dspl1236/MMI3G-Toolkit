@@ -1,0 +1,47 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Radio Text
+#
+#######################################################
+screen   RadioText SDARS
+   keyValue
+      value    int per 1 0x00120011
+      label    "Station Number"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120012
+      label    "Artist Name Short"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120013
+      label    "Artist Name Long"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120014
+      label    "Artist ID"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120015
+      label    "Program Title Short"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120016
+      label    "Program Title Long"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120017
+      label    "Program ID"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120018
+      label    "Composer"
+      poll     2000

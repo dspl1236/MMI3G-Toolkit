@@ -1,0 +1,32 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen Sensorik 	Nav
+   keyValue
+	value		int per 7 0x000200d2
+	label		"RIZ"
+	poll		1000
+   keyValue
+	value   	int per 7 0x000200dd
+	label  		"Counter"
+	poll     	1000
+   keyValue
+	value 		int per 7 0x000200dc
+	label   	"Summe"
+	poll     	1000
+   keyValue
+	value		int per 7 0x00020226
+	label		"Calibration Level"
+	poll		1000
+   keyValue
+	value		int per 7 0x0002021b
+	label		"Gyro Settings"
+	poll		1000

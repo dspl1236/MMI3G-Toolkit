@@ -1,0 +1,25 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  16.Apr.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Information concerning the calculated delay between DAB and FM
+#
+#######################################################
+screen   LinkingDelay DAB
+   choice
+      value    per 1 0x00110026
+      label    "Test Mode"
+      poll     2000
+   table
+      content  per 1 0x00110039
+      label    "Delay List"
+      poll     5000
+      columns  ( "SID" String 120 ) ( "Delay" int 100 )
+      maxrows  20

@@ -1,0 +1,37 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  20.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TestMode D of the AMFM device
+#
+#######################################################
+screen   TestModeD AMFM
+   button
+      value    per 1 0x0001000C "enable"
+      label    "Enable Test Mode D"
+      poll     0
+   table
+      content  per 1 0x0001040B
+      label    "FM"
+      poll     1000
+      columns  ( "Req. PI" String 100 ) ( "Cur. PI" String 100 ) ( "Cur. Freq" int 140 0.01 "###.##" )
+      maxrows  1
+   table
+      content  per 1 0x0001040C
+      label    "VF"
+      poll     1000
+      columns  ( "Req. PI" String 100 ) ( "Cur. PI" String 100 ) ( "Cur. Freq" int 140 0.01 "###.##" )
+      maxrows  1
+   table
+      content  per 1 0x0001040D
+      label    "TI"
+      poll     1000
+      columns  ( "Req. PI" String 100 ) ( "Req. Ptr" String 100 ) ( "Cur. PI" String 100 ) ( "Cur. Ptr" String 100 ) ( "Cur. Freq" int 140 0.01 "###.##" )
+      maxrows  1

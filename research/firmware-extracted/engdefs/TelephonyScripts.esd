@@ -1,0 +1,25 @@
+#############################################
+#
+#	Engineering screeen definition
+#	14.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TelephonyScript	Telephony
+   keyValue 
+      value       String per 1 0x00060012
+      label       "State:"
+      poll        1000           
+
+   button
+      value         per 1 0x00060010 "activate"
+      label         "Activate"
+      poll          0
+   button
+      value         per 1 0x00060011 "deactivate"
+      label         "Deactivate"
+      poll          0      

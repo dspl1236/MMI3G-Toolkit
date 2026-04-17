@@ -1,0 +1,20 @@
+#############################################
+#
+#	Engineering screeen definition
+#	31.08.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	InstrumentCluster	Version
+   table
+      content  per 1 0x00000001
+      label    "information"
+      poll     10000
+      maxrows  17
+      orientation horizontal
+      columns  ( "Item" String 300 ) ( "Value" String 300 ) 
+

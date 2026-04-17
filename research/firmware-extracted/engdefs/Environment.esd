@@ -1,0 +1,26 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Environment	Main
+
+   keyValue 
+	value		int per 3 0x00000004
+	label    "FOT temperature"
+	poll		1000   
+   keyValue 
+	value		String per 1 0x00050038
+	label           "Bluetooth device address"
+	poll		10000   
+   keyValue 
+	value		String per 1 0x00050039
+	label           "WLAN device address"
+	poll		10000   
+	

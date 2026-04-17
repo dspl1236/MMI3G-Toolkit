@@ -1,0 +1,40 @@
+#############################################
+#
+#	Engineering screeen definition
+#	03.04.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	SWDL	Main
+
+   keyValue 
+	value		       int per 3 0x00120000
+	label 		    "count down"
+	poll		       1000 	 
+	
+   keyValue 
+	value		       int per 3 0x00120002
+	label 		    "HW index IT"
+	poll		       1000 
+	
+   keyValue 
+	value		       int per 3 0x00120003
+	label 		    "unexpected resets"
+	poll		       1000 
+	
+   keyValue 
+	value		       String per 3 0x00120001
+	label 		    "current version"
+	poll		       1000
+
+   choice
+      value    per 1 0x001E0000
+      label    "user defined mode"
+
+   choice
+      value    per 1 0x001E0004
+      label    "ignore region and variant"

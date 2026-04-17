@@ -1,0 +1,117 @@
+#############################################
+#
+# browser configuration file
+#
+# for google earth configuration
+#
+#############################################
+
+# IMPORT_CONFIG: Basic configuration, values may be overwritten in this file
+IMPORT_CONFIG=/etc/browser/common.cfg
+
+# NAME: Name of application
+NAME=GoogleEarth
+
+# CONNECTION-TYPE: NONE|ONLINE_SEARCH|...
+#  possible values from SPHDATACONNECTION-interface
+CONNECTION_ID=GOOGLE_RENDERER
+
+# LAYER_X: X-Offset relative to screen origin (0)
+# LAYER_Y: Y-Offset relative to screen origin (0)
+LAYER_X=24
+LAYER_Y=56
+
+# WINDOW_WIDTH: width of application specific window
+# WINDOW_HEIGHT: height of application specific window
+WINDOW_WIDTH=775
+WINDOW_HEIGHT=379
+
+# TOP_LINK_SEL: if true, topmost link of a page gets selected by default
+#               except for goBack(), goForward() and reloadUrl(); in these
+#               cases browser core takes care about link selection (false)
+# TOP_LINK_SEL_DELAY: time of delay after which topmost link is selected
+#                     has to be increased, when pages take longer to load (100)
+TOP_LINK_SEL=false
+TOP_LINK_SEL_DELAY=100
+
+#SCROLL_LINK_SEL: if true, next link is selected while scrolling.(true)
+SCROLL_LINK_SEL=false
+
+# URL_TEMPLATE: Subpath added to the selected mountpath of the currently
+#               selected medium (boardbook/%LANGUAGE%)
+#               use %LANGUAGE% as placeholder for the language-string
+# HOME_URL: URL of page to load at startup ()
+#           if not set, the browser starts with a blank screen
+#
+# example:
+#   <Mountpath> + <URL_TEMPLATE> + <HOME_URL>
+#   will become: file:///mnt/mediadisk/boardbook/%LANGUAGE%/index.htm
+#   will become: file:///mnt/mediadisk/boardbook/de/index.htm
+HOME_URL=
+
+# FILENOTFOUND_URL: URL of page to be loaded if file could not be found ()
+#                   Not in case of 404
+FILENOTFOUND_URL=file:///etc/browser/earth_fnf.html
+
+# SCROLLBAR_STYLE: off|project|browser ()
+# SCROLLBAR_aaa_COLOR_bb: ForeGround / BackGround colors as hexcodes (ffffff/666666)
+#                         HORizontical / VERtical scrollbars
+#                         aaa=HOR|VER
+#                         bb=FG|BG
+# SCROLLBAR_CORNER_COLOR_BG: Background Color of corner-space between scrollbars (666666)
+# SCROLLBAR_aaa_IMG_bb: Pathnames of scrollbar part images whose extension is .pic ()
+#                       pathnames are required to be in filesystem-style
+#                       aaa=HOR|VER
+#                       bb=HEAD|BODY|TAIL
+SCROLLBAR_STYLE=project
+# sizes in common.cfg
+SCROLLBAR_HOR_COLOR_FG=2F9AFE
+SCROLLBAR_HOR_COLOR_BG=7698B8
+SCROLLBAR_VER_COLOR_FG=2F9AFE
+SCROLLBAR_VER_COLOR_BG=7698B8
+SCROLLBAR_CORNER_COLOR_BG=7698B8
+SCROLLBAR_HOR_IMG_HEAD=/etc/browser/images/hor_head_blue.pic
+SCROLLBAR_HOR_IMG_BODY=/etc/browser/images/hor_body_blue.pic
+SCROLLBAR_HOR_IMG_TAIL=/etc/browser/images/hor_tail_blue.pic
+SCROLLBAR_VER_IMG_HEAD=/etc/browser/images/ver_head_blue.pic
+SCROLLBAR_VER_IMG_BODY=/etc/browser/images/ver_body_blue.pic
+SCROLLBAR_VER_IMG_TAIL=/etc/browser/images/ver_tail_blue.pic
+# TIMEOUT_CONNECT: timeout in ms for request-operation (20000)
+# TIMEOUT_REQUEST: timeout in ms for request-operation (20000)
+# TIMEOUT_RESPONSE: timeout in ms for request-operation (20000)
+TIMEOUT_CONNECT=60000
+TIMEOUT_REQUEST=60000
+TIMEOUT_RESPONSE=60000
+
+# ZOOM_INITIAL: initial zoom level in percent, should be the middle between ZOOM_MIN and ZOOM_MAX (120)
+# ZOOM_MIN:		 minimum zoom level (100)
+# ZOOM_MAX:		 maximum zoom level (140)
+# ZOOM_FACTOR:	 requestSetZoom(increment) -> newLevel = oldLevel + ZOOM_FACTOR * increment (2)
+#   note: ZOOM_MIN should be ZOOM_INITIAL - 10 * ZOOM_FACTOR  and
+#         ZOOM_MAX should be ZOOM_INITIAL + 10 * ZOOM_FACTOR
+ZOOM_INITIAL=150
+ZOOM_MIN=120
+ZOOM_MAX=180
+ZOOM_FACTOR=3
+
+# ZOOM_HMI_MIN: minimum zoom level (ZOOM_MIN)
+# ZOOM_HMI_MAX: maximum zoom level (ZOOM_MAX)
+#   note: these values must no be set arbitrarily; they should be the same as at and requested from HMI
+ZOOM_HMI_MIN=100
+ZOOM_HMI_MAX=140
+
+# DEFAULT_CSS: string containing default-css for pages ()
+# DEFAULT_CSS=body{color:black} a:link{color:black}
+
+# [for testing ONLY]
+# DYNAMIC_MEDIA_CHANGE: browser reacts on media change itself if 'true' (false)
+#                       e.g. inserting a sdcard will reload the current page
+#                       from the new medium, ejecting will reload the page
+#                       from the previous one
+DYNAMIC_MEDIA_CHANGE=false
+
+# CLOSE_KEEP_ALIVE: close sockets on disconnect if TRUE (false)
+#                   only to be used (TRUE) by online applications (NOT handbook, slideshow)
+#                   was introduced to solve socket problem
+CLOSE_KEEP_ALIVE=true
+

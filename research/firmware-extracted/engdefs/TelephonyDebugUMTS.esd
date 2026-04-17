@@ -1,0 +1,63 @@
+#############################################
+#
+#	Engineering screeen definition
+#	14.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TelephonyDebugUMTS	Telephony
+   keyValue 
+      value       String per 1 0x00060078
+      label       "State:"
+      poll        1000           
+
+   button
+      value       per 1 0x00060072 "activate"
+      label       "Activate"
+      
+   button
+      value       per 1 0x00060073 "deactivate"
+      label       "Deactivate"
+
+   button
+      value       per 1 0x00060077 "restart"
+      label       "Restart"
+      
+   keyValue 
+      value       String per 1 0x00060074
+      label       "QXDM Server addr:port"
+      poll        1000           
+      
+   choice
+      value       per 1 0x00060075
+      label       "Inhibit WLAN -> Internet routing"
+      poll        1000
+      
+   choice
+      value       per 1 0x00060076
+      label       "Keep activated after restart"
+      poll        1000
+      
+   choice
+      value       per 1 0x00230008
+      label       "activate wlan"
+      poll        1000     
+  
+   keyValue 
+      value       String per 1 0x00230003
+      label       "SSID:"
+      poll        2000           
+
+   keyValue 
+      value       String per 1 0x00230004
+      label       "password:"
+      poll        2000           
+         
+   button
+      value       per 1 0x00230009 "setpasswd"
+      label       "set simple default password"
+

@@ -1,0 +1,39 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  04.May.2008
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TmcChinaStatus
+#
+#######################################################
+screen TmcChinaStatus TmcChina
+   keyValue
+      value    String per 1 0x00200003
+      label    "Device Available"
+      poll     2000
+   keyValue
+      value    String per 1 0x00200004
+      label    "TMC Switch"
+      poll     2000
+   keyValue
+      value    String per 1 0x00200005
+      label    "TMC Status"
+      poll     2000
+   table
+      content  per 1 0x00200002
+      label    "TMC Data"
+      poll     1000
+      columns  ( "PI" String 80 ) ( "SI" String 50 ) ( "LTN" String 50 ) ( "Group" String 140 ) ( "Message" String 240 )
+      maxrows  1
+   table
+      content  per 1 0x00200000
+      label    "Selection filter"
+      poll     5000
+      columns  ( "Mask" String 80 ) ( "PI" String 80 ) ( "SI MGS CC LTN" String 200 ) ( "Qual" String 80 )
+      maxrows  4

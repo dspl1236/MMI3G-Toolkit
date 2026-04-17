@@ -1,0 +1,59 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  31.Aug.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Diagnosis test of the AMFM device
+#
+#######################################################
+screen DiagTest AMFM
+   button
+      value    per 1 0x00010700 "enable"
+      label    "Enable Test Mode"
+      poll     0
+   button
+      value    per 1 0x00010701 "disable"
+      label    "Disable Test Mode"
+      poll     0
+   slider
+      value    per 1 0x00010805 875 1080
+      label    "Select FM Frequency"
+      limits   absolute
+   slider
+      value    per 1 0x00010806 531 1602
+      label    "Select MW Frequency"
+      limits   absolute
+   slider
+      value    per 1 0x00010807 153 279
+      label    "Select LW Frequency"
+      limits   absolute
+   slider
+      value    per 1 0x00010706 0 2
+      label    "Seek FM"
+      limits   absolute
+   slider
+      value    per 1 0x00010707 0 2
+      label    "Seek MW"
+      limits   absolute
+   slider
+      value    per 1 0x00010708 0 2
+      label    "Seek LW"
+      limits   absolute
+   choice
+      value    per 1 0x001F0014
+      label    "TP Swicth (inverted)"
+      poll     2000
+   keyValue
+      value    int per 1 0x00010100
+      label    "Current Frequency"
+      poll     1000
+   keyValue
+      value    int per 1 0x00010101
+      label    "Current FieldStrength"
+      poll     1000

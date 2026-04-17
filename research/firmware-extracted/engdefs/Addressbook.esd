@@ -1,0 +1,30 @@
+#############################################
+#
+#  Engineering Screen Dmitri
+#  01.08.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer Adressbuch
+#
+#######################################################
+screen   Addressbook Main
+
+   choice
+      value    per 1 0x000C0000
+      label    "PB-DL OADB cancel active:"
+   
+   choice
+      value    per 1 0x000C0001
+      label    "OPP OADB cancel active:"
+   
+   script
+      value    sys 1 0x0100 "/scripts/copyAddrDbToSd.sh"
+      label    "copy db  to sdcard"
+   script
+      value    sys 1 0x0100 "/scripts/copyAddrTefToSd.sh"
+      label    "copy tef to sdcard"
+   script
+      value    sys 1 0x0100 "/scripts/delAddrDb.sh"
+      label    "delete db"

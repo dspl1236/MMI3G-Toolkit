@@ -1,0 +1,63 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Optical_Drive	Diagnose
+
+   keyValue
+	value		int per 1 0x00160000
+	label		"RegionCode Changes"
+	poll		5000	
+
+   keyValue
+	value		int per 1 0x00160010
+	label		"Region Code (Drive)"
+	poll		5000
+
+   keyValue
+	value		int per 1 0x00160001
+	label		"Region Code (Disc)"
+	poll		3000	
+
+   keyValue
+	value		int per 1 0x00160006
+	label		"Disc Type"
+	poll		3000	
+
+   keyValue
+	value		int per 1 0x00160005
+	label		"Disc State"
+	poll		3000
+
+   keyValue
+	value		int per 3 0x00500000
+	label		"Eject Disabled"
+	poll		3000	
+
+   keyValue
+	value		int per 1 0x00160009
+	label		"Current Temperature"
+	poll		3000	
+
+   keyValue
+	value		int per 1 0x0016000A
+	label		"Maximum Temperature"
+	poll		3000		
+
+   button
+   value    per 1 0x00160021 1
+   label    "Reset Max. Temperature"
+   poll     0
+ 
+   button
+   value    per 1 0x00160012 1
+   label    "Reset RegionCode Counter"
+   poll     0
+

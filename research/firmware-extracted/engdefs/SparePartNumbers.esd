@@ -1,0 +1,25 @@
+#############################################
+#
+#	Engineering screeen definition
+#	16.1.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	SparePartNumbers Environment
+
+keyValue 
+	value		String per 3 0x00110006
+	label    "VW spare part number:"
+keyValue 
+	value		String per 3 0x000103EE
+	label    "spare part num front display:"
+keyValue 
+	value		String per 3 0x000103EF
+	label    "spare part num right display:"
+keyValue 
+	value		String per 3 0x000103F0
+	label    "spare part num left display:"

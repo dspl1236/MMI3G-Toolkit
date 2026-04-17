@@ -1,0 +1,16 @@
+#############################################
+#
+#	Engineering screeen definition
+#	20.4.2006
+#############################################
+
+#######################################################
+#
+# SCREEN FunctionCall Test
+#
+#######################################################
+screen	FunctionTest	AEVTest
+   button
+	value		per 234524 30000 "Dies ist ein Test"
+	label		"Say test text"
+#	poll		0

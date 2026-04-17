@@ -1,0 +1,26 @@
+#############################################
+#
+#  Engineering Screen Dmitri
+#  12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer AMFM
+#
+#######################################################
+screen   AMFM Radio
+   button
+      value    per 1 0x0001000F "disable"
+      label    "Disable Test Mode"
+      poll     0
+   keyValue
+      value    String per 1 0x00010008
+      label    "Selected Test Mode"
+      poll     1000
+   table
+      content  per 1 0x00010010
+      label    "Current Station"
+      poll     2000
+      columns  ( "PS" String 180 ) ( "PI" String 80 ) ( "PTY" String 200 ) ( "TP" String 50 ) ( "TA" String 50 ) ( "TMC" String 70 )
+      maxrows  1

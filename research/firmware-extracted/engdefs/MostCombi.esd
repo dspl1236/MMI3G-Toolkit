@@ -1,0 +1,81 @@
+#############################################
+#
+#	Engineering screeen definition
+#	18.09.2008
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen MostCombi Main
+  choice
+        value           per 1 0x00210004
+        label           "Enable static frame rate"
+        poll            1000
+        
+  slider
+        value           per 1 0x00210005 5 100
+        label           "static frame rate (fps)"
+        poll            1000        
+
+  slider
+        value           per 1 0x0021000B 5 100
+        label           "dynamic frame rate (fps)"
+        poll            1000        
+
+  slider
+        value           per 1 0x00210003 100 1000
+        label           "Resend delay (ms)"
+        poll            1000
+
+  slider
+        value           per 1 0x0021000F 0 500
+        label           "Resend delay overlay (ms)"
+        poll            1000
+
+  choice
+        value           per 1 0x00210010
+        label           "Enable empty picture on recalc"
+        poll            1000
+
+  slider
+        value           per 1 0x00210011 1 20
+        label           "Delay empty picture (100ms)"
+        poll            1000
+
+  slider
+        value           per 1 0x00210012 10 50
+        label           "Delay recalc picture (100ms)"
+        poll            1000
+
+  slider
+        value           per 1 0x00210013 5 20
+        label           "Show recalc picture (100ms)"
+        poll            1000
+
+  choice
+        value           per 1 0x00210000 
+        label           "Enable Fading"
+        poll            1000        
+  
+  choice
+        value           per 1 0x0021000C
+        label           "Enable KombiViewDebugMode"
+        poll            1000
+
+  choice
+        value           per 1 0x00210002 
+        label           "Enable ZLIB Overlay"
+        poll            1000
+
+  choice
+        value           per 1 0x0021000D 
+        label           "Enable ZLIB Kamerafahrt"
+        poll            1000
+
+  choice
+        value           per 1 0x00210009
+        label           "Latency measure"
+        poll            1000

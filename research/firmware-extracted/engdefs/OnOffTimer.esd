@@ -1,0 +1,61 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	OnOffTimer  Main
+#   slider
+#        value           per 3 0x00140100 0 255
+#        label           "MMI Off to On (500 ms)"
+#        poll            0
+#   slider
+#        value           per 3 0x00140101 0 255
+#        label           "MMI Standby to On (500 ms)"
+#        poll            0
+   slider
+        value           per 3 0x00140102 0 255
+        label           "OFF 1 delay (Sec)"
+        poll            0
+   slider
+        value           per 3 0x00140103 0 255
+        label           "OFF 2 delay (Sec)"
+        poll            0
+   slider
+        value           per 3 0x00140104 0 30
+        label           "Standby delay (Min)"
+        poll            0
+    slider
+        value           per 3 0x00140105 0 30
+        label           "Power down delay (Min)"
+        poll            0
+    slider
+        value           per 3 0x00140106 0 255
+        label           "Power down delay 2 (Sec)"
+        poll            0
+    slider
+        value           per 3 0x00140107 0 3
+        label           "Watchdog behaviour"
+        poll            0
+    slider
+        value           per 3 0x00130002 0 60
+        label           "BEM shutdown delay (Min)"
+        poll            1000
+    slider
+        value           per 0 0x0002059d 0 60
+        label           "Transport delay (Sec)"
+        poll            0
+   choice
+        value           per 0 0x0002044b
+        label           "Power down timer state"
+   button
+      value             per 1 0x00050037 ""
+      label             "reset all timer values"
+  button
+      value             per 1 0x00050041 ""
+      label             "reset all timers to test"

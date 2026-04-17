@@ -1,0 +1,27 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  26.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Current Service and Service-List
+#
+#######################################################
+screen   ServiceList DAB
+   table
+      content  per 1 0x0011001F
+      label    "Current Service"
+      poll     2000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "PTY" String 200 )
+      maxrows  1
+   table
+      content  per 1 0x00110022
+      label    "Service List"
+      poll     5000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "PTY" String 200 )
+      maxrows  150

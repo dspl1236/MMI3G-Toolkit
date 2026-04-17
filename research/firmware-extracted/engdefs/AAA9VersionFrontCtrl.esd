@@ -1,0 +1,25 @@
+#############################################
+#
+#	Engineering screeen definition
+#	31.08.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	FrontCtrl	Version
+
+keyValue 
+   value String per 3 0x00500009
+   label "SW-Version"
+   
+keyValue 
+   value String per 3 0x0050000E
+   label "HW-Version"
+   
+keyValue 
+   value String per 3 0x0050000F
+   label "Touchpad-Version"
+

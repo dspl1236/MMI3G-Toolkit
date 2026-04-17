@@ -1,0 +1,60 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionRU	Version
+
+table
+   content  per 1 0x00020000
+   label    "RU version"
+   columns  ( "Property" String 350 ) ( "Value" String 250 ) 
+   maxrows  2
+   poll    5000
+
+table
+   content  per 1 0x00020001
+   label    "RU version extended"
+   columns  ( "Property" String 350 ) ( "Value" String 250 ) 
+   maxrows  3
+   poll    5000
+
+keyValue 
+	value		String per 1 0x0002000B
+	label    "DA710 version"
+   poll    3000
+
+keyValue 
+	value		String per 1 0x0002000C
+	label    "ATMEGA version"   
+   poll    3000
+
+table
+   content  per 1 0x0002000D
+   label    "INIC version"
+   columns  ( "Property" String 350 ) ( "Value" String 250 ) 
+   maxrows  3 
+   poll    3000
+
+table
+   content  per 1 0x0002000E
+   label    "DAB/SIRIUS version"
+   columns  ( "Property" String 350 ) ( "Value" String 250 ) 
+   maxrows  3 
+   poll    3000
+
+keyValue
+   value    String per 1 0x00020014 
+   label    "HD Software Version 1"
+   poll     5000
+   
+keyValue
+   value    String per 1 0x00020015 
+   label    "HD Software Version 2"
+   poll     5000

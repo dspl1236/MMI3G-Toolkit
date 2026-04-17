@@ -1,0 +1,34 @@
+CJng Screen
+#
+#  06.Jul.2009
+#  DSims
+#
+#############################################
+
+#######################################################
+#
+# SCREEN HDPerformance
+#
+#######################################################
+screen   HDPerformance HD
+   keyValue
+      value    int per 1 0x00011014 
+      label    "SIS Frame Acq Time"
+      poll     2000      
+   keyValue
+      value    int per 1 0x00011015 
+      label    "Audio Acq Time"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011016 
+      label    "Signal To Noise Ratio"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011017 
+      label    "Analog Audio Time"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011018 
+      label    "Blending Counter"
+      poll     2000
+   

@@ -1,0 +1,41 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen POIList 	Route
+   table
+        content         per 1 0x0003001C
+	label		"POI list" 
+	poll            1000
+	maxrows         12
+	orientation     horizontal
+	columns ( "distance" int 110 ) ( "POI name" String 300 ) ( "country name" String 300 )
+   table
+        content         per 1 0x00030005
+	label		"recent route list" 
+	poll            0
+	maxrows         12
+	orientation     horizontal
+	columns ( "ID" int 150 ) ( "Flags" int 280 ) ( "Name" String 300 )
+
+   table
+        content         per 1 0x00030020
+	label		"last dest list" 
+	poll            1000
+	maxrows         12
+	orientation     horizontal
+	columns ( "ID" int 100 ) ( "flags" int 100 ) ( "name" String 350 )
+   table
+        content         per 1 0x00030015
+	label		"next maneuver"
+	poll            1000
+	maxrows         8
+	orientation     horizontal
+	columns ( "Element" int 150 ) ( "Direction" int 150 ) ( "Attribute" String 150 )		

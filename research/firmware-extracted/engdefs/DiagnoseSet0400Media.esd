@@ -1,0 +1,24 @@
+#############################################
+#
+#   Engineering Screen Ch. Lukasch
+#   18.03.2010
+#############################################
+
+#######################################################
+#
+# SCREEN Media settings for diagnosis
+#
+#######################################################
+screen import_multimedia Settings
+
+# settings adr 0xF00400
+choice
+   value    per 3 0x00150009
+   label    "Ripping: "
+   poll     0
+
+# settings adr 0xF00401
+choice
+   value    per 3 0x0015000A
+   label    "Copying: "   
+   poll     0   

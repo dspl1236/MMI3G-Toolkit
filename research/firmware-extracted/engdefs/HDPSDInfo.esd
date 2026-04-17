@@ -1,0 +1,63 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  15.Oct.2009
+#  DSims
+#
+#############################################
+
+#######################################################
+#
+# SCREEN HDPDSInfo
+#
+#######################################################
+screen   HDPSDInfo HD
+   keyValue
+      value    String per 1 0x0001102B 
+      label    "Genre"
+      poll     2000
+   keyValue
+      value    int per 1 0x0001102C
+      label    "Language"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001102D 
+      label    "Short Description"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001102E 
+      label    "Content Field"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001102F 
+      label    "Price"
+      poll     2000      
+   keyValue
+      value    String per 1 0x00011030 
+      label    "Valid Until"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011031 
+      label    "Contact URL"
+      poll     2000      
+   keyValue
+      value    int per 1 0x00011032
+      label    "Received As"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011033 
+      label    "Name Of Seller"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011034 
+      label    "COMR Description"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011035 
+      label    "MIME Type"
+      poll     2000      
+   
+
+        
+   

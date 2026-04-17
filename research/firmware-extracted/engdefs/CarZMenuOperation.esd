@@ -1,0 +1,124 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   23.01.2007
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarMenuOperation Car
+# the values are from 0 to 31 because there are 5 bits information that can be coded
+slider
+   value    per 3 0x00140000 0 31
+   label    "Adaptive cruise control: "
+slider
+   value    per 3 0x00140001 0 31
+   label    "Interior light: "
+slider
+   value    per 3 0x00140002 0 31
+   label    "Parking system: "
+slider
+   value    per 3 0x00140003 0 31
+   label    "Braking way reduction (AWV): "
+slider
+   value    per 3 0x00140004 0 31
+   label    "Lane departure warning (HCA): "
+slider
+   value    per 3 0x00140005 0 31
+   label    "Lane change assist (SWA): "
+slider
+   value    per 3 0x00140006 0 31
+   label    "Exterior light: "
+slider
+   value    per 3 0x00140007 0 31
+   label    "Battery level gauge: "
+slider
+   value    per 3 0x00140008 0 31
+   label    "Window: "
+slider
+   value    per 3 0x00140009 0 31
+   label    "Air condition: "
+slider
+   value    per 3 0x0014000A 0 31
+   label    "On-board computer: "
+slider
+   value    per 3 0x0014000B 0 31
+   label    "Tyre pressure control (RDK): "
+slider
+   value    per 3 0x0014000C 0 31
+   label    "Wiper: "
+slider
+   value    per 3 0x0014000D 0 31
+   label    "Service intervall : "
+slider
+   value    per 3 0x0014000E 0 31
+   label    "Seat memory: "
+slider
+   value    per 3 0x0014000F 0 31
+   label    "Central lock system: "
+slider
+   value    per 3 0x00140010 0 31
+   label    "Compass: "
+slider
+   value    per 3 0x00140011 0 31
+   label    "Charisma: "
+slider
+   value    per 3 0x00140012 0 31
+   label    "Oil level gauge: "
+slider
+   value    per 3 0x00140013 0 31
+   label    "Vehicle IdentNo activate (VIN): "
+slider
+   value    per 3 0x00140014 0 31
+   label    "Clock: "
+slider
+   value    per 3 0x00140015 0 31
+   label    "Suspension: "
+slider
+   value    per 3 0x00140016 0 31
+   label    "Headup display: "
+slider
+   value    per 3 0x00140017 0 31
+   label    "Central units master (ZEM): "
+slider
+   value    per 3 0x00140018 0 31
+   label    "Hybrid: "
+slider
+   value    per 3 0x00140019 0 31
+   label    "Bord book: "
+slider
+   value    per 3 0x0014001A 0 31
+   label    "univ. garage door opener: "
+slider
+   value    per 3 0x0014001B 0 31
+   label    "Night vision: "
+slider
+   value    per 3 0x0014001C 0 31
+   label    "Sideview camera: "
+slider
+   value    per 3 0x0014001D 0 31
+   label    "rev. seat-belt tensionier (RGS): "
+slider
+   value    per 3 0x0014001E 0 31
+   label    "MFL joker key: "
+slider
+   value    per 3 0x0013FFFF 0 31
+   label    "Auxiliary heating: "
+slider
+   value    per 3 0x0013FFFE 0 31
+   label    "Traffic sign recognition (VZE): "
+slider
+   value    per 3 0x0013FFFD 0 31
+   label    "Rear seat entertainment: "
+slider
+   value    per 3 0x0013FFFC 0 31
+   label    "Weariness recognition (MKE): "
+slider
+   value    per 3 0x0013FFFB 0 31
+   label    "Programmed Key(Ang. Schl.): "
+slider
+   value    per 3 0x0013FFFA 0 31
+   label    "Tilt angle display: "    

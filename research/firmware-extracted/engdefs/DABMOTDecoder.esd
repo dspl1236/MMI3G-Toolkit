@@ -1,0 +1,25 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  26.Apr.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Information about the status of the 4 MOT decoders
+#
+#######################################################
+screen   MOTDecoder DAB
+   choice
+      value    per 1 0x00110026
+      label    "Test Mode"
+      poll     2000
+   table
+      content  per 1 0x00110047
+      label    "Delay List"
+      poll     2000
+      columns  ( "Description" String 150 ) ( "Decoder 1" int 125 ) ( "Decoder 2" int 125 ) ( "Decoder 3" int 125 ) ( "Decoder 4" int 125 )
+      maxrows  12

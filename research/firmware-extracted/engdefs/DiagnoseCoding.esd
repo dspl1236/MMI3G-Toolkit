@@ -1,0 +1,56 @@
+#############################################
+#
+#	Engineering Screen Ch. Lukasch
+#	13.03.2010
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer Diagnose Coding
+#
+#######################################################
+screen	Coding Diagnose
+
+# coding No 1
+BIOSCtrl
+   value    int per 3 0x00100000
+   label    "active HDD Nav DB (#1)"
+   entry    "unknown" -1
+   entry    "Default" 0 # like EU
+   entry    "EU" 1
+   entry    "North America" 2
+   entry    "South America" 3
+   entry    "AGCC" 4
+   entry    "Korea" 5
+   entry    "Japan" 6
+   entry    "China" 7
+   entry    "Asia/Pacific" 8
+   entry    "South Africa" 9
+   entry    "Australia" 10
+   entry    "India" 11
+   entry    "Taiwan (ROC)" 12
+   entry    "AGCC_2 (arabic)" 13
+   entry    "Turkey" 14
+   entry    "Chile" 15
+   entry    "No Navi DB" 99
+   poll     1000
+
+#coding No 24   
+BIOSCtrl
+   value    int per 3 0x00100064
+   label    "Transmission (#24)"
+   entry    "Front wheel drive" 0
+   entry    "Rear wheel drive" 1
+   entry    "Quattro" 2
+   poll     1000   
+
+#coding No 14.6
+BIOSCtrl
+   value    int per 3 0x0015001B
+   label    "RSE remote control:"
+   entry    "nothing" 0
+   entry    "RSE" 1
+   entry    "FFB" 2
+   poll     1000
+  
+ 

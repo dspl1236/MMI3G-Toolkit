@@ -1,0 +1,77 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   01.12.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarCodingVehicle Car
+
+BIOSCtrl
+   value    int per 3 0x00100002
+   label    "steering wheel der."
+   entry    "Unknown" -1
+   entry    "Lefthand" 0
+   entry    "Righthand" 1
+   poll     1000
+
+
+BIOSCtrl
+   value    int per 3 0x00100008
+   label    "Vehicle derivat"
+   entry    "Unknown" -1
+   entry    "Limousine" 0
+   entry    "Avant" 1
+   entry    "Coupe" 2
+   entry    "Cabrio" 3
+   entry    "Sportback" 4
+   entry    "Allroad" 5
+   entry    "SUV" 6
+   poll     1000
+
+  BIOSCtrl
+   value    int per 3 0x00100004
+   label    "Configuration line"
+   entry    "Unknown" -1
+   entry    "Standard" 0
+   entry    "S-line" 1
+   entry    "S-Model" 2
+   entry    "RS-Model" 3
+   poll     1000
+
+  BIOSCtrl
+   value    int per 3 0x00100006
+   label    "Vehicle model line"
+   entry    "Unknown" -1
+   entry    "AU63x - D3" 0
+   entry    "AU64x - D4" 1
+   entry    "AU56x - C6" 2
+   entry    "AU57x - C7" 3
+   entry    "AU71x - Q7" 4
+   entry    "AU41x - Q5" 5
+   entry    "AU48x - B8" 6
+   entry    "AU36x - AB2" 7
+   entry    "AU21x - A1" 8
+   entry    "AU32x - TT" 9
+   entry    "AU31x - Q3" 10
+   entry    "AU64x - D4PA" 11
+   entry    "BY83x" 32
+   entry    "BY62x" 33
+   entry    "VW72x" 64
+   entry    "LB724" 96
+   entry    "LB725" 97
+   entry    "LB834" 98
+   entry    "LB835" 99
+   poll     1000
+
+   slider 
+	value		per 1 0x0009000A 0 0x00090008
+	label 		"Select No of Screen"
+	poll		0 
+   	limits		keys
+	
+	

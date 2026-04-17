@@ -1,0 +1,18 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionBt	Version
+
+table
+   content  per 1 0x000F0023
+   label    "BT HW SW info"
+   columns  ( "Property" String 300 ) ( "Value" String 150 ) 
+   maxrows  3  

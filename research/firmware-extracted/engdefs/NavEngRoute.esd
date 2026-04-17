@@ -1,0 +1,49 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen Route 	Engineering
+
+   keyValue
+	value		int per 1 0x00030016
+	label		"is route calculation active"
+	poll		2000
+   keyValue
+	value		int per 1 0x00030007
+	label		"route guidance active"
+	poll		3000
+   keyValue
+	value		int per 1 0x00030008
+	label		"air distance next dest"
+	poll		5000	
+   keyValue
+	value		String per 1 0x0003000B
+	label		"current street"
+	poll		2000	
+   keyValue
+	value		int per 1 0x0003000C
+	label		"direction next dest"
+	poll		1000	
+   keyValue
+	value		int per 1 0x0003000D
+	label		"distance next dest"
+	poll		2000		
+   keyValue
+	value		int per 1 0x0003000F
+	label		"time next dest (min)"
+	poll		10000	
+   keyValue
+	value		String per 1 0x00030010
+	label		"next street turn to"
+	poll		1000				
+   keyValue
+	value		int per 1 0x0003001D
+	label		"street length"
+	poll		3000		

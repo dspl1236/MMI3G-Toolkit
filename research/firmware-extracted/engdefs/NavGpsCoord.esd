@@ -1,0 +1,44 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen Coordinates 	GPS
+   keyValue
+	value		int per 7 0x000200bf
+	label		"Height"
+	poll		1000
+   keyValue
+	value		int per 7 0x000200c3
+	label		"Height ocean"
+	poll		1000
+   keyValue
+	value		int per 7 0x000200b4
+	label		"latitude degree"
+	poll		10000	
+   keyValue
+	value		int per 7 0x000200b5
+	label		"latitude minute"
+	poll		3000
+   keyValue
+	value		int per 7 0x000200b6
+	label		"latitude second"
+	poll		1000
+   keyValue
+	value		int per 7 0x000200b8
+	label		"longitude degree"
+	poll		10000	
+   keyValue
+	value		int per 7 0x000200b9
+	label		"longitude minute"
+	poll		3000
+   keyValue
+	value		int per 7 0x000200ba
+	label		"longitude second"
+	poll		1000	

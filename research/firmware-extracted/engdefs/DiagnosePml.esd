@@ -1,0 +1,42 @@
+#############################################
+#
+#	Engineering Screen: Soenksen Eric
+#	20.06.2008
+#############################################
+
+#######################################################
+#
+# Settings for Parental Management Level
+#
+#######################################################
+screen	Parental_Mgmt_Level Diagnose
+
+keyValue
+   value	  int per 1 0x00160002
+   label    "current value"
+   poll  	  100
+
+#BIOSCtrl
+#   value    int per 1 0x00160023
+#   label    "Parental Management Level"
+#   entry    "Aus" 0
+#   entry    "Stufe 1" 1
+#   entry    "Stufe 2" 2
+#   entry    "Stufe 3" 3
+#   entry    "Stufe 4" 4
+#   entry    "Stufe 5" 5
+#   entry    "Stufe 6" 6
+#   entry    "Stufe 7" 7
+#   entry    "Stufe 8" 8
+#   poll     100
+   
+button
+   value    per 1 0x00160013 "ResetLevel"
+   label    "Reset Level"
+   poll     0
+
+button
+   value    per 1 0x00160022 "ResetPassword"
+   label    "Reset Password"
+   poll     0
+ 

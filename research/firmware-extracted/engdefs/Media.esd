@@ -1,0 +1,16 @@
+#############################################
+#
+#	Engineering Screen Dmitri
+#	12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer MediaPlayer
+#
+#######################################################
+screen	Media main
+   script 
+   value           sys 1 0x0100 "/scripts/removeMedia.sh" 
+   label           "Delete Backup Folders" 
+

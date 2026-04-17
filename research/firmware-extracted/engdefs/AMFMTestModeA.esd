@@ -1,0 +1,31 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  20.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TestMode A of the AMFM device
+#
+#######################################################
+screen   TestModeA AMFM
+   button
+      value    per 1 0x00010009 "enable"
+      label    "Enable Test Mode A"
+      poll     0
+   table
+      content  per 1 0x00010010
+      label    "Current Station"
+      poll     2000
+      columns  ( "PS" String 180 ) ( "PI" String 80 ) ( "PTY" String 200 ) ( "TP" String 50 ) ( "TA" String 50 ) ( "TMC" String 70 )
+      maxrows  1
+   table
+      content  per 1 0x00010106
+      label    "Current / Best Alternative Frequency"
+      poll     1000
+      columns  ( "Frequency" int 180 0.01 "###.##" ) ( "FieldStrength" int 180 ) ( "Quality" int 180 )
+      maxrows  2

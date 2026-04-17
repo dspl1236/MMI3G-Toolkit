@@ -1,0 +1,29 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  20.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TestMode V of the AMFM device
+#
+#######################################################
+screen   TestModeV AMFM
+   button
+      value    per 1 0x0001000E "enable"
+      label    "Enable Test Mode V"
+      poll     0
+   keyValue
+      value    String per 1 0x00010601
+      label    "Pool Version"
+      poll     2000
+   table
+      content  per 1 0x00010607
+      label    "E2P Version"
+      poll     2000
+      columns  ( "AP" String 100 ) ( "JS" String 100 ) ( "Config Version" String 180 ) ( "Config Revision" String 180 )
+      maxrows  1

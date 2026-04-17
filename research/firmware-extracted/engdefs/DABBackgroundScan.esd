@@ -1,0 +1,44 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  19.Jul.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Using the sliders of this screen it is possible 
+# to control the Backgrond scan of the DAB RU
+#
+#######################################################
+screen   BackgroundScan DAB
+   slider
+      value    per 1 0x00110051 0 9
+      label    "No Sync Freq Checks"
+      limits   absolute
+   slider
+      value    per 1 0x00110052 0 9
+      label    "Last Sync Freq Checks"
+      limits   absolute
+   slider
+      value    per 1 0x00110053 0 9
+      label    "Sync Freq Checks"
+      limits   absolute
+   slider
+      value    per 1 0x00110054 0 9
+      label    "Num Last Sync Freqs"
+      limits   absolute
+   slider
+      value    per 1 0x00110055 0 15
+      label    "Insertion Threshold"
+      limits   absolute
+   slider
+      value    per 1 0x00110056 0 15
+      label    "Deletion Threshold"
+      limits   absolute
+   slider
+      value    per 1 0x00110057 0 5
+      label    "DAB Internal Link Threshold"
+      limits   absolute

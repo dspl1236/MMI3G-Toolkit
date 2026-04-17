@@ -1,0 +1,24 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	EepromFlags	Main
+
+slider
+   value    per 3 0x0011000D 0 3
+   label    "import MM lock status: "
+   
+BIOSCtrl
+   value    int per 3 0x0011000E
+   label    "Watchdog SH4 status:"
+   entry    "8 minutes" 32
+   entry    "60 minutes" 240
+   entry    "disabled" 241
+   poll     1000

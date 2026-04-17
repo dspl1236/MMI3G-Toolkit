@@ -1,0 +1,34 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   06.12.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarFunctionList Car
+
+choice
+   value    per 3 0x00100040
+   label    "PDC entertainment dimming 1: "
+choice
+   value    per 3 0x00100041
+   label    "PDC entertainment dimming 2: "
+choice
+   value    per 3 0x00100042
+   label    "AM/FM toggle: "
+choice
+   value    per 3 0x00100043
+   label    "Oil level gauge extended: "
+choice
+   value    per 3 0x00100044
+   label    "Bord book: "
+choice
+   value    per 3 0x00100045
+   label    "MFL jokerfunction: " 
+choice
+   value    per 3 0x00100046
+   label    "MFL type (STD/PA): " 

@@ -1,0 +1,19 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	BTConnectedDevices	Telephony
+   table
+        content         per 1 0x000F0024
+	label		"connected devices"
+	poll            1000
+	maxrows         10
+	orientation     horizontal
+	columns ( "Name" String 250 ) ( "BT kind of connected devices" String 350 )	

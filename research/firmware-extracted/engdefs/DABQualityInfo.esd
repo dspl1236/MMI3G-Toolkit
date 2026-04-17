@@ -1,0 +1,47 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  26.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Information concerning reception quality
+#
+#######################################################
+screen   QualityInfo DAB
+   choice
+      value    per 1 0x00110026
+      label    "Test Mode"
+      poll     2000
+   keyValue
+      value    String per 1 0x0011001C
+      label    "Sync Status"
+      poll     500
+   keyValue
+      value    String per 1 0x0011001D
+      label    "Mute Status"
+      poll     500
+   keyValue
+      value    String per 1 0x00110013
+      label    "Service Component Status"
+      poll     1000
+   keyValue
+      value    String per 1 0x00110032
+      label    "Linking Status"
+      poll     1000
+   table
+      content  per 1 0x00110024
+      label    "Quality Info"
+      poll     500
+      columns  ( "Frequency" int 140 ) ( "FIC" String 100 ) ( "FIC Nor." int 100 ) ( "MixedQ" int 100 ) ( "AudioQ" int 100 ) ( "FieldSt" int 100 )
+      maxrows  2
+   table
+      content  per 1 0x0011003A
+      label    "Tuner Info List"
+      poll     5000
+      columns  ( "FBlock" String 100 ) ( "---MVSHO" String 140 ) ( "Quality" int 100 ) ( "SID" String 120 ) ( "Dummy" int 100 )
+      maxrows  3

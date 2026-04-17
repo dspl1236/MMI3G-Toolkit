@@ -1,0 +1,25 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen position 	Engineering
+
+   table
+        content         per 1 0x00030012
+	label		"position" 
+	poll            1000
+	maxrows         1
+	orientation     vertical
+	columns ( "longitude" int 80 ) ( "latitude" int 80 ) ( "heading" int 80 ) ( "speed" int 80 ) ( "reliability" int 80 )
+	
+   keyValue
+	value		int per 1 0x00030019
+	label		"height"
+	poll		1000	

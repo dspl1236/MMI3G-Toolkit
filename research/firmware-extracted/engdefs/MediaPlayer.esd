@@ -1,0 +1,22 @@
+#############################################
+#
+#	Engineering Screen Dmitri
+#	12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer MediaPlayer
+#
+#######################################################
+screen	MediaPlayer Media
+   table
+      content  per 1 0x00100023
+      label    "Internal drive info"
+      columns  ( "Property" String 200 ) ( "Value" String 250 ) 
+      maxrows  10 
+   keyValue 
+   	value		String per 1 0x00100024
+   	label 	"Int drive temp status"
+   	poll		2000
+

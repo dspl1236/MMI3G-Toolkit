@@ -1,0 +1,36 @@
+#############################################
+#
+#	Engineering screeen definition
+#	12.12.2007
+#############################################
+
+#######################################################
+#
+# SCREEN AEV OnlineTraffic Functions
+#
+#######################################################
+screen	OnlineTraffic AEVTest
+
+  script
+	value       sys 1 0x0100 "/scripts/dumpTPEGdata.sh"
+	label       "Copy TPEG data snapshot"
+	
+  script
+	value		sys 1 0x0100 "/scripts/car2x_traffic_1.sh"
+	label		"Use Navteq"
+
+  script
+	value		sys 1 0x0100 "/scripts/car2x_traffic_2.sh"
+	label		"Use INRIX"
+	
+	script
+	value		sys 1 0x0100 "/scripts/car2x_traffic_5.sh"
+	label		"Use Finkbeiner-Testserver"
+	
+  script
+	value		sys 1 0x0100 "/scripts/car2x_traffic_6.sh"
+	label		"Use TomTom"
+	
+	script
+	value		sys 1 0x0100 "/scripts/car2x_traffic_7.sh"
+	label		"Use ARC"

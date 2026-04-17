@@ -1,0 +1,59 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  26.Feb.2009
+#  DSims
+#
+#############################################
+
+#######################################################
+#
+# SCREEN HDTest
+#
+#######################################################
+screen   HDTestDataStatus HD
+#   keyValue
+#      value    String per 1 0x0001100A 
+#      label    "Update Activated"
+#      poll     2000
+   keyValue
+      value    int per 1 0x0001100B 
+      label    "Primary Service Mode"
+      poll     2000      
+   keyValue
+      value    String per 1 0x0001100C 
+      label    "Acquired Digital Signal"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001100D 
+      label    "Passed SISCRC"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001100E 
+      label    "Acquired Digital Audio"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001100F 
+      label    "Enable Blend"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011010 
+      label    "Codec Mode"
+      poll     2000      
+   keyValue
+      value    int per 1 0x00011011 
+      label    "Digital TX Audio Gain"
+      poll     2000      
+   keyValue
+      value    int per 1 0x00011012 
+      label    "Blend TX Control"
+      poll     2000      
+   keyValue
+      value    int per 1 0x00011013 
+      label    "Quality Indicator"
+      poll     2000
+   #keyValue
+   #   value    int per 1 0x00010101
+   #   label    "Current FieldStrength"
+   #   poll     2000   

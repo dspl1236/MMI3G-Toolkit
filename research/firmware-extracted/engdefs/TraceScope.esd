@@ -1,0 +1,87 @@
+#############################################
+#
+#	Engineering screeen definition
+#	15.9.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TraceScope	Trace
+
+keyValue 
+	value		String per 1 0x000A0001
+	label    "Active scope application: "
+	poll		0    
+
+keyValue 
+	value		String per 1 0x000A0004
+	label    "Active scope J9: "
+	poll		0  
+
+script
+	value sys 1 0x0100 "/scripts/removeTracePersistency.sh"
+	label "remove the flashed scope settings. Effective after reboot"
+	
+
+BIOSCtrl
+      value    int per 1 0x000A0002
+      label    "Trace scope"
+	entry	"Adb"		0
+	entry	"AMFMTuner"		1
+	entry	"AudioAndMedia"		2
+	entry	"AudioAndNavi"		3
+	entry	"AudioAndSDARS"		4
+	entry	"AudioAndSDS"		5
+	entry	"AudioAndSound"		6
+	entry	"AudioAndTelephony"		7
+	entry	"AudioAndTIM"		8
+	entry	"AudioAndTMC"		9
+	entry	"AudioManagement"		10
+	entry	"Browser"		11
+	entry	"CarMenues"		12
+	entry	"ClusterInstrumentAndMedia_J9only"		13
+	entry	"ClusterInstrumentAndNavi_J9only"		14
+	entry	"ClusterInstrumentAndPhone_J9only"		15
+	entry	"ClusterInstrumentAndTuner_J9only"		16
+	entry	"ClusterInstrument"		17
+	entry	"CombiView_HBonly"		18
+	entry	"DABTuner"		19
+	entry	"Default_J9only"		20
+	entry	"DefaultScope"		21
+	entry	"DiagKWP+Wireless_HBonly"		22
+	entry	"DiagKWP_HBonly"		23
+	entry	"DisplayManagement_HBonly"		24
+	entry	"DSIScope"		25
+	entry	"DVDC_CDC_HBonly"		26
+	entry	"EventHandling_J9only"		27
+	entry	"GoogleEarth"		28
+	entry	"GraphicTopics_J9only"		29
+	entry	"Ipod_HBonly"		30
+	entry	"KeyPanel_HBonly"		31
+	entry	"Klang_J9only"		32
+	entry	"MapRoute_HBonly"		33
+	entry	"MapViewer"		34
+	entry	"Media"		35
+	entry	"OnOff"		36
+	entry	"Persistence"		37
+	entry	"SDARSTuner"		38
+	entry	"SDS"		39
+	entry	"SPHNavigation"		40
+	entry	"SWDL"		41
+	entry	"Telephony"		42
+	entry	"TIMTuner"		43
+	entry	"tmcTraceScope"		44
+	entry	"TouchPad_J9only"		45
+	entry	"TPEG"		46
+	entry	"TunerAnnouncement"		47
+	entry	"TV"		48
+	entry	"VoiceSearch"		49
+	poll 1000
+
+      button
+      value    per 1 0x000A0000 " "
+      label    "Activate"
+      poll     0

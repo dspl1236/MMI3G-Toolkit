@@ -1,0 +1,21 @@
+#############################################
+#
+#  Engineering Screen Dmitri
+#  30.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Bluetooth
+#
+#######################################################
+screen   Bluetooth Main
+
+choice
+   value    per 4 0x00020001
+   label    "Link key restriction active"
+   
+choice
+   value    per 1 0x000F0026
+   label    "A2DP Activation"
+   

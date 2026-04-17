@@ -1,0 +1,43 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN General Information
+#
+#######################################################
+screen   GeneralInfo SDARS
+   keyValue
+      value    String per 1 0x00120000
+      label    "Detected Device"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120001
+      label    "Provider"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120002
+      label    "Electronic Serial Code"
+      poll     5000
+   keyValue
+      value    String per 1 0x00120003
+      label    "ESC Data Module"
+      poll     5000
+   keyValue
+      value    String per 1 0x00120006
+      label    "Quality Composite"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120007
+      label    "Quality Satellite"
+      poll     2000
+   keyValue
+      value    String per 1 0x00120008
+      label    "Quality Terrestrial"
+      poll     2000

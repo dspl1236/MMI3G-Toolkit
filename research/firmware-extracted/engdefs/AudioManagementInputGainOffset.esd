@@ -1,0 +1,82 @@
+#############################################
+#
+#	Engineering Screen DWedel
+#	07.12.2007
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer Audiomanagement input gain offset
+#
+#######################################################
+screen InputGainOffset Audiomanagement
+
+   slider
+        value           per 1 0x000B0010 -13 13
+        label           "MW"
+        poll            0
+
+   slider
+        value           per 1 0x000B0011 -13 13
+        label           "FM"
+        poll            0
+
+   slider
+        value           per 1 0x000B0012 -13 13
+        label           "MUCD"
+        poll            0
+
+   slider
+        value           per 1 0x000B0020 -13 13
+        label           "CDC"
+        poll            0
+
+   slider
+        value           per 1 0x000B0021 -13 13
+        label           "DAB"
+        poll            0
+
+   slider
+        value           per 1 0x000B0022 -13 13
+        label           "DVBT"
+        poll            0
+
+   slider
+        value           per 1 0x000B0023 -13 13
+        label           "TV"
+        poll            0
+
+   slider
+        value           per 1 0x000B0024 -13 13
+        label           "SDARS"
+        poll            0
+
+   slider
+        value           per 1 0x000B0025 -13 13
+        label           "TIM"
+        poll            0
+
+   slider
+        value           per 1 0x000B0026 -13 13
+        label           "MU AUX"
+        poll            0
+
+   slider
+        value           per 1 0x000B0027 -13 13
+        label           "MU AUX ADAPT"
+        poll            0
+
+   slider
+        value           per 1 0x000B0028 -13 13
+        label           "MU DVD"
+        poll            0
+
+   slider
+        value           per 1 0x000B0029 -13 13
+        label           "MU MFP"
+        poll            0
+
+   slider
+        value           per 1 0x000B002A -13 13
+        label           "MU BT Device"
+        poll            0

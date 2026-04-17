@@ -1,0 +1,18 @@
+#############################################
+#
+#	Engineering screeen definition
+#	15.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN MOST CentralRegistry
+#
+#######################################################
+screen CentralRegistry MOST
+   table
+      content  per 1 0x00130001
+      label    "Central Registry"
+      poll     10000
+      columns  ( "Number" String 150 ) ( "DeviceID" String 150 ) ( "FBlock" String 150 ) ( "InstID" String 150 )
+      maxrows  46

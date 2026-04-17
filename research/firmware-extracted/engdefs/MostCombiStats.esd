@@ -1,0 +1,68 @@
+#############################################
+#
+#	Engineering screeen definition
+#	1.10.2008
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Statistics	MostCombi
+
+  keyValue 
+        value		      String per 1 0x00220000
+        label 		      "latency"
+        poll            1000
+
+  keyValue 
+        value		      int per 1 0x00220001
+        label 		      "size last fullframe"
+        poll            1000
+
+  keyValue 
+        value		      int per 1 0x00220002
+        label 		      "size last baseframe"
+        poll            1000
+
+  keyValue 
+        value		      String per 1 0x00220003
+        label 		      "size last overlay"
+        poll            1000
+
+  keyValue 
+        value		      String per 1 0x00220004
+        label 		      "actual framerate"
+        poll            1000
+  
+  keyValue 
+        value		      int per 1 0x00220009
+        label 		      "eventdrops mapviewer"
+        poll            2000
+
+  keyValue 
+        value		      int per 1 0x00220005
+        label 		      "framedrops compression"
+        poll            2000
+
+  keyValue 
+        value		      String per 1 0x00220006
+        label 		      "framedrops Most"
+        poll            2000
+
+   keyValue 
+        value		      int per 1 0x0022000A
+        label 		      "combi errors"
+        poll            2000
+
+   keyValue 
+        value		      int per 1 0x00220007
+        label 		      "compress errors"
+        poll            2000
+
+  keyValue 
+        value		      String per 1 0x00220008
+        label 		      "picnum compr/sent"
+        poll            1000
+    

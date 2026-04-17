@@ -1,0 +1,48 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  19.Jul.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Using the sliders of this screen it is possible 
+# to control the mute behaviour of the DAB RU
+#
+#######################################################
+screen   MuteHandling DAB
+   slider
+      value    per 1 0x00110049 0 15
+      label    "Norm FIC BER Thresh. Mute"
+      limits   absolute
+   slider
+      value    per 1 0x0011004A 0 100
+      label    "Audio Qual Treshold 1 Mute"
+      limits   absolute
+   slider
+      value    per 1 0x0011004B 0 100
+      label    "Audio Qual Treshold 2 Mute"
+      limits   absolute
+   slider
+      value    per 1 0x0011004C 0 15
+      label    "Norm FIC BER Thresh. Dem."
+      limits   absolute
+   slider
+      value    per 1 0x0011004D 0 100
+      label    "Audio Qual Thresh. Demute"
+      limits   absolute
+   slider
+      value    per 1 0x0011004E 0 6
+      label    "Mute Duration (500 ms)"
+      limits   absolute
+   slider
+      value    per 1 0x0011004F 0 60
+      label    "Mute Ramp Duration (50 ms)"
+      limits   absolute
+   slider
+      value    per 1 0x00110050 0 60
+      label    "Demute Ramp Dur. (50 ms)"
+      limits   absolute

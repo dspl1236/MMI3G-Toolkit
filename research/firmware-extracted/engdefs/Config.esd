@@ -1,0 +1,68 @@
+#############################################
+#
+#  Engineering screeen definition
+#  05.06.2012
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen   Config   Main
+
+   keyValue 
+      value       String per 1 0x00090003
+      label       "IP assignment: "
+      poll        1000           
+
+   script
+      value       sys 1 0x0100 "/scripts/Connectivity/unsetIncar.sh"
+      label       "Activate DHCP"
+   
+   script
+      value       sys 1 0x0100 "/scripts/Connectivity/setIncar.sh"
+      label       "Activate fixed IP"
+
+   script
+      value       sys 1 0x0100 "/scripts/Connectivity/installFairMode.sh"
+      label       "Install Fair Mode"
+	  
+   script
+      value       sys 1 0x0100 "/scripts/Connectivity/uninstallFairMode.sh"
+      label       "Uninstall Fair Mode"
+   
+   script
+      value       sys 1 0x0100 "/scripts/Connectivity/getConf.sh"
+      label       "Show Network Configuration"
+
+   script
+      value       sys 1 0x0100 "/scripts/Connectivity/getStatus.sh"
+      label       "Show IP Settings"
+
+   script
+     value        sys 1 0x0100 "/scripts/Connectivity/getAdapters.sh"
+      label       "Show Adapter Settings"
+      
+   script
+     value        sys 1 0x0100 "/scripts/modifyResetOnASADErr.sh"
+      label       "Modify Reset On ASAD-Error"      
+      
+   keyValue 
+      value       String per 1 0x00090004
+      label       "language HMI system: "
+
+   keyValue 
+      value       String per 1 0x00090005
+      label       "language Navi TTS : "
+
+   keyValue 
+      value       String per 1 0x00090006
+      label       "language SDS: "
+
+#   table
+#      content     per 3 0x0014002F
+#      label       "visible languages"
+#      poll        0
+#      columns     ( "" String 100 )
+#      maxrows     20

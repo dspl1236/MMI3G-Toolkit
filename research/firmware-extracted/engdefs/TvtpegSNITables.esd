@@ -1,0 +1,41 @@
+#############################################
+#
+#	Engineering screeen definition
+#	16.7.2010
+#############################################
+
+#######################################################
+#
+# SCREEN 1
+#
+#######################################################
+screen	SNIData 	Tvtpeg
+  keyValue
+	value		int per 1 0x00250006
+	label		"SID_A"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250007
+	label		"SID_B"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250008
+	label		"SID_C"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250009
+	label		"Version Number"
+	poll		1000
+  keyValue
+	value		int per 1 0x0025000A
+	label		"Character Table Identifier"
+	poll		1000
+###########################################################  
+  table
+        content         per 1 0x00250005
+	label		"SNI List"
+	poll            1000
+	maxrows         100
+	orientation     horizontal
+	columns ( "Nr" int 100 ) ( "AID" int 100 ) ( "COID" int 100 ) ( "SCID" int 100 ) ( "EncInd" int 100 )	
+ 

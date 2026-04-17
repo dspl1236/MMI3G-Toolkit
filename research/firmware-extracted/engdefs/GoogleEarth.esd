@@ -1,0 +1,52 @@
+#############################################
+#
+#  GoogleEarth Screen
+#  12.10.2009
+#############################################
+
+#######################################################
+#
+# SCREEN GoogleEarth 
+#
+#######################################################
+screen   GoogleEarth Main 
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/restartGEMMI.sh"
+      label    "Restart GEMMI (volatile)"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/shutdownGEMMI.sh"
+      label    "Shutdown GEMMI (volatile)"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/startGEMMI.sh"
+      label    "Start GEMMI (volatile)"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/deactivateGEMMI.sh"
+      label    "Deactivate GEMMI (persistent)"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/activateGEMMI.sh"
+      label    "Activate GEMMI (persistent)"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/getCacheStatus.sh"
+      label    "Get GEMMI Cache Status"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/deleteCacheGEMMI.sh"
+      label    "Delete Cache GEMMI"
+
+   script
+      value    sys 1 0x0100 "/scripts/GEMMI/getInfoGEMMI.sh"
+      label    "Get Info GEMMI"
+
+   button
+    value      per 1 0x00050043 "0"
+    label      "Open DataConnection (ApplicationID=0)"
+
+   button
+    value      per 1 0x00050044 "0"
+    label      "Close DataConnection (ApplicationID=0)"

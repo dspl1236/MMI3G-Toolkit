@@ -1,0 +1,19 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TelephonyStates	Telephony
+   table
+        content         per 1 0x00060001
+	label		"lock state" 
+	poll            1000
+	maxrows         1
+	orientation     vertical
+	columns ( "lock State" int 80 ) ( "retry counter" int 80 )

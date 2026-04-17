@@ -1,0 +1,19 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionTelephony	Version
+
+table
+   content        per 1 0x00060020
+   label          "NAD versions"
+   poll           10000
+   columns       ( "name" String 200 ) ( "version" String 200 ) ( "version type" String 200 )
+   maxrows        2

@@ -1,0 +1,31 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  29.Oct.2009
+#  DSims
+#
+#############################################
+
+#######################################################
+#
+# SCREEN HDBLENDING
+#
+#######################################################
+screen   HDBlending HD
+   slider
+      value    per 1 0x00010908 1 4
+      label    "HDBlending Type"
+      limits   absolute      
+   slider
+      value    per 1 0x00010907 0 7
+      label    "HDBlending Threshold"
+      limits   absolute
+   table
+      content  per 1 0x00010909
+      label    "HDBlending Table"
+      poll     2000
+      columns  ( "Type" String 175 ) ( "Threshold" int 125 1 "######" )
+      maxrows  5
+
+   

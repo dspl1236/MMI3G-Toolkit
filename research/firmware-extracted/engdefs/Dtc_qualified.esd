@@ -1,0 +1,23 @@
+#############################################
+#
+#	Engineering screeen definition
+#  for displaying DTCs
+#  by M. Wolf
+#
+#############################################
+
+
+#######################################################
+#
+# DTC menu for displaying all qualified DTCs
+#
+#######################################################
+screen	qualified_DTCs	DTC
+
+   table
+   content        per 2 0x00010003
+   label          "qualified DTCs"
+    poll          30000
+	maxrows        10
+	orientation   horizontal 
+	columns ( "intern" int 70 ) ( "extern" String 120 ) ( "status" String 80 ) ( "!T" String 20 ) ( "S" String 20 ) ( "A" String 20 ) ( "L" String 20 ) ( "name" String 300 )

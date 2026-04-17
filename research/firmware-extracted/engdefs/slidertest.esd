@@ -1,0 +1,21 @@
+#############################################
+#
+#	Engineering Screen Audio
+#	24.04.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Slider Test
+#
+#######################################################
+screen	SliderTest AEVTest
+   slider 
+	value		per 234524 20019 -6 6
+	label 		"Absolute Slider"
+	poll		0
+   slider 
+	value		per 234524 20016 20017 20018
+	label 		"Indexed Slider"
+   	limits		keys
+	poll		0 

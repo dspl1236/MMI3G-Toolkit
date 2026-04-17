@@ -1,0 +1,32 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Extra
+#
+#######################################################
+screen	FakeExtra	AEVTest
+   keyValue
+	value		String per 234524 22000
+	label		"XtraCountry"
+	poll		0
+   keyValue
+	value		int per 234524 22001
+	label		"XtraVersion"
+	poll		0
+   choice
+	value		per 234524 24000
+	label		"XtraChoice1"
+	poll		0
+   keyValue
+	value		int per 234524 22002
+	label		"XtraModulCount"
+	poll		0
+   keyValue
+	value		String per 234524 22003
+	label		"XtraType"
+	poll		0

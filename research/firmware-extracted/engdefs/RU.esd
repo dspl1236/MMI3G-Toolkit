@@ -1,0 +1,35 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	RU	Main
+
+keyValue 
+	value		int per 1 0x00020003
+	label    "Fan speed"
+   poll     1000
+
+keyValue 
+	value		int per 1 0x00020004
+	label    "FOT temperatur RU"
+   poll     1000
+
+keyValue 
+	value		int per 1 0x00020005
+	label    "Amplifier temperatur RU"
+   poll     1000
+
+keyValue 
+	value		int per 1 0x00020006
+	label    "FOT temperatur RU Max"
+
+keyValue 
+	value		int per 1 0x00020007
+	label    "Amplifier temperatur RU max"

@@ -1,0 +1,39 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Current Station
+#
+#######################################################
+screen   CurrentStation SDARS
+   keyValue
+      value    int per 1 0x0012000A
+      label    "Number"
+      poll     2000
+   keyValue
+      value    int per 1 0x0012000B
+      label    "SID"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012000C
+      label    "Short Name"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012000D
+      label    "Long Name"
+      poll     2000
+   keyValue
+      value    String per 1 0x0012000E
+      label    "Subscription"
+      poll     2000
+   keyValue
+      value    int per 1 0x0012000F
+      label    "Category"
+      poll     2000

@@ -1,0 +1,84 @@
+#############################################
+#
+#	Engineering screeen definition
+#	23.8.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Trigger	IRC
+
+choice
+   value    per 5 0x00010001
+   label    "system temperature"
+
+choice
+   value    per 5 0x00010002
+   label    "system DVD drive temp high"
+
+choice
+   value    per 5 0x00010003
+   label    "system CD drive temp high"
+
+choice
+   value    per 5 0x00010004
+   label    "system DVD drive temp low"
+
+choice
+   value    per 5 0x00010005
+   label    "system CD drive temp low"
+
+choice
+   value    per 5 0x00010006
+   label    "system DVD drive damaged"
+
+choice
+   value    per 5 0x00010007
+   label    "system CD drive damaged"
+
+choice
+   value    per 5 0x00010008
+   label    "system drive read error"
+
+choice
+   value    per 5 0x00010009
+   label    "system HDD defect"
+
+choice
+   value    per 5 0x0001000A
+   label    "system HDD pressure"
+
+choice
+   value    per 5 0x0001000B
+   label    "system overheat"
+
+choice
+   value    per 5 0x0001000C
+   label    "system drive error"
+
+choice
+   value    per 5 0x0001000D
+   label    "phone not functional"
+
+choice
+   value    per 5 0x0001000E
+   label    "phone temperature off"
+
+choice
+   value    per 5 0x0001000F
+   label    "phone secco blocked"
+
+choice
+   value    per 5 0x0001003D
+   label    "IRC exception"
+
+choice
+   value    per 5 0x0001003E
+   label    "IRC reset"
+
+choice
+   value    per 5 0x0001003F
+   label    "IRC hotkey"

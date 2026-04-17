@@ -1,0 +1,49 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Tv	Main
+
+   keyValue
+	value		int per 1 0x00040000
+	label		"tuner state"
+	poll		1000
+   keyValue
+	value		int per 1 0x00040003
+	label		"selected source"
+	poll		1000	
+   keyValue
+	value		int per 1 0x00040004
+	label		"TV norm area"
+	poll		1000	
+   keyValue
+	value		int per 1 0x00040005
+	label		"Audio format"
+	poll		3000	
+   keyValue
+	value		int per 1 0x00040006
+	label		"Terminal mode"
+	poll		2000
+   keyValue
+	value		int per 1 0x00040007
+	label		"Key panel state"
+	poll		2000	
+   keyValue
+	value		int per 1 0x00040008
+	label		"Diversity state"
+	poll		2000		
+   keyValue
+	value		int per 1 0x00040009
+	label		"AV 1 norm"
+	poll		2000	
+   keyValue
+	value		int per 1 0x0004000A
+	label		"AV 2 norm"
+	poll		2000				

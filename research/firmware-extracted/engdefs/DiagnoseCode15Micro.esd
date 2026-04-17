@@ -1,0 +1,26 @@
+#############################################
+#
+#   Engineering Screen Ch. Lukasch
+#   18.03.2010
+#############################################
+
+#######################################################
+#
+# SCREEN coding for diagnosis
+#
+#######################################################
+screen connected_micro Coding
+
+choice
+   value    per 3 0x0015000E
+   label    "Micro 1: "
+   poll     0
+
+choice
+   value    per 3 0x0015000F
+   label    "Micro 2: "
+   poll     0
+  
+
+
+

@@ -1,0 +1,36 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionDU	Version
+	
+keyValue 
+	value		String per 3 0x000103F1
+	label           "SW version front"
+
+keyValue 
+	value		String per 3 0x000103F3
+	label           "SW version left"
+
+keyValue 
+	value		String per 3 0x000103F2
+	label           "SW version right"
+
+keyValue 
+	value		String per 3 0x00010400
+	label    "HW version front"
+
+keyValue 
+	value		String per 3 0x00010401
+	label    "HW version right"
+
+keyValue 
+	value		String per 3 0x00010402
+	label    "HW version left"

@@ -1,0 +1,17 @@
+#############################################
+#
+#	Engineering Screen Dmitri
+#	26.07.2007
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer Diagnose settings
+#
+#######################################################
+screen	Settings Diagnose
+
+button
+   value    per 8 0x00059000  " "
+   label    "Trigger Import Dataset(/HBpersistence/Datasets_VAS)"
+   poll     0

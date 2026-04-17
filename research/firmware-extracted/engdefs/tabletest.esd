@@ -1,0 +1,25 @@
+#############################################
+#
+#	Engineering screeen definition
+#	18.4.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Table Test
+#
+#######################################################
+screen	TableTest	AEVTest
+   table
+   	content		per 234524 25001
+   	label		"Horizontal Table Demo"
+   	columns		( "Name" String 250 ) ( "Freq" int 70 0.1 "###.#" )
+   	maxrows		4
+   	orientation	horizontal
+
+   table
+   	content		per 234524 25002
+   	label		"Vertical Table Demo"
+   	columns		( "ACC" int 50 ) ( "Int. light" int 50 ) ( "Ext. light" int 50 ) ( "APS front" int 50 ) ( "APS rear" int 50 )
+   	maxrows		1
+   	orientation	vertical

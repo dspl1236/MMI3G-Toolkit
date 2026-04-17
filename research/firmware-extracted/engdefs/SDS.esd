@@ -1,0 +1,105 @@
+#############################################
+#
+#       Engineering screeen definition
+#       25.08.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen  SDS     Main
+
+   keyValue 
+        value                  int per 1 0x000D0037
+        label                  "Last recognized confidence"
+        poll                   1000          
+
+table 
+        content  per 1     0x000D000C
+        label                  "Language list"
+        poll                   10000 
+  columns ( "Name" String 180 ) 
+  maxrows 16    
+  
+table 
+        content  per 1     0x000d0036
+        label                  "Microphone level"
+        poll                   1000 
+  columns ( "Value" String 180 ) 
+  maxrows 5  
+
+keyValue 
+        value                  String per 1 0x000d0001
+        label               "Last rule"
+        poll                   1000 
+        
+keyValue 
+        value                  String per 1 0x000d0035
+        label               "Last recognized word"
+        poll                   1000 
+
+   keyValue 
+        value                  String per 1 0x000d0038
+        label               "Last not enrolled word"
+        poll                   1000 
+
+   keyValue 
+        value                  String per 1 0x000D0009
+        label               "Dialog version"
+        poll                   1000          
+        
+   keyValue 
+        value                  String per 1 0x000D000B
+        label               "Current language"
+        poll                   1000 
+        
+   keyValue 
+        value                  String per 1 0x000d0034
+        label               "Current CSF string"
+        poll                   1000 
+
+
+choice
+   value           per 1 0x000D0026
+   label           "SDS Mic1"
+choice
+   value           per 1 0x000D0027
+   label           "SDS Reference chanel"
+choice
+   value           per 1 0x000D0028
+   label           "NADul 1"
+choice
+   value           per 1 0x000D0029
+   label           "NADul 2"
+choice
+   value           per 1 0x000D002A
+   label           "NAD reference"
+choice
+   value           per 1 0x000D002B
+   label           "NADdl"
+choice
+   value           per 1 0x000D002C
+   label           "BTul 1"
+choice
+   value           per 1 0x000D002D
+   label           "BTul 2"
+choice
+   value           per 1 0x000D002E
+   label           "BT reference"
+choice
+   value           per 1 0x000D002F
+   label           "BTdl"
+choice
+   value           per 1 0x000D0030
+   label           "BTHSul"
+choice
+   value           per 1 0x000D0031
+   label           "BTHSdl"
+button
+   value           per 1 0x000D0032 "/HBpersistence/audio"
+   label           "Start record"
+button
+   value           per 1 0x000D0033 "/HBpersistence/audio"
+   label           "Stop record"

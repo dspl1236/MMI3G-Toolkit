@@ -1,0 +1,25 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  24.May.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TunerAnnouncementStatus
+#
+#######################################################
+screen Status TunerAnnouncement
+   keyValue
+      value    String per 1 0x001F0001
+      label    "Station Name"
+      poll     2000
+   table
+      content  per 1 0x001F0000
+      label    "Current Status"
+      poll     2000
+      columns  ( "Label" String 250 ) ( "Available" int 120 ) ( "Active" int 120 )
+      maxrows  13

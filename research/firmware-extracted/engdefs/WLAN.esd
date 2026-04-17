@@ -1,0 +1,41 @@
+#############################################
+#
+#  Engineering Screen Definition
+#  01.07.2009
+#############################################
+
+#######################################################
+#
+# SCREEN for WLAN
+#
+#######################################################
+screen   WLAN Main
+
+   choice
+      value       per 1 0x00230005
+      label       "Adaption 0x13 WLAN ON:"
+      poll        2000     
+      
+   choice
+      value       per 1 0x00230008
+      label       "wlan running"
+      poll        2000     
+  
+   keyValue 
+      value       String per 1 0x00230003
+      label       "SSID:"
+      poll        2000           
+
+   keyValue 
+      value       String per 1 0x00230004
+      label       "password:"
+      poll        2000   
+      
+   keyValue 
+      value       String per 1 0x00230000
+      label       "mac:"
+      poll        2000   
+         
+   button
+      value       per 1 0x00230009 "setpasswd"
+      label       "set simple default password"

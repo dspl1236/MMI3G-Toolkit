@@ -1,0 +1,31 @@
+#############################################
+#
+#	Engineering screeen definition
+#	14.9.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	InternFBlock	Trace
+   choice
+      value    per 1 0x000A0100
+      label    "Audio Trace"
+   choice
+      value    per 1 0x000A0101
+      label    "Telephone Trace"
+   choice
+      value    per 1 0x000A0102
+      label    "Navigation Trace"
+   choice
+      value    per 1 0x000A0103
+      label    "Car Trace"
+   choice
+      value    per 1 0x000A0104
+      label    "Media Trace"
+   choice
+      value    per 1 0x000A0105
+      label    "SWDL"
+      

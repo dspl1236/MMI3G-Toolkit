@@ -1,0 +1,30 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TpegData	Tvtpeg
+   keyValue
+	value		int per 1 0x00250010
+	label		"SID_A"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250011
+	label		"SID_B"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250012
+	label		"SID_C"
+	poll		1000
+  keyValue
+	value		int per 1 0x00250013
+	label		"EncrInd"
+	poll		1000
+  
+   

@@ -1,0 +1,105 @@
+#############################################
+#
+#	Engineering screeen definition
+#	15.2.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	System	Main
+        
+   choice
+      value    per 3 0x00110013
+      label    "is production mode active: "
+
+   button
+      value         per 1 0x00050043 "0"
+      label         "connect UMTS (channel 0)"
+
+   button
+      value         per 1 0x00050044 "0"
+      label         "disconnect UMTS (channel 0)"
+      
+   keyValue 
+   	value		       int per 3 0x00000023
+   	label 		    "battery voltage (x100 mV)"
+      poll            500
+      
+   slider
+      value           per 1 0x00050035 10 13
+      label           "Choose system tone"
+        
+   choice
+      value    per 1 0x00050036
+      label    "is system tone active: "
+      
+   keyValue 
+   	value		       String per 3 0x0011000A
+   	label 		    "Serial number"
+      
+   keyValue 
+   	value		       String per 3 0x0011000C
+   	label 		    "VW system name"
+      
+   keyValue 
+   	value		       int per 3 0x00000024
+      format          2 hex
+   	label 		    "cable code info (hex)"
+      poll            5000
+      
+   keyValue 
+   	value		       int per 3 0x00300007
+      format          2 hex
+   	label 		    "connected HUC/BTHS (hex)"
+      poll            5000
+      
+   slider
+      value           per 4 0x0001003 0 10
+      label           "PerfLoad Freq. (sec)"
+
+   keyValue 
+   	value		       int per 1 0x5003b
+   	label 		    "CPU"
+      poll            2000
+      
+   slider 
+   	value		       per 4 0x00001007 0 2
+   	label 		    "No, Memory, CPU"
+      
+BIOSCtrl
+   value    int per 4 0x00010000
+   label    "kind of state line"
+   entry    "unknown" 0
+   entry    "current free memory" 1
+   entry    "Delivery label" 2
+   entry    "reserved" 3
+   entry    "reserved" 4
+   entry    "reserved" 5
+   entry    "reserved" 6
+   entry    "reserved" 7
+   entry    "reserved" 8
+   entry    "reserved" 9
+   entry    "reserved" 10
+
+   button
+      value         per 1 0x00050045 "0"
+      label         "activate LSD developement"
+
+   button
+      value         per 1 0x00050046 "0"
+      label         "activate LSD production"
+
+   button
+      value         per 1 0x00050047 "0"
+      label         "activate LSD consolidated"
+
+BIOSCtrl
+   value    int per 3 0x0014001F
+   label    "summer time"
+   entry    "no possibility of summer time" 0
+   entry    "manual (+1 hour)" 1
+   entry    "MESZ algorithms" 2
+   entry    "USA algorithms" 3

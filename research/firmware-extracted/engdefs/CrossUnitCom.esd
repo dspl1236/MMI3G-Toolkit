@@ -1,0 +1,23 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  16.Nov.2009
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Settings for CrossUnitCommunication
+#
+#######################################################
+screen CrossUnitCom Main
+   choice
+      value    per 1 0x00050048
+      label    "Wait for domains"
+      poll     2000
+   choice
+      value    per 1 0x00050049
+      label    "Wait for audio domains"
+      poll     2000

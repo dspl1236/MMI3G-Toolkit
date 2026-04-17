@@ -1,0 +1,27 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  18.Sep.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Current Station and TMC-Station-List
+#
+#######################################################
+screen   TMCStationList AMFM
+   table
+      content  per 1 0x00010010
+      label    "Current Station"
+      poll     2000
+      columns ( "PS" String 160 ) ( "PI" String 75 ) ( "PTY" String 220 ) ( "TP" String 50 ) ( "TA" String 50 ) ( "TMC" String 70 )
+      maxrows 1
+   table
+      content  per 1 0x00080009
+      label    "TMC Station List"
+      poll     5000
+      columns ( "PS" String 160 ) ( "PI" String 75 ) ( "Station Info" String 410 )
+      maxrows 20

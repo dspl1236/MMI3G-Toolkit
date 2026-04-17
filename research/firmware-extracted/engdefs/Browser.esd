@@ -1,0 +1,17 @@
+#############################################
+#
+#	Engineering screeen definition
+#	19.11.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen   Browser   Main
+
+script
+	value sys 1 0x0100 "/scripts/removeBoardbook.sh"
+	label "Delete Old Non-ISO Boardbook"
+

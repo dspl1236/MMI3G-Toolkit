@@ -1,0 +1,38 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   06.12.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarExtDeviceList Car
+
+choice
+   value    per 3 0x00100030
+   label    "MFL: "
+choice
+   value    per 3 0x00100031
+   label    "VIN: "
+choice
+   value    per 3 0x00100032
+   label    "Battery level gauge: "
+choice
+   value    per 3 0x00100033
+   label    "Oil level gauge: "
+choice
+   value    per 3 0x00100034
+   label    "Sliding roof: "
+choice
+   value    per 3 0x00100035
+   label    "Trailer: "
+choice
+   value    per 3 0x00100036
+   label    "Driver Monitoring: "
+
+choice
+   value    per 3 0x00100037
+   label    "Programmed Keys: "

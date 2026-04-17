@@ -1,0 +1,42 @@
+#############################################
+#
+#	Engineering screeen definition
+#	14.9.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	HDD	Environment
+
+   keyValue
+      value    String per 1 0x000E0040
+      label    "HDD model"
+      poll     10000
+      
+   keyValue
+      value    String per 1 0x000E0041
+      label    "HDD firmware revision"
+      poll     10000    
+       
+   keyValue
+      value    String per 1 0x000E0042
+      label    "HDD serial number"
+      poll     10000  
+      
+   keyValue
+      value    int per 1 0x000E0043
+      label    "HDD current temperature"
+      poll     1000  
+      
+   keyValue
+      value    int per 1 0x000E0044
+      label    "HDD max temperature"
+      poll     10000   
+      
+   keyValue
+      value    int per 1 0x000E0045
+      label    "HDD power state"
+      poll     1000  

@@ -1,0 +1,26 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TvTables	Tv
+   table
+        content         per 1 0x00040001
+	label		"service list"
+	poll            1000
+	maxrows         12
+	orientation     horizontal
+	columns ( "Name" String 150 ) ( "ID" int 250 ) ( "Tv type" int 100 ) ( "Norm area" int 140 )	
+   table
+        content         per 1 0x00040002
+	label		"selected service"
+	poll            1000
+	maxrows         1
+	orientation     vertical
+	columns ( "Name" String 120 ) ( "ID" int 80 ) ( "Tv type" int 80 ) ( "Norm area" int 80 ) ( "Channel name" String 120 )	

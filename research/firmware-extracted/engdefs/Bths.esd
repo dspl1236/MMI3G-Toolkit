@@ -1,0 +1,24 @@
+#############################################
+#
+#	Engineering screeen definition
+#	05.06.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Bths	Main
+   table
+   content  per 1 0x0000100A
+	label	   "bths 1"
+	columns  ( "attribute" String 120 ) ( "value"  String 120 )
+	maxrows  7
+   
+   table
+   content  per 1 0x0000100B
+	label	   "bths 2"
+	columns  ( "attribute" String 120 ) ( "value"  String 120 )
+	maxrows  7
+

@@ -1,0 +1,67 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  06.Feb.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN DABSettings
+#
+#######################################################
+screen Settings DAB
+   choice
+      value    per 1 0x00110033
+      label    "Linking Feature"
+      poll     2000
+   slider
+      value    per 1 0x00110031 0 2
+      label    "Linking Mode Off/DAB/On"
+      limits   absolute
+   slider
+      value    per 1 0x00110037 0 2
+      label    "Linking Delay Off/Fix/Auto"
+      limits   absolute
+   slider
+      value    per 1 0x0011003B 1 3
+      label    "Enforce Linking Off/DAB/FM"
+      limits   absolute
+   slider
+      value    per 1 0x0011003C 0 7
+      label    "DAB Qual Linking Threshold"
+      limits   absolute
+   slider
+      value    per 1 0x0011003D 0 65
+      label    "Link Back Delay"
+      limits   absolute
+   choice
+      value    per 1 0x00110038
+      label    "Display QualityInfo"
+      poll     2000
+   choice
+      value    per 1 0x00110026
+      label    "Test Mode"
+      poll     2000
+   choice
+      value    per 1 0x00110034
+      label    "DRC Switch"
+      poll     2000
+   choice
+      value    per 1 0x00110048
+      label    "Foreground Module"
+      poll     2000
+   slider
+      value    per 1 0x00110063 0 60
+      label    "Basic notification delay"
+      limits   absolute
+   slider
+      value    per 1 0x00110064 0 60
+      label    "Medium priority notiifcation delay"
+      limits   absolute
+   slider
+      value    per 1 0x00110065 0 60
+      label    "Low priority notiifcation delay"
+      limits   absolute

@@ -1,0 +1,67 @@
+#############################################
+#
+#	Engineering Screen DWedel
+#	07.12.2007
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer Audiomanagement volume rangers
+#
+#######################################################
+screen VolumeRangers Audiomanagement
+
+   slider
+        value           per 1 0x000B0000 0 60
+        label           "Entertainment lowering"
+        poll            0        
+
+   slider
+        value           per 1 0x000B0001 0 60
+        label           "Entertainment min"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0002 0 60
+        label           "Entertainment max"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0003 0 60
+        label           "SDS min"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0004 0 60
+        label           "SDS max"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0005 0 60
+        label           "Navi min"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0006 0 60
+        label           "Navi max"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0007 0 60
+        label           "Telephone min"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0008 0 60
+        label           "Telephone max"
+        poll            0               
+
+   slider
+        value           per 1 0x000B0009 0 60
+        label           "Traffic min"
+        poll            0
+
+   slider
+        value           per 1 0x000B000A 0 60
+        label           "Traffic max"
+        poll            0

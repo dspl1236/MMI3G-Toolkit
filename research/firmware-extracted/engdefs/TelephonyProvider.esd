@@ -1,0 +1,19 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	TelephonyProvider	Telephony
+   table
+        content         per 1 0x00060004
+	label		"network provider"
+	poll            1000
+	maxrows         1
+	orientation     vertical
+	columns ( "long name" String 120 ) ( "numeric name" String 120 ) ( "network reg" int 80 )

@@ -1,0 +1,26 @@
+#############################################
+#
+#	Engineering screeen definition
+#	08.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	StoreSMART	SMART
+
+BIOSCtrl
+   value    int per 1 0x000E0010
+   label    "Medium to store"
+   entry    "HDD" 0
+   entry    "SD card1" 1
+   entry    "SD card2" 2
+   entry    "USB" 3
+   poll     1000
+	
+   button
+      value         per 1 0x000E0030 "Store SMART"
+      label         "Store SMART"
+      poll          0 	

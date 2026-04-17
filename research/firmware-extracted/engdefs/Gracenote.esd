@@ -1,0 +1,25 @@
+#######################################################
+#
+#  Engineering screen definition for Gracenote 
+#  Version, spare part number and system name
+#  Author: A. Leontarakis, 03.03.2009
+#
+#######################################################
+screen Gracenote Version
+	choice
+		value per 1 0x0010002D
+		label "Gracenote available"
+		
+	keyValue 
+		value String per 1 0x00100029
+		label "Version"
+		
+	keyValue 
+		value String per 1 0x0010002B
+		label "Spare part number"
+		
+	keyValue 
+		value String per 1 0x0010002C
+		label "System name"	
+		
+		

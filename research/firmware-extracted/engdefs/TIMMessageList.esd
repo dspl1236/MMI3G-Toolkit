@@ -1,0 +1,33 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  17.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TIM Message List
+#
+#######################################################
+screen   MessageList TIM
+   button
+      value    per 1 0x0007000E "enable"
+      label    "Enable Frequency Update"
+      poll     0
+   button
+      value    per 1 0x0007000F "disable"
+      label    "Disable Frequency Update"
+      poll     0
+   keyValue
+      value    String per 1 0x00070010
+      label    "Update Status"
+      poll     10000
+   table
+      content  per 1 0x0007000A
+      label    "Message List"
+      poll     10000
+      columns  ( "ID" String 40 ) ( "Name" String 160 ) ( "Length" String 80 ) ( "Time" String 120 ) ( "Date" String 120 ) ( "Freq" int 100 )
+      maxrows  9

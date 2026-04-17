@@ -1,0 +1,47 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  05.Sep.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Screen for testing the DAB diagnosis interface
+#
+#######################################################
+screen   DiagTest DAB
+   button
+      value    per 1 0x0011002E "enable"
+      label    "Enable Test Mode"
+      poll     0
+   button
+      value    per 1 0x0011002F "disable"
+      label    "Disable Test Mode"
+      poll     0
+   slider
+      value    per 1 0x00110001 0 100
+      label    "Select Frequency by Index"
+      limits   absolute
+   slider
+      value    per 1 0x00110003 0 10
+      label    "Select Service by Index"
+      limits   absolute
+   keyValue
+      value    int per 1 0x0011002C
+      label    "Current Frequency"
+      poll     2000
+   keyValue
+      value    int per 1 0x00110030
+      label    "Current Quality"
+      poll     1000
+   keyValue
+      value    int per 1 0x00110004
+      label    "Number of Audio Services"
+      poll     2000
+   keyValue
+      value    int per 1 0x00110005
+      label    "Number of Frequencies"
+      poll     5000

@@ -1,0 +1,22 @@
+#############################################
+#
+#  Engineering Screen Dmitri
+#  12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer AmFm
+#
+#######################################################
+screen   TunBandInfo AMFM
+   keyValue
+      value    String per 1 0x00010811
+      label    "Region Code"
+      poll     2000
+   table
+      content  per 1 0x00010006
+      label    "Band Info"
+      poll     2000
+      columns  ( "Waveband" String 125 ) ( "upper limit" int 125 1 "######" ) ( "lower limit" int 125 1 "######" ) ( "step" int 80 1 "####" ) ( "active" String 80 )
+      maxrows  4

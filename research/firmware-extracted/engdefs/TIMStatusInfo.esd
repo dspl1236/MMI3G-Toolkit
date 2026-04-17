@@ -1,0 +1,68 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  17.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Status information
+#
+#######################################################
+screen   StatusInfo TIM
+   keyValue
+      value    String per 1 0x00070005
+      label    "TIM Status"
+      poll     1000
+   keyValue
+      value    int per 1 0x00070006
+      label    "Time Position"
+      poll     1000
+   keyValue
+      value    String per 1 0x001F0011
+      label    "Announcement Running"
+      poll     1000
+   keyValue
+      value    String per 1 0x001F0001
+      label    "Announcement Station-Name"
+      poll     2000
+   keyValue
+      value    String per 1 0x001F0012
+      label    "FM-TP Availablity"
+      poll     2000
+   keyValue
+      value    String per 1 0x001F0013
+      label    "DAB-Traffic Available"
+      poll     2000
+
+   keyValue
+      value    int per 1 0x00070007
+      label    "Memory Usage (%)"
+      poll     2000
+   keyValue
+      value    int per 1 0x00070008
+      label    "Free Message List Rows"
+      poll     2000
+   button
+      value    per 1 0x0007000B "start"
+      label    "Start Recording"
+      poll     0
+   button
+      value    per 1 0x0007000C "stop"
+      label    "Stop Recording"
+      poll     0
+   button
+      value    per 1 0x0007000D "delete"
+      label    "Delete List"
+      poll     0
+   button
+      value    per 1 0x00070011 "async"
+      label    "Use Async Channel"
+      poll     0
+   button
+      value    per 1 0x00070012 "control"
+      label    "Use Control Channel"
+      poll     0

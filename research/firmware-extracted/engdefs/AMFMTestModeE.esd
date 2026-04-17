@@ -1,0 +1,41 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  20.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TestMode E of the AMFM device
+#
+#######################################################
+screen   TestModeE AMFM
+   button
+      value    per 1 0x0001000D "enable"
+      label    "Enable Test Mode E"
+      poll     0
+   slider
+      value    per 1 0x00010513 0 50
+      label    "Select Index"
+      limits   absolute
+   table
+      content  per 1 0x00010514
+      label    "Selected Index and Flags"
+      poll     1000
+      columns  ( "Index" int 80 ) ( "PI" String 80 ) ( "Var01" String 80 ) ( "Var02" String 80 ) ( "AFI" String 80 ) ( "M" String 80 ) ( "MGS" String 80 )
+      maxrows  1
+   table
+      content  per 1 0x00010515
+      label    "TMC Table"
+      poll     1000
+      columns  ( "Quality" int 70 ) ( "LTN" String 70 ) ( "SID" String 70 ) ( "GType" String 70 ) ( "STY" String 70 )
+      maxrows  1
+   table
+      content  per 1 0x00010516
+      label    "Selection Filter"
+      poll     1000
+      columns  ( "Mask" String 70 ) ( "PI" String 70 ) ( "SID" String 70 ) ( "MGS" String 70 ) ( "CC" String 70 ) ( "LTN" String 70 ) ( "STY" String 70 )
+      maxrows  1

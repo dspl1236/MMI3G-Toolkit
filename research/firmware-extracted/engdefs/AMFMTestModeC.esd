@@ -1,0 +1,31 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  20.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TestMode C of the AMFM device
+#
+#######################################################
+screen   TestModeC AMFM
+   button
+      value    per 1 0x0001000B "enable"
+      label    "Enable Test Mode C"
+      poll     0
+   table
+      content  per 1 0x00010309
+      label    "Flags"
+      poll     1000
+      columns  ( "REG" String 70 ) ( "RDS" String 70 ) ( "TP" String 70 ) ( "TMC" String 70 )
+      maxrows  1
+   table
+      content  per 1 0x0001030A
+      label    "Status"
+      poll     1000
+      columns  ( "Tuner2 Freq" int 150 0.01 "###.##" ) ( "Scanner" String 100 ) ( "StopTime" String 110 ) ( "StopsInTab" String 130 ) ( "8A-Counter" String 130 )
+      maxrows  1

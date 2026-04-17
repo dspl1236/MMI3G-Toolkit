@@ -1,0 +1,63 @@
+#############################################
+#
+#	Engineering screeen definition
+#	2007-10-09
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen DatabaseUpdate 	Nav
+
+script
+	value sys 1 0x0100 "/scripts/listDBInfo.sh"
+	label "List HDD Database info"
+
+BIOSCtrl
+   value    int per 3 0x00100000
+   label    "active HDD Nav DB"
+   entry    "unknown" -1
+   entry    "Default" 0 # like EU
+   entry    "EU" 1
+   entry    "North America" 2
+   entry    "South America" 3
+   entry    "AGCC" 4
+   entry    "Korea" 5
+   entry    "Japan" 6
+   entry    "China" 7
+   entry    "Asia/Pacific" 8
+   entry    "South Africa" 9
+   entry    "Australia" 10
+   entry    "India" 11
+   entry    "Taiwan (ROC)" 12
+   entry    "AGCC_2 (arabic)" 13
+   entry    "Turkey" 14
+   entry    "Chile" 15
+   entry    "no navi db" 99
+   poll     1000
+
+BIOSCtrl
+   value    int per 3 0x0011000F
+   label    "internal region code"
+   entry    "unknown" -1
+   entry    "EU" 0
+   entry    "Rest of the world" 1
+   entry    "North America" 2
+   entry    "China" 3
+   entry    "Japan" 4
+   entry    "Korea" 5
+   poll     1000
+
+script
+	value sys 1 0x0100 "/scripts/reCheckNavDB.sh"
+	label "Re-check database (will need reboot)"
+
+script
+	value sys 1 0x0100 "/scripts/removeNavDB.sh"
+	label "Delete database (will need reboot)"
+
+script
+	value sys 1 0x0100 "/scripts/delNavHDD.sh"
+	label "Delete Nav HDD partition"

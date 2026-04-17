@@ -1,0 +1,41 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  26.Jul.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Current Ensemble, Service and Component
+#
+#######################################################
+screen   CurrentStation DAB
+   table
+      content  per 1 0x0011001E
+      label    "Current Ensemble"
+      poll     2000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "ECC" String 70 )
+      maxrows  1
+   table
+      content  per 1 0x0011001F
+      label    "Current Service"
+      poll     2000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "PTY" String 200 )
+      maxrows  1
+   table
+      content  per 1 0x00110020
+      label    "Current Component"
+      poll     2000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "SCIDI" String 70 ) ( "Prim" String 70 )
+      maxrows  1
+   slider
+      value    per 1 0x00110035 0 3
+      label    "Seek up/down/scan/abort"
+      limits   absolute
+   keyValue
+      value    String per 1 0x00110036
+      label    "Seek Status"
+      poll     1000

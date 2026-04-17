@@ -1,0 +1,46 @@
+#############################################
+#
+#	Engineering Screen DWedel
+#	07.12.2007
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer Audiomanagement input gain offset
+#
+#######################################################
+screen AudioMisc Audiomanagement
+
+keyValue 
+	value		int per 1 0x000B001F
+	label    "Mute pin state"
+	poll     1000
+
+
+BIOSCtrl
+   value    int per 1 0x000B001D
+   label    "Mute behaviour actual"
+   entry    "MUTE_ENT" 0
+   entry    "MUTE_ENT_ANN" 1
+   entry    "MUTE_ENT_ANN_LINEIN" 2
+   poll     1000
+
+keyValue 
+	value		int per 1 0x000B001E
+	label    "Volume max"
+	poll     10000
+
+keyValue 
+	value		int per 1 0x000B0016
+	label    "Muting Reason"
+	poll     1000
+
+slider
+     value   per 4 0x00040000 0 100
+     label   "lenses timer disp. 1 (100 ms)"
+     poll    0
+
+slider
+     value   per 4 0x00040001 0 100
+     label   "lenses timer disp. 2 (100 ms)"
+     poll    0

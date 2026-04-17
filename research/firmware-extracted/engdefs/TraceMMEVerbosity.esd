@@ -1,0 +1,22 @@
+#############################################
+#
+#	Engineering screeen definition
+#	Add entry to en-/disable MME Verbosity
+#	25.02.2012, Joerg.schwalb@comlet.de
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	MMEVerbosity	Trace
+script 
+ value  sys 1 0x0100 "/scripts/MMEenable.sh" 
+ label  "Enable MME Verbosity" 
+ 
+script 
+ value  sys 1 0x0100 "/scripts/MMEdisable.sh" 
+ label  "Disable MME Verbosity" 
+ 
+ 

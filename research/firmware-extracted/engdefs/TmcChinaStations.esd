@@ -1,0 +1,21 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  04.May.2008
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TmcChinaStations
+#
+#######################################################
+screen TmcChinaStations TmcChina
+   table
+      content  per 1 0x00200001
+      label    "TMC Stations"
+      poll     5000
+      columns  ( "Sel" String 80 ) ( "PI" String 80 ) ( "SI MGS CC LTN" String 200 ) ( "AF" String 80 ) ( "Qual" String 80 )
+      maxrows  10

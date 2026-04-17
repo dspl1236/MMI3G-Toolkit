@@ -1,0 +1,36 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen SatInfo 	GPS
+   keyValue
+	value		int per 7 0x000200ae
+	label		"GPS fix"
+	poll		1000
+   keyValue
+	value		int per 7 0x000200c1
+	label		"HDOP"
+	poll		1000
+   keyValue
+	value		int per 7 0x000200c0
+	label		"PDOP"
+	poll		1000				
+   keyValue
+	value		int per 7 0x000200c2
+	label		"VDOP"
+	poll		1000
+   keyValue
+	value		int per 7 0x000200bb
+	label		"used satellites"
+	poll		1000				
+   keyValue
+	value		int per 7 0x000200bc
+	label		"visible satellites"
+	poll		1000

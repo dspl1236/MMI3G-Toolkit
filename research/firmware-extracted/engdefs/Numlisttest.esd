@@ -1,0 +1,29 @@
+#############################################
+#
+#	Engineering screeen definition
+#	20.4.2006
+#############################################
+
+#######################################################
+#
+# SCREEN NumericList Test
+#
+#######################################################
+screen	NumListTest	AEVTest
+   numericList
+	content		per 234524 27000
+	label		"Adaption Switch (non-TLV coded)"
+	poll		2000
+	row		"ACC"
+	row		"Interior Light"
+	row		"Exterior Light"
+	row		"APS front"
+	row		"APS rear"
+	row		"Tire Pressure"
+	row		"Sunroof"
+	row		"Air Suspension"
+	row		"Rain Sensor"
+	row		"Fingerprint"
+	row		"Seat Memory front"
+	row		"Seat Memory rear"
+

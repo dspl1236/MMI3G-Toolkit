@@ -1,0 +1,19 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionMuSh4	VersionMU
+
+   table
+   content         per 1 0x00001000
+	label		       "SH4 version"
+	maxrows         1
+	orientation     vertical
+	columns ( "SW release" String 120 ) ( "day" int 80 ) ( "month" int 80 ) ( "year" int 80 1 "####")	

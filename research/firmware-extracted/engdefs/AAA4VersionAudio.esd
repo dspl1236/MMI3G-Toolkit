@@ -1,0 +1,18 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionAudio	Version
+
+table
+   content  per 1 0x00001008
+   label    "Audio management table"
+   columns  ( "Property" String 200 ) ( "Value" String 400 ) 
+   maxrows  5 

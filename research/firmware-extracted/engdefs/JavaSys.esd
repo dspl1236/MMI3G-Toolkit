@@ -1,0 +1,26 @@
+#############################################
+#
+#	Engineering screeen definition
+#	9.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Java System Information
+#
+#######################################################
+screen	Java	Main
+   keyValue
+	value		int sys 1 1
+	label		"Free Runtime Memory (KB)"
+	format		0.0009765625 "####.##"
+	poll		1000
+   keyValue
+	value		int sys 1 0x002
+	label		"Total Runtime Memory (KB)"
+	format		0.0009765625 "####.##"
+	poll		1000
+   button
+	value		sys 1 0x003 ""
+	label		"Garbage Collect"
+	

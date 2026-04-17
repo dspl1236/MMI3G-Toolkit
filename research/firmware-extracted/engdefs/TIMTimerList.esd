@@ -1,0 +1,29 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  17.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TIM Timer List
+#
+#######################################################
+screen   TimerList TIM
+   keyValue
+      value    int per 1 0x00070013
+      label    "Number of timers"
+      poll     3000
+   keyValue
+      value    String per 1 0x00070014
+      label    "Recording after shutdown"
+      poll     3000
+   table
+      content  per 1 0x00070009
+      label    "Timer List"
+      poll     3000
+      columns  ( "ID" String 40 ) ( "Time" String 120 ) ( "Activity" String 120 )
+      maxrows  2

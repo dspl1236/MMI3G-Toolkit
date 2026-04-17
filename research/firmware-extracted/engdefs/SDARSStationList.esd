@@ -1,0 +1,21 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN SDARS Station List
+#
+#######################################################
+screen   StationList SDARS
+   table
+      content  per 1 0x00120005
+      label    "Station List"
+      poll     30000
+      columns  ( "Num." int 60 ) ( "ID" int 60 ) ( "ShortName" String 200 ) ( "Sub." String 80 ) ( "Cat." int 60 )
+      maxrows  150

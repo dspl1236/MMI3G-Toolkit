@@ -1,0 +1,24 @@
+#############################################
+#
+#  Engineering screeen definition
+#  20.8.2009
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen   PacketCounter   Config
+
+   choice
+      value    per 1 0x00230006
+      label    "Show Packet Statistic"
+      poll     3000
+   table
+      content  per 1 0x00230007
+      label    "Packet Counter"
+      poll     1000
+      columns  ( "Description" String 125 ) ( "WLAN" int 130 ) ( "DIALUP" int 130 ) ( "MOST-ETH" int 130 ) ( "USB-ETH" int 130 )
+      maxrows  8
+

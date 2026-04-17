@@ -1,0 +1,31 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  13.Jan.2009
+#  DSims
+#
+#############################################
+
+#######################################################
+#
+# SCREEN HDTest
+#
+#######################################################
+screen   HDTest HD
+   slider
+      value    per 1 0x00010900 875 1080
+      label    "Select FM Frequency"
+      limits   absolute
+   slider
+      value    per 1 0x00010901 0 8
+      label    "Select HDSubChannel"
+      limits   absolute
+   slider
+      value    per 1 0x00010903 0 3
+      label    "HDSwitch undef/auto/analog/dig"
+      limits   absolute
+   slider
+      value    per 1 0x00011028 0 1
+      label    "HDCalibration Off/On"
+      limits   absolute      

@@ -1,0 +1,71 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  24.May.2007
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN TunerAnnouncementFilter
+#
+#######################################################
+screen Filter TunerAnnouncement
+   choice
+      value    per 1 0x001F0002
+      label    "All"
+      poll     2000
+   choice
+      value    per 1 0x001F0003
+      label    "FM TP"
+      poll     2000
+   choice
+      value    per 1 0x001F0004
+      label    "FM PTY31"
+      poll     2000
+   choice
+      value    per 1 0x001F0005
+      label    "DAB Alarm"
+      poll     2000
+   choice
+      value    per 1 0x001F0006
+      label    "DAB Road Traffic"
+      poll     2000
+   choice
+      value    per 1 0x001F0007
+      label    "DAB Transport"
+      poll     2000
+   choice
+      value    per 1 0x001F0008
+      label    "DAB Warning"
+      poll     2000
+   choice
+      value    per 1 0x001F0009
+      label    "DAB News"
+      poll     2000
+   choice
+      value    per 1 0x001F000A
+      label    "DAB Area Weather"
+      poll     2000
+   choice
+      value    per 1 0x001F000B
+      label    "DAB Event Announcement"
+      poll     2000
+   choice
+      value    per 1 0x001F000C
+      label    "DAB Special Event"
+      poll     2000
+   choice
+      value    per 1 0x001F000D
+      label    "DAB Program Information"
+      poll     2000
+   choice
+      value    per 1 0x001F000E
+      label    "DAB Sport Report"
+      poll     2000
+   choice
+      value    per 1 0x001F000F
+      label    "DAB Financial Report"
+      poll     2000

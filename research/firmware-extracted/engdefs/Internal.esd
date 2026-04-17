@@ -1,0 +1,25 @@
+#############################################
+#
+#	Engineering screeen definition
+#	09.08.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Internal	System
+
+BIOSCtrl
+   value    int per 3 0x0011000F
+   label    "internal region code"
+   entry    "unknown" -1
+   entry    "EU" 0
+   entry    "Rest of the world" 1
+   entry    "North America" 2
+   entry    "China" 3
+   entry    "Japan" 4
+   entry    "Korea" 5
+   poll     1000
+      

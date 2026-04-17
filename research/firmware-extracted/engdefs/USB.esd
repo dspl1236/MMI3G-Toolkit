@@ -1,0 +1,44 @@
+#############################################
+#
+#	Engineering Screen by M.Wolf
+#	23.10.2007
+#############################################
+
+#######################################################
+#
+# SCREEN USB
+#
+#######################################################
+screen USB Main
+
+   choice
+      value    per 1 0x00180008
+      label    "Hub + iPod/USB cable support"
+
+   keyValue
+      value    int per 1 0x00180000
+      label	   "Num of attached devices"
+      poll	   1000
+
+	keyValue
+	   value   String per 1 0x00180001
+	   label   "Used bus, device address"
+	   poll    1000
+
+   slider
+      value    per 1 0x00180007 0 9
+      label    "select USB log. bus"
+      poll     1000
+
+   slider
+      value    per 1 0x00180002 1 64
+      label    "select USB device address"
+      poll     1000
+
+   table
+      content    	per 1 0x00180003
+      label      	"info about device with device address, selected above"
+      poll       	1000
+      maxrows    	1
+      orientation	vertical
+      columns ( "Bus" int 120 ) ( "Deviceadress" int 120 ) ( "Deviceclass" String 120 ) ( "Vendor" String 120 ) ( "Device" String 120 ) ( "Speedclass" String 120 ) ( "Max power" String 120 ) ( "Serial number" String 120 ) ( "Upstreamport" int 120 ) ( "Protocolcode" int 120 ) ( "Num of configs" int 120 ) ( "Num of interfaces" int 120 )

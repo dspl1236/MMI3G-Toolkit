@@ -1,0 +1,66 @@
+#############################################
+#
+#	Engineering screeen definition
+#	13.08.2007
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen Map Nav
+  choice
+        value           per 1 0x00030069 
+        label           "Enable custom scroll speeds"
+        poll            1000        
+
+   slider
+        value           per 1 0x00030060 1 30
+        label           "Scroll frame rate (fps)"
+        poll            1000        
+
+   slider
+        value           per 1 0x00030061 100 300
+        label           "Time between steps(*10ms) "
+        poll            1000               
+
+   slider
+        value           per 1 0x00030062 0 100
+        label           "Speed for step 1 (pixel/s)"
+        poll            1000               
+
+   slider
+        value           per 1 0x00030063 50 150
+        label           "Speed for step 2 (pixel/s)"
+        poll            1000               
+
+   slider
+        value           per 1 0x00030064 50 300
+        label           "Speed for step 3 (pixel/s)"
+        poll            1000               
+
+   button
+        value           per 1 0x00030094 1
+        label           "Enable Satellite Images"
+
+   button
+        value           per 1 0x00030095 0
+        label           "Disable Satellite Images"
+
+#   keyValue
+#        value           int per 1 0x00030096
+#        label           "HMIType"
+#
+#   keyValue
+#        value           int per 1 0x00030097
+#        label           "HMICountry"
+#
+#   keyValue
+#        value           int per 1 0x00030098
+#        label           "MOSTKombiCoded"
+#
+#   keyValue
+#        value           int per 1 0x00030099
+#        label           "RSUStatus"
+

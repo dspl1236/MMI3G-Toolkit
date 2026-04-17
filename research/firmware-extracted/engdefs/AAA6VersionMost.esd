@@ -1,0 +1,19 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionMost	Version
+      
+table
+   content  per 3 0x00000021
+   label    "MOST version"
+   columns  ( "Property" String 350 ) ( "Value" String 150 ) 
+   maxrows  8  
+

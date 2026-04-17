@@ -1,0 +1,34 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionMU	Version
+
+keyValue 
+	value		       String per 1 0x0000100D
+	label 		    "MU Version"
+
+keyValue 
+	value		String per 1 0x0003001A
+	label 		"Data base version"
+
+keyValue 
+	value		String per 1 0x00000002
+	label           "FPGA"
+
+keyValue 
+	value		int per 7 0x000200c4
+	label           "GPS-Version"
+
+table
+   content  per 3 0x00000003
+   label    "HW version MU"
+   columns  ( "Variant" int 250 1 "####" ) ( "Sample" String 150 ) 
+   maxrows  1 

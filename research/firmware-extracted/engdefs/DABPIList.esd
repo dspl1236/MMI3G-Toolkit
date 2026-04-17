@@ -1,0 +1,37 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  01.Mar.2008
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN The list of FM alternatives for the currently selected service
+#
+#######################################################
+screen PIList DAB
+   choice
+      value    per 1 0x00110026
+      label    "Test Mode (enable PIList)"
+      poll     2000
+   table
+      content  per 1 0x0011001F
+      label    "Current Service"
+      poll     2000
+      columns  ( "Label" String 220 ) ( "Mask" String 70 ) ( "EnsID" String 70 ) ( "SID" String 110 ) ( "PTY" String 200 )
+      maxrows  1
+   table
+      content  per 1 0x00010010
+      label    "Current Station"
+      poll     2000
+      columns  ( "PS" String 180 ) ( "PI" String 80 ) ( "PTY" String 200 ) ( "TP" String 50 ) ( "TA" String 50 ) ( "TMC" String 70 )
+      maxrows  1
+   table
+      content  per 1 0x00110062
+      label    "List of PIs"
+      poll     5000
+      columns  ( "PIs" String 140 )
+      maxrows  10

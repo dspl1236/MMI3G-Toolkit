@@ -1,0 +1,27 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  17.Aug.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN Current Station and Station-List
+#
+#######################################################
+screen   StationList AMFM
+   table
+      content  per 1 0x00010010
+      label    "Current Station"
+      poll     2000
+      columns ( "PS" String 180 ) ( "PI" String 80 ) ( "PTY" String 200 ) ( "TP" String 50 ) ( "TA" String 50 ) ( "TMC" String 70 )
+      maxrows 1
+   table
+      content  per 1 0x00010011
+      label    "Station List"
+      poll     5000
+      columns ( "PS" String 140 ) ( "PI" String 75 ) ( "Freq" int 95 0.001 "###.##" ) ( "PTY" String 140 ) ( "Tp/Ta/Tmc/Scr" String 160 )
+      maxrows 65

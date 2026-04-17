@@ -1,0 +1,16 @@
+#############################################
+#
+#	Engineering screeen definition
+#	15.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN MOST AllocationTable
+#
+#######################################################
+screen AllocationTable MOST
+   keyValue
+      value	int per 1 0x00130002
+      label	"Num of allocated channels"
+      poll	1000

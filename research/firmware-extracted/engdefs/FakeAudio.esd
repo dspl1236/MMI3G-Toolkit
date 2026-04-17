@@ -1,0 +1,50 @@
+#############################################
+#
+#	Engineering Screen Audio
+#	12.12.2005
+#############################################
+
+#######################################################
+#
+# SCREEN Audiosettings
+#
+#######################################################
+screen	FakeAudioSettings AEVTest
+   keyValue
+	value		int per 234524 20155
+	label 		"User Mute"
+	poll		0
+   keyValue 
+	value		int per 234524 20151
+	label 		"Foreground Src"
+	poll		0
+   slider 
+	value		per 234524 20016 20017 20018
+	label 		"Volume"
+   	limits		keys
+	poll		0 
+   slider 
+	value		per 234524 20019 20020 20021
+	label 		"Treble"
+   	limits		keys
+	poll		0
+   slider 
+	value		per 234524 20022 20023 20024
+	label 		"Bass"
+   	limits		keys
+	poll		0
+   slider 
+	value		per 234524 21000 21001 21002
+	label 		"Counting Foo"
+   	limits		keys
+	poll		700
+   slider
+	value		per 234524 21000 21001 21002
+	label 		"Gray Bar"
+   	limits		keys
+	poll		0
+   slider 
+	value		per 234524 21000 21001 21002
+	label 		"Gray Granny"
+   	limits		keys
+	poll		0

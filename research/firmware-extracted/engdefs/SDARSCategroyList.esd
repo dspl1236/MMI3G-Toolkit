@@ -1,0 +1,21 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  21.Nov.2006
+#  PVaucher
+#
+#############################################
+
+#######################################################
+#
+# SCREEN SDARS Category List
+#
+#######################################################
+screen   CategoryList SDARS
+   table
+      content  per 1 0x00120004
+      label    "Category List"
+      poll     30000
+      columns  ( "Number" int 100 ) ( "ShortName" String 200 )
+      maxrows  50

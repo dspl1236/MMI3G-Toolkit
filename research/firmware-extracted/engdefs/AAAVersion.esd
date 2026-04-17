@@ -1,0 +1,35 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	Version	Main
+	
+export 
+     label  "export version info" 
+     screen "Version" 
+     scope  "recursive" 
+
+export 
+     label  "export OnOffTimer info" 
+     screen "OnOffTimer" 
+     scope  "recursive" 
+
+export 
+     label  "export EPromFlags info" 
+     screen "EepromFlags" 
+     scope  "recursive"        
+     
+script 
+    value           sys 1 0x0100 "/scrips/pidin.sh" 
+    label           "Start Script" 
+
+keyValue 
+	value		       String per 3 0x00120004
+	label 		    "Train name"  

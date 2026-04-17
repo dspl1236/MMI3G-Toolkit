@@ -1,0 +1,59 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   06.12.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarProtocollSwitch Car
+
+choice
+   value    per 3 0x00100050
+   label    "Air condition: "
+choice
+   value    per 3 0x00100051
+   label    "Auxiliary heating: "
+choice
+   value    per 3 0x00100052
+   label    "Adaptive cruise control: "
+choice
+   value    per 3 0x00100053
+   label    "Suspension: "
+choice
+   value    per 3 0x00100054
+   label    "Tyre pressure control (RDK): "
+choice
+   value    per 3 0x00100055
+   label    "Interior light: "
+choice
+   value    per 3 0x00100056
+   label    "Exterior light: "
+choice
+   value    per 3 0x00100057
+   label    "Park distance control: "
+choice
+   value    per 3 0x00100058
+   label    "Wiper: "
+choice
+   value    per 3 0x00100059
+   label    "Doorlocking: "
+choice
+   value    per 3 0x0010005A
+   label    "On-board computer: "
+choice
+   value    per 3 0x0010005B
+   label    "Clock: "
+choice
+   value    per 3 0x0010005C
+   label    "Service intervall : "
+choice
+   value    per 3 0x0010005D
+   label    "Braking way reduction (AWV): "
+choice
+   value    per 3 0x0010005E
+   label    "Seat memory: "
+

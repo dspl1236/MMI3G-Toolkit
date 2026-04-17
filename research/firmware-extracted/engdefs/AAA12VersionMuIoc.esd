@@ -1,0 +1,29 @@
+#############################################
+#
+#	Engineering screeen definition
+#	25.9.2005
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	VersionMuIoc	VersionMU
+
+   table
+      content  per 3 0x00000022
+      label    "SW version info IOC"
+      columns  ( "name" String 150 ) ( "day" int 100 ) ( "month" int 100 ) ( "year" int 100 )
+      maxrows  1
+      poll     3000
+   table
+      content  per 3 0x00000001
+      label    "SW version appl IOC"
+      columns  ( "major" int 100 ) ( "minor" int 100 ) ( "day" int 100 ) ( "month" int 100 ) ( "year" int 100 )
+      maxrows  1
+   table
+      content  per 3 0x00000002
+      label    "SW version bootloader IOC"
+      columns  ( "Bolo1" int 150 ) ( "Bolo3" int 150 )
+      maxrows  1  

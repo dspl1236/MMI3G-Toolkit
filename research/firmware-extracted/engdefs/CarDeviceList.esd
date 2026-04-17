@@ -1,0 +1,112 @@
+#############################################
+#
+#   Engineering Screen Dmitri
+#   06.12.2006
+#############################################
+
+#######################################################
+#
+# SCREEN Test fuer CAR
+#
+#######################################################
+screen CarDeviceList Car
+
+choice
+   value    per 3 0x00100010
+   label    "Air condition: "
+choice
+   value    per 3 0x00100011
+   label    "Auxiliary heating: "
+choice
+   value    per 3 0x00100012
+   label    "Headup display: "
+choice
+   value    per 3 0x00100013
+   label    "Adaptive Cruise Ctrl: "
+choice
+   value    per 3 0x00100014
+   label    "Suspension: "
+choice
+   value    per 3 0x00100015
+   label    "Tyre pressure control (RDK): "
+choice
+   value    per 3 0x00100016
+   label    "Interior light: "
+choice
+   value    per 3 0x00100017
+   label    "Exterior light: "
+choice
+   value    per 3 0x00100018
+   label    "Park distance control: "
+choice
+   value    per 3 0x00100019
+   label    "Rearview camera: "
+choice
+   value    per 3 0x0010001A
+   label    "Wiper: "
+choice
+   value    per 3 0x0010001B
+   label    "Doorlocking: "
+choice
+   value    per 3 0x0010001C
+   label    "Mirror: "
+choice
+   value    per 3 0x0010001D
+   label    "On-board computer: "
+choice
+   value    per 3 0x0010001E
+   label    "Clock: "
+choice
+   value    per 3 0x0010001F
+   label    "Service intervall : "
+choice
+   value    per 3 0x00100020
+   label    "Central units master (ZEM): "
+choice
+   value    per 3 0x00100021
+   label    "Compass: "
+choice
+   value    per 3 0x00100022
+   label    "Charisma: "
+choice
+   value    per 3 0x00100023
+   label    "Lane departure warning (HCA): "
+choice
+   value    per 3 0x00100024
+   label    "Lane change assist (SWA): "
+choice
+   value    per 3 0x00100025
+   label    "Braking way reduction (AWV): "
+choice
+   value    per 3 0x00100026
+   label    "Seat memory front: "
+choice
+   value    per 3 0x00100027
+   label    "Seat memory rear: "
+choice
+   value    per 3 0x00100028
+   label    "Hybrid: "
+choice
+   value    per 3 0x00100029
+   label    "univ. garage door opener: "
+choice
+   value    per 3 0x0010002A
+   label    "Night vision: "
+choice
+   value    per 3 0x0010002B
+   label    "Sideview camera: "
+choice
+   value    per 3 0x0010002C
+   label    "rev. seat-belt tensionier (RGS): "
+choice
+   value    per 3 0x0010002D
+   label    "Traffic sign recognition (VZE): "
+choice
+   value    per 3 0x0010002E
+   label    "Rear seat entertainment: "
+choice
+   value    per 3 0x0010002F
+   label    "Weariness recognition (MKE): "
+
+
+   

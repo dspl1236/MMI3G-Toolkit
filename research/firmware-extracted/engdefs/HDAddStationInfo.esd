@@ -1,0 +1,65 @@
+#############################################
+#
+#  Engineering Screen
+#
+#  13.Jan.2009
+#  DSims
+#
+#############################################
+
+#######################################################
+#
+# SCREEN HDAdditionalStationInfo
+#
+#######################################################
+screen   HDAdditionalStationInfo HD
+   keyValue
+      value    String per 1 0x0001090E 
+      label    "Digital Audio Playing"
+      poll     2000
+   keyValue
+      value    String per 1 0x0001090F 
+      label    "Digital Audio Available"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011000
+      label    "Program Playing"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011001
+      label    "Programs Available"
+      poll     2000
+   keyValue
+      value    int per 1 0x00011002 
+      label    "Quality"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011003 
+      label    "Station Name"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011004 
+      label    "Artist Name"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011005 
+      label    "Album Title"
+      poll     2000
+   keyValue
+      value    String per 1 0x00011006 
+      label    "Song Title"
+      poll     2000
+   #keyValue
+   #   value    int per 1 0x00011007 
+   #   label    "Station Type"
+   #   poll     2000
+   #keyValue
+   #   value    int per 1 0x00011008 
+   #   label    "Genre"
+   #   poll     2000
+   #keyValue
+   #   value    int per 1 0x00011009 
+   #   label    "Program Type"
+   #   poll     2000
+        
+   

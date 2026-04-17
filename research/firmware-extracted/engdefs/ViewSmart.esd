@@ -1,0 +1,18 @@
+#############################################
+#
+#	Engineering screeen definition
+#	08.11.2006
+#############################################
+
+#######################################################
+#
+# SCREEN 0
+#
+#######################################################
+screen	ViewSMART	SMART
+   table
+      content  per 1 0x000E0000
+      label    "SMART info"
+      poll     10000
+      columns  ( "property" String 380 ) ( "value" String 250 )
+      maxrows  191
