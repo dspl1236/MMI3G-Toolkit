@@ -22,6 +22,12 @@ As of April 2026 the toolkit ships tools that extract the complete MMI3G+ firmwa
 
 See **[docs/CUSTOM_APPS.md](docs/CUSTOM_APPS.md)** for a developer guide covering the five mechanisms for running your own code: SD scripts, flash-persistent scripts, GEM screens, OSGi bundles, and native SH4 binaries. See **[research/HMI_ARCHITECTURE.md](research/HMI_ARCHITECTURE.md)** for the full 101-process boot graph and hook points.
 
+## Modifying Firmware
+
+The Harman SWDL (SoftWare DownLoader) update format is fully documented and its verification is bypassable. Firmware images are NOT cryptographically signed — all integrity checks are CRC32 (zlib/IEEE), and Harman's own update scripts include a first-class `skipCrc = true` flag that disables verification entirely. The `tools/mu_crc_patcher.py` utility recomputes CRCs after modifying a firmware image (or generates skipCrc-patched manifests directly).
+
+See **[research/FIRMWARE_UPDATE_FORMAT.md](research/FIRMWARE_UPDATE_FORMAT.md)** for the metainfo2.txt specification, flash partition layout, the update flow, and the distinction between firmware CRC checks (bypassable) and Audi FSC signing (RSA-signed, for nav DB activation).
+
 ## Supported Vehicles
 
 Any Audi or VW with a Harman Becker MMI 3G family head unit:
@@ -189,7 +195,9 @@ MMI3G-Toolkit/
 │   ├── PER3_READER.md       # DSI persistence read paths + per3-reader design
 │   ├── F3S_FORMAT.md        # MMI3G EFS on-disk format notes
 │   ├── IFS_FORMAT.md        # QNX IFS format + Harman LZO quirk
+│   ├── FIRMWARE_UPDATE_FORMAT.md  # SWDL manifest, CRC32 verification, skipCrc bypass
 │   ├── HMI_ARCHITECTURE.md  # Boot sequence, 101-process graph, hook points
+│   ├── DSI_ARCHITECTURE.md  # DSI IPC class map (Proxy/Stub/Event pattern)
 │   ├── IOACTIVE_V850_REFERENCE.md  # V850 IOC RE methodology
 │   └── custom-dash/         # Custom dashboard development guide
 ├── tools/                   # Maintainer/dev tools (not shipped to SD)
@@ -199,6 +207,7 @@ MMI3G-Toolkit/
 │   ├── extract_qnx_ifs.py   # Extract files from a (decompressed) QNX IFS
 │   ├── inflate_qnx.py       # Inflate 'iwlyfmbp' wrapped binaries
 │   ├── inflate_ifs.py       # Decompress LZO/UCL compressed IFS images
+│   ├── mu_crc_patcher.py    # Recompute/skip SWDL firmware CRCs for modded images
 │   ├── verify_stubs_vs_dsi.py      # Check DSI stubs against real firmware
 │   └── retrofit.py          # platform.sh source-block applier
 ├── app/                     # Web app (GitHub Pages)
