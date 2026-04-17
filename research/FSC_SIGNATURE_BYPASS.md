@@ -140,3 +140,25 @@ Each binary has 2 EscRsa string instances. The same analysis
 approach (search for literal pool entries containing the function
 address, find JSR→TST→BT/S pattern) can be applied to the other
 binaries. The FSC check primarily runs in MMI3GApplication.
+
+## Cross-Version Verification (MU9411 vs MU9498)
+
+Comparison of MMI3GApplication across the K0942 firmware family:
+
+| Build | Part # | Size | Patch @ 0x1B11F6 | Code |
+|-------|--------|------|:---:|------|
+| MU9411 | 8R0906961FB (K0942_4) | 10,702,848 | `0B 40` ✓ | Baseline |
+| MU9498 | 8R0906961FE (K0942_6) | 10,702,848 | `0B 40` ✓ | **4 bytes differ** |
+
+Only 4 bytes differ between builds — all in the ELF header metadata.
+The actual SH4 machine code is **100% identical**. This means:
+
+- **The FSC patch works on the ENTIRE K0942 family** (builds 9411–9498+)
+- One universal patch covers at minimum 87 firmware revisions
+- NavCore, MMI3GMedia also only differ by 2–4 header bytes
+- EOL flags are identical across both versions (88 flags each)
+- QNX system tools (pidin, ksh) are byte-for-byte identical
+
+The only significant binary difference is lsd.jxe (Java HMI),
+which is fully recompiled between versions but contains the
+same EOL flag configuration and feature set.
