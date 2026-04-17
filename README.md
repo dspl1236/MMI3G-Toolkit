@@ -159,6 +159,7 @@ MMI3G-Toolkit/
 │   └── encoder.py           # copie_scr.sh XOR encoder
 ├── core/
 │   ├── copie_scr_plain.sh   # Launcher template (auto-encoded)
+│   ├── platform.sh          # Variant detection + logstamp helpers
 │   └── uninstall.sh         # Universal uninstaller
 ├── modules/
 │   ├── gauges-dashboard/    # Live telemetry — voltage, GPS, data logging
@@ -170,12 +171,25 @@ MMI3G-Toolkit/
 │   ├── game-loader/         # Java game launcher for MMI
 │   ├── diag-tool/           # UDS diagnostic scanner (alpha)
 │   ├── lte-setup/           # LTE mobile data provisioning (3G+)
-│   └── splash-screen/       # Custom boot splash screen
+│   ├── splash-screen/       # Custom boot splash screen
+│   ├── password-finder/     # Dump stored Wi-Fi/BT/Audi Connect credentials
+│   ├── variant-dump/        # Per3 adaptation dump (90+ values)
+│   ├── map-parser/          # Nav database + FSC state extractor
+│   ├── long-coding/         # Live adaptation values display (GEM)
+│   └── per3-reader/         # OSGi DSI persistence bridge (alpha)
 ├── research/
 │   ├── ARCHITECTURE.md      # Decompiled Java UI framework (152 classes)
 │   ├── PER3_ADDRESS_MAP.md  # CAN/vehicle data address map
+│   ├── PER3_READER.md       # DSI persistence read paths + per3-reader design
+│   ├── F3S_FORMAT.md        # MMI3G EFS on-disk format notes
 │   ├── IOACTIVE_V850_REFERENCE.md  # V850 IOC RE methodology
 │   └── custom-dash/         # Custom dashboard development guide
+├── tools/                   # Maintainer/dev tools (not shipped to SD)
+│   ├── walk_f3s_efs.py      # List contents of an efs-system.efs image
+│   ├── extract_f3s_efs.py   # Extract filesystem from uncompressed EFS
+│   ├── extract_jars_from_efs.py    # Carve embedded JARs out of EFS
+│   ├── verify_stubs_vs_dsi.py      # Check DSI stubs against real firmware
+│   └── retrofit.py          # platform.sh source-block applier
 ├── app/                     # Web app (GitHub Pages)
 └── docs/
     ├── SUPPORTED_VEHICLES.md
