@@ -1,494 +1,399 @@
 # MMI3G Engineering Access System
 
-The Green Engineering Menu (GEM) is backed by 36 `CEngineeringAccessPresCtrl*`
-controller classes inside `MMI3GApplication`. Each controller exposes a
-subsystem's internal state for reading and writing via DSI 64-bit keys.
-Together they form an API that covers every component of the head unit.
+The Green Engineering Menu (GEM) exposes a comprehensive internal API
+to every subsystem of the MMI3G head unit through a hierarchy of
+**36 Engineering Access Presentation Controllers**. Each controller
+wraps a specific domain (audio, navigation, Bluetooth, SWDL, FSC, etc.)
+and provides `requestReadInt`, `requestReadString`, `requestReadBuffer`,
+`requestWriteInt`, `requestWriteString`, and `requestWriteBuffer`
+methods keyed by 64-bit DSI persistence addresses.
 
-This document catalogs every controller, its known keys, and the
-implications for custom app development and firmware modification.
+This document catalogs the controllers, their capabilities, and the
+DSI constants that drive them. All data extracted from string analysis
+of `MMI3GApplication` (10.7 MB SH4 ELF, build 9411, K0942_4 variant 41).
 
-Source: string analysis of `MMI3GApplication` (10.7 MB SH4 ELF) from
-MU9411 K0942_4 variant 41 (`8R0906961FB`).
+Source files: `CEngineeringAccessPresCtrl*.cpp` (35+ source files
+compiled into the monolithic binary).
 
 ## Architecture
 
-### Request / Response Pattern
-
-All engineering access uses a common base class pattern:
-
 ```
-CEngineeringAccessPresCtrlBase
-  → requestReadInt(key)        read a 32-bit value
-  → requestReadString(key)     read a string
-  → requestReadBuffer(key)     read a byte buffer
-  → requestReadArray(key)      read an int array
-  → requestWriteInt(key, val)  write a 32-bit value
-  → requestWriteString(key)    write a string
-  → requestWriteBuffer(key)    write a byte buffer
-  → requestWriteArray(key)     write an int array
-  → processEvent(event)        handle async DSI notifications
-```
-
-Keys are 64-bit DSI persistence addresses (`%llx` format in log strings).
-Upper 32 bits = namespace, lower 32 bits = address. Each controller maps
-its own set of human-readable key names to these addresses.
-
-Responses are async — a `requestReadInt(key)` triggers a DSI read, and
-the result arrives via `processEvent()` callback. Log messages indicate
-availability: "data for key (%llx) is available: %d" (success) or
-"data for key (%llx) is not available. Sending default: %d" (fallback).
-
-### Source File Convention
-
-Each controller has a `.cpp` source with naming:
-```
-CEngineeringAccessPresCtrl<Name>.cpp
-```
-And a persistence registration string:
-```
-project_presctrl_collect_persistence_CEngineeringAccessPresCtrl<Name>
+GEM Screen (ESD)
+  |
+  v
+CEngineeringAccessPresCtrlBase          <-- base class, queues requests
+  |
+  |-- CEngineeringAccessPresCtrlConfig  <-- read/write persistence
+  |-- CEngineeringAccessPresCtrlFscs   <-- FSC/activation codes
+  |-- CEngineeringAccessPresCtrlSWDL   <-- firmware update control
+  |-- CEngineeringAccessPresCtrlNavi   <-- navigation DSI values
+  |-- ... (36 controllers total)
+  |
+  v
+DSI Proxy/Stub layer (requestReadInt/requestWriteInt with 64-bit keys)
+  |
+  v
+QNX IPC to target service (SPH*, SG*, SC* adapters)
 ```
 
-### Log Prefix Convention
+Each controller has a persistence path registered with the DSI
+framework: `project_presctrl_collect_persistence_CEngineeringAccessPresCtrl<Name>`.
 
-- `!PPC:` — error (problem detected)
-- `#PPC:` — info (normal operation)
-- `PPC:` — general trace
+Log prefix convention:
+- `!PPC:` -- error
+- `#PPC:` -- info / constructor trace
+- `PPC:` -- normal operation
 
-## Complete Controller Catalog
 
-### 1. Addressbook
-**File:** `CEngineeringAccessPresCtrlAddressbook.cpp`
-**Capabilities:** Contact database read/write.
+## Critical controllers
 
-### 2. AmFmRadio
-**File:** `CEngineeringAccessPresCtrlAmFmRadio.cpp`
-**Capabilities:** AM/FM tuner engineering. Debug command handler:
-`project_presctrl_collect_amfmtuner_triggerDebugCommand`.
+### CEngineeringAccessPresCtrlFscs -- FSC / Activation Code Management
 
-### 3. AudioManagement
-**File:** `CEngineeringAccessPresCtrlAudiomanagement.cpp`
-**Capabilities:** Audio routing, source switching, volume control, fade,
-entertainment connection management.
-**Known operations:**
-- Read volume info, active entertainment connection
-- Write: source switch, fade to connection
-- `reasonLowerEntBit` — entertainment lowering reason bitmap
-- Debug: `AudioManagement_requestTriggerDebugCommand`
-**Proxies:** `mSPHAMEngineeringProxyPtr` (audio management engineering)
+Source: `CEngineeringAccessPresCtrlFscs.cpp`
 
-### 4. Base
-**File:** `CEngineeringAccessPresCtrlBase.cpp`
-**Note:** Abstract base class. Implements request queuing:
-"Queuing the Request: requestType = %d; key = %llx, pendingRequestId(%llx)"
+The FSC controller interfaces with the CryptoManager subsystem to
+query, import, and validate Feature Service Codes.
 
-### 5. Bluetooth
-**File:** `CEngineeringAccessPresCtrlBluetooth.cpp`
-**Known keys:**
-- `BT_ON_OFF_ACTUAL` — current BT power state
-- `BT_ON_OFF_STORED` — persisted BT power preference
-- `BT_SNIFF_MODE_ON_OFF` — BT sniff mode toggle
-- `ACTIVATE_A2DP` — A2DP audio streaming activation
-- `AUTO_CONNECT` — auto-connect handset toggle
-- `PASSKEY` — pairing passkey response
-- `HFP` — Hands-Free Profile
-- `disableHFPIfNoCradle` — conditional HFP disable
-**Proxies:** `mSGBluetoothGapProxyPtr`, `mSPHBluetoothProxyPtr`, `mSPHBtPresCtrlProxyPtr`
+Key operations observed in strings:
+- `set swid %.8x` -- set the active SWID for FSC operations
+- `The status of %.8x is %d` -- query activation status of a SWID
+- `Public Key Type %d` -- query which RSA public key is active
+- `FscResponse %d` -- FSC validation result
+- `CSPHCryptoManagerDiagnosisProxy` -- interfaces with diagnosis layer
 
-### 6. Config
-**File:** `CEngineeringAccessPresCtrlConfig.cpp`
-**Capabilities:** System configuration persistence. Direct read/write
-of IOC and SIS identifiers.
-**Known operations:**
-- `requestReadInt key(%llx)` / `requestWriteInt key(%llx) value(%x)`
-- `requestReadString key(%llx)` / `requestWriteString key(%llx)`
-- Handles IOC ID and SIS ID notifications
-**Proxy:** `mPersistenceProxyPtr` — direct persistence access
+DSI update IDs:
+- `UPD_ID_areFSCsSigned` -- whether FSCs require signature validation
+- `UPD_ID_fscList` -- list of all FSCs on the system
+- `UPD_ID_illegalFSCs` -- list of FSCs that failed validation
 
-### 7. Cradle
-**File:** `CEngineeringAccessPresCtrlCradle.cpp`
-**Capabilities:** Phone cradle diagnostics.
-**Proxy:** `mSCradleDiagnoseProxyPtr`
+CryptoManager class hierarchy:
+- `CCryptoManagerComp` -- component shell
+- `CCryptoManagerImpl` -- core implementation
+- `CCryptoManagerDiagnosisImpl` -- diagnostic interface
+- `CCryptoManagerHMIImpl` -- HMI interface
+- `CCMFSCFacade` -- FSC facade pattern
+- `CCMFscCheckJobPolicy` -- FSC check policy
+- `CCMExceptionListCheckJobPolicy` -- exception list check
+- `CCMAccessSecSi` -- Secure Silicon access
+- `NDigitalRights` -- namespace for digital rights management
+- `TDigitalRightsSignatureCheckJob` -- signature verification job
+- `TDigitalRightsExceptionListCheckJob` -- exception list check job
+- `TDigitalRightsFscDetailsJob` -- FSC detail query job
+- `TDigitalRightsFileSystemCheckJob` -- filesystem check job
 
-### 8. Dab
-**File:** `CEngineeringAccessPresCtrlDab.cpp`
-**Capabilities:** DAB digital radio engineering.
-**Debug:** `project_presctrl_collect_dabtuner_triggerDebugCommand`
+HMI integration:
+- `SPHCryptoManagerHMI::RQST_importFSCs` -- import FSC files from media
+- `SPHCryptoManagerHMI::RQST_fscDetails` -- query FSC details
+- `SPHCryptoManagerHMI::RPST_importFSCs` -- response to import
+- `SPHCryptoManagerHMI::RPST_fscDetails` -- response to details query
+- `SPHCryptoManagerHMI::ATST_fscList` -- attribute: FSC list
+- `SecureCodeActivation.SPHCryptoManager` -- service name
 
-### 9. Dvd
-**File:** `CEngineeringAccessPresCtrlDvd.cpp`
-**Known keys:**
-- `CURRENT_DRIVE_TEMPERATURE` — current optical drive temp
-- `MAX_DRIVE_TEMPERATURE` — maximum recorded drive temp
-- `INSERTED_DISK_STATE` — disk slot state / drive state
-- `INSERTED_DISK_TYP` — media type (CD-Audio, DVD-Video, VCD, SVCD, etc.)
-- `IS_DISK_IN_DRIVE` — boolean disk presence
-- `EJECT_KEY_STATE` — eject button state
-- `INTERACTION_STATE` — playback mode/state
-- `REGIONCODE_OF_INSERTED_DVD` — region code of current disc
-- `REGION_CODE_ACTUAL` — system region code setting
-- `PLAYBACKSTATE_*` — PLAYING, PAUSED, STOPPED, SEEK_SLOWFW, SEEK_SLOWBW
-**Write operations:** EJECT command, DVD test start/stop
-**Media type conversion:** CD-Audio, DVD-Video, DVD-Audio, Video-CD, SVCD, CDROM/DVDROM
-**Proxies:** `mSGDriveProxyPtr`, `mSGMmeDVDProxyPtr`, `mSGMmePlaybackProxyPtr`,
-`mSPDiagDVDTestProxyPtr`, `mSPHMediaProxyPtr`, `mSPHMediaRightProxyPtr`,
-`mSPHKeyPanelProxyPtr`
+OTP (One-Time Programmable) fuse integration:
+- `isSwidInOTP` -- check if SWID is burned into OTP
+- `swid in OTP %.8x` -- SWID found in OTP
+- `swid in OTP (static) %.8x` -- static/factory SWID in OTP
+- `%d swids found in OTP` -- count of OTP SWIDs
 
-### 10. Fscs ⚠️ CRITICAL
-**File:** `CEngineeringAccessPresCtrlFscs.cpp`
-**Capabilities:** FSC (Freischaltcode) activation code management.
-**Known operations:**
-- `set swid %.8x` — set Software ID for activation
-- `The status of %.8x is %d` — query activation status of a feature
-- `Public Key Type %d` — read the public key type used for FSC verification
-- `FscResponse %d` — FSC validation response
-- `Data invalid` — FSC data validation failure
-**Proxy:** `CSPHCryptoManagerDiagnosisProxy` — crypto manager for FSC operations
-**Note:** This is the GEM-accessible interface to the FSC subsystem.
-It can query which features are activated and their status codes.
-The `set swid` operation suggests SWIDs can be set from GEM,
-which may be relevant to nav DB activation.
+Some features may be hardware-locked via OTP fuses, not just
+software-gated via FSC files. The GEM can query which SWIDs are
+in OTP vs. filesystem-activated.
 
-### 11. Hdd
-**File:** `CEngineeringAccessPresCtrlHdd.cpp`
-**Known keys:**
-- `HDD_CURRENT_TEMPERATURE` — current HDD temp
-- `HDD_MAX_TEMPERATURE` — maximum recorded HDD temp
-- Parking mode enable/disable
-- Media storage size management
-**Write operations:** `requestWriteInt` for parking mode, media store size
-**Error:** "value for storing media (%d) is too big"
 
-### 12. Hmi
-**File:** `CEngineeringAccessPresCtrlHmi.cpp`
-**Capabilities:** HMI attribute control, jukebox reset, infotainment recording.
-**Known operations:** Jukebox reset trigger.
-**Proxies:** `mSPHDiagHMIAttribsProxyPtr`, `mSPHDiagHMIMethodsProxyPtr`,
-`mSPHInfotainmentRecorderProxyPtr`, `mSPHWlanProxyPtr`
+### CEngineeringAccessPresCtrlSWDL -- Software Download Control
 
-### 13. Mme
-**File:** `CEngineeringAccessPresCtrlMme.cpp`
-**Capabilities:** Media management engine — play engine left/right, drive control, DTCP.
-**Proxies:** `mPlayEngineProxyLeft`, `mPlayEngineProxyRight`, `mSGDriveProxyPtr`, `mSPDTCPSetupProxyPtr`
+Source: `CEngineeringAccessPresCtrlSWDL.cpp`
 
-### 14. Most
-**File:** `CEngineeringAccessPresCtrlMost.cpp`
-**Capabilities:** MOST bus allocation table read, sync routing.
-**Proxies:** `mHBMOSTServiceBrokerProxyPtr`, `mHBSyncRoutingProxyPtr`
+Controls the firmware update subsystem from the GEM.
 
-### 15. MostCombi
-**File:** `CEngineeringAccessPresCtrlMostCombi.cpp`
-**Capabilities:** MOST combination device engineering.
+Operations:
+- `requestReadInt key(%llx)` -- read SWDL state
+- `requestWriteInt key(%llx) value(%x)` -- trigger SWDL operations
 
-### 16. MostCombiStats
-**File:** `CEngineeringAccessPresCtrlMostCombiStats.cpp`
-**Capabilities:** MOST combination device statistics.
+DSI update IDs:
+- `UPD_ID_DomainStatus_SWDL` -- SWDL domain status
+- `UPD_ID_SWDLRunning` -- whether SWDL is currently active
+- `UPD_ID_SwdlActive` -- SWDL active flag
 
-### 17. Navi
-**File:** `CEngineeringAccessPresCtrlNavi.cpp`
-**Known keys:**
-- GPS: `NUM_OF_LOCKED_SATELLITES`, `NUM_OF_PHASE_LOCKED_SATTELITES`,
-  `QUALITY_STATE_AGC_VALUE`, `QUALITY_STATE_GPS_NOISE`
-- Nav DB: `DATABASE_CHECKING`, `DATABASE_CRC_CHECKING`, `DELETE_CONSUMER_DATA`
-- License: `LICENSE_NUMBER`, `LICENSE_ACTIVATION_DATE`, `LICENSE_ACTIVATION_TIME`,
-  `LICENSE_EXPIRATION_DATE`
-- Connection: `CONNECTION_LAST_DATE`, `CONNECTION_LAST_TIME`, `CONNECTION_LAST_STATUS`
-- PSD (Predictive Speed Data): 20+ `PSD_DATASET_*` keys — road profile data
-  for ACC/predictive driving (ADAS, atlas, clothoid, FRC levels 0-7,
-  guidance, IPD, urban, offroad lengths, tree horizon/segment averages,
-  UTC timestamps, on/off toggle)
-**Write operations:** `requestWriteInt`, `requestWriteString` for nav settings
-**Note:** PSD data is the predictive road model used by ACC and
-transmission shift strategy. Engineering access can read and toggle it.
+Power management integration:
+- `SPHPowerManagement::ATST_SwdlActive` -- keeps system awake during flash
+- `COnOffPresCtrl` monitors SWDL state to prevent shutdown during flash
 
-### 18. RadioUnit
-**File:** `CEngineeringAccessPresCtrlRadioUnit.cpp`
-**Capabilities:** Radio unit hardware info, device info events.
+SWDL implementation classes (from the SWDL subsystem, not the GEM controller):
+- `CASWDLAccessSecSi.cpp` -- Secure Silicon access during update
+- `CASWDLAutoRun.cpp` -- auto-run handler for media-triggered updates
+- `CASWDLCheckedSocketStream.cpp` -- verified network stream
+- `CASWDLClient.cpp` -- SWDL client
+- `CASWDLClientBaseHelper.cpp` -- client helpers
+- `CASWDLCompatibilityManager.cpp` -- version compatibility checks
+- `CASWDLEintrRetries` -- interrupt retry handling
+- `CASWDLFileAccesWorker` -- file access worker thread
+- `CASWDLFileCopyManager` -- file copy state machine
+- `CASWDLManagerStates` -- overall SWDL state machine
+- `CASWDLRsuComMaster` -- RSU communication master
+- `CASWDLRsuComSlave` -- RSU communication slave
+- `CASWDLSvmManager` -- SVM (ODIS) integration
+- `CASWDownloadCtrlDataContainer` -- central state container
 
-### 19. SWDL ⚠️ CRITICAL
-**File:** `CEngineeringAccessPresCtrlSWDL.cpp`
-**Capabilities:** Software download control from GEM.
-**Known operations:**
-- `requestReadInt key(%llx)` — read SWDL state values
-- `requestWriteInt key(%llx) value(%x)` — write SWDL control values
-**Note:** This controller bridges the GEM to the SWDL state machine
-(`CASWDLManagerStates`). Through it, the GEM can potentially trigger
-firmware update operations: start, abort, query status, control
-the update source (DVD, USB, network).
 
-### 20. Sd
-**File:** `CEngineeringAccessPresCtrlSd.cpp`
-**Capabilities:** SD card device info, extended device info.
-**Proxy:** `mSPHMlDeviceInfoProxyPtr`
-**Note:** Searches SD devices and reads device info. Key for
-understanding how the MMI discovers SD-delivered content.
+### CEngineeringAccessPresCtrlSystem -- System File Access
 
-### 21. Sdars
-**File:** `CEngineeringAccessPresCtrlSdars.cpp` (Sirius/XM)
-**Debug:** `project_presctrl_collect_sdarstuner_triggerDebugCommand`
+Source: `CEngineeringAccessPresCtrlSystem.cpp`
 
-### 22. Sds (Speech Dialogue System)
-**File:** `CEngineeringAccessPresCtrlSds.cpp`
-**Capabilities:** Speech recognition engineering. Read/write DSI values.
+Can read system values AND write files to the filesystem.
 
-### 23. SerialIfTest
-**File:** `CEngineeringAccessPresCtrlSerialIfTest.cpp`
-**Capabilities:** Serial interface testing — ETC, iPod, VICS ports.
-**Known keys:**
-- `START_SERIAL_TEST_IPOD` — trigger iPod serial test
-- `START_SERIAL_TEST_VICS` — trigger VICS serial test
-- `START_STOP_SERIAL_TEST_ETC` — toggle ETC serial test
-**Proxies:** `mSPDiagSerETCProxyPtr`, `mSPDiagSerIPODProxyPtr`, `mSPDiagSerVICSProxyPtr`
-**Note:** These serial tests exercise the physical UART connections.
-Useful for hardware debugging.
+Operations:
+- `requestReadInt key(%llx)` -- read system values
+- `requestReadString` -- read strings (e.g., `HFP_PASS_KEY`)
+- `requestReadBuffer` -- read binary data
+- `requestWriteString: The file %s could not be opened for write` --
+  confirms file-write capability through the GEM
 
-### 24. System ⚠️ CRITICAL
-**File:** `CEngineeringAccessPresCtrlSystem.cpp`
-**Capabilities:** System-level operations including **file system write**.
-**Known keys:**
-- `HFP_PASS_KEY` — HFP passkey read
-- General int/string/buffer read/write via DSI keys
-**File write:** `requestWriteString` can write to files:
-"The file %s could not be opened for write" (error path confirms
-the success path writes to arbitrary files)
-**Note:** This is the most powerful engineering access controller.
-File write capability means the GEM can modify system files
-on the running system — configs, scripts, potentially even
-firmware components in writable partitions.
+GEM screens can write arbitrary files to writable mount points
+(`/HBpersistence/`, `/mnt/efs-persist/`, SD card). This is a
+powerful primitive for custom app deployment.
 
-### 25. Telephony
-**File:** `CEngineeringAccessPresCtrlTelephony.cpp`
-**Known keys:**
-- `GSM_ON_OFF_ACTUAL` — GSM modem power state
-- `ACCEPT_CALL` — trigger call acceptance
-- `EMERGENCY_LED_ON_OFF` — eCall LED control
-- `NB_OF_CONNECTED_HUC` — number of connected handsets
-- `SIMID` — SIM card identifier
-- eCall test mode: `UPD_ID_responseSetECallTestModePersistent`
-- Phone power: `UPD_ID_responseTelPower`
-- Cradle/handset count: `UPD_ID_responseGetBthsInCradleCount`, `UPD_ID_responseGetCradleCount`
-**Write:** Phone number buffer write, eCall LED toggle
 
-### 26. Tim
-**File:** (reference only: `CEngineeringAccessPresCtrlTim`)
-**Debug:** `project_presctrl_collect_timtuner_triggerdebugcommand`
+### CEngineeringAccessPresCtrlConfig -- Persistence Configuration
 
-### 27. Tmc
-**File:** (reference only: `CEngineeringAccessPresCtrlTmc`)
-**Capabilities:** Traffic Message Channel engineering.
+Source: `CEngineeringAccessPresCtrlConfig.cpp`
 
-### 28. TraceScope
-**File:** `CEngineeringAccessPresCtrlTraceScope.cpp`
-**Capabilities:** Runtime trace/logging control.
-**Known operations:**
-- `requestReadInt` / `requestReadString` — read trace scope settings
-- `requestWriteInt key(%llx) value(%x)` — set trace scope
-- `requestWriteString key(%llx) value %s` — set trace scope string
-**Error:** "value for trace scope (%d) is too big"
-**Note:** Controls the MMI's internal debug logging. Setting
-appropriate trace scopes enables detailed logging of specific
-subsystems to the HDD or SD card.
+Read/write the persistence database (per3) through GEM.
 
-### 29. TunerAnnouncement
-**File:** (persistence reference only)
-**Capabilities:** Radio announcement engineering.
+Operations:
+- `requestReadInt key(%llx)` -- read per3 int
+- `requestReadString key(%llx)` -- read per3 string
+- `requestWriteInt key(%llx) value(%x)` -- write per3 int
+- `requestWriteString key(%llx)` -- write per3 string
+- Handles both IOC IDs and SIS IDs
 
-### 30. Tv
-**File:** `CEngineeringAccessPresCtrlTv.cpp`
-**Capabilities:** TV tuner video management.
-**Proxy:** `mSGVideoManagementProxyPtr`
 
-### 31. Usb
-**File:** `CEngineeringAccessPresCtrlUsb.cpp`
-**Capabilities:** USB device info, removable media.
-**Proxies:** `mSGRemovableMediaProxyPtr`, `mSPHMedialistProxyPtr`
+## Hardware interface controllers
 
-### 32. VWTouchData
-**File:** `CEngineeringAccessPresCtrlVWTouchData.cpp`
-**Capabilities:** VW/Audi touch panel data.
-**Proxy:** `mSPHKeyPanelProxyPtr`
+### CEngineeringAccessPresCtrlNavi (59 strings)
 
-### 33. VersionInfos
-**File:** `CEngineeringAccessPresCtrlVersionInfos.cpp`
-**Capabilities:** Version information for all system components.
+Extensive read/write access to navigation subsystem:
+- GPS satellite counts: `NUM_OF_LOCKED_SATELLITES`, `NUM_OF_PHASE_LOCKED_SATTELITES`
+- GPS quality: `QUALITY_STATE_AGC_VALUE`, `QUALITY_STATE_GPS_NOISE`
+- Database checking: `DATABASE_CHECKING`, `DATABASE_CRC_CHECKING`
+- License info: `LICENSE_ACTIVATION_DATE`, `LICENSE_EXPIRATION_DATE`, `LICENSE_NUMBER`
+- Connection state: `CONNECTION_LAST_DATE`, `CONNECTION_LAST_STATUS`
+- PSD (Predictive Speed Data): 20+ dataset parameters for ADAS
+- Consumer data deletion: `DELETE_CONSUMER_DATA`
 
-### 34. Video
-**File:** `CEngineeringAccessPresCtrlVideo.cpp`
-**Capabilities:** Video output management.
-**Proxy:** `mSGVideoManagementProxyPtr`
+### CEngineeringAccessPresCtrlDvd (90 strings -- largest)
 
-### 35. Wlan
-**File:** `CEngineeringAccessPresCtrlWlan.cpp`
-**Capabilities:** WiFi/WLAN engineering.
-**Proxies:** `mSPHIpDiagProxyPtr`, `mSPHWlanDiagProxyPtr`, `mSPHWlanProxyPtr`
+Complete DVD drive diagnostic interface:
+- Temperature: `CURRENT_DRIVE_TEMPERATURE`, `MAX_DRIVE_TEMPERATURE`
+- Disk state: `INSERTED_DISK_STATE`, `IS_DISK_IN_DRIVE`
+- Region codes: `REGIONCODE_OF_INSERTED_DVD`, `REGION_CODE_ACTUAL`
+- Drive commands: `EJECT`, loader state
+- Media type detection: CD-Audio, DVD-Video, DVD-Audio, SVCD, VCD
+- Playback states: playing, paused, stopped, seek
+- Parental lock: `PML_STATUS`
+- Test modes: `requestStartDVDTest`, `requestStopDVDTest`
 
-## Debug Command Infrastructure
+### CEngineeringAccessPresCtrlBluetooth (28 strings)
 
-A `requestTriggerDebugCommand` mechanism is available across multiple
-subsystems. Each accepts `command`, `param1`, `param2` (and sometimes `param3`)
-as integer parameters:
+- Power control: `BT_ON_OFF_ACTUAL`, `BT_ON_OFF_STORED`
+- A2DP streaming activation
+- Sniff mode: `BT_SNIFF_MODE_ON_OFF`
+- Autopairing and passkey
+- Allocation table queries
+
+### CEngineeringAccessPresCtrlTelephony (46 strings)
+
+- GSM power: `GSM_ON_OFF_ACTUAL`
+- SIM card: `SIMID`
+- eCall: `EMERGENCY_LED_ON_OFF`, `requestSetECallTestModePersistent`
+- Handset counts: `NB_OF_CONNECTED_HUC`
+- Call control: `UPD_ID_AcceptCall`
+- File management: can delete files
+
+### CEngineeringAccessPresCtrlHdd (26 strings)
+
+- Temperature: `HDD_CURRENT_TEMPERATURE`, `HDD_MAX_TEMPERATURE`
+- Parking mode control
+- Media storage capacity
+- HDD diagnostics
+
+### CEngineeringAccessPresCtrlAudioManagement (25 strings)
+
+- Source switching with fade transitions
+- Volume control: `UPD_ID_Volume`
+- Entertainment connection management
+- Mute: `LC_MUTE_ENT`
+- Audio lowering reasons
+
+### CEngineeringAccessPresCtrlWlan (16 strings)
+
+WiFi diagnostics, IP diagnostics, WiFi state management.
+
+### CEngineeringAccessPresCtrlHmi (15 strings)
+
+HMI controls, jukebox reset, infotainment recorder.
+
+### CEngineeringAccessPresCtrlSerialIfTest (25 strings)
+
+Serial interface testing for ETC, iPod, VICS with per-interface statistics.
+
+### CEngineeringAccessPresCtrlMost (20 strings)
+
+MOST bus allocation table, sync routing, service broker.
+
+### CEngineeringAccessPresCtrlSd (44 strings)
+
+SD card device info, device search, media list integration.
+
+
+## Remaining controllers
+
+| Controller | Strings | Domain |
+|-----------|---------|--------|
+| Usb | 9 | USB device management |
+| Video | 8 | Video management |
+| Mme | 14 | Media engine (play, DTCP) |
+| MostCombi | 11 | MOST bus combination |
+| MostCombiStats | 5 | MOST statistics |
+| Cradle | 7 | Phone cradle |
+| VWTouchData | 7 | VW touch panel |
+| TraceScope | 8 | Trace level control |
+| Sds | 17 | Speech dialogue |
+| VersionInfos | 3 | Version queries |
+| AmFmRadio | 4 | AM/FM tuner |
+| Addressbook | 3 | Contacts |
+| Dab | 3 | DAB digital radio |
+| Tv | 3 | TV tuner |
+| Sdars | 2 | SiriusXM satellite radio |
+| Tim | 2 | TIM |
+| Tmc | 2 | Traffic Message Channel |
+| TunerAnnouncement | 1 | Radio announcements |
+| RadioUnit | 5 | Radio hardware |
+
+
+## Debug command system
+
+A `requestTriggerDebugCommand` handler exists across multiple subsystems.
+Each takes a command ID + two parameters:
 
 ```
-callBackTriggerDebugCommand - command: %d - param1: %d - param2:%d
+callBackTriggerDebugCommand - command: %d - param1: %d - param2: %d
 ```
 
-Subsystems with debug commands:
-- AM/FM tuner
-- DAB tuner
-- SDARS tuner
-- TIM tuner
-- Car facade (vehicle integration)
-- Car parking system
+Subsystems with debug command handlers:
 - Key panel
-- On/Off controller
+- On/off control
+- AM/FM tuner, DAB tuner, satellite tuner, TIM tuner
+- Car facade, parking system
+- HMI sync (rear display)
 - System info
-- HMI sync (rear)
-- MOST RSU adapter
+- Audio management
 
-The key panel debug command handler (`CKeyPanelDevCtrl::requestTriggerDebugCommand`)
-is particularly interesting — it suggests button combinations can trigger
-debug functionality.
 
-## Reboot Triggers
+## System reboot triggers
 
-Three reboot mechanisms accessible from engineering access:
+Three reboot levels:
 
-| Trigger | Target | Use |
-|---------|--------|-----|
-| `requestTriggerReboot %d` | Main CPU | Soft reboot, parameter controls mode |
-| `requestTriggerRebootPanel` | Display panel | Panel-only reboot |
-| `requestTriggerIocBoloReboot` | IOC bootloader | IOC re-enters bootloader mode |
+| Trigger | Effect |
+|---------|--------|
+| `requestTriggerReboot %d` | Normal system reboot (parameter controls mode) |
+| `requestTriggerRebootPanel` | Panel/display reboot only |
+| `requestTriggerIocBoloReboot` | IOC bootloader reboot -- reboots the I/O Controller into bootloader mode for IOC firmware update |
 
-The IOC bootloader reboot is significant — it puts the I/O Controller
-into a state where firmware can be reflashed. Combined with the SWDL
-engineering access, this could enable IOC firmware updates from the GEM.
 
-## Security Infrastructure
+## DSI engineering mode constants
 
-### SecSi (Secure Silicon)
+| UPD_ID | Purpose |
+|--------|---------|
+| `isEngineeringMode` | Query: is engineering mode active? |
+| `engineeringMenuState` | Current engineering menu state |
+| `engineering` | Engineering mode flag |
+| `diagnosticMode` | Diagnostic mode flag |
+| `requestEnterEngineeringSession` | Enter engineering session |
+| `requestExitEngineeringSession` | Exit engineering session |
 
-OTP (One-Time Programmable) memory access and flash lock management:
+Factory reset variants:
+- `requestFactoryReset`
+- `requestResetFactorySettings`
+- `requestResetToFactorySettings`
+- `requestRestoreFactorySettings`
+- `requestRevertToFactorySettings`
+- `requestRevertCallstacks`
+- `requestSetAPSFactoryDefault`
+- `requestInspectionReset`
+
+Total DSI API surface: **2,386 UPD_ID constants** across all subsystems.
+
+
+## SecSi -- Secure Silicon subsystem
+
+The SecSi module manages hardware security features.
+
+Hardware sample to OTP offset mapping:
+- E1 sample: no OTP offset (base)
+- Other samples: offset 0x400
+
+OTP operations:
+- Read with retry
+- Content dump and sanity check
+- SWID enumeration from OTP fuses
+
+Flash operations:
+- Flash partition locking via `Locking down flash`
+- Signals `SIGUSR2` to `devf-generic` flash driver
+
+Security logging:
+- `/HBpersistence/FSC/Logs/Security_Exceptions.log`
+
+
+## DSI self-test mode
+
+A built-in self-test exercises the entire DSI stack:
 
 ```
-SecSi: hw sample %x -> offset 0x400    (hardware sample detection)
-SecSi: Locking down flash: %d          (flash write protection)
-SecSi: Retry to read OTP %d            (OTP read with retry)
-SecSi: content %.2x%.2x%.2x%.2x...    (OTP content dump)
-SecSi: Send SIGUSR2 to devf-generic    (signal flash driver)
+notification-id %d: starting selftest (all responses/notifications
+with sample values are sent)...
 ```
 
-Two implementations:
-- `CASWDLAccessSecSi` — SWDL uses SecSi during firmware flashing
-- `CCMAccessSecSi` — Crypto Manager uses SecSi for key storage
+Sends synthetic DSI notifications with sample data through all
+registered listeners. Useful for testing custom DSI clients without
+live vehicle data.
 
-Hardware sample detection maps sample codes to flash offsets:
-- e1 → no offset (E-sample, direct access)
-- Other samples → offset 0x400
 
-Security log: `/HBpersistence/FSC/Logs/Security_Exceptions.log`
+## Network references
 
-### Factory Reset
+- `/dev/shmem/TelitAmsshd` -- SSH daemon (Telit modem subsystem)
+- `172.16.250.248` -- MMI network IP (per M.I.B documentation)
 
-Multiple reset entry points:
-- `requestRevertToFactorySettings` — full factory reset
-- `requestResetToFactorySettings` — alias
-- `requestRestoreFactorySettings` — alias
-- `requestFactoryReset` — alias
-- `requestResetFactorySettings` — alias
-- `requestSetAPSFactoryDefault` — APS (Audio Pilot System) reset
-- `requestRevertCallstacks` — call history reset
 
-## DSI Self-Test Mode
+## Implications for custom app development
 
-Built-in diagnostic self-test:
+1. **GEM screens can call any controller** -- custom ESD screen
+   definitions can invoke read/write on any of the 36 controllers
+   using the appropriate 64-bit DSI key.
 
-```
-notification-id %d: starting selftest (all responses/notifications with sample values are sent)...
-```
+2. **File write capability** -- the System controller can write
+   files to writable mount points, enabling GEM-triggered deployment.
 
-When triggered, the DSI stack sends synthetic responses with sample values
-to all registered listeners. This exercises the complete notification
-pipeline without requiring real hardware state changes. Useful for
-verifying DSI client implementations (like per3-reader) in isolation.
+3. **FSC import from media** -- `SPHCryptoManagerHMI::RQST_importFSCs`
+   means FSC files can be imported from SD/USB through the GEM.
 
-## SWDL Class Hierarchy
+4. **SWDL from GEM** -- the SWDL controller has write methods,
+   suggesting firmware updates can be initiated from the engineering
+   menu (confirmed by `03 Remove HBUPDATE.def from USB` /
+   `04 Activate HBUPDATE.def on USB` found in PCM3Reload IFS2).
 
-The complete Software Download (SWDL) implementation:
+5. **Debug commands** -- a generic `command + param1 + param2` RPC
+   interface across 11+ subsystems.
 
-| Class | Purpose |
-|-------|---------|
-| `CASWDLManagerStates` | Overall state machine (dumped with `dumpState`/`dumpStates`) |
-| `CASWDLClient` | Client-side SWDL interface |
-| `CASWDLAutoRun` | Auto-run handler (SD card auto-update) |
-| `CASWDLFileCopyManager` | File copy state machine with selection/progress |
-| `CASWDLFileCopyThread` | Threaded file copy (Check + Write variants) |
-| `CASWDLFileAccesWorker` | File access worker thread |
-| `CASWDLImageManager` | Flash image management |
-| `CASWDLScriptManager` | Update script execution |
-| `CASWDLCompatibilityManager` | Version/variant compatibility checking |
-| `CASWDLAccessSecSi` | Secure silicon access during flash |
-| `CASWDLSvmManager` | SVM (Software Version Management) for ODIS |
-| `CASWDLRsuComMaster/Slave` | RSU communication for satellite tuner updates |
-| `CASWDLDeviceTable` | Device enumeration |
-| `CASWDLContainerEvent` | State machine events |
-| `CASWDLMainUVersions` | Main unit version tracking |
-| `CASWDLOnOffClient` | Power management (requestStart/Stop/Restart) |
-| `CASWDLDigitalRight` | DRM/digital rights during update |
-| `CASWDLTestMD` | Update test mode |
+6. **IOC bootloader reboot** -- enables IOC firmware updates without
+   physical board access.
 
-The `CASWDLAutoRun` class is significant — it handles automatic
-firmware updates from inserted media. Combined with the `skipCrc = true`
-bypass and the GEM's SWDL engineering access, this provides a
-complete pathway for SD-card-triggered firmware modification.
-
-## Implications for Custom App Development
-
-### Path 1: GEM Screen + Engineering Access (easiest)
-
-Custom GEM screens (ESD files) can call any engineering access
-controller's read/write methods via DSI keys. A GEM screen that
-calls `CEngineeringAccessPresCtrlConfig::requestWriteInt` can
-modify system configuration. A screen that calls
-`CEngineeringAccessPresCtrlSystem::requestWriteString` can
-write to arbitrary files.
-
-This is the mechanism our existing toolkit modules use (gauges-dashboard,
-system-info, etc.). The engineering access catalog above shows the
-full range of what's accessible from GEM.
-
-### Path 2: OSGi Bundle + DSI (per3-reader pattern)
-
-A Java OSGi bundle dropped into the `lsd.jxe` classpath can register
-as a `DSIPersistenceListener` and receive async DSI notifications
-from any subsystem. The per3-reader module demonstrates this pattern.
-
-With the engineering access catalog, a bundle could:
-- Monitor GPS satellite count in real time
-- Read HDD/DVD temperatures
-- Query FSC activation status
-- Trigger debug commands across subsystems
-- Control trace scope for targeted logging
-
-### Path 3: Native Binary + DSI (future)
-
-A native SH4 binary could use the DSI C++ API directly
-(`libdsiservice.so`) to perform the same operations. This requires
-the SH4 cross-compiler (not yet set up) but would give the
-highest performance and lowest-level access.
-
-### Path 4: Firmware Modification (now possible)
-
-With the complete firmware pipeline (inflate → patch → repack → CRC),
-the engineering access controllers themselves can be modified. For
-example, removing the "Invalid key!" checks would allow writing to
-keys that are currently read-only, or adding new engineering screens
-that expose additional functionality.
 
 ## References
 
-- `MMI3GApplication` — primary binary, 10.7 MB SH4 ELF
-- `DSI_ARCHITECTURE.md` — DSI IPC framework documentation
-- `HMI_ARCHITECTURE.md` — boot sequence and process graph
-- `FIRMWARE_UPDATE_FORMAT.md` — SWDL verification and bypass
-- `PER3_READER.md` — per3-reader OSGi bundle design
+- `MMI3GApplication` build 9411 C1 D1-15515A, QNX 6.3.2
+- Source: `CEngineeringAccessPresCtrl*.cpp` (529 strings, 36 controllers)
+- DSI interface specs: `research/DSI_ARCHITECTURE.md`
+- GEM activation: `modules/gem-activator/`
+- Per3 addresses: `research/PER3_ADDRESS_MAP.md`
