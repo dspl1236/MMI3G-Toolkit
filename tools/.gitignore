@@ -1,0 +1,7 @@
+# Auto-generated on first run of inflate_qnx.py
+qnx_inflator
+minilzo.c
+minilzo.h
+lzoconf.h
+lzodefs.h
+lzo/

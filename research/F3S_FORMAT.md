@@ -125,33 +125,54 @@ This is what `tools/walk_f3s_efs.py` and `tools/extract_f3s_efs.py` implement.
 
 ## Content encoding (the `iwlyfmbp` wrapper)
 
-Regular files in the EFS are wrapped in a Harman-Becker container starting with
-the 8-byte magic `"iwlyfmbp"`. Header format appears to be:
+Regular binary files in the EFS are wrapped in the QNX **`deflate`
+utility** container format. QNX's `deflate` is a file-level compression
+tool (separate from zlib's deflate) that ships with the QNX Neutrino
+SDK. Source: `openqnx/trunk/utils/d/deflate/deflate.c` in the leaked
+QNX 6.4.1 tree.
 
+```c
+struct filehdr {                 /* 16 bytes, little-endian */
+    char     signature[8];       /* "iwlyfmbp" */
+    uint32_t usize;              /* total uncompressed size */
+    uint16_t blksize;            /* 4/8/16/32 KB */
+    uint8_t  cmptype;            /* 0 = LZO1X, 1 = UCL NRV2B */
+    uint8_t  flags;              /* 0 in our samples */
+};
+
+struct cmphdr {                  /* 8 bytes per compressed block */
+    uint16_t prev;               /* offset to previous hdr */
+    uint16_t next;               /* offset to next hdr (0 = EOF) */
+    uint16_t pusize;             /* uncompressed size of prev block */
+    uint16_t usize;              /* uncompressed size of this block */
+};
 ```
-+0   magic[8]        "iwlyfmbp"
-+8   size:uint32     payload size (varies per file)
-+12  flags:uint32    always 0x00012000 in our samples
-+16  field3:uint32   varies
-+20  field4:uint32   varies
-+24+ payload (encoded/compressed — format unknown)
-```
 
-The payload does **not** match LZO, UCL, zlib, gzip, LZ4, LZMA, bzip2, or xz.
-Entropy ~7.6 bits/byte suggests compression rather than encryption. ELF
-binaries show their magic `7f 45 4c 46` embedded in the wrapper but the
-following fields are completely garbled, which rules out a simple header strip.
+File layout: `filehdr` at offset 0, then a chain of `(cmphdr,
+compressed_payload)` pairs. The `next` field points to the following
+cmphdr by byte offset. A cmphdr with `next == 0` marks end of file.
 
-**17 instances** of this magic were found inside a single 38 MB variant-41 EFS.
+Decompression per block uses:
+- `lzo1x_decompress` (minilzo / liblzo2) for `cmptype == 0`
+- `ucl_nrv2b_decompress_8` (libucl) for `cmptype == 1`
+
+We observed `cmptype=1` (UCL NRV2B) on all 17 wrapped files in a
+typical K0942_4 variant 41 EFS with blocks of 8 KB uncompressed.
+
+`tools/qnx_inflator.c` implements the decompressor in ~60 lines of C;
+`tools/inflate_qnx.py` wraps it for Python callers and auto-builds on
+first use. Both are verified against real firmware output (14/17 of
+our carved wrapped files inflate to valid SH4 ELF executables).
 
 ### Embedded JARs in plaintext
 
-JARs (`DSITracer.jar`, `AppDevelopment.jar`, HMI resource bundles, etc.) are
-stored in the EFS as normal PKZIP archives — the 5 JARs we located via
-`PK\x05\x06` end-of-central-directory scanning all validate as real ZIPs with
-proper central directories. However, bytes inside individual entries do NOT
-decompress cleanly, which suggests the Harman wrapper also intrudes on JAR
-content somehow. This needs more investigation.
+JARs (`DSITracer.jar`, `AppDevelopment.jar`, HMI resource bundles, etc.)
+are stored in the EFS as **raw PKZIP archives** — no `iwlyfmbp`
+wrapper. The 5 JARs located via `PK\x05\x06` end-of-central-directory
+scanning all validate as real ZIPs with proper central directories.
+Individual entry CRC failures during extraction are artifacts of our
+own `extract_f3s_efs.py` content-boundary heuristic, not the JAR
+format itself.
 
 ## Upstream `jtang613/qnx_dumpers` corrections
 

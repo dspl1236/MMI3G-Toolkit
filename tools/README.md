@@ -45,11 +45,10 @@ python3 tools/extract_f3s_efs.py efs-system.efs --list | head -30
 ```
 
 **Caveat:** content-boundary detection is heuristic. JARs in the EFS
-extract with good central directories but damaged internal entries
-(the Harman `iwlyfmbp` wrapper appears to mangle byte ranges we haven't
-fully decoded yet). Small binaries come out wrapped in the `iwlyfmbp`
-container; real content recovery requires decoding that wrapper — see
-`research/F3S_FORMAT.md` for format notes.
+extract with good central directories but some internal entries
+produce CRC errors because our heuristic grabs slightly off byte
+ranges. Small binaries come out wrapped in the `iwlyfmbp` container;
+pass them through `tools/inflate_qnx.py` to recover real ELF content.
 
 ## extract_jars_from_efs.py
 
@@ -64,4 +63,34 @@ Compares our hand-written DSI interface stubs in `modules/per3-reader/src/stubs/
 against method signatures extracted via `javap` from a real `dsi.jar` or
 `DSITracer.jar`. Run after extracting a JAR to verify that the stubs we
 compiled against match the ground-truth interfaces.
+
+## inflate_qnx.py  +  qnx_inflator.c
+
+Decompresses files wrapped in the QNX `deflate` utility format (8-byte
+magic `iwlyfmbp`). QNX's `deflate` is a separate tool from zlib's deflate
+— it packages data as a chain of LZO1X or UCL NRV2B compressed blocks
+with an `iwlyfmbp` file header. Harman-Becker uses this to compress
+binaries stored in MMI3G firmware.
+
+The Python wrapper shells out to a tiny C program because UCL NRV2B has
+no reliable Python binding. The C source (`qnx_inflator.c`, ~60 lines)
+is built automatically on first run — requires `liblzo2-dev` and
+`libucl-dev` plus `minilzo.c` (auto-fetched from oberhumer.com on first
+run, ~63 KB). After that the binary is cached.
+
+```
+# Single file
+python3 tools/inflate_qnx.py file.bin file.inflated
+
+# Walk a directory, inflate every iwlyfmbp-wrapped file next to the
+# original with a .inflated suffix
+python3 tools/inflate_qnx.py --recurse /path/to/extracted/
+
+# As above but replace in-place
+python3 tools/inflate_qnx.py --recurse --inplace /path/to/extracted/
+```
+
+Verified against MU9411 K0942_4 variant 41: 14/17 wrapped binaries
+inflate cleanly (the three failures are upstream `extract_f3s_efs.py`
+boundary issues, not inflator issues).
 
