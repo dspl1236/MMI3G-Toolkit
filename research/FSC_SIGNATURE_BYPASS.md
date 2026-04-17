@@ -90,3 +90,53 @@ The M.I.B (More Incredible Bash) community patches Porsche PCM 4.0
 firmware using the same method: NOP out the `CHBJobDMBVerify`
 signature verification function call. This is the Audi MMI3G
 equivalent of that patch.
+
+
+## Complete patch table (all 5 call sites)
+
+Analysis found 19 literal pool entries referencing the
+`EscRsa_DecryptSignature` function (at 0x08046694). Of those,
+5 have confirmed JSR → TST → BT/S patterns:
+
+| # | File Offset | Virtual Address | Patch |
+|---|------------|-----------------|-------|
+| 1 | `0x0150A6` | `0x080550A6` | `0B40` → `00E0` |
+| 2 | `0x02CED4` | `0x0806CED4` | `0B40` → `00E0` |
+| 3 | `0x03EA28` | `0x0807EA28` | `0B40` → `00E0` |
+| 4 | `0x1B11F6` | `0x081F11F6` | `0B40` → `00E0` |
+| 5 | `0x593AB6` | `0x085D3AB6` | `0B40` → `00E0` |
+
+All 5 patches replace `JSR @r0` (call EscRsa_DecryptSignature)
+with `MOV #0, r0` (force success), causing the subsequent
+`TST r0,r0` / `BT/S` to always take the success branch.
+
+### Applying all 5 patches
+
+```bash
+python3 -c "
+patches = [0x0150a6, 0x02ced4, 0x03ea28, 0x1b11f6, 0x593ab6]
+with open('MMI3GApplication', 'r+b') as f:
+    for offset in patches:
+        f.seek(offset)
+        original = f.read(2)
+        assert original == b'\x0b\x40', f'Unexpected bytes at 0x{offset:x}: {original.hex()}'
+        f.seek(offset)
+        f.write(b'\x00\xe0')
+        print(f'  Patched 0x{offset:06x}: {original.hex()} -> 00e0')
+print('All 5 EscRsa verification calls patched.')
+"
+```
+
+### Note on other binaries
+
+The EscRsa library is statically linked into ALL 5 main binaries:
+- MMI3GApplication (10.7 MB) — patched above
+- MMI3GMedia (8.3 MB)
+- MMI3GNavigation (6.8 MB)
+- MMI3GMisc
+- MMI3GTelephone
+
+Each binary has 2 EscRsa string instances. The same analysis
+approach (search for literal pool entries containing the function
+address, find JSR→TST→BT/S pattern) can be applied to the other
+binaries. The FSC check primarily runs in MMI3GApplication.
