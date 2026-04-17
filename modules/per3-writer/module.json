@@ -1,0 +1,10 @@
+{
+    "name": "per3-writer",
+    "version": "0.1.0-design",
+    "description": "Write DSI persistence values from shell scripts via OSGi bundle. Enables GEM activation, coding changes, and feature configuration entirely from SD card — no VCDS/ODIS needed.",
+    "author": "dspl1236",
+    "status": "design",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "depends": ["per3-reader"],
+    "notes": "Design phase. Mirrors per3-reader architecture (proven). The GEM enable address needs to be determined by live testing (per3 dump before/after VCDS change). Implementation requires Java OSGi bundle with DSIPersistence.requestWriteInt calls."
+}
