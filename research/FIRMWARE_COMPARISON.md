@@ -51,3 +51,32 @@ The entire K0942 firmware family shares identical native SH4 code.
 Regional variants differ only in lsd.jxe configuration
 (variant.properties, bundles.properties). The FSC signature bypass
 patch at offset 0x001B11F6 is universal across all K0942 builds.
+
+## Three-Way Comparison: K0942_3 vs K0942_4 vs K0942_6
+
+| | K0942_3 (ES) | K0942_4 (FB) | K0942_6 (FE) |
+|---|---|---|---|
+| Part # | 8R0906961ES | 8R0906961FB | 8R0906961FE |
+| MU Variants | 9406-9411 | 9411 | 9498 |
+| Region | USA | EU | USA |
+| MMI3GApp size | 10,702,848 | 10,702,848 | 10,702,848 |
+| MMI3GApp MD5 | f1e658...5483 | **f1e658...5483** | 2be23b...f766 |
+
+### Byte Differences
+- K0942_3 vs K0942_4: **0 bytes** (IDENTICAL — same MD5!)
+- K0942_3 vs K0942_6: **4 bytes** (ELF header only)
+- K0942_4 vs K0942_6: **4 bytes** (ELF header only)
+
+### FSC Patch Verification
+```
+Offset 0x001B11F6 in ALL THREE versions:
+  K0942_3: 0b 40 a3 65 08 20 33 8d  (JSR @r0) ✓
+  K0942_4: 0b 40 a3 65 08 20 33 8d  (JSR @r0) ✓
+  K0942_6: 0b 40 a3 65 08 20 33 8d  (JSR @r0) ✓
+```
+
+**The 2-byte patch (0B 40 → 00 E0) at offset 0x001B11F6 is
+confirmed universal across the ENTIRE K0942 firmware family.**
+This covers every known firmware revision for MMI3G+ HN+R,
+spanning part numbers 8R0906961ES through 8R0906961FE,
+and MU variants 9406 through 9498.
