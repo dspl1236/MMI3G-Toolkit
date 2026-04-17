@@ -24,9 +24,29 @@ See **[docs/CUSTOM_APPS.md](docs/CUSTOM_APPS.md)** for a developer guide coverin
 
 ## Modifying Firmware
 
-The Harman SWDL (SoftWare DownLoader) update format is fully documented and its verification is bypassable. Firmware images are NOT cryptographically signed — all integrity checks are CRC32 (zlib/IEEE), and Harman's own update scripts include a first-class `skipCrc = true` flag that disables verification entirely. The `tools/mu_crc_patcher.py` utility recomputes CRCs after modifying a firmware image (or generates skipCrc-patched manifests directly).
+The complete custom firmware pipeline is built and verified:
 
-See **[research/FIRMWARE_UPDATE_FORMAT.md](research/FIRMWARE_UPDATE_FORMAT.md)** for the metainfo2.txt specification, flash partition layout, the update flow, and the distinction between firmware CRC checks (bypassable) and Audi FSC signing (RSA-signed, for nav DB activation).
+```
+inflate_ifs.py  →  patch_ifs.py / build_ifs.py  →  repack_ifs.py  →  mu_crc_patcher.py
+  decompress          modify files                   recompress         fix CRCs
+```
+
+Or use the one-command wrapper:
+```bash
+python3 tools/mu_repack.py --mu-dir ./MU9411 --variant 41 \
+    --replace mnt/ifs-root/usr/bin/start_network.sh=./modified.sh \
+    --output ./patched/
+```
+
+All integrity checks are CRC32 (bypassable with `skipCrc = true`). The LZO recompression produces **byte-identical output** to Harman's own `lzo1x_999` compressor.
+
+**FSC signature bypass:** A 2-byte patch in MMI3GApplication (`0x0B40` → `0x00E0` at file offset `0x1B11F6`) replaces the `JSR @r0` call to `EscRsa_DecryptSignature` with `MOV #0, r0`, forcing the signature check to always return success. See [research/FSC_SIGNATURE_BYPASS.md](research/FSC_SIGNATURE_BYPASS.md).
+
+**Feature unlocking:** The `eol_modifier.py` tool modifies EOL flags in `lsd.jxe` to enable hidden features like Google Earth, online services, offroad navigation, and instrument cluster tabs.
+
+**Telnet access:** The firmware already includes `inetd`, `telnetd`, `io-pkt-v4-hc`, and `devn-asix.so` (USB-Ethernet driver). Adding 4 lines to `start_network.sh` gives a root shell at `172.16.42.1` via a D-Link DUB-E100 adapter.
+
+See **[docs/FLASH_RUNBOOK.md](docs/FLASH_RUNBOOK.md)** for the complete step-by-step flashing guide, and **[research/FIRMWARE_UPDATE_FORMAT.md](research/FIRMWARE_UPDATE_FORMAT.md)** for the metainfo2.txt specification.
 
 ## Supported Vehicles
 
@@ -190,28 +210,40 @@ MMI3G-Toolkit/
 │   ├── long-coding/         # Live adaptation values display (GEM)
 │   └── per3-reader/         # OSGi DSI persistence bridge (alpha)
 ├── research/
-│   ├── ARCHITECTURE.md      # Decompiled Java UI framework (152 classes)
-│   ├── PER3_ADDRESS_MAP.md  # CAN/vehicle data address map
-│   ├── PER3_READER.md       # DSI persistence read paths + per3-reader design
-│   ├── F3S_FORMAT.md        # MMI3G EFS on-disk format notes
-│   ├── IFS_FORMAT.md        # QNX IFS format + Harman LZO quirk
-│   ├── FIRMWARE_UPDATE_FORMAT.md  # SWDL manifest, CRC32 verification, skipCrc bypass
-│   ├── HMI_ARCHITECTURE.md  # Boot sequence, 101-process graph, hook points
-│   ├── DSI_ARCHITECTURE.md  # DSI IPC class map (Proxy/Stub/Event pattern)
+│   ├── ENGINEERING_ACCESS.md       # 36 GEM controllers, 529 strings, full DSI key catalog
+│   ├── ESD_SCREEN_FORMAT.md        # GEM screen definition spec (7 widget types, 173 screens)
+│   ├── FSC_SIGNATURE_BYPASS.md     # 2-byte patch at 0x1B11F6 bypasses all FSC validation
+│   ├── FIRMWARE_UPDATE_FORMAT.md   # SWDL manifest, CRC32, skipCrc bypass
+│   ├── ARCHITECTURE.md             # Decompiled Java UI framework (152 classes)
+│   ├── DSI_ARCHITECTURE.md         # DSI IPC class map (Proxy/Stub/Event pattern)
+│   ├── HMI_ARCHITECTURE.md         # Boot sequence, 101-process graph, hook points
+│   ├── IFS_FORMAT.md               # QNX IFS format + Harman LZO quirk
+│   ├── F3S_FORMAT.md               # MMI3G EFS on-disk format notes
+│   ├── PER3_ADDRESS_MAP.md         # CAN/vehicle data address map
+│   ├── PER3_READER.md              # DSI persistence read paths + per3-reader design
 │   ├── IOACTIVE_V850_REFERENCE.md  # V850 IOC RE methodology
-│   └── custom-dash/         # Custom dashboard development guide
-├── tools/                   # Maintainer/dev tools (not shipped to SD)
+│   └── firmware-extracted/
+│       └── engdefs/                # 184 factory GEM screen definitions (.esd files)
+├── tools/                   # Firmware tools (not shipped to SD)
+│   ├── inflate_ifs.py       # Decompress LZO/UCL compressed IFS images
+│   ├── extract_qnx_ifs.py   # Extract files from a (decompressed) QNX IFS
+│   ├── build_ifs.py         # Construct QNX IFS from file tree (add/remove files)
+│   ├── patch_ifs.py         # Replace files in decompressed IFS (handles size changes)
+│   ├── repack_ifs.py        # Recompress IFS (byte-identical to Harman's lzo1x_999)
+│   ├── mu_crc_patcher.py    # Recompute/skip SWDL firmware CRCs
+│   ├── mu_repack.py         # One-command firmware modification pipeline
+│   ├── eol_modifier.py      # Unlock hidden features in lsd.jxe (Google Earth, etc.)
 │   ├── walk_f3s_efs.py      # List contents of an efs-system.efs image
 │   ├── extract_f3s_efs.py   # Extract filesystem from uncompressed EFS
 │   ├── extract_jars_from_efs.py    # Carve embedded JARs out of EFS
-│   ├── extract_qnx_ifs.py   # Extract files from a (decompressed) QNX IFS
 │   ├── inflate_qnx.py       # Inflate 'iwlyfmbp' wrapped binaries
-│   ├── inflate_ifs.py       # Decompress LZO/UCL compressed IFS images
-│   ├── mu_crc_patcher.py    # Recompute/skip SWDL firmware CRCs for modded images
 │   ├── verify_stubs_vs_dsi.py      # Check DSI stubs against real firmware
 │   └── retrofit.py          # platform.sh source-block applier
+├── examples/
+│   └── sh4-native/          # SH4 cross-compilation examples + README
 ├── app/                     # Web app (GitHub Pages)
 └── docs/
+    ├── FLASH_RUNBOOK.md     # Step-by-step firmware flashing guide
     ├── SUPPORTED_VEHICLES.md
     ├── CUSTOM_APPS.md       # Developer guide: 5 ways to run your own code
     └── CONTRIBUTING.md
