@@ -192,3 +192,38 @@ These signatures are used for the ExceptionList mechanism (separate
 from the RSA signature verification bypassed at 0x001B11F6).
 The FSC code 0004.XXYY maps navigation regions where XX=major
 and YY=minor variant (0x00-0x3F = 64 regions per major).
+
+## VW RNS 850 (K0711) — Patch Found
+
+The VW RNS 850 uses a completely different build of MMI3GApplication
+(9.9M bytes differ, 12KB size difference), but the same EscRsa
+verification pattern exists.
+
+### K0711 Patch Specification
+```
+Binary:       MMI3GApplication (MU9478, K0711)
+File size:    10,690,560 bytes
+
+File offset:  0x001B151A
+Virtual addr: 0x081F151A
+
+Original:     0B 40    (JSR @r0)
+Patched:      00 E0    (MOV #0, r0)
+
+Verify func:  0x080465E8
+```
+
+### Platform Comparison
+| Platform | Part # | Patch Offset | Verify Func | Byte Pattern |
+|----------|--------|:---:|:---:|:---:|
+| Audi MMI3G+ (K0942) | 8R0906961xx | 0x001B11F6 | 0x08046694 | 0b40a3650820338d |
+| VW RNS 850 (K0711) | DVDRNS850V711US | 0x001B151A | 0x080465E8 | 0b40a3650820338d |
+
+The byte pattern at the patch site is **identical** (`0b40a3650820338d`)
+across both platforms — same delay slot value, same TST, same BT/S.
+Only the file offset differs by +0x324 bytes.
+
+### Finding the offset in unknown builds
+Search for the byte sequence `0b 40 a3 65 08 20 33 8d` near the
+EscRsa_DecryptSignature format string. The JSR @r0 should be
+~0x400 bytes before the format string's literal pool entry.
