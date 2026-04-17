@@ -82,25 +82,113 @@ def scan_dirents(data):
     return entries
 
 
+def walk_iwlyfmbp_end(data, content_start, image_len):
+    """If the given offset has an iwlyfmbp filehdr, walk the block chain
+    and return the offset past the EOF cmphdr. Returns None if not wrapped
+    or if the walk fails.
+
+    We sanity-check each cmphdr against the file's declared blksize —
+    if usize/pusize exceed blksize, the chain has gone off the rails
+    (probably followed a bad 'next' pointer into subsequent-file data).
+    In that case we bail rather than blindly following pointers until we
+    coincidentally hit next==0 somewhere in garbage.
+    """
+    if content_start + 16 > image_len:
+        return None
+    if data[content_start:content_start + 8] != b'iwlyfmbp':
+        return None
+
+    filehdr_usize = struct.unpack_from('<I', data, content_start + 8)[0]
+    blksize = struct.unpack_from('<H', data, content_start + 12)[0]
+    if blksize not in (4096, 8192, 16384, 32768):
+        return None  # invalid blksize
+
+    off = content_start + 16  # past filehdr
+    blocks = 0
+    total_usize = 0
+    while off + 8 <= image_len:
+        prev = struct.unpack_from('<H', data, off)[0]
+        next_field = struct.unpack_from('<H', data, off + 2)[0]
+        pusize = struct.unpack_from('<H', data, off + 4)[0]
+        usize = struct.unpack_from('<H', data, off + 6)[0]
+
+        if next_field == 0:
+            # EOF marker — file ends right after this cmphdr
+            return off + 8
+
+        # Sanity: per-block uncompressed sizes cannot exceed blksize
+        if usize > blksize or pusize > blksize:
+            return None
+        # Sanity: 'next' points to next cmphdr and must be at least 9
+        # (cmphdr=8 + at least 1 compressed byte) and at most blksize+8
+        if next_field < 9 or next_field > blksize + 256:
+            return None
+
+        total_usize += usize
+        # Sanity: running total shouldn't exceed filehdr's declared usize
+        # (give a little slack — up to +1 blksize)
+        if total_usize > filehdr_usize + blksize:
+            return None
+
+        off += next_field
+        blocks += 1
+        if blocks > 8192:
+            return None
+    return None
+
+
+def drop_entries_inside_wrapped_blobs(entries, data):
+    """Some of our 'entries' are false positives: byte patterns inside
+    large QNX-deflate-wrapped binaries that happen to match the
+    08 00 00 NL ... 14 00 XX 8Y dirent signature. A huge file like
+    'dspwatch' (740 KB uncompressed, ~440 KB compressed) can contain
+    hundreds of these coincidences.
+
+    Strategy: sort by stat_off, walk forward; when a FILE entry's content
+    is iwlyfmbp-wrapped, compute its true end via the block chain. Any
+    subsequent entry that starts before that end is spurious — discard it.
+    The end-of-blob offset becomes the content_end for the wrapper file.
+    """
+    sorted_entries = sorted(entries, key=lambda e: e['stat_off'])
+    kept = []
+    skip_until = 0  # offset inside wrapped blob; entries before this are spurious
+    wrapped_end_of = {}  # stat_off -> true content_end
+
+    for e in sorted_entries:
+        if e['hdr_off'] < skip_until:
+            continue  # inside a previously-identified wrapped blob
+        kept.append(e)
+        if e['ftype'] == 'FILE':
+            content_start = e['stat_off'] + 20
+            true_end = walk_iwlyfmbp_end(data, content_start, len(data))
+            if true_end is not None:
+                wrapped_end_of[e['stat_off']] = true_end
+                skip_until = true_end
+    return kept, wrapped_end_of
+
+
 def compute_file_content_range(entries, data):
     """For each FILE entry, compute where its content begins and ends.
 
     Content starts right after the stat_s (stat_off + 20) and extends to
-    right before the next dirent header. If this is the last file in the
-    image, extends to end.
+    right before the next dirent header. If the file is a QNX-deflate
+    wrapped binary, use the block-chain end (which may be past the next
+    apparent dirent — those are false positives already filtered out).
     """
-    # Sort by stat_off
-    sorted_entries = sorted(entries, key=lambda e: e['stat_off'])
-    for idx, e in enumerate(sorted_entries):
+    entries, wrapped_end_of = drop_entries_inside_wrapped_blobs(entries, data)
+    for idx, e in enumerate(entries):
         content_start = e['stat_off'] + 20
-        if idx + 1 < len(sorted_entries):
-            content_end = sorted_entries[idx + 1]['hdr_off']
+        if idx + 1 < len(entries):
+            content_end = entries[idx + 1]['hdr_off']
         else:
             content_end = len(data)
+        # If wrapped, trust the block-chain end over the next-dirent heuristic
+        if e['stat_off'] in wrapped_end_of:
+            content_end = wrapped_end_of[e['stat_off']]
         e['content_start'] = content_start
         e['content_end'] = content_end
         e['content_size'] = content_end - content_start
-    return sorted_entries
+    return entries
 
 
 def main():
