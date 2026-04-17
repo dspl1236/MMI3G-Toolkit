@@ -1,5 +1,6 @@
-# Auto-generated on first run of inflate_qnx.py
+# Auto-generated on first run of inflate_qnx.py / inflate_ifs.py
 qnx_inflator
+qnx_ifs_decompress
 minilzo.c
 minilzo.h
 lzoconf.h

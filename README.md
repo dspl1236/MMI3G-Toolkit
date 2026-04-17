@@ -182,12 +182,16 @@ MMI3G-Toolkit/
 │   ├── PER3_ADDRESS_MAP.md  # CAN/vehicle data address map
 │   ├── PER3_READER.md       # DSI persistence read paths + per3-reader design
 │   ├── F3S_FORMAT.md        # MMI3G EFS on-disk format notes
+│   ├── IFS_FORMAT.md        # QNX IFS format + Harman LZO quirk
 │   ├── IOACTIVE_V850_REFERENCE.md  # V850 IOC RE methodology
 │   └── custom-dash/         # Custom dashboard development guide
 ├── tools/                   # Maintainer/dev tools (not shipped to SD)
 │   ├── walk_f3s_efs.py      # List contents of an efs-system.efs image
 │   ├── extract_f3s_efs.py   # Extract filesystem from uncompressed EFS
 │   ├── extract_jars_from_efs.py    # Carve embedded JARs out of EFS
+│   ├── extract_qnx_ifs.py   # Extract files from a (decompressed) QNX IFS
+│   ├── inflate_qnx.py       # Inflate 'iwlyfmbp' wrapped binaries
+│   ├── inflate_ifs.py       # Decompress LZO/UCL compressed IFS images
 │   ├── verify_stubs_vs_dsi.py      # Check DSI stubs against real firmware
 │   └── retrofit.py          # platform.sh source-block applier
 ├── app/                     # Web app (GitHub Pages)

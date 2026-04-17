@@ -94,3 +94,46 @@ Verified against MU9411 K0942_4 variant 41: 14/17 wrapped binaries
 inflate cleanly (the three failures are upstream `extract_f3s_efs.py`
 boundary issues, not inflator issues).
 
+## extract_qnx_ifs.py
+
+Walks the dirent chain of a (already-decompressed) QNX IFS image
+and extracts files to a directory with their full path preserved.
+Supports regular files, directories, symlinks, and device nodes.
+
+For **compressed** IFS images (the common case for MMI3G), pipe
+through `inflate_ifs.py` first — or just use `inflate_ifs.py`'s
+built-in `--extract` mode which does both steps.
+
+## inflate_ifs.py  +  qnx_ifs_decompress.c
+
+Decompresses QNX IFS images that are LZO1X- or UCL-NRV2B-compressed
+at the container level. MMI3G's `ifs-root.ifs` uses LZO; `ifs-emg.ifs`
+uses UCL. Standard `dumpifs` crashes on Harman's LZO streams because
+`lzo1x_decompress_safe` is too strict — we use the permissive
+`lzo1x_decompress` variant (approach pioneered by unbe/mmi-ifs).
+
+Format:
+- Startup section (startup_header + code + trailer) covers bytes 0
+  through `startup_size` — copied through verbatim
+- From `startup_size` onwards: chain of `(u16 BE length, payload)`
+  compressed chunks, each decompressing to ~64 KB
+- Chunk length 0 marks end of stream
+- Compression type is in `startup_header.flags1` bits 2-5 (2=LZO, 3=UCL)
+
+The C decompressor (`qnx_ifs_decompress.c`, ~140 lines) is built
+automatically on first use.
+
+```
+# Decompress only
+python3 tools/inflate_ifs.py ifs-root.ifs -o ifs-root.decomp
+
+# Decompress and extract to a directory (chains through extract_qnx_ifs.py)
+python3 tools/inflate_ifs.py ifs-root.ifs --extract outdir/
+```
+
+Verified on MU9411 K0942_4 variant 41:
+- `ifs-root.ifs`: LZO, 671 chunks → 104 MB uncompressed, 345 files
+  including `MMI3GApplication` (10.7 MB SH4 ELF), `MMI3GMedia`,
+  `MMI3GNavigation`, `MMI3GMisc`, `MMI3GTelephone`, and `NavCore`
+- `ifs-emg.ifs`: UCL, 161 files (emergency boot image)
+
