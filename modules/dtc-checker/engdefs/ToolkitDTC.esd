@@ -1,0 +1,76 @@
+#############################################
+#
+#   MMI3G-Toolkit DTC Checker
+#   Onboard Diagnostic Trouble Code Reader
+#   github.com/dspl1236/MMI3G-Toolkit
+#
+#############################################
+
+#######################################################
+#
+# SCREEN 1: All Qualified DTCs (main view)
+#
+#######################################################
+screen	DTC_Overview	Toolkit
+
+   table
+   content        per 2 0x00010003
+   label          "Active DTCs"
+    poll          5000
+	maxrows        20
+	orientation   horizontal 
+	columns ( "Code" String 120 ) ( "Status" String 80 ) ( "Name" String 400 )
+
+   button
+   value          per 2 0x00010008 ClearErrmem
+   label          "Clear All DTCs"
+   poll           0
+
+
+#######################################################
+#
+# SCREEN 2: Single DTC Detail
+#
+#######################################################
+screen	DTC_Detail	Toolkit
+
+   slider
+      value    per 2 0x00010001 0 100
+      label    "Select DTC #"
+      poll     1000
+
+   table
+   content        per 2 0x00010002
+   label          "DTC Detail"
+    poll          2000
+	maxrows        1
+	orientation   horizontal 
+	columns ( "ID" int 50 ) ( "Code" String 120 ) ( "Status" String 80 ) ( "!T" String 25 ) ( "S" String 25 ) ( "A" String 25 ) ( "L" String 25 ) ( "Description" String 300 )
+
+
+#######################################################
+#
+# SCREEN 3: DTC Test Controls
+#
+#######################################################
+screen	DTC_Control	Toolkit
+
+   slider
+      value    per 2 0x00010001 0 100
+      label    "Select DTC #"
+      poll     1000
+
+   button
+      value    per 2 0x00010006 ClearErrmem
+      label    "Send Test PASSED"
+      poll     0
+
+   button
+      value    per 2 0x00010007 ClearErrmem
+      label    "Send Test FAILED"
+      poll     0
+
+   button
+      value    per 2 0x00010008 ClearErrmem
+      label    "Clear Error Memory"
+      poll     0
