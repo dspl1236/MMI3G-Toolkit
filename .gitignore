@@ -4,3 +4,6 @@ __pycache__/
 # per3-reader: intermediate build outputs (jar itself IS tracked)
 modules/per3-reader/build/
 modules/per3-reader/build-jar/
+tools/qnx_ifs_compress
+tools/qnx_ifs_decompress
+tools/qnx_inflator
