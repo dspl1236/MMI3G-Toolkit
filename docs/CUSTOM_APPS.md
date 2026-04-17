@@ -205,7 +205,10 @@ If you're designing a new native module, reasonable starting points:
 - **DSI native client** — the proper answer to `per3-reader` Path A.
   Reverse-engineer the DSI IPC protocol from `libdsiservice.so` (visible
   in the extract), implement a 10 KB binary that speaks it, expose a
-  `per3_read` CLI. Faster than the Java bundle for batch dumps.
+  `per3_read` CLI. Faster than the Java bundle for batch dumps. See
+  [research/DSI_ARCHITECTURE.md](../research/DSI_ARCHITECTURE.md) for
+  the complete class map and the open questions that need answering
+  first.
 - **USB storage bridge** — read/write to USB mass-storage devices from
   user scripts. The driver is already there (`/sbin/io-usb`,
   `/sbin/io-fs-media`), you'd just need a small tool that wraps their
@@ -213,6 +216,37 @@ If you're designing a new native module, reasonable starting points:
 - **Backlight/fan/temperature monitor** — real-time SoC monitoring
   via `/dev/sysregs`. The driver exposes raw FPGA registers; a small
   C helper makes them legible.
+
+### Deployment path E: inflator-overlay injection
+
+A deployment mechanism worth mentioning explicitly because it's
+elegant and non-destructive. The running MMI launches `inflator` at
+boot with the invocation `inflator /mnt/efs-system/bin /mnt/efs-extended`
+— it's a QNX resource manager that decompresses iwlyfmbp files on
+demand.
+
+Because inflator is a standard resmgr, **you can run a second
+instance with a different overlay mapping**. If your second inflator
+mounts earlier in the path-lookup order, a process opening
+`/mnt/efs-extended/some-binary` would hit YOUR overlay first. Your
+overlay could:
+
+- Serve a patched/replacement binary from a different source (SD
+  card, `/HBpersistence`, tmpfs)
+- Leave unpatched paths passing through to the stock inflator
+- Unmount itself cleanly when the SD card is removed
+
+This is mechanism 5 territory (native code) rather than stock
+mechanism 4 (OSGi), but worth building only once the DSI native
+client works so the replacement binary has something to talk to.
+
+Critical caveat: QNX resmgr ordering depends on mount order, and
+mount order depends on where your startup hook runs relative to the
+stock inflator's invocation in `.script`. That constrains your
+options — you'd realistically need a helper shell script that the
+MMI auto-executes early enough, which means either patching
+`srv-starter.cfg` (dangerous) or exploiting an existing early-hook
+script.
 
 ### What NOT to do
 
@@ -240,6 +274,9 @@ When your custom app is ready, wrap it as a module:
 
 - [research/HMI_ARCHITECTURE.md](../research/HMI_ARCHITECTURE.md) — the
   101-process service graph
+- [research/DSI_ARCHITECTURE.md](../research/DSI_ARCHITECTURE.md) — the
+  DSI IPC class map (Proxy/Stub/Event pattern, RSU adapters, native
+  persistence API)
 - [research/PER3_READER.md](../research/PER3_READER.md) — case study of
   an OSGi bundle
 - [research/IFS_FORMAT.md](../research/IFS_FORMAT.md) — how to extract

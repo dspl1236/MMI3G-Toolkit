@@ -138,3 +138,27 @@ mmi_logstamp() {
     # Fall through: QNX date (may be since-boot on a cold MMI)
     date +%Y%m%d-%H%M%S 2>/dev/null
 }
+
+# Reclaim interlock helpers. mmi3g-flashctl runs F3S garbage collection
+# every 5 min against /HBpersistence; the /tmp/disableReclaim flag file
+# blocks it. Toolkit scripts that do multi-write operations against
+# /HBpersistence or /mnt/efs-system should call mmi_reclaim_hold at the
+# start of their critical section and rely on the EXIT trap to release
+# it. See research/F3S_FORMAT.md for details.
+#
+# Usage:
+#   mmi_reclaim_hold          # set flag + install trap
+#   ... critical writes ...
+#   mmi_reclaim_release       # optional early release before exit
+#
+# The trap handles the normal exit path, Ctrl-C, and SIGTERM. If a
+# script forgets to call release explicitly, the flag is still cleared
+# on script exit.
+mmi_reclaim_hold() {
+    touch /tmp/disableReclaim 2>/dev/null
+    trap 'rm -f /tmp/disableReclaim 2>/dev/null' EXIT INT TERM
+}
+
+mmi_reclaim_release() {
+    rm -f /tmp/disableReclaim 2>/dev/null
+}

@@ -95,6 +95,18 @@ fi
 echo "[INFO]  Source: ${SOURCE_JAR} ($(ls -la $SOURCE_JAR | awk '{print $5}') bytes)"
 echo ""
 
+# --- Reclaim interlock ---
+# mmi3g-flashctl runs F3S garbage collection every 5 min on /HBpersistence,
+# which hosts our DSITracer.jar target's content (lsd/ is symlinked from
+# efs-system into the persistence partition). An erase-cycle landing
+# mid-write could corrupt the partition. Set the interlock flag BEFORE
+# remounting rw, and trap so the flag is always removed on exit.
+# See research/F3S_FORMAT.md for the full mechanism.
+touch /tmp/disableReclaim
+trap '_rc=$?; rm -f /tmp/disableReclaim 2>/dev/null; mount -ur '"${EFSDIR}"' 2>/dev/null; exit $_rc' EXIT INT TERM
+echo "[OK]    /tmp/disableReclaim set (blocks mmi3g-flashctl reclaim)"
+echo ""
+
 # --- Remount efs-system rw ---
 mount -uw ${EFSDIR}
 if [ $? -ne 0 ]; then
@@ -128,6 +140,10 @@ echo ""
 
 sync
 mount -ur ${EFSDIR} 2>/dev/null
+# The trap will also remove /tmp/disableReclaim on exit, but do it
+# here explicitly so the window is as short as possible.
+rm -f /tmp/disableReclaim
+echo "[OK]    /tmp/disableReclaim cleared (reclaim re-enabled)"
 
 echo "============================================"
 echo " per3-reader installed"

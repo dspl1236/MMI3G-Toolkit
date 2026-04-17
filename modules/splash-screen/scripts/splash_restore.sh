@@ -64,6 +64,15 @@ fi
 
 echo "[OK]    Using backup: ${BACKUPDIR}"
 
+# Hold F3S reclaim for the duration of this script (see research/F3S_FORMAT.md)
+# Guarded: if platform.sh provided it, use it; otherwise inline the minimum.
+if command -v mmi_reclaim_hold >/dev/null 2>&1; then
+    mmi_reclaim_hold
+else
+    touch /tmp/disableReclaim 2>/dev/null
+    trap 'rm -f /tmp/disableReclaim 2>/dev/null' EXIT INT TERM
+fi
+
 mount -uw ${EFSDIR}
 
 echo "[ACTI]  Restoring splash screens..."

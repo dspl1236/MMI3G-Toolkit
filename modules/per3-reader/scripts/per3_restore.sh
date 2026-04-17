@@ -17,6 +17,10 @@ echo " $(date)"
 echo "============================================"
 echo ""
 
+# --- Reclaim interlock (see research/F3S_FORMAT.md) ---
+touch /tmp/disableReclaim
+trap '_rc=$?; rm -f /tmp/disableReclaim 2>/dev/null; mount -ur '"${EFSDIR}"' 2>/dev/null; exit $_rc' EXIT INT TERM
+
 mount -uw ${EFSDIR}
 if [ $? -ne 0 ]; then
     echo "[ERROR] Failed to remount ${EFSDIR} rw"
@@ -38,6 +42,7 @@ fi
 
 sync
 mount -ur ${EFSDIR} 2>/dev/null
+rm -f /tmp/disableReclaim
 
 echo ""
 echo "per3-reader uninstalled. Reboot MMI to take effect:"
