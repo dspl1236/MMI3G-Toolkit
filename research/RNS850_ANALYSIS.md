@@ -320,3 +320,93 @@ The patched class file needs to be:
 
 On HN+R (2016+) firmware where USB autorun is removed, a different
 entry vector would be needed (potentially through JTAG or HDD swap).
+
+## Full Update Package Structure (from metainfo2.txt)
+
+### Hardware Components Mapped
+
+| Component | Vendor | Description | Variants |
+|-----------|--------|-------------|----------|
+| AH6 | Harman/Becker | Audio Hub 6 | HW 0-4 |
+| AMP_LC_V | LEAR | Amplifier (ST10 + DSP) | HW 1 |
+| ARU9331 | Harman/Becker | Ring Unit (MOST, no DAB) | HW 41 |
+| ARU9333 | Harman/Becker | Ring Unit (MOST + DAB) | HW 41 |
+| ARU9438 | Harman/Becker | Ring Unit (MOST, new gen) | HW 41 |
+| ARU9440 | Harman/Becker | Ring Unit (MOST + DAB, new gen) | HW 41 |
+| DUA001 | Alpine | Display Unit ("10Touareg_Display") | HW 31-52 |
+| DVD | Harman/Becker | DVD Drive (FJ-TEN DV-05) | HW 14,28,50 |
+| DVDC_APN | Alpine | DVD Codec (app + mecha + boot) | HW 0-42 |
+| GEMMI | Harman/Becker | Google Earth MMI (nav viewer) | single |
+| IT | Harman/Becker | Internal Telephone (AC75 NAD) | HW 1-4 |
+| MuGPS | Harman/Becker | GPS Chip (U500 / G51) | HW 21-61 |
+| MuINIC | Harman/Becker | MOST Controller (OS81050) | HW 31-61 |
+| MuIOC | Harman/Becker | I/O Controller (V850) | HW 31-61 |
+| NGTV_DVB | Hirschmann | NextGen TV DVB Tuner | HW 4 |
+| TVHybrid | Hirschmann | Hybrid TV DVB Tuner (SDA6000 + MPEG) | HW 6-7 |
+| sss | Harman/Becker | Speech System (TTS + Recognition) | 21 languages |
+
+### Flash Memory Layout (MU9478)
+
+```
+0x00000000 - 0x0003F7DF  IPL (bootloader, 63KB)
+0x00040000 - 0x000F6410  FPGA (746KB)
+0x00100000 - 0x001BFFFF  Emergency FPGA (746KB)
+0x001C0000 - 0x0067FFFF  Emergency IFS (4.9MB)
+0x00680000 - 0x030FFFFF  IFS-root (43.5MB) ← MAIN OS
+0x03100000 - 0x03CFFFFF  EFS-extended (12MB) ← FSC.txt lives here
+0x03D00000 - 0x061FFFFF  EFS-system (38.8MB) ← Java classes here
+0x06200000 - 0x07DFFFFF  EFS-persist (30.4MB) ← /HBpersistence
+```
+
+### Three Hardware Variants
+
+| HW | IFS-root | EFS-system | Notes |
+|----|----------|------------|-------|
+| 31 | Same as 41 | Same as 41 | Links to HW41 |
+| 41 | 43.49MB | 38.80MB | Primary variant |
+| 51 | 43.49MB | 38.80MB (same as 41) | Different IFS |
+| 61 | 43.49MB | 38.80MB (different) | Newest HW |
+
+### VW FSC Definition (VWFSC.txt)
+
+Destination path: `/mnt/efs-extended/FSC.txt`
+
+Only **2 features** are FSC-protected on VW RNS 850:
+- **SWID 0004** = Navigation (database versions 0100, 0400-043f, 0700-073f)
+- **SWID 0006** = ISO Image Language CD
+
+8 AudiSignature MD5 hashes for validation.
+
+### GEMMI (Google Earth MMI)
+
+Embedded Google Earth 3D navigation viewer:
+- Binary: `gemmi_final` + `libembeddedearth.so` + `libmessaging.so`
+- Environment: `OEM=VW`
+- Memory: max 55MB, target 40MB
+- Regions: NAR=0, ASIA=1, ECE=2
+- Cache: `/mnt/img-cache/gemmi/` on QNX6 partition `/dev/hd0t187.3`
+- RSE (Rear Seat Entertainment) variant support
+- Auto-restarts 5x on crash, then reformats cache partition
+
+### Key Filesystem Paths
+
+```
+/fs/usb0           — USB drive mount point
+/fs/sd0, /fs/sd1   — SD card mount points
+/fs/cd0            — CD/DVD mount point
+/mnt/nav/          — Navigation data (GEMMI, map styles, TMC)
+/mnt/efs-system/   — EFS-system partition (Java classes)
+/mnt/efs-extended/ — EFS-extended partition (FSC.txt, tnrref.csv)
+/mnt/img-cache/    — HDD image cache partition
+/HBpersistence/    — Persistent storage (SWDL state, sqlite.xml)
+/database/         — Map archives (MMI3G_MapArchives.xar)
+/etc/hmi_country.txt — Region configuration
+```
+
+### Update Scripts
+
+The `finalScript` reveals the SWDL (Software Download) system:
+- Reads `/HBpersistence/SWDL/update.txt` for source and path info
+- Supports USB, SD1, SD2, CD sources
+- Can copy `sqlite.xml` to control GEM debug menus
+- Checksum-verified tool copying
