@@ -208,3 +208,36 @@ HN+R_EU_VW_P0824    — HN+R variant            ← MU9478.rar (not yet extracte
 - [ ] Map the GEM/engineering menu ESD screens
 - [ ] Check if per3 address map matches Audi MMI3G
 - [ ] Verify if the 2-byte patch works on the HN+R variant (which might use native EscRsa like Audi)
+
+## HN+R Variant Analysis (P0824, 2016 build)
+
+### CRITICAL: USB Autorun REMOVED in HN+R
+
+| Feature | HN+ (2012, P0534) | HN+R (2016, P0824) |
+|---------|:------------------:|:-------------------:|
+| copie_scr.sh | ✅ Present | ❌ **REMOVED** |
+| XOR seed 0x001be3ac | ✅ Present | ❌ **REMOVED** |
+| proc_scriptlauncher | ✅ Present | ❌ **REMOVED** |
+| BouncyCastle FSC | ✅ Java-based | ✅ Java-based |
+| EscRsa (native) | ❌ Not used | ❌ Not used |
+| Build ID | 9478 D1-12042A | 9478 D1-16243A |
+| IFS size | 43,608,784 | 43,486,868 |
+| Variants | 41 only | 41, 51, 61 |
+
+VW deliberately removed the proc_scriptlauncher USB autorun mechanism
+in the 2016 firmware update. This means:
+
+- **Pre-2016 Touaregs**: USB root access works (copie_scr.sh method)
+- **Post-2016 Touaregs**: USB root access is blocked
+- **All Touaregs**: FSC uses Java BouncyCastle, NOT native EscRsa
+- **Audi 2-byte patch**: Does NOT apply to any RNS 850 variant
+
+### Implications for Audi MMI3G
+
+If VW removed the USB autorun in 2016 RNS 850 firmware, Audi may have
+done the same in later MMI3G+ updates. The K0942 build we analyzed
+still has it, but newer Audi firmware builds should be checked.
+
+Porsche PCM 3.1 still has proc_scriptlauncher in the latest firmware
+(build 15245AS9, June 2015) — but Porsche stopped updating PCM 3.1
+before the vulnerability was patched.
