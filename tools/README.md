@@ -211,3 +211,30 @@ Verified: full decompress → recompress → decompress → extract
 round-trip on MU9411 K0942_4 variant 41. All 345 files including
 MMI3GApplication (10.7 MB), lsd.jxe (28 MB), and NavCore (6.8 MB)
 survive bit-identical.
+
+## rns850_fsc_patcher.py
+
+**BouncyCastle FSC signature bypass for VW RNS 850 (Touareg / Phaeton)**
+
+The RNS 850 uses Java BouncyCastle (de.audi.crypto.*) for FSC verification
+instead of the native EscRsa used by Audi MMI3G. This tool patches the
+`SignatureBlockProcessor.class` bytecode to skip hash verification.
+
+**The Patch**: A single byte change at offset 0x1FE8 in the class file:
+- `0xBB` (new — creates StringBuffer for error message)
+- → `0xB1` (return void — skip verification entirely)
+
+```bash
+# Analyze (find patch point, no modification)
+python3 tools/rns850_fsc_patcher.py efs-system.efs --analyze
+
+# Extract and patch the class file
+python3 tools/rns850_fsc_patcher.py efs-system.efs --extract-class -o /tmp/patch/
+```
+
+**Platform**: VW Touareg (7P), VW Phaeton — RNS 850 (HN+/HN+R)
+
+**Key findings**:
+- RSA-1024 key, public exponent = 17 (unusual)
+- Verification: RSA→AES-CBC decrypt→SHA1/MD5 hash compare
+- Only 2 FSC features: Navigation (SWID 0004) + ISO Language CD (SWID 0006)
