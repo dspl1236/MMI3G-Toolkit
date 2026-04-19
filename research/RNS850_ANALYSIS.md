@@ -410,3 +410,47 @@ The `finalScript` reveals the SWDL (Software Download) system:
 - Supports USB, SD1, SD2, CD sources
 - Can copy `sqlite.xml` to control GEM debug menus
 - Checksum-verified tool copying
+
+## RSA Key Cross-Platform Verification (April 19, 2026)
+
+### 🔑 CRITICAL FINDING: Same Key Across ALL Platforms
+
+The RSA-1024 key (e=17) extracted from SignatureBlockProcessor.class is
+**IDENTICAL** across all tested firmware variants:
+
+| Platform | Build | HW | Key Match |
+|----------|-------|-----|-----------|
+| Audi MMI3G | K0942_4 | HW41 | ✅ SAME |
+| Audi MMI3G | K0942_4 | HW61 | ✅ SAME |
+| Audi MMI3G | uploaded | HW41 | ✅ SAME |
+| VW RNS 850 | HN+ P0534 | HW41 | ✅ SAME |
+| VW RNS 850 | HN+R P0824 | HW41 | ✅ SAME |
+| VW RNS 850 | HN+R P0824 | HW61 | ✅ SAME |
+
+**Implications:**
+- rns850_fsc_patcher.py works on Audi MMI3G too (same Java class)
+- Single signing key for ALL Harman HN+ FSC verification
+- Harman used one key infrastructure across VW Group brands
+- The 1-byte patch applies universally across the platform family
+
+### CVALUE File Format Decoded
+
+CVALUE files store variant coding data in `/HBpersistence/`:
+- Filename: `CVALUE` + 8-hex-digit DID + `.CVA`
+- Structure: TLV records with key=value strings
+
+| DID | Size | Content |
+|-----|------|---------|
+| 0x021B | 9 bytes | Vehicle variant (binary) |
+| 0x03B3 | 149-172 bytes | Database versions (GDB, LABEL, SDB, SDS, etc.) |
+| 0x064D | 13 bytes | Navigation config ("LINK") |
+| 0x068C | 12 bytes | Variant coding extended 1 |
+| 0x068D | 12 bytes | Variant coding extended 2 |
+
+CHN variants use navigation keys (HEADER, MAP, POS, P_COM, P_MAIN, RP, SUB, UNIT).
+ARB variants use speech keys (GDB, LABEL, LIT, SDB, XAC, SDS, CITY).
+
+### Bootscreen Format (fw400)
+
+All fw400 bootscreens are **PNG files** with `.bin` extension (not raw RGB565).
+SubID 099 is the only JPEG. Total: 79 bootscreens in fw400.
