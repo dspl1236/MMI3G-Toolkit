@@ -181,7 +181,7 @@ The RNS 850 sits between the Audi MMI3G and Porsche PCM 3.1:
       K0942 (9411)       MU9478 (9478)     (15245AS9)
             │                 │                 │
       FSC + EscRsa       FSC + Java BC     PagSWAct + RSA-64
-      2-byte patch       Java patch?       Key derived
+      2-byte patch       1-byte patch ✅       Key derived
       SD card            USB stick         USB stick
       EFS screens        EFS screens       Compiled screens
 ```
@@ -201,13 +201,13 @@ HN+R_EU_VW_P0824    — HN+R variant            ← MU9478.rar (not yet extracte
 
 ## Next Steps
 
-- [ ] Extract the HN+R variant (P0824) and compare with HN+ (P0534)
-- [ ] Use Ghidra to disassemble IFS and find the native→Java FSC bridge
-- [ ] Extract Java class files from EFS and decompile FSC verification
+- [x] Extract the HN+R variant (P0824) and compare with HN+ (P0534)
+- [x] Decompile Java FSC verification from EFS (Ghidra not needed — CFR decompiler)
+- [x] Extract Java class files from EFS and decompile FSC verification
 - [ ] Test USB autorun on a real VW Touareg
 - [ ] Map the GEM/engineering menu ESD screens
-- [ ] Check if per3 address map matches Audi MMI3G
-- [ ] Verify if the 2-byte patch works on the HN+R variant (which might use native EscRsa like Audi)
+- [x] Confirmed: same RSA key across Audi and VW platforms
+- [x] Verified: HN+R does NOT use native EscRsa — Java BouncyCastle only
 
 ## HN+R Variant Analysis (P0824, 2016 build)
 
