@@ -241,3 +241,82 @@ still has it, but newer Audi firmware builds should be checked.
 Porsche PCM 3.1 still has proc_scriptlauncher in the latest firmware
 (build 15245AS9, June 2015) — but Porsche stopped updating PCM 3.1
 before the vulnerability was patched.
+
+## BouncyCastle FSC Bypass — BREAKTHROUGH (April 19, 2026)
+
+### RSA Key Extraction
+
+The RSA public key is hardcoded in `SignatureBlockProcessor.class`:
+
+```java
+static final String RSA_MODULUS = "AI2fepz64ZbVLru5KITtZkPSwHu0RDuAGDhh...";
+static final BigInteger RSA_PUBLIC_EXP = BigInteger.valueOf(17L);
+```
+
+Key properties:
+- **Modulus**: 1024-bit RSA (NOT factorable)
+- **Public exponent**: 17 (unusual — standard is 65537)
+- **Location**: `de/audi/tghu/development/jobs/SignatureBlockProcessor.class`
+- **Stored in**: EFS-system partition, first JAR at offset 0x418580
+
+### Verification Flow (Decompiled)
+
+```
+process()
+  ├── Check: MANIFEST.MF exists?
+  │     NO  → createUnsignedContent() ← BYPASS PATH!
+  │     YES → continue
+  ├── processSigner(zipFile, manifest, "META-INF/MANIFEST.SF")
+  │     ├── decrypt(sf_data, manifest_data)
+  │     │     ├── Extract "SF-Key" from manifest
+  │     │     ├── RSA decrypt SF-Key (modulus + e=17)
+  │     │     ├── Use decrypted key as AES-CBC key
+  │     │     └── Decrypt SF file with AES-CBC
+  │     ├── verifyManifestAndSignatureFile(manifest, decrypted_sf)
+  │     │     ├── Compute SHA1/MD5 of manifest
+  │     │     ├── Extract expected hash from SF
+  │     │     └── Compare → SecurityException if mismatch
+  │     └── populateMDResults(sf, signerInfo)
+  └── Return SignedContent
+```
+
+### Audi Crypto Package
+
+All extracted from EFS-system JAR:
+```
+de/audi/crypto/RSAEngine.class        (1,748 bytes) — processBlock()
+de/audi/crypto/PKCS1Encoding.class     (1,875 bytes) — PKCS1 padding
+de/audi/crypto/RSAKeyParameters.class  (481 bytes)   — key storage
+de/audi/crypto/AESEngine.class         (15,749 bytes) — AES encryption
+de/audi/crypto/CBCBlockCipher.class    (1,752 bytes) — CBC mode
+de/audi/crypto/KeyParameter.class      (427 bytes)   — key wrapper
+```
+
+### Bypass Approaches (Ranked)
+
+**Approach 1: Patch processSigner to skip verification** (SIMPLEST)
+- In `SignatureBlockProcessor.class`, replace `processSigner` method body
+  with just `return` (bytecode 0xB1)
+- Effect: FSCs import without any signature check
+- Risk: LOW — only affects FSC import, not system stability
+
+**Approach 2: Patch verifyManifestAndSignatureFile** (TARGETED)
+- Replace method body with `return` (0xB1)
+- RSA decryption still runs (for AES key), just hash check skipped
+- Effect: Allows tampered FSC files
+
+**Approach 3: Replace RSA_MODULUS with own key** (ELEGANT)
+- Generate RSA-1024 keypair with e=17
+- Replace the Base64 modulus string in the class file
+- Sign FSCs with our private key
+- Effect: Full FSC signing capability
+
+### Implementation Notes
+
+The patched class file needs to be:
+1. Reinserted into the EFS-system JAR
+2. EFS-system written back to flash
+3. This requires root access (copie_scr.sh on pre-2016 firmware)
+
+On HN+R (2016+) firmware where USB autorun is removed, a different
+entry vector would be needed (potentially through JTAG or HDD swap).
