@@ -131,13 +131,19 @@ const MODULES_DISPLAY = [
 ];
 
 const MODELS = [
-  { id: "a6c7", label: "A6/A7 C7" },
-  { id: "a4b85", label: "A4/A5 B8.5" },
-  { id: "a8d4", label: "A8 D4" },
-  { id: "q5", label: "Q5 8R" },
-  { id: "q7", label: "Q7 4L" },
-  { id: "rs", label: "RS4/RS5" },
-  { id: "rns850", label: "RNS-850" },
+  { id: "a6c7", label: "A6/A7 C7", brand: "audi", fsc: "escrsa" },
+  { id: "a4b85", label: "A4/A5 B8.5", brand: "audi", fsc: "escrsa" },
+  { id: "a8d4", label: "A8 D4", brand: "audi", fsc: "escrsa" },
+  { id: "q5", label: "Q5 8R", brand: "audi", fsc: "escrsa" },
+  { id: "q7", label: "Q7 4L", brand: "audi", fsc: "escrsa" },
+  { id: "rs", label: "RS4/RS5", brand: "audi", fsc: "escrsa" },
+  { id: "touareg", label: "Touareg 7P", brand: "vw", fsc: "bouncy" },
+  { id: "phaeton", label: "Phaeton", brand: "vw", fsc: "bouncy" },
+  { id: "cayenne", label: "Cayenne 958", brand: "porsche", fsc: "pagswact" },
+  { id: "panamera", label: "Panamera 970", brand: "porsche", fsc: "pagswact" },
+  { id: "macan", label: "Macan 95B", brand: "porsche", fsc: "pagswact" },
+  { id: "911", label: "911 991", brand: "porsche", fsc: "pagswact" },
+  { id: "boxster", label: "Boxster/Cayman 981", brand: "porsche", fsc: "pagswact" },
 ];
 
 const CAT_COLORS = { system: "#f59e0b", gem: "#10b981", visual: "#8b5cf6", nav: "#3b82f6", diag: "#6b7280", net: "#ef4444" };
@@ -743,12 +749,15 @@ function App() {
           ),
 
           React.createElement("div", { style: { marginTop: 12, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Requirements"),
-            React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 10, color: "#777", lineHeight: 1.7 } },
-              React.createElement("li", null, "32GB SDHC card (not SDXC)"),
-              React.createElement("li", null, "FAT32 format (use Windows, not macOS)"),
-              React.createElement("li", null, "MMI fully booted before SD insert"),
-              !chromium && React.createElement("li", { style: { color: "#e84a6a" } }, "Chrome/Edge for direct-to-SD write")
+            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Platform Family"),
+            React.createElement("div", { style: { fontSize: 10, color: "#666", lineHeight: 1.7, fontFamily: "IBM Plex Mono" } },
+              "All vehicles share the Harman HN+ platform: QNX 6.3.2, SH4 CPU, copie_scr.sh autorun.",
+              React.createElement("br"),
+              React.createElement("span", { style: { color: "#e84a6a" } }, "Audi"), " → EscRsa (2-byte patch) · ",
+              React.createElement("span", { style: { color: "#3b82f6" } }, "VW"), " → BouncyCastle (1-byte patch) · ",
+              React.createElement("span", { style: { color: "#f59e0b" } }, "Porsche"), " → PagSWAct (RSA-64 derived)",
+              React.createElement("br"),
+              "RSA key (1024-bit, e=17) shared across all brands."
             )
           )
         )
