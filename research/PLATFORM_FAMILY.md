@@ -109,3 +109,23 @@ PCM-Forge (github.com/dspl1236/PCM-Forge)
   ├── Firmware variant analysis
   └── USB stick builder (web + desktop)
 ```
+
+## MHIG (MIB High G) — Next Generation (Out of Scope)
+
+The MHIG represents the architectural break from the HN+ platform:
+
+| Property | HN+ (MMI3G/RNS850/PCM3.1) | MHIG (MIB High G) |
+|----------|:--------------------------:|:------------------:|
+| CPU | SH4 (SH7785) | ARM |
+| OS | QNX 6.3.2 only | QNX + Linux dual-OS |
+| App layer | QNX native | 716MB Linux filesystem |
+| IFS format | Standard IFS | CIFS (Compressed IFS) |
+| USB autorun | copie_scr.sh + XOR | **REMOVED** |
+| FSC | Native/Java RSA | DSI-based structured API |
+| Firmware ID | MMX1 (MMX gen 1) | — |
+
+Analyzed firmware: `MHIG_US_AU_K2019 MU0406 8V0906961AF` (Audi A3, 2014)
+
+The copie_scr.sh autorun mechanism does not exist on MHIG — this is
+where the HN+ platform family ends and a new generation begins.
+The MMI3G-Toolkit is not applicable to MHIG or later platforms.
