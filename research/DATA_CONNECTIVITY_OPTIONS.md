@@ -86,15 +86,43 @@ compiled in. Would need to check available Bluetooth profiles.
 **To verify:** Check `pidin ar | grep bluetooth` and look for PAN-related
 binaries or check `/etc/bluetooth/` config files in a future system-info dump.
 
-## Option 4: WiFi Client Mode (Theoretical)
+## Option 4: WiFi Client Mode (Repurpose Built-in WiFi)
 
-The MMI has a WiFi chip (uap0 interface) but it operates as an
-Access Point (AP mode), not a client. It broadcasts 192.168.1.1
-but cannot connect TO other WiFi networks.
+The MMI has a Marvell 88W8688 WiFi chip. Currently it runs as an
+Access Point (192.168.1.1). Could we flip it to client mode and
+connect directly to a phone hotspot — eliminating external hardware?
 
-**Status:** Would require changing WiFi driver mode from AP to client.
-Possible with QNX WiFi driver reconfiguration but risky — could
-break the existing WiFi AP functionality.
+**The chip supports it** — the 88W8688 handles both AP and STA modes.
+
+**But the software doesn't:**
+```
+What's in the firmware:
+  devnp-mv8688uap.so    ← AP-only driver ("uap" = micro Access Point)
+  sd8688_ap.bin          ← AP-only chip firmware
+  helper_sd.bin          ← SDIO helper
+
+What's MISSING for client mode:
+  devnp-mv8688.so        ← STA/client mode driver (doesn't exist)
+  sd8688.bin              ← STA mode chip firmware (not included)
+  wpa_supplicant          ← WPA2 client auth (not in QNX build)
+  DHCP client on wlan     ← need dhclient on WiFi interface
+```
+
+**To make this work would require:**
+1. Find sd8688.bin STA firmware from Marvell SDK or Linux sources
+2. Build or find a QNX 6.3 SH4 client-mode WiFi driver
+3. Port wpa_supplicant to QNX 6.3.2 SH4
+4. Configure DHCP client on the WiFi interface
+
+**Status:** Hardware capable, software not present. Major project —
+would need QNX 6.3 development tools (Momentics) and Marvell SDK.
+Not practical as a quick fix, but could be a long-term community
+project. If successful, it would eliminate ALL external hardware —
+just phone hotspot → MMI WiFi client → GEMMI tiles.
+
+**Risk:** Switching the WiFi chip to client mode would disable the
+built-in hotspot AP. Could break existing WiFi-based diagnostics
+and DrGER's LAN scripts that use the uap0 interface.
 
 ## Recommended Setup
 
