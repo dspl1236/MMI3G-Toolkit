@@ -9,6 +9,12 @@ DUMP="${SDPATH}/dump_${TS}"
 LOG="${SDPATH}/var/persist_dump_${TS}.log"
 
 mkdir -p "${DUMP}/HBpersistence" "${DUMP}/efs_persist" "${DUMP}/shmem" "${DUMP}/coding" "${SDPATH}/var" 2>/dev/null
+
+# Show status on MMI screen if showScreen available
+if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
+    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null
+fi
+
 exec > ${LOG} 2>&1
 
 echo "============================================"

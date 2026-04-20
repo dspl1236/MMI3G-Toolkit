@@ -4,7 +4,14 @@
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
         "copie_scr_plain_sh": "core/copie_scr_plain.sh",
-        "uninstall_sh": "core/uninstall.sh"
+        "uninstall_sh": "core/uninstall.sh",
+        "showScreen": "core/bin/showScreen"
+    },
+    "proven_on": {
+        "train": "HN+R_US_AU_K0942_3",
+        "muver": "MMI3GP",
+        "sd_path": "/mnt/sdcard10t12",
+        "date": "2024-04-23"
     },
     "modules": {
         "can-scanner": {
@@ -61,20 +68,16 @@
                     "size": 926
                 },
                 {
-                    "path": "module.json",
-                    "size": 1449
-                },
-                {
                     "path": "scripts/scan_log.sh",
-                    "size": 1915
+                    "size": 3643
                 },
                 {
                     "path": "scripts/scan_shmem.sh",
-                    "size": 981
+                    "size": 2709
                 },
                 {
                     "path": "scripts/scanner_install.sh",
-                    "size": 3914
+                    "size": 5987
                 }
             ]
         },
@@ -94,10 +97,6 @@
                 {
                     "path": "diag-tool.jar",
                     "size": 23061
-                },
-                {
-                    "path": "module.json",
-                    "size": 1021
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/DiagApp.java",
@@ -142,7 +141,7 @@
             "description": "Java game launcher for MMI3G \u2014 run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
             "standalone": false,
             "run_script": null,
-            "script_dir": "/scripts/game-loader",
+            "script_dir": null,
             "installs_to_flash": true,
             "compatible": [
                 "MMI3G",
@@ -179,16 +178,12 @@
                     "size": 45
                 },
                 {
-                    "path": "module.json",
-                    "size": 1374
-                },
-                {
                     "path": "scripts/game_install.sh",
-                    "size": 2459
+                    "size": 4532
                 },
                 {
                     "path": "scripts/game_loader.sh",
-                    "size": 3734
+                    "size": 5462
                 },
                 {
                     "path": "scripts/launch_game.sh",
@@ -222,12 +217,8 @@
                     "size": 1037
                 },
                 {
-                    "path": "module.json",
-                    "size": 1029
-                },
-                {
                     "path": "scripts/diskinfo.sh",
-                    "size": 596
+                    "size": 2324
                 },
                 {
                     "path": "scripts/dnscheck.sh",
@@ -235,7 +226,7 @@
                 },
                 {
                     "path": "scripts/fullreport.sh",
-                    "size": 1586
+                    "size": 3314
                 },
                 {
                     "path": "scripts/ifconfig.sh",
@@ -243,11 +234,11 @@
                 },
                 {
                     "path": "scripts/netstatus.sh",
-                    "size": 695
+                    "size": 2423
                 },
                 {
                     "path": "scripts/proclist.sh",
-                    "size": 377
+                    "size": 2105
                 },
                 {
                     "path": "scripts/routetable.sh",
@@ -255,11 +246,11 @@
                 },
                 {
                     "path": "scripts/snapshot.sh",
-                    "size": 1707
+                    "size": 3435
                 },
                 {
                     "path": "scripts/syslog.sh",
-                    "size": 356
+                    "size": 2084
                 }
             ]
         },
@@ -277,20 +268,28 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 1474
+                    "path": "engdefs/ToolkitDiag.esd",
+                    "size": 1046
+                },
+                {
+                    "path": "engdefs/ToolkitMain.esd",
+                    "size": 1425
+                },
+                {
+                    "path": "engdefs/ToolkitSWDL.esd",
+                    "size": 1052
                 },
                 {
                     "path": "scripts/gem_disable.sh",
-                    "size": 2991
+                    "size": 5064
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 5756
+                    "size": 6898
                 },
                 {
                     "path": "scripts/gem_status.sh",
-                    "size": 2389
+                    "size": 4117
                 }
             ]
         },
@@ -299,7 +298,7 @@
             "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u2014 the first step toward custom MMI menu entries",
             "standalone": true,
             "run_script": "jvm_extract.sh",
-            "script_dir": "/scripts/jvm-extract",
+            "script_dir": null,
             "installs_to_flash": false,
             "compatible": [
                 "MMI3G",
@@ -308,12 +307,8 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 1565
-                },
-                {
                     "path": "scripts/jvm_extract.sh",
-                    "size": 12343
+                    "size": 15311
                 }
             ]
         },
@@ -322,7 +317,7 @@
             "description": "Display current long-coding / adaptation values for each configurable MMI feature. Read-only display module \u2014 for safe editing use VCDS or ODIS.",
             "standalone": false,
             "run_script": null,
-            "script_dir": "/scripts/long-coding",
+            "script_dir": null,
             "installs_to_flash": true,
             "compatible": [
                 "MMI3G",
@@ -343,20 +338,16 @@
                     "size": 1217
                 },
                 {
-                    "path": "module.json",
-                    "size": 1353
-                },
-                {
                     "path": "scripts/coding_changelog.sh",
-                    "size": 1490
+                    "size": 3218
                 },
                 {
                     "path": "scripts/coding_dump.sh",
-                    "size": 2803
+                    "size": 7833
                 },
                 {
                     "path": "scripts/coding_install.sh",
-                    "size": 2549
+                    "size": 4622
                 }
             ]
         },
@@ -373,20 +364,16 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 1092
-                },
-                {
                     "path": "scripts/lte_restore.sh",
-                    "size": 1753
+                    "size": 3826
                 },
                 {
                     "path": "scripts/lte_setup.sh",
-                    "size": 7810
+                    "size": 9883
                 },
                 {
                     "path": "scripts/lte_status.sh",
-                    "size": 2727
+                    "size": 4455
                 }
             ]
         },
@@ -404,12 +391,8 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 1261
-                },
-                {
                     "path": "scripts/map_parse.sh",
-                    "size": 6132
+                    "size": 7860
                 }
             ]
         },
@@ -427,20 +410,16 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 932
-                },
-                {
                     "path": "scripts/nav_restore.sh",
-                    "size": 1924
+                    "size": 4680
                 },
                 {
                     "path": "scripts/nav_status.sh",
-                    "size": 3062
+                    "size": 4790
                 },
                 {
                     "path": "scripts/nav_unblocker.sh",
-                    "size": 6073
+                    "size": 8030
                 }
             ]
         },
@@ -458,21 +437,17 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 1455
-                },
-                {
                     "path": "scripts/password_dump.sh",
-                    "size": 6836
+                    "size": 8564
                 }
             ]
         },
-        "splash-screen": {
-            "status": "ready",
-            "description": "Custom boot splash screen installer - upload any image, auto-formatted to 800x480 PNG via the desktop app",
+        "per3-reader": {
+            "status": "alpha",
+            "description": "Read per3 / DSI persistence values from shell scripts. Ships an OSGi bundle that installs into the DSITracer.jar slot on /mnt/efs-system/lsd/ \u2014 on MMI boot, the bundle registers as a DSIPersistenceListener and serves synchronous reads through a file-based trigger mechanism. Answers the long-standing 'how do I read per3 addresses without writing a Java GEM screen' question.",
             "standalone": true,
-            "run_script": "splash_install.sh",
-            "script_dir": "/scripts/Splash",
+            "run_script": "per3_install.sh",
+            "script_dir": "/scripts/Per3Reader",
             "installs_to_flash": true,
             "compatible": [
                 "MMI3G",
@@ -481,26 +456,114 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 973
+                    "path": "MANIFEST.MF",
+                    "size": 368
                 },
                 {
-                    "path": "scripts/splash_install.sh",
-                    "size": 2938
+                    "path": "build.sh",
+                    "size": 3178
                 },
                 {
-                    "path": "scripts/splash_restore.sh",
-                    "size": 1038
+                    "path": "per3-reader.jar",
+                    "size": 9411
+                },
+                {
+                    "path": "scripts/per3_install.sh",
+                    "size": 6106
+                },
+                {
+                    "path": "scripts/per3_read.sh",
+                    "size": 2592
+                },
+                {
+                    "path": "scripts/per3_restore.sh",
+                    "size": 1525
+                },
+                {
+                    "path": "src/de/dspl/per3reader/Activator.java",
+                    "size": 5919
+                },
+                {
+                    "path": "src/de/dspl/per3reader/Per3Reader.java",
+                    "size": 6871
+                },
+                {
+                    "path": "src/de/dspl/per3reader/TriggerLoop.java",
+                    "size": 6805
+                },
+                {
+                    "path": "src/de/dspl/per3reader/test/MockDSIPersistence.java",
+                    "size": 5843
+                },
+                {
+                    "path": "src/de/dspl/per3reader/test/TestMain.java",
+                    "size": 8616
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/admin/JDSIAdmin.java",
+                    "size": 433
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/base/DSIBase.java",
+                    "size": 291
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/base/DSIFatalException.java",
+                    "size": 181
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/base/DSIListener.java",
+                    "size": 60
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/base/DSINonFatalException.java",
+                    "size": 190
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/persistence/DSIPersistence.java",
+                    "size": 6560
+                },
+                {
+                    "path": "src/stubs/org/dsi/ifc/persistence/DSIPersistenceListener.java",
+                    "size": 3289
+                },
+                {
+                    "path": "src/stubs/org/osgi/framework/BundleActivator.java",
+                    "size": 411
+                },
+                {
+                    "path": "src/stubs/org/osgi/framework/BundleContext.java",
+                    "size": 801
+                },
+                {
+                    "path": "src/stubs/org/osgi/framework/InvalidSyntaxException.java",
+                    "size": 164
+                },
+                {
+                    "path": "src/stubs/org/osgi/framework/ServiceReference.java",
+                    "size": 135
+                },
+                {
+                    "path": "src/stubs/org/osgi/framework/ServiceRegistration.java",
+                    "size": 130
+                },
+                {
+                    "path": "src/stubs/org/osgi/util/tracker/ServiceTracker.java",
+                    "size": 491
+                },
+                {
+                    "path": "src/stubs/org/osgi/util/tracker/ServiceTrackerCustomizer.java",
+                    "size": 316
                 }
             ]
         },
-        "system-info": {
-            "status": "ready",
-            "description": "One-shot system information reporter - dumps comprehensive MMI3G state to SD card on insert. Non-destructive, installs nothing to flash.",
-            "standalone": true,
-            "run_script": "sysinfo_dump.sh",
-            "script_dir": "/scripts/SystemInfo",
-            "installs_to_flash": false,
+        "per3-writer": {
+            "status": "design",
+            "description": "Write DSI persistence values from shell scripts via OSGi bundle. Enables GEM activation, coding changes, and feature configuration entirely from SD card \u2014 no VCDS/ODIS needed.",
+            "standalone": false,
+            "run_script": null,
+            "script_dir": null,
+            "installs_to_flash": true,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -508,35 +571,8 @@
             ],
             "files": [
                 {
-                    "path": "module.json",
-                    "size": 1272
-                },
-                {
-                    "path": "scripts/sysinfo_dump.sh",
-                    "size": 9690
-                }
-            ]
-        },
-        "variant-dump": {
-            "status": "ready",
-            "description": "Comprehensive adaptation and coding extraction \u2014 dumps all known per3 car-function, car-device, and CAN-assignment addresses to a structured SD card report. Read-only.",
-            "standalone": true,
-            "run_script": "variant_dump.sh",
-            "script_dir": "/scripts/VariantDump",
-            "installs_to_flash": false,
-            "compatible": [
-                "MMI3G",
-                "MMI3G+",
-                "RNS-850"
-            ],
-            "files": [
-                {
-                    "path": "module.json",
-                    "size": 1557
-                },
-                {
-                    "path": "scripts/variant_dump.sh",
-                    "size": 8853
+                    "path": "README.md",
+                    "size": 2750
                 }
             ]
         },
@@ -556,6 +592,67 @@
                 {
                     "path": "scripts/persist_dump.sh",
                     "size": 3690
+                }
+            ]
+        },
+        "splash-screen": {
+            "status": "ready",
+            "description": "Custom boot splash screen installer - upload any image, auto-formatted to 800x480 PNG via the desktop app",
+            "standalone": true,
+            "run_script": "splash_install.sh",
+            "script_dir": "/scripts/Splash",
+            "installs_to_flash": true,
+            "compatible": [
+                "MMI3G",
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "scripts/splash_install.sh",
+                    "size": 5011
+                },
+                {
+                    "path": "scripts/splash_restore.sh",
+                    "size": 3111
+                }
+            ]
+        },
+        "system-info": {
+            "status": "ready",
+            "description": "One-shot system information reporter - dumps comprehensive MMI3G state to SD card on insert. Non-destructive, installs nothing to flash.",
+            "standalone": true,
+            "run_script": "sysinfo_dump.sh",
+            "script_dir": "/scripts/SystemInfo",
+            "installs_to_flash": false,
+            "compatible": [
+                "MMI3G",
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "scripts/sysinfo_dump.sh",
+                    "size": 11418
+                }
+            ]
+        },
+        "variant-dump": {
+            "status": "ready",
+            "description": "MMI identification + configuration dumper \u2014 captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
+            "standalone": true,
+            "run_script": "variant_dump.sh",
+            "script_dir": "/scripts/VariantDump",
+            "installs_to_flash": false,
+            "compatible": [
+                "MMI3G",
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "scripts/variant_dump.sh",
+                    "size": 9769
                 }
             ]
         }

@@ -337,6 +337,17 @@ async function buildSdBundle(selected, onProgress) {
   const uninstallSh = await fetchBinary(rawBase + manifest.core_files.uninstall_sh);
   step("Fetched uninstall.sh");
 
+  // Fetch showScreen binary (proven SH4 QNX tool for displaying PNGs on MMI)
+  let showScreenBin = null;
+  if (manifest.core_files.showScreen) {
+    try {
+      showScreenBin = await fetchBinary(rawBase + manifest.core_files.showScreen);
+      step("Fetched showScreen");
+    } catch (e) {
+      console.warn("showScreen not available:", e);
+    }
+  }
+
   // --- Module files (parallel fetches per module) ---
   const files = [];
   files.push({ path: "copie_scr.sh", bytes: encodedCopie });
@@ -367,6 +378,9 @@ async function buildSdBundle(selected, onProgress) {
   files.push({ path: "run.sh", bytes: new TextEncoder().encode(runSh) });
 
   // --- Placeholder dirs so bin/ lib/ var/ exist even if empty ---
+  if (showScreenBin) {
+    files.push({ path: "bin/showScreen", bytes: showScreenBin });
+  }
   files.push({ path: "bin/.keep", bytes: new Uint8Array(0) });
   files.push({ path: "lib/.keep", bytes: new Uint8Array(0) });
   files.push({ path: "var/.keep", bytes: new Uint8Array(0) });
