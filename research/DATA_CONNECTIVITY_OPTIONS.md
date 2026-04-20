@@ -11,7 +11,10 @@ data connectivity to fetch satellite tiles.
 ## Hardware Already Available
 
 - **TP-Link TL-MR3020** — Andrew's existing travel router (purchased 2024)
-- **D-Link DUB-E100** — USB ethernet adapter (DrGER's standard recommendation)
+- **UGREEN USB to Ethernet (AX88772D)** — Andrew's existing USB ethernet adapter
+  - QNX has native devn-asix.so driver for AX88772/A/B
+  - AX88772D may work but is untested — D revision not listed in QNX docs
+  - If it doesn't work, D-Link DUB-E100 is the confirmed-compatible fallback
 - **DrGER LAN setup** — already installed on Andrew's A6 (usedhcp + DLinkReplacesPPP flags set)
 
 ## Option 1: Phone WiFi Hotspot (No SIM card needed)
