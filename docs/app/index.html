@@ -61,9 +61,9 @@ class MMI3GCipher {
 const MANIFEST_URL = "./manifest.json";
 const MODULES_DISPLAY = [
   { id: "gem-activator", name: "GEM Activator", status: "ready",
-    desc: "GEM infrastructure setup — flipping the enable bit still needs VCDS (address 5F channel 6 = 1)",
+    desc: "Enable the Green Engineering Menu from SD card — creates /HBpersistence/DBGModeActive. No VCDS needed!",
     compat: ["3G", "3G+", "RNS-850"], category: "system",
-    prereq: null, detail: "Sets adaptation 5F channel 6 = 1 via persistent flash write. Prerequisite for all GEM screen modules." },
+    prereq: null, detail: "Creates the DBGModeActive file marker checked by both Audi MMI3G and Porsche PCM3 firmware. Reboot after running to activate GEM. Confirmed on Cayenne 958 PCM 3.1." },
   { id: "gauges-dashboard", name: "Gauges Dashboard", status: "ready",
     desc: "Live telemetry — voltage, GPS, system info, data logging",
     compat: ["3G", "3G+", "RNS-850"], category: "gem",
