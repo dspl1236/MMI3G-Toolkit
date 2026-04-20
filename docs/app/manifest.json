@@ -620,7 +620,7 @@
         },
         "system-info": {
             "status": "ready",
-            "description": "One-shot system information reporter - dumps comprehensive MMI3G state to SD card on insert. Non-destructive, installs nothing to flash.",
+            "description": "Comprehensive system diagnostic \u2014 gathers identity, activations, credentials, storage, network, persistence state, and backs up key files to SD card. Single pass, no flash writes.",
             "standalone": true,
             "run_script": "sysinfo_dump.sh",
             "script_dir": "/scripts/SystemInfo",
@@ -633,7 +633,7 @@
             "files": [
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 11418
+                    "size": 11813
                 }
             ]
         },

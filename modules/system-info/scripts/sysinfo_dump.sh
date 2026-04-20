@@ -1,369 +1,347 @@
 #!/bin/ksh
 # ============================================================
-# MMI3G System Information Reporter
-# One-shot comprehensive dump of MMI system state to SD card
+# MMI3G-Toolkit — Comprehensive System Diagnostic
+# Single-pass data gathering: system state, activations,
+# backups, credentials, variant ID, and CAN/persistence state
+#
+# Runs entirely from SD card. No flash writes.
+# Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 # ============================================================
-#
-# This module does NOT install anything to flash. It runs on
-# SD insert, collects system data, writes it to the SD card,
-# and you're done. Safe and non-destructive.
-#
-# Inspired by DrGER2/MMI3G-Info (mmi3ginfo3)
-#
-# Output: var/sysinfo-YYYYMMDD-HHMMSS.txt on SD card
-# ============================================================
-
-# --- platform.sh (shared variant detection + getTime helper) ---
-# Defines MMI_VARIANT / MMI_VARIANT_ID / MMI_TRAIN and mmi_logstamp().
-# Must be sourced before any code that calls mmi_logstamp.
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
-if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
-    . "${_SDPATH_GUESS}/scripts/common/platform.sh"
-elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
-    . "/mnt/efs-system/scripts/common/platform.sh"
-else
-    # Inline minimal fallback (DrGER2 review corrections applied)
-    MMI_VARIANT="UNKNOWN"; MMI_VARIANT_ID=""
-    for _f in /etc/pci-3g_*.cfg; do
-        [ -f "$_f" ] || continue
-        MMI_VARIANT_ID="$(echo "$_f" | sed -n 's,^/etc/pci-3g_\([0-9]*\)\.cfg$,\1,p')"
-        case "$MMI_VARIANT_ID" in
-            9304) MMI_VARIANT="MMI3G_BASIC" ;;
-            9308) MMI_VARIANT="MMI3G_HIGH" ;;
-            9411|9436|9478) MMI_VARIANT="MMI3GP" ;;
-        esac
-        break
-    done
-    MMI_TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
-    [ -z "$MMI_TRAIN" ] && MMI_TRAIN="$(sloginfo -m 10000 -s 5 2>/dev/null | sed -n 's/^.* +++ Train //p' | sed -n 1p)"
-    [ -z "$MMI_TRAIN" ] && MMI_TRAIN="n/a"
-    if [ "$MMI_VARIANT" = "MMI3GP" ] && echo "$MMI_TRAIN" | grep -q "_VW_"; then
-        MMI_VARIANT="RNS850"
-    fi
-    mmi_logstamp() {
-        if command -v getTime >/dev/null 2>&1; then
-            _T="$(getTime 2>/dev/null)"
-            [ -n "$_T" ] && { date -r "$_T" +%Y%m%d-%H%M%S 2>/dev/null || echo "epoch-$_T"; return 0; }
-        fi
-        date +%Y%m%d-%H%M%S 2>/dev/null
-    }
-    mmi_getTime() {
-        if command -v getTime >/dev/null 2>&1; then getTime 2>/dev/null; else date +%s 2>/dev/null; fi
-    }
-fi
-# --- end platform.sh source ---
 
 SDPATH="${1:-$(dirname $0)}"
-TIMESTAMP=$(mmi_logstamp)
-OUTDIR="${SDPATH}/var/sysinfo"
-OUTFILE="${OUTDIR}/sysinfo-${TIMESTAMP}.txt"
+TS=$(date +%H%M%S 2>/dev/null || echo "000000")
 
-mkdir -p ${OUTDIR}
+# Use getTime if available (QNX epoch timestamp)
+if command -v getTime >/dev/null 2>&1; then
+    EPOCH=$(getTime 2>/dev/null)
+    TS="epoch-${EPOCH}"
+fi
 
-# Also capture individual files for easy parsing
-FILESDIR="${OUTDIR}/${TIMESTAMP}"
-mkdir -p ${FILESDIR}
+OUTDIR="${SDPATH}/var/sysinfo/${TS}"
+REPORT="${SDPATH}/var/sysinfo/sysinfo-${TS}.txt"
+BACKUP="${SDPATH}/var/backup"
+
+mkdir -p "${OUTDIR}" "${BACKUP}" "${SDPATH}/var" 2>/dev/null
+
+# Show status on screen if showScreen available
+if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/diag.png" ]; then
+    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/diag.png" 2>/dev/null &
+fi
 
 {
 echo "################################################################"
 echo "#  MMI3G-Toolkit System Information Report"
-echo "#  Generated: $(date)"
-echo "#  Host: $(hostname 2>/dev/null || echo 'unknown')"
+echo "#  Generated: $(date 2>/dev/null)"
+echo "#  Host: $(hostname 2>/dev/null || echo unknown)"
 echo "################################################################"
-echo ""
 
-# === IDENTITY ===
+# ============================================================
+# 1. SYSTEM IDENTITY
+# ============================================================
+echo ""
 echo "================================================================"
 echo "  1. SYSTEM IDENTITY"
 echo "================================================================"
-echo ""
 
+echo ""
 echo "--- Software Train ---"
-TRAIN="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+TRAIN=$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)
 echo "Train: ${TRAIN:-unknown}"
-echo ""
+cp /dev/shmem/sw_trainname.txt "${OUTDIR}/sw_train.txt" 2>/dev/null
 
+echo ""
 echo "--- MMI Variant Detection ---"
-if echo "$TRAIN" | grep -qi "HN+R"; then
-    echo "Variant: MMI 3G+ with RSE (HN+R)"
-elif echo "$TRAIN" | grep -qi "HN+"; then
-    echo "Variant: MMI 3G+ (HN+)"
-elif echo "$TRAIN" | grep -qi "HNav\|HN_\|BNav"; then
-    echo "Variant: MMI 3G High (HNav)"
-elif echo "$TRAIN" | grep -qi "RNS\|MU9478"; then
-    echo "Variant: VW RNS-850"
-else
-    echo "Variant: Unknown ($TRAIN)"
-fi
-echo ""
-
-echo "--- System Uptime ---"
-uptime 2>/dev/null || echo "uptime: not available"
-echo ""
-
-# === FIRMWARE ===
-echo "================================================================"
-echo "  2. FIRMWARE & SOFTWARE VERSIONS"
-echo "================================================================"
-echo ""
-
-echo "--- QNX Version ---"
-uname -a 2>/dev/null || echo "uname: not available"
-echo ""
-
-echo "--- Software Train File ---"
-cat /dev/shmem/sw_trainname.txt 2>/dev/null
-echo ""
-
-echo "--- MU Version Files ---"
-for f in /mnt/efs-system/etc/sw_version*.txt /mnt/efs-system/etc/mu_version*.txt; do
-    if [ -f "$f" ]; then
-        echo "[$f]:"
-        cat "$f" 2>/dev/null
-        echo ""
-    fi
+for f in /etc/pci-3g_*.cfg; do
+    [ -f "$f" ] || continue
+    VID=$(echo "$f" | sed -n 's|.*/pci-3g_\([0-9]*\)\.cfg|\1|p')
+    case "$VID" in
+        9304) echo "Variant: MMI 3G Basic ($VID)" ;;
+        9308) echo "Variant: MMI 3G High ($VID)" ;;
+        9411) echo "Variant: MMI 3G+ ($VID)" ;;
+        9436) echo "Variant: MMI 3G+ Gen2 ($VID)" ;;
+        9478) echo "Variant: MMI 3G+ Gen3 ($VID)" ;;
+        *)    echo "Variant: Unknown ($VID)" ;;
+    esac
 done
+# Check for RSE (rear seat entertainment)
+echo "$TRAIN" | grep -q "HN+R" && echo "  RSE: Yes (HN+R train)" || echo "  RSE: No"
+# Check for VW/Porsche
+echo "$TRAIN" | grep -q "_VW_" && echo "  Platform: VW (RNS-850)"
+echo "$TRAIN" | grep -q "_AU_" && echo "  Platform: Audi"
 
-echo "--- ifs-root Build Info ---"
-if [ -f "/etc/build" ]; then
-    cat /etc/build 2>/dev/null
-fi
 echo ""
+echo "--- QNX Version ---"
+uname -a 2>/dev/null
 
-# === HARDWARE ===
+echo ""
+echo "--- System Uptime / pidin info ---"
+pidin info 2>/dev/null
+pidin info > "${OUTDIR}/pidin_info.txt" 2>/dev/null
+
+# ============================================================
+# 2. GEM & ENGINEERING STATUS
+# ============================================================
+echo ""
 echo "================================================================"
-echo "  3. HARDWARE & MEMORY"
+echo "  2. GEM & ENGINEERING STATUS"
 echo "================================================================"
-echo ""
 
-echo "--- System Info (pidin info) ---"
-pidin info 2>/dev/null || echo "pidin: not available"
 echo ""
-
-echo "--- CPU Info ---"
-pidin -fA 2>/dev/null | head -3
-echo ""
-
-# === STORAGE ===
-echo "================================================================"
-echo "  4. STORAGE & FILESYSTEMS"
-echo "================================================================"
-echo ""
-
-echo "--- Mount Points ---"
-mount 2>/dev/null
-echo ""
-
-echo "--- Disk Usage ---"
-df -h 2>/dev/null || df -k 2>/dev/null
-echo ""
-
-echo "--- HDD Devices ---"
-ls -la /dev/hd0* 2>/dev/null || echo "No /dev/hd0 devices found"
-echo ""
-
-echo "--- SD Card Slots ---"
-ls -la /dev/sdcard* 2>/dev/null || echo "No sdcard devices found"
-echo ""
-
-echo "--- SD Card Mounts ---"
-mount | grep sdcard 2>/dev/null || echo "No SD cards mounted"
-echo ""
-
-# === NAVIGATION ===
-echo "================================================================"
-echo "  5. NAVIGATION DATABASE"
-echo "================================================================"
-echo ""
-
-echo "--- Nav HDD Partition ---"
-if mount | grep -q "/mnt/nav"; then
-    echo "STATUS: /mnt/nav mounted"
-    df -h /mnt/nav 2>/dev/null
+echo "--- DBGModeActive (GEM file marker) ---"
+if [ -f /HBpersistence/DBGModeActive ]; then
+    echo "STATUS: ENABLED (/HBpersistence/DBGModeActive exists)"
+    ls -la /HBpersistence/DBGModeActive
 else
-    echo "STATUS: /mnt/nav not mounted"
+    echo "STATUS: DISABLED (file not present)"
 fi
-echo ""
 
-echo "--- acios_db.ini ---"
-if [ -f "/mnt/lvm/acios_db.ini" ]; then
-    echo "STATUS: EXISTS"
-    cat /mnt/lvm/acios_db.ini 2>/dev/null
-elif [ -f "/mnt/efs-persist/navi/db/acios_db.ini" ]; then
-    echo "STATUS: EXISTS (efs-persist)"
-    cat /mnt/efs-persist/navi/db/acios_db.ini 2>/dev/null
+echo ""
+echo "--- engdefs Directory ---"
+if [ -d /mnt/efs-system/engdefs ]; then
+    ESDCOUNT=$(ls /mnt/efs-system/engdefs/*.esd 2>/dev/null | wc -l)
+    echo "STATUS: EXISTS (${ESDCOUNT} screen files)"
+    ls -la /mnt/efs-system/engdefs/*.esd > "${OUTDIR}/engdefs_listing.txt" 2>/dev/null
 else
     echo "STATUS: NOT FOUND"
 fi
-echo ""
 
-echo "--- Nav Database PKG ---"
-for pkg in /mnt/nav/db/pkgdb/PKG/*.pkg /mnt/nav/db/pkgdb/*.PKG; do
-    if [ -f "$pkg" ]; then
-        echo "PKG: $pkg"
-        head -20 "$pkg" 2>/dev/null
-        echo ""
-    fi
+echo ""
+echo "--- AppDevelopment.jar ---"
+for j in /mnt/efs-system/lsd/AppDevelopment.jar /mnt/efs-system/lsd/development/AppDevelopment.jar; do
+    [ -f "$j" ] && echo "FOUND: $j ($(ls -la "$j" | awk '{print $5}') bytes)"
 done
-ls /mnt/nav/db/pkgdb/ 2>/dev/null || echo "No pkgdb directory"
-echo ""
 
-echo "--- FSC Files ---"
-ls -la /mnt/efs-persist/FSC/ 2>/dev/null || echo "No FSC directory"
+# ============================================================
+# 3. ACTIVATION & FEATURE STATE
+# ============================================================
 echo ""
+echo "================================================================"
+echo "  3. ACTIVATION & FEATURE STATE"
+echo "================================================================"
 
+echo ""
+echo "--- Porsche Activation (PagSWAct) ---"
+if [ -f /HBpersistence/PagSWAct.002 ]; then
+    echo "FOUND: /HBpersistence/PagSWAct.002"
+    ls -la /HBpersistence/PagSWAct.002
+    cp /HBpersistence/PagSWAct.002 "${BACKUP}/PagSWAct.002" 2>/dev/null
+    echo "  (backed up to SD)"
+else
+    echo "NOT FOUND (Audi systems don't use this)"
+fi
+
+echo ""
+echo "--- Nav Database ---"
+if [ -f /mnt/efs-persist/acios_db.ini ]; then
+    echo "Nav DB config:"
+    cat /mnt/efs-persist/acios_db.ini 2>/dev/null | grep -v "^#" | grep -v "^$"
+    cp /mnt/efs-persist/acios_db.ini "${BACKUP}/acios_db.ini" 2>/dev/null
+fi
+
+echo ""
 echo "--- Nav Unblocker Status ---"
-MANAGE_CD="/mnt/efs-system/usr/bin/manage_cd.sh"
-if [ -f "${MANAGE_CD}" ]; then
-    if grep -q "acios_db.ini" "${MANAGE_CD}" 2>/dev/null; then
+if [ -f /mnt/efs-system/scripts/setdatabase.cfg ]; then
+    if grep -q "manage_cd" /mnt/efs-system/scripts/setdatabase.cfg 2>/dev/null; then
         echo "manage_cd.sh: PATCHED (DrGER2 unblocker)"
     else
-        echo "manage_cd.sh: FACTORY (not patched)"
+        echo "manage_cd.sh: Stock"
     fi
 fi
-if [ -f "/mnt/efs-system/sbin/mme-becker.sh" ]; then
-    if grep -q "acios_db.ini" "/mnt/efs-system/sbin/mme-becker.sh" 2>/dev/null; then
-        echo "mme-becker.sh: PATCHED (legacy Keldo/Vlasoff)"
+
+echo ""
+echo "--- FSC Files (Feature activation codes) ---"
+ls -laR /HBpersistence/FSC/ 2>/dev/null || echo "No FSC directory"
+# Backup FSC files
+if [ -d /HBpersistence/FSC ]; then
+    mkdir -p "${BACKUP}/FSC" 2>/dev/null
+    cp -R /HBpersistence/FSC/* "${BACKUP}/FSC/" 2>/dev/null
+    echo "  (backed up to SD)"
+fi
+
+echo ""
+echo "--- GEMMI (Google Earth) ---"
+if [ -f /mnt/nav/gemmi/gemmi_final ]; then
+    echo "INSTALLED: /mnt/nav/gemmi/gemmi_final"
+    ls -la /mnt/nav/gemmi/ 2>/dev/null
+    # Check if running
+    pidin ar 2>/dev/null | grep -q gemmi && echo "RUNNING: Yes" || echo "RUNNING: No"
+else
+    echo "NOT INSTALLED"
+fi
+
+echo ""
+echo "--- LAN/Network Flags ---"
+[ -f /HBpersistence/usedhcp ] && echo "usedhcp: SET (DrGER LAN mode)" || echo "usedhcp: not set"
+[ -f /HBpersistence/DLinkReplacesPPP ] && echo "DLinkReplacesPPP: SET" || echo "DLinkReplacesPPP: not set"
+
+# ============================================================
+# 4. CREDENTIALS & PASSWORDS
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  4. CREDENTIALS & PASSWORDS"
+echo "================================================================"
+
+echo ""
+echo "--- WiFi Hotspot Config ---"
+for f in /mnt/efs-persist/wlan_*.conf /mnt/efs-system/etc/wpa_supplicant.conf /etc/wpa_supplicant.conf; do
+    if [ -f "$f" ]; then
+        echo "FOUND: $f"
+        cat "$f" 2>/dev/null
+        cp "$f" "${BACKUP}/$(basename $f)" 2>/dev/null
     fi
+done
+
+echo ""
+echo "--- Bluetooth Pairing ---"
+if [ -f /HBpersistence/bdaddr.txt ]; then
+    echo "BT Address: $(cat /HBpersistence/bdaddr.txt 2>/dev/null)"
+    cp /HBpersistence/bdaddr.txt "${BACKUP}/bdaddr.txt" 2>/dev/null
 fi
-echo ""
 
-echo "--- vdev-logvolmgr ---"
-pidin -fNA 2>/dev/null | grep vdev-logvolmgr || echo "NOT RUNNING"
 echo ""
+echo "--- Audi Connect / myaudi ---"
+for f in /mnt/efs-system/scripts/Connectivity/common.cfg /lsd/MMI3G_MyAudi.properties; do
+    if [ -f "$f" ]; then
+        echo "FOUND: $f"
+        grep -i "user\|pass\|key\|token\|auth\|ssid\|psk" "$f" 2>/dev/null
+        cp "$f" "${BACKUP}/$(basename $f)" 2>/dev/null
+    fi
+done
 
-# === NETWORK ===
-echo "================================================================"
-echo "  6. NETWORK & CONNECTIVITY"
-echo "================================================================"
 echo ""
-
-echo "--- Network Interfaces ---"
-ifconfig -a 2>/dev/null || echo "ifconfig: not available"
-echo ""
-
-echo "--- Routing Table ---"
-netstat -rn 2>/dev/null || echo "netstat: not available"
-echo ""
-
-echo "--- DNS Configuration ---"
-cat /etc/resolv.conf 2>/dev/null || echo "No resolv.conf"
-echo ""
-
-echo "--- Active Connections ---"
-netstat -an 2>/dev/null | head -30
-echo ""
-
-echo "--- ARP Table ---"
-arp -a 2>/dev/null || echo "arp: not available"
-echo ""
-
-# === GEM ===
-echo "================================================================"
-echo "  7. GREEN ENGINEERING MENU"
-echo "================================================================"
-echo ""
-
-echo "--- engdefs Directory ---"
-if [ -d "/mnt/efs-system/engdefs" ]; then
-    echo "STATUS: EXISTS"
-    ls -la /mnt/efs-system/engdefs/*.esd 2>/dev/null
-else
-    echo "STATUS: NOT FOUND (GEM may not be enabled)"
+echo "--- VIN ---"
+if [ -f /HBpersistence/vin ]; then
+    echo "VIN: $(cat /HBpersistence/vin 2>/dev/null)"
 fi
-echo ""
 
-echo "--- AppDevelopment.jar ---"
-ls -la /mnt/efs-system/lsd/AppDevelopment.jar 2>/dev/null || echo "NOT FOUND"
+# ============================================================
+# 5. STORAGE & PARTITIONS
+# ============================================================
 echo ""
+echo "================================================================"
+echo "  5. STORAGE & PARTITIONS"
+echo "================================================================"
 
-echo "--- Custom Scripts ---"
-if [ -d "/mnt/efs-system/scripts" ]; then
-    echo "Installed scripts:"
-    ls -laR /mnt/efs-system/scripts/ 2>/dev/null
-else
-    echo "No custom scripts directory"
+echo ""
+echo "--- Mount Points ---"
+mount 2>/dev/null | sort
+mount > "${OUTDIR}/mounts.txt" 2>/dev/null
+
+echo ""
+echo "--- Disk Usage ---"
+df -k 2>/dev/null
+df -k > "${OUTDIR}/disk_usage.txt" 2>/dev/null
+
+echo ""
+echo "--- Flash Partitions ---"
+ls -la /dev/fs* 2>/dev/null
+ls -la /dev/hd* 2>/dev/null
+ls -la /dev/sdcard* 2>/dev/null
+
+# ============================================================
+# 6. NETWORK
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  6. NETWORK"
+echo "================================================================"
+
+echo ""
+echo "--- Interfaces ---"
+ifconfig -a 2>/dev/null
+ifconfig -a > "${OUTDIR}/interfaces.txt" 2>/dev/null
+
+echo ""
+echo "--- Routes ---"
+netstat -rn 2>/dev/null
+netstat -rn > "${OUTDIR}/routes.txt" 2>/dev/null
+
+echo ""
+echo "--- DNS ---"
+cat /etc/resolv.conf 2>/dev/null
+cat /etc/resolv.conf > "${OUTDIR}/dns.txt" 2>/dev/null
+
+# ============================================================
+# 7. INSTALLED SCRIPTS & MODIFICATIONS
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  7. INSTALLED SCRIPTS & MODIFICATIONS"
+echo "================================================================"
+
+echo ""
+echo "--- Custom Scripts on EFS ---"
+ls -laR /mnt/efs-system/scripts/ 2>/dev/null
+
+echo ""
+echo "--- Splash Screens ---"
+ls -la /mnt/efs-system/lsd/startup-*.png 2>/dev/null | wc -l
+echo " splash screen PNGs found"
+if [ -f /mnt/efs-system/lsd/StartupImageConfig.txt ]; then
+    cat /mnt/efs-system/lsd/StartupImageConfig.txt 2>/dev/null
 fi
-echo ""
 
-# === SPLASH SCREENS ===
+# ============================================================
+# 8. HBpersistence SNAPSHOT
+# ============================================================
+echo ""
 echo "================================================================"
-echo "  8. SPLASH SCREENS"
+echo "  8. HBpersistence SNAPSHOT"
 echo "================================================================"
-echo ""
 
-if [ -d "/mnt/efs-system/etc/splashscreens" ]; then
-    ls -la /mnt/efs-system/etc/splashscreens/ 2>/dev/null
-    echo ""
-    echo "--- StartupImageConfig.txt ---"
-    cat /mnt/efs-system/etc/splashscreens/StartupImageConfig.txt 2>/dev/null
-else
-    echo "Splash screen directory not found"
-fi
 echo ""
+echo "--- File Listing ---"
+ls -laR /HBpersistence/ > "${OUTDIR}/HBpersistence_listing.txt" 2>&1
+echo "Full listing saved to: HBpersistence_listing.txt"
 
-# === USB ===
+# Backup key persistence files
+mkdir -p "${BACKUP}/HBpersistence" 2>/dev/null
+for f in /HBpersistence/DBGModeActive \
+         /HBpersistence/PagSWAct.002 \
+         /HBpersistence/usedhcp \
+         /HBpersistence/DLinkReplacesPPP \
+         /HBpersistence/vin \
+         /HBpersistence/bdaddr.txt \
+         /HBpersistence/audiomixer*.txt \
+         /HBpersistence/TouchCalib.bin; do
+    [ -f "$f" ] && cp "$f" "${BACKUP}/HBpersistence/" 2>/dev/null
+done
+echo "Key files backed up to SD"
+
+# ============================================================
+# 9. PROCESSES
+# ============================================================
+echo ""
 echo "================================================================"
-echo "  9. USB DEVICES"
+echo "  9. RUNNING PROCESSES"
 echo "================================================================"
-echo ""
 
-usb 2>/dev/null || echo "usb command: not available"
-echo ""
+pidin ar > "${OUTDIR}/processes.txt" 2>/dev/null
+# Show unique process names only
+pidin ar 2>/dev/null | awk '{print $1}' | sort -u | grep -v "^name$" | grep -v "^$"
 
-echo "--- USB Mass Storage ---"
-ls -la /dev/umass* 2>/dev/null || echo "No USB mass storage"
+# ============================================================
+# 10. SYSLOG
+# ============================================================
 echo ""
-
-# === PROCESSES ===
 echo "================================================================"
-echo "  10. RUNNING PROCESSES"
+echo "  10. SYSTEM LOG"
 echo "================================================================"
-echo ""
 
-pidin -fNapb 2>/dev/null || echo "pidin: not available"
-echo ""
+sloginfo 2>/dev/null | sed -n '1,200p' > "${OUTDIR}/syslog.txt" 2>/dev/null
+echo "Syslog saved (first 200 lines)"
 
-# === SYSLOG ===
-echo "================================================================"
-echo "  11. SYSTEM LOG (last 200 lines)"
-echo "================================================================"
-echo ""
-
-sloginfo 2>/dev/null | tail -200
-
+# ============================================================
 echo ""
 echo "################################################################"
 echo "#  End of System Information Report"
-echo "#  Saved to: ${OUTFILE}"
+echo "#  Data:    ${OUTDIR}/"
+echo "#  Backups: ${BACKUP}/"
+echo "#  Report:  ${REPORT}"
 echo "################################################################"
 
-} > ${OUTFILE} 2>&1
+} > "${REPORT}" 2>&1
 
-# --- Save individual data files for easy parsing ---
-cat /dev/shmem/sw_trainname.txt > ${FILESDIR}/sw_train.txt 2>/dev/null
-pidin info > ${FILESDIR}/pidin_info.txt 2>/dev/null
-pidin -fNapb > ${FILESDIR}/processes.txt 2>/dev/null
-mount > ${FILESDIR}/mounts.txt 2>/dev/null
-df -h > ${FILESDIR}/disk_usage.txt 2>/dev/null
-ifconfig -a > ${FILESDIR}/interfaces.txt 2>/dev/null
-netstat -rn > ${FILESDIR}/routes.txt 2>/dev/null
-cat /etc/resolv.conf > ${FILESDIR}/dns.txt 2>/dev/null
-sloginfo > ${FILESDIR}/syslog.txt 2>/dev/null
-ls -la /mnt/efs-system/engdefs/*.esd > ${FILESDIR}/gem_screens.txt 2>/dev/null
-ls -la /mnt/efs-persist/FSC/ > ${FILESDIR}/fsc_files.txt 2>/dev/null
-uname -a > ${FILESDIR}/uname.txt 2>/dev/null
-
-# Copy manage_cd.sh and mmelauncher.cfg for inspection
-cp /mnt/efs-system/usr/bin/manage_cd.sh ${FILESDIR}/ 2>/dev/null
-cp /mnt/efs-system/etc/mmelauncher.cfg ${FILESDIR}/ 2>/dev/null
-
-sync
-
-echo ""
-echo "============================================"
-echo " System Information Report Complete"
-echo " Main report: var/sysinfo/sysinfo-${TIMESTAMP}.txt"
-echo " Raw files:   var/sysinfo/${TIMESTAMP}/"
-echo " Safe to remove SD card."
-echo "============================================"
+# Copy report to the data dir too
+cp "${REPORT}" "${OUTDIR}/" 2>/dev/null

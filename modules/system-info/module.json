@@ -1,7 +1,7 @@
 {
     "name": "system-info",
-    "version": "1.0.0",
-    "description": "One-shot system information reporter - dumps comprehensive MMI3G state to SD card on insert. Non-destructive, installs nothing to flash.",
+    "version": "2.0.0",
+    "description": "Comprehensive system diagnostic — gathers identity, activations, credentials, storage, network, persistence state, and backs up key files to SD card. Single pass, no flash writes.",
     "author": "dspl1236",
     "status": "ready",
     "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
@@ -10,20 +10,7 @@
     "script_dir": "/scripts/SystemInfo",
     "installs_to_flash": false,
     "scripts": [
-        "sysinfo_dump.sh - Comprehensive system report to SD card"
+        "sysinfo_dump.sh - Full diagnostic + backup to SD card"
     ],
-    "report_sections": [
-        "System identity & variant detection",
-        "Firmware & software versions",
-        "Hardware & memory",
-        "Storage & filesystems (HDD, SD, mounts)",
-        "Navigation database (acios_db.ini, PKG, FSC, unblocker status)",
-        "Network & connectivity (interfaces, routes, DNS, ARP)",
-        "Green Engineering Menu (engdefs, custom scripts)",
-        "Splash screens",
-        "USB devices",
-        "Running processes (full pidin output)",
-        "System log (last 200 lines via sloginfo)"
-    ],
-    "notes": "Inspired by DrGER2/MMI3G-Info. Outputs both a single combined report and individual data files for easy parsing. Does not modify anything on the MMI - read-only operation."
+    "notes": "v2.0: Consolidated system-info + password-finder + variant-dump + persistence-dump into single comprehensive diagnostic. Uses sed instead of head/tail (not available on QNX). Runs entirely from SD card."
 }
