@@ -84,3 +84,76 @@ still serving tiles as of 2026-04-20 (HTTP 200).
 2. If not, do binary patch (Option A)
 3. Write PHP proxy for hausofdub.com
 4. Test with LTE data connection
+
+## UPDATE: Option A Investigation — Self-Contained Fix
+
+### Configurable Server Settings Found in libembeddedearth.so
+
+These are C++ class names and config keys that can potentially
+be set via drivers.ini:
+
+```
+Auth/Login Control:
+  authServer              ← override auth endpoint
+  deauthServer            ← override deauth endpoint
+  loginServer             ← override login server
+  geFreeLoginServer       ← Google Earth Free login
+  maxLoginAttempts         ← set to 0 = skip login entirely?
+  loginTimeout            ← reduce to fail fast
+  enableSeamlessLogin     ← already in drivers.ini
+  disableAuthKey          ← DISABLE AUTH KEY!
+  loginAtStartUp          ← control login timing
+
+Server Configuration:
+  DefaultServer           ← override default server!
+  googleMFEServer         ← Google Maps Frontend
+  validservers            ← valid server list
+  
+Tile/Data Control:
+  maxImagery              ← imagery limits
+  maxImageryQps           ← queries per second
+  safeImageryQps          ← safe QPS
+  enableFetch             ← enable/disable fetching
+  enableNetwork           ← enable/disable network
+  allowFetch              ← allow fetching
+```
+
+### Proposed drivers.ini Test
+
+Add these lines to the existing SETTINGS block:
+
+```ini
+SETTINGS {
+    ; === EXISTING SETTINGS ===
+    Connection/enableSeamlessLogin = true
+    ; ... existing settings ...
+    
+    ; === GEMMI FIX - Auth Bypass ===
+    maxLoginAttempts = 0
+    disableAuthKey = true
+    loginTimeout = 1
+    
+    ; === GEMMI FIX - Server Override ===
+    ; If DefaultServer is honored, this could redirect everything
+    ; DefaultServer = mt0.google.com
+}
+```
+
+### The Key Question
+
+The tile URLs come from the **embedded dbRoot protobuf** inside
+libembeddedearth.so. Even if we skip auth, the embedded dbRoot
+still points tiles to kh.google.com (which returns 403).
+
+**Three sub-options for tile redirection:**
+
+A1. If `DefaultServer` setting overrides kh.google.com → tiles work
+A2. If we can place a modified dbRoot at `/localdbroot` path → tiles work  
+A3. If neither works → need binary patch on kh.google.com string
+
+### Testing Plan
+
+1. Modify drivers.ini with auth bypass settings
+2. Test on car with LTE connected
+3. Check GEMMI logs for behavior change
+4. If auth bypass works but tiles 403 → need server redirect too
