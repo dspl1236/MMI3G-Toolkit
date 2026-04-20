@@ -130,3 +130,79 @@ en5 interface (DHCP client)
   ↓
 GEMMI / Audi Connect / Online services
 ```
+
+## GEMMI (Google Earth) Restoration
+
+Once data connectivity is established, GEMMI needs to be fixed
+to work with Google's current infrastructure.
+
+### What Google Changed (December 2020)
+
+Google disabled Google Earth for vehicles older than MY2018:
+- `geoauth.google.com` (auth endpoint) → 404 Not Found
+- `kh.google.com/kh/` (old tile format) → 403 Forbidden
+- `mt0.google.com/vt?lyrs=s` (new tile format) → 200 OK (tiles still live!)
+
+The satellite tiles still exist — Google just killed the old auth
+endpoint and URL format that GEMMI uses.
+
+### Fix Strategy: Self-Contained (No Proxy Server)
+
+**Layer 1 — Auth Bypass (drivers.ini)**
+
+libembeddedearth.so has configurable auth settings. Adding these
+to /mnt/nav/gemmi/drivers.ini may skip auth entirely:
+
+```ini
+SETTINGS {
+    ; ... existing settings ...
+    
+    ; Auth bypass
+    maxLoginAttempts = 0
+    disableAuthKey = true
+    loginTimeout = 1
+}
+```
+
+**Layer 2 — Tile Server Redirect**
+
+Even with auth bypassed, the embedded dbRoot config still points
+tiles to kh.google.com (403 blocked). Three sub-options:
+
+  A. DefaultServer override in drivers.ini
+     If this setting is honored, tiles redirect with zero binary patching.
+
+  B. Local dbRoot file at /localdbroot path
+     Custom protobuf pointing tiles to mt0.google.com.
+     No binary patch needed — just a data file on the HDD.
+
+  C. Binary patch in libembeddedearth.so (fallback)
+     Swap kh.google.com (13 chars) → hausofdub.com (13 chars)
+     Perfect byte-for-byte replacement at offset 0x104a5bc.
+     Requires minimal PHP proxy on hausofdub.com to translate URL format.
+
+### Patch Points (if binary patching needed)
+
+In libembeddedearth.so (20.5 MB):
+```
+0x104a434: "geoauth.google.com"     (auth server — dead, 404)
+0x104a5bc: "kh.google.com"          (tile server — blocked, 403)
+0x1043dcc: "http://kh.google.com/"  (tile URL prefix)
+```
+
+### Testing Plan
+
+1. Connect LTE (Digi WR11 XT → UGREEN → MMI USB)
+2. Modify drivers.ini with auth bypass settings
+3. Reboot MMI → check GEMMI logs via DrGER's logger scripts
+4. If auth bypassed but tiles 403 → try DefaultServer override
+5. If DefaultServer not honored → binary patch as fallback
+
+### Known Working Solution (congo/audi-mib.bg)
+
+congo (ruthr on a5oc.com) sells a patched binary for €75-180:
+- Patches gemmi_final + libembeddedearth.so
+- Redirects through his private proxy server
+- VIN/FAZIT-specific activation
+- Requires K900+ firmware (Andrew on K942 — compatible)
+- audi-mib.bg — still active as of 2026
