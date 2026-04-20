@@ -37,8 +37,8 @@ if [ ! -d "${OUTDIR}" ]; then
 fi
 
 # Show status on screen if showScreen available
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/diag.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/diag.png" 2>/dev/null &
+if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
+    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null &
 fi
 
 {
@@ -346,3 +346,8 @@ echo "################################################################"
 
 # Copy report to the data dir too
 cp "${REPORT}" "${OUTDIR}/" 2>/dev/null
+
+# Show completion on screen
+if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/done.png" ]; then
+    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
+fi

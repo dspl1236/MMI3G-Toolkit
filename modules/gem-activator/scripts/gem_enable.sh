@@ -84,3 +84,8 @@ echo "============================================"
 
 # Also output to console
 cat "$LOG"
+
+# Show GEM enabled screen
+if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/gem_enabled.png" ]; then
+    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/gem_enabled.png" 2>/dev/null &
+fi

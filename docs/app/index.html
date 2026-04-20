@@ -381,6 +381,17 @@ async function buildSdBundle(selected, onProgress) {
   if (showScreenBin) {
     files.push({ path: "bin/showScreen", bytes: showScreenBin });
   }
+  // Fetch status PNGs for showScreen display
+  for (const pngKey of ['lib_running_png', 'lib_done_png', 'lib_gem_enabled_png']) {
+    if (manifest.core_files[pngKey]) {
+      try {
+        const png = await fetchBinary(rawBase + manifest.core_files[pngKey]);
+        const fname = pngKey.replace('lib_', '').replace('_png', '.png');
+        files.push({ path: `lib/${fname}`, bytes: png });
+        step(`Fetched ${fname}`);
+      } catch (e) { console.warn(`${pngKey} not available:`, e); }
+    }
+  }
   files.push({ path: "bin/.keep", bytes: new Uint8Array(0) });
   files.push({ path: "lib/.keep", bytes: new Uint8Array(0) });
   files.push({ path: "var/.keep", bytes: new Uint8Array(0) });

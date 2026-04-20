@@ -5,7 +5,10 @@
     "core_files": {
         "copie_scr_plain_sh": "core/copie_scr_plain.sh",
         "uninstall_sh": "core/uninstall.sh",
-        "showScreen": "core/bin/showScreen"
+        "showScreen": "core/bin/showScreen",
+        "lib_running_png": "core/lib/running.png",
+        "lib_done_png": "core/lib/done.png",
+        "lib_gem_enabled_png": "core/lib/gem_enabled.png"
     },
     "proven_on": {
         "train": "HN+R_US_AU_K0942_3",
