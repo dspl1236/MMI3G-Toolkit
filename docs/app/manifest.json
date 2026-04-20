@@ -662,6 +662,15 @@
         },
         "gemmi-dump": {
             "description": "Extract GEMMI Google Earth binaries from HDD for offline analysis",
+            "standalone": true,
+            "run_script": "gemmi_dump.sh",
+            "script_dir": "/scripts/GEMMIDump",
+            "installs_to_flash": false,
+            "status": "ready",
+            "compatible": [
+                "MMI3G+",
+                "RNS-850"
+            ],
             "files": [
                 {
                     "path": "scripts/gemmi_dump.sh",
