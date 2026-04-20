@@ -659,6 +659,15 @@
                     "size": 9769
                 }
             ]
+        },
+        "gemmi-dump": {
+            "description": "Extract GEMMI Google Earth binaries from HDD for offline analysis",
+            "files": [
+                {
+                    "path": "scripts/gemmi_dump.sh",
+                    "size": 3111
+                }
+            ]
         }
     }
 }

@@ -1,0 +1,13 @@
+{
+    "name": "gemmi-dump",
+    "version": "1.0.0",
+    "description": "Extract GEMMI (Google Earth) binaries and config from HDD for offline analysis — needed for auth bypass patching",
+    "author": "dspl1236",
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "gemmi_dump.sh",
+    "script_dir": "/scripts/GEMMIDump",
+    "installs_to_flash": false,
+    "notes": "Extracts gemmi_final (~2MB), libembeddedearth.so (~20MB), and all config. Upload to Claude for Ghidra RE of Google hostnames and auth bypass points. Based on ruthr's approach on a5oc.com."
+}
