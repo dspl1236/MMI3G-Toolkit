@@ -236,6 +236,7 @@ function generateRunSh(selected, manifest) {
     lines.push("echo \"[OK] efs-system remounted rw\"");
     lines.push("echo \"\"");
     lines.push("");
+  } // close JS if (flashModules.length > 0) — shell "else" block is open
 
   for (const modName of flashModules) {
     const meta = manifest.modules[modName];
@@ -288,11 +289,10 @@ function generateRunSh(selected, manifest) {
   // Close Phase 2 EFS block
   if (flashModules.length > 0) {
     lines.push("");
-    lines.push("sync");
     lines.push("mount -ur ${EFSDIR} 2>/dev/null");
     lines.push("fi  # end of Phase 2 EFS block");
     lines.push("");
-  }
+  } // close JS if (flashModules.length > 0) from Phase 2 setup
 
   lines.push("echo \"============================================\"");
   lines.push("echo \" Installation Complete\"");
