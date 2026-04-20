@@ -187,7 +187,7 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
     # Summary
     lines.extend([
         '# --- Complete ---',
-        'sync',
+        '# sync not available on QNX',
         'echo "============================================"',
         'echo " Installation Complete"',
         f'echo " Modules installed: {len(selected_modules)}"',

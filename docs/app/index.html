@@ -285,7 +285,7 @@ function generateRunSh(selected, manifest) {
   }
 
   lines.push("# --- Complete ---");
-  lines.push("sync");
+  // sync not available on QNX
   // Close Phase 2 EFS block
   if (flashModules.length > 0) {
     lines.push("");

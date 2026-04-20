@@ -21,7 +21,20 @@ OUTDIR="${SDPATH}/var/sysinfo/${TS}"
 REPORT="${SDPATH}/var/sysinfo/sysinfo-${TS}.txt"
 BACKUP="${SDPATH}/var/backup"
 
-mkdir -p "${OUTDIR}" "${BACKUP}" "${SDPATH}/var" 2>/dev/null
+# Create directories one level at a time (QNX mkdir -p can be flaky)
+mkdir "${SDPATH}/var" 2>/dev/null
+mkdir "${SDPATH}/var/sysinfo" 2>/dev/null
+mkdir "${SDPATH}/var/sysinfo/${TS}" 2>/dev/null
+mkdir "${SDPATH}/var/backup" 2>/dev/null
+mkdir "${SDPATH}/var/backup/HBpersistence" 2>/dev/null
+mkdir "${SDPATH}/var/backup/FSC" 2>/dev/null
+
+# Verify output directory exists
+if [ ! -d "${OUTDIR}" ]; then
+    # Fallback: write everything to var/ directly
+    OUTDIR="${SDPATH}/var"
+    REPORT="${SDPATH}/var/sysinfo-${TS}.txt"
+fi
 
 # Show status on screen if showScreen available
 if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/diag.png" ]; then
@@ -142,7 +155,7 @@ echo "--- FSC Files (Feature activation codes) ---"
 ls -laR /HBpersistence/FSC/ 2>/dev/null || echo "No FSC directory"
 # Backup FSC files
 if [ -d /HBpersistence/FSC ]; then
-    mkdir -p "${BACKUP}/FSC" 2>/dev/null
+    # FSC dir already created above
     cp -R /HBpersistence/FSC/* "${BACKUP}/FSC/" 2>/dev/null
     echo "  (backed up to SD)"
 fi
@@ -285,7 +298,7 @@ ls -laR /HBpersistence/ > "${OUTDIR}/HBpersistence_listing.txt" 2>&1
 echo "Full listing saved to: HBpersistence_listing.txt"
 
 # Backup key persistence files
-mkdir -p "${BACKUP}/HBpersistence" 2>/dev/null
+# HBpersistence dir already created above
 for f in /HBpersistence/DBGModeActive \
          /HBpersistence/usedhcp \
          /HBpersistence/DLinkReplacesPPP \
