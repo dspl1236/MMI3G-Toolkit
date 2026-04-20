@@ -381,8 +381,8 @@ async function buildSdBundle(selected, onProgress) {
   if (showScreenBin) {
     files.push({ path: "bin/showScreen", bytes: showScreenBin });
   }
-  // Fetch status PNGs for showScreen display
-  for (const pngKey of ['lib_running_png', 'lib_done_png', 'lib_gem_enabled_png']) {
+  // Always include universal status PNGs
+  for (const pngKey of ['lib_running_png', 'lib_done_png']) {
     if (manifest.core_files[pngKey]) {
       try {
         const png = await fetchBinary(rawBase + manifest.core_files[pngKey]);
@@ -390,6 +390,19 @@ async function buildSdBundle(selected, onProgress) {
         files.push({ path: `lib/${fname}`, bytes: png });
         step(`Fetched ${fname}`);
       } catch (e) { console.warn(`${pngKey} not available:`, e); }
+    }
+  }
+  // Module-specific PNGs — only when that module is selected
+  if (selected.includes("gem-activator")) {
+    for (const pngKey of ['lib_gem_enabled_png', 'lib_gem_disabled_png']) {
+      if (manifest.core_files[pngKey]) {
+        try {
+          const png = await fetchBinary(rawBase + manifest.core_files[pngKey]);
+          const fname = pngKey.replace('lib_', '').replace('_png', '.png');
+          files.push({ path: `lib/${fname}`, bytes: png });
+          step(`Fetched ${fname}`);
+        } catch (e) { console.warn(`${pngKey} not available:`, e); }
+      }
     }
   }
   files.push({ path: "bin/.keep", bytes: new Uint8Array(0) });
