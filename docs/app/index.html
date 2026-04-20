@@ -60,6 +60,10 @@ class MMI3GCipher {
 
 const MANIFEST_URL = "./manifest.json";
 const MODULES_DISPLAY = [
+  { id: "system-info", name: "System Info", status: "ready",
+    desc: "Full diagnostic — identity, activations, credentials, storage, persistence backup. Single pass, no flash writes.",
+    compat: ["3G", "3G+", "RNS-850"], category: "diag", primary: true,
+    prereq: null, detail: "10-section report covering GEM state, nav/FSC activation, WiFi/BT credentials, VIN, storage, HBpersistence backup. QNX-safe (no head/tail). Consolidates system-info + password-finder + variant-dump." },
   { id: "gem-activator", name: "GEM Activator", status: "ready",
     desc: "Enable the Green Engineering Menu from SD card — creates /HBpersistence/DBGModeActive. No VCDS needed!",
     compat: ["3G", "3G+", "RNS-850"], category: "system",
@@ -76,10 +80,6 @@ const MODULES_DISPLAY = [
     desc: "Bypass navigation database activation check",
     compat: ["3G", "3G+", "RNS-850"], category: "nav",
     prereq: null, detail: "Patches manage_cd.sh to terminate vdev-logvolmgr. Persistent, reversed by firmware reinstall." },
-  { id: "system-info", name: "System Info", status: "ready",
-    desc: "Full diagnostic — identity, activations, credentials, storage, persistence backup. Single pass, no flash writes.",
-    compat: ["3G", "3G+", "RNS-850"], category: "diag",
-    prereq: null, detail: "10-section report covering GEM state, nav/FSC activation, WiFi/BT credentials, VIN, storage, HBpersistence backup. QNX-safe (no head/tail). Consolidates system-info + password-finder + variant-dump." },
   { id: "lte-setup", name: "LTE Setup", status: "ready",
     desc: "Provision USB Ethernet for LTE data after 3G sunset",
     compat: ["3G+", "RNS-850"], category: "net",
@@ -613,7 +613,22 @@ function App() {
           React.createElement("button", { onClick: selectNone, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "None")
         ),
         React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 } },
-          MODULES_DISPLAY.map(m => {
+          // Primary modules (Start Here) rendered full-width at top
+          ...MODULES_DISPLAY.filter(m => m.primary).map(m => {
+            const isSel = selected.has(m.id);
+            return React.createElement("div", { key: m.id, onClick: () => toggle(m.id), style: { gridColumn: "1 / -1", padding: "14px 16px", borderRadius: 7, cursor: "pointer", border: isSel ? "1px solid #c41e3a" : "1px solid #2a4a2a", background: isSel ? "rgba(196,30,58,0.05)" : "rgba(0,80,30,0.08)", transition: "all 0.15s" } },
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                React.createElement("div", { style: { width: 16, height: 16, borderRadius: 3, border: isSel ? "none" : "1px solid #4a4", background: isSel ? "#c41e3a" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#fff", fontWeight: 700, flexShrink: 0 } }, isSel ? "\u2713" : ""),
+                React.createElement("div", { style: { flex: 1 } },
+                  React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#4a4", display: "flex", alignItems: "center", gap: 6 } },
+                    "\u25B6 START HERE \u2014 ", m.name),
+                  React.createElement("div", { style: { fontSize: 11, color: "#888", marginTop: 2 } }, m.desc)
+                )
+              )
+            );
+          }),
+          // Regular modules in grid
+          ...MODULES_DISPLAY.filter(m => !m.primary).map(m => {
             const isSel = selected.has(m.id);
             const isExp = expandedMod === m.id;
             return React.createElement("div", { key: m.id, onClick: () => toggle(m.id), style: { padding: "11px 12px", borderRadius: 7, cursor: "pointer", border: isSel ? "1px solid #c41e3a" : "1px solid #1e1e22", background: isSel ? "rgba(196,30,58,0.05)" : "#111114", transition: "all 0.15s" } },
