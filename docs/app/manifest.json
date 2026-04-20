@@ -256,7 +256,7 @@
         },
         "gem-activator": {
             "status": "ready",
-            "description": "GEM infrastructure setup \u2014 ensures /mnt/efs-system/engdefs/ exists and verifies AppDevelopment.jar is present. Does NOT flip the GEM enable bit \u2014 that requires VCDS/ODIS on adaptation 5F channel 6. This module just prepares the filesystem so other modules' screens load correctly once GEM is enabled by a diagnostic tool.",
+            "description": "Enable/disable the Green Engineering Menu from SD card \u2014 creates /HBpersistence/DBGModeActive. No VCDS needed!",
             "standalone": true,
             "run_script": "gem_enable.sh",
             "script_dir": "/scripts/GEM",
@@ -281,15 +281,15 @@
                 },
                 {
                     "path": "scripts/gem_disable.sh",
-                    "size": 5064
+                    "size": 905
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 6898
+                    "size": 2647
                 },
                 {
                     "path": "scripts/gem_status.sh",
-                    "size": 4117
+                    "size": 1390
                 }
             ]
         },
