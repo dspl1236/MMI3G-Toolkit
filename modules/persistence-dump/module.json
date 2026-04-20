@@ -1,0 +1,15 @@
+{
+    "name": "persistence-dump",
+    "version": "1.0.0",
+    "description": "Dumps persistence state (HBpersistence, efs-persist, shmem, coding) to SD card for offline analysis — use before/after VCDS changes to find exact byte locations",
+    "author": "dspl1236",
+    "status": "ready",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "persist_dump.sh",
+    "script_dir": "/scripts/PersistDump",
+    "installs_to_flash": false,
+    "scripts": [
+        "persist_dump.sh - Captures full persistence state to SD card"
+    ]
+}
