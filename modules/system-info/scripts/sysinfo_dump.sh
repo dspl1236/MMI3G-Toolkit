@@ -120,18 +120,7 @@ echo "  3. ACTIVATION & FEATURE STATE"
 echo "================================================================"
 
 echo ""
-echo "--- Porsche Activation (PagSWAct) ---"
-if [ -f /HBpersistence/PagSWAct.002 ]; then
-    echo "FOUND: /HBpersistence/PagSWAct.002"
-    ls -la /HBpersistence/PagSWAct.002
-    cp /HBpersistence/PagSWAct.002 "${BACKUP}/PagSWAct.002" 2>/dev/null
-    echo "  (backed up to SD)"
-else
-    echo "NOT FOUND (Audi systems don't use this)"
-fi
-
-echo ""
-echo "--- Nav Database ---"
+echo "--- Feature Activation ---"
 if [ -f /mnt/efs-persist/acios_db.ini ]; then
     echo "Nav DB config:"
     cat /mnt/efs-persist/acios_db.ini 2>/dev/null | grep -v "^#" | grep -v "^$"
@@ -298,7 +287,6 @@ echo "Full listing saved to: HBpersistence_listing.txt"
 # Backup key persistence files
 mkdir -p "${BACKUP}/HBpersistence" 2>/dev/null
 for f in /HBpersistence/DBGModeActive \
-         /HBpersistence/PagSWAct.002 \
          /HBpersistence/usedhcp \
          /HBpersistence/DLinkReplacesPPP \
          /HBpersistence/vin \
