@@ -1,6 +1,6 @@
 #!/bin/ksh
 # GEM Status — Check if engineering menu is enabled
-# Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
+# Part of MMI-Toolkit: github.com/dspl1236/MMI-Toolkit
 
 SDPATH="${1:-$(dirname $0)}"
 LOG="${SDPATH}/var/gem_status.log"
@@ -8,7 +8,7 @@ mkdir -p "${SDPATH}/var" 2>/dev/null
 
 {
 echo "============================================"
-echo " MMI3G-Toolkit GEM Status"
+echo " MMI-Toolkit GEM Status"
 echo " $(date 2>/dev/null)"
 echo " Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
 echo "============================================"

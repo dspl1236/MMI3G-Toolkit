@@ -1,6 +1,6 @@
 #!/bin/ksh
 # GEM Deactivator — Remove DBGModeActive to disable engineering menu
-# Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
+# Part of MMI-Toolkit: github.com/dspl1236/MMI-Toolkit
 
 SDPATH="${1:-$(dirname $0)}"
 LOG="${SDPATH}/var/gem_disable.log"
@@ -8,7 +8,7 @@ mkdir -p "${SDPATH}/var" 2>/dev/null
 
 {
 echo "============================================"
-echo " MMI3G-Toolkit GEM Deactivator"
+echo " MMI-Toolkit GEM Deactivator"
 echo " $(date 2>/dev/null)"
 echo "============================================"
 echo ""

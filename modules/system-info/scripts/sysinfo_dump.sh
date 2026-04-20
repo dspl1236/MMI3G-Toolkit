@@ -1,11 +1,11 @@
 #!/bin/ksh
 # ============================================================
-# MMI3G-Toolkit — Comprehensive System Diagnostic
+# MMI-Toolkit — Comprehensive System Diagnostic
 # Single-pass data gathering: system state, activations,
 # backups, credentials, variant ID, and CAN/persistence state
 #
 # Runs entirely from SD card. No flash writes.
-# Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
+# Part of MMI-Toolkit: github.com/dspl1236/MMI-Toolkit
 # ============================================================
 
 SDPATH="${1:-$(dirname $0)}"
@@ -43,7 +43,7 @@ fi
 
 {
 echo "################################################################"
-echo "#  MMI3G-Toolkit System Information Report"
+echo "#  MMI-Toolkit System Information Report"
 echo "#  Generated: $(date 2>/dev/null)"
 echo "#  Host: $(hostname 2>/dev/null || echo unknown)"
 echo "################################################################"
