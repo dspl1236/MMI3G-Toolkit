@@ -341,6 +341,21 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         '# ============================================================',
         '',
         'SDPATH="${1:-$(dirname $0)}"',
+        '',
+        '# Source platform.sh for QNX compatibility shims (head, basename,',
+        '# wc, printf, awk, sync, mkdir -p all shimmed for QNX)',
+        'if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then',
+        '    . "${SDPATH}/scripts/common/platform.sh"',
+        'fi',
+        '',
+        '# Show "running" status on MMI display',
+        'if [ -f "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then',
+        '    cp "${SDPATH}/bin/showScreen" /tmp/showScreen 2>/dev/null',
+        '    chmod +x /tmp/showScreen 2>/dev/null',
+        '    /tmp/showScreen "${SDPATH}/lib/running.png" &',
+        '    SHOWSCREEN_PID=$!',
+        'fi',
+        '',
         'LOGFILE="${SDPATH}/var/install-$(date +%Y%m%d-%H%M%S).log"',
         'EFSDIR="/mnt/efs-system"',
         'ENGDEFS="${EFSDIR}/engdefs"',
@@ -464,7 +479,6 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
     # Summary
     lines.extend([
         '# --- Complete ---',
-        '# sync not available on QNX',
         'echo "============================================"',
         'echo " Installation Complete"',
         f'echo " Modules installed: {len(selected_modules)}"',
@@ -472,6 +486,13 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         'echo ""',
         'echo " Open GEM (CAR + BACK) to access new screens"',
         'echo "============================================"',
+        '',
+        '# Show "done" status on MMI display',
+        'if [ -x /tmp/showScreen ] && [ -f "${SDPATH}/lib/done.png" ]; then',
+        '    kill ${SHOWSCREEN_PID} 2>/dev/null',
+        '    sleep 1',
+        '    /tmp/showScreen "${SDPATH}/lib/done.png" &',
+        'fi',
     ])
 
     return '\n'.join(lines) + '\n'
