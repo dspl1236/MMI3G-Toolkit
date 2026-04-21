@@ -1,30 +1,42 @@
-# ============================================================
-# GaugesSystem.esd
-# MMI3G+ Gauges Dashboard - System Info Screen
-# Hardware and software details
-# ============================================================
-# Access via GEM: /gauges/system
-# ============================================================
+#############################################
+#
+#  MMI3G-Toolkit Gauges System
+#  github.com/dspl1236/MMI3G-Toolkit
+#
+#############################################
 
-screen GaugesSystem Toolkit
+screen	GaugesSystem	Toolkit
 
-# --- Firmware Details ---
-keyValue value String per 3 0x00120004 label "Software Train:"
+   keyValue
+      value    String per 3 0x00120004
+      label    "Software Train"
 
-keyValue value String per 1 0x0000100d label "MU Software:"
+   keyValue
+      value    String per 1 0x0000100d
+      label    "MU Software"
 
-keyValue value String per 1 0x0003001a label "Nav Database:"
+   keyValue
+      value    String per 1 0x0003001a
+      label    "Nav Database"
 
-# --- Hardware Status ---
-keyValue value int per 3 0x00000023 label "Term.30 Voltage (x100mV):"
-poll 1000
+   keyValue
+      value    int per 3 0x00000023
+      label    "Term.30 Voltage (x100mV)"
+      poll     1000
 
-keyValue value int per 1 0x00180000 label "USB Devices Attached:"
-poll 3000
+   keyValue
+      value    int per 1 0x00180000
+      label    "USB Devices"
+      poll     3000
 
-# --- Diagnostics ---
-script value sys 1 0x0100 "/scripts/Gauges/fullreport.sh" label ">> Full System Report <<"
+   script
+      value    sys 1 0x0100 "/scripts/Gauges/fullreport.sh"
+      label    ">> Full System Report <<"
 
-script value sys 1 0x0100 "/scripts/Gauges/proclist.sh" label ">> Process List to SD <<"
+   script
+      value    sys 1 0x0100 "/scripts/Gauges/proclist.sh"
+      label    ">> Process List <<"
 
-script value sys 1 0x0100 "/scripts/Gauges/diskinfo.sh" label ">> Disk Info to SD <<"
+   script
+      value    sys 1 0x0100 "/scripts/Gauges/diskinfo.sh"
+      label    ">> Disk Info <<"

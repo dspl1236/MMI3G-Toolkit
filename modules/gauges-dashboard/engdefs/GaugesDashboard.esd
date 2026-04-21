@@ -1,40 +1,49 @@
-# ============================================================
-# GaugesDashboard.esd
-# MMI3G+ Gauges Dashboard - Main Screen
-# Live vehicle telemetry for Audi C7 A6/A7
-# ============================================================
-# Access via GEM: /gauges/dashboard
-# 
-# Data refreshes at the polling intervals shown.
-# Terminal 30 voltage is in centimillivolts (divide by 100
-# for volts, e.g. 1440 = 14.40V)
-# ============================================================
+#############################################
+#
+#  MMI3G-Toolkit Gauges Dashboard
+#  github.com/dspl1236/MMI3G-Toolkit
+#
+#############################################
 
-screen GaugesDashboard Toolkit
+screen	GaugesDashboard	Toolkit
 
-# --- Battery / Electrical ---
-keyValue value int per 3 0x00000023 label "Battery Voltage (x100mV):"
-poll 500
+   keyValue
+      value    int per 3 0x00000023
+      label    "Battery (x100 mV)"
+      poll     500
 
-# --- GPS Status ---
-keyValue value int per 7 0x000200bb label "GPS Sats Used:"
-poll 1000
+   keyValue
+      value    int per 7 0x000200bb
+      label    "GPS Sats Used"
+      poll     1000
 
-keyValue value int per 7 0x000200bc label "GPS Sats Visible:"
-poll 1000
+   keyValue
+      value    int per 7 0x000200bc
+      label    "GPS Sats Visible"
+      poll     1000
 
-keyValue value int per 1 0x00030019 label "GPS Altitude (m):"
-poll 1000
+   keyValue
+      value    int per 1 0x00030019
+      label    "GPS Altitude (m)"
+      poll     1000
 
-# --- System Info ---
-keyValue value String per 3 0x00120004 label "SW Train:"
+   keyValue
+      value    String per 3 0x00120004
+      label    "SW Train"
 
-keyValue value String per 1 0x0000100d label "MU Version:"
+   keyValue
+      value    String per 1 0x0000100d
+      label    "MU Version"
 
-keyValue value int per 1 0x00180000 label "USB Devices:"
-poll 2000
+   keyValue
+      value    int per 1 0x00180000
+      label    "USB Devices"
+      poll     2000
 
-# --- Quick Actions ---
-script value sys 1 0x0100 "/scripts/Gauges/snapshot.sh" label ">> Save Snapshot to SD <<"
+   script
+      value    sys 1 0x0100 "/scripts/Gauges/snapshot.sh"
+      label    ">> Snapshot to SD <<"
 
-script value sys 1 0x0100 "/scripts/Gauges/syslog.sh" label ">> Dump Syslog to SD <<"
+   script
+      value    sys 1 0x0100 "/scripts/Gauges/syslog.sh"
+      label    ">> Syslog to SD <<"
