@@ -12,7 +12,7 @@
 # runtime. Output appears in the GEM console.
 # ============================================================
 
-screen GamesMenu Toolkit
+screen GamesMenu Main
 
 script value sys 1 0x0100 "/scripts/Games/game_loader.sh" label ">> Scan for Games <<"
 
