@@ -284,3 +284,28 @@ modification needed to swap firmware.
 
 Documented for future experimentation. Safe to test — reboot
 always restores clean IFS firmware. No permanent changes.
+
+## FRF Firmware Decryption — WORKING
+
+Successfully decrypted VW/Audi FRF flash containers using bri3d's
+recursive XOR cipher with the public `frf.key` from VW_Flash.
+
+### C7 Kombi (4G8920_10) Flash Layout
+
+| Block | Type | Compressed | Uncompressed | Version |
+|-------|------|-----------|--------------|---------|
+| 1 | Boot/cal | 1.5KB | 3KB | - |
+| 2 | Software | 461KB | 1MB | 0044 |
+| 4 | Main app | 4.9MB | 12.5MB | 0016 |
+| 5 | App pt2 | 3.8MB | 8.4MB | 0044 |
+| 6 | Graphics | 4.8MB | 9.4MB | 0001 |
+| 7 | Resources| 2.4MB | 5.2MB | 0008 |
+| 9 | Config | 272B | 320B | 0044 |
+
+Security: SA2 + SHA1-RSA1024 with CRC32
+Encrypt method: 0x11 (not Simos 0x0A — different decompressor needed)
+
+### Tools
+- FRF decryption: `bri3d/VW_Flash/frf/decryptfrf.py`
+- Key file: `bri3d/VW_Flash/data/frf.key` (4095 bytes, public)
+- Produces ZIP → ODX (XML flash container)
