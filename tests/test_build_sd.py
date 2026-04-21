@@ -46,6 +46,9 @@ class BuildSdCliTests(unittest.TestCase):
             self.assertTrue((output_dir / 'copie_scr.sh').is_file())
             self.assertTrue((output_dir / 'run.sh').is_file())
             self.assertTrue((output_dir / 'uninstall.sh').is_file())
+            self.assertTrue((output_dir / 'bin' / 'showScreen').is_file())
+            self.assertTrue((output_dir / 'lib' / 'running.png').is_file())
+            self.assertTrue((output_dir / 'lib' / 'done.png').is_file())
             self.assertTrue((output_dir / 'scripts' / 'sysinfo_dump.sh').is_file())
             self.assertTrue((output_dir / 'scripts' / 'common' / 'platform.sh').is_file())
 
@@ -72,6 +75,8 @@ class BuildSdCliTests(unittest.TestCase):
             self.assertIn('gem-activator (required by can-scanner)', result.stdout)
             self.assertTrue((output_dir / 'engdefs' / 'ToolkitMain.esd').is_file())
             self.assertTrue((output_dir / 'engdefs' / 'ScannerPer3Low.esd').is_file())
+            self.assertTrue((output_dir / 'lib' / 'gem_enabled.png').is_file())
+            self.assertTrue((output_dir / 'lib' / 'gem_disabled.png').is_file())
 
             run_sh = (output_dir / 'run.sh').read_text(encoding='utf-8')
             self.assertLess(
