@@ -234,3 +234,53 @@ congo (ruthr on a5oc.com) sells a patched binary for €75-180:
 - VIN/FAZIT-specific activation
 - Requires K900+ firmware (Andrew on K942 — compatible)
 - audi-mib.bg — still active as of 2026
+
+### WiFi Client Mode — Firmware Swap Discovery
+
+The Marvell 88W8688 driver (`devnp-mv8688uap.so`) searches for
+firmware in this order:
+
+```
+1. /tmp/FwImage/sd8688_ap.bin      ← checked FIRST
+2. /tmp/FwImage/helper_sd.bin      ← helper checked FIRST
+3. /FwImage/sd8688_ap.bin          ← IFS fallback (current)
+4. /FwImage/helper_sd.bin          ← IFS fallback
+
+Driver option: fwpath=xxx  (overrides search path, default /tmp)
+```
+
+The driver checks `/tmp/FwImage/` BEFORE the IFS copy. No IFS
+modification needed to swap firmware.
+
+#### Proposed Test
+
+1. Download `sd8688.bin` (STA firmware) from Linux firmware repo
+   https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/mrvl/sd8688.bin
+2. Place on SD card as `var/FwImage/sd8688_ap.bin` (same filename!)
+3. Boot script:
+   ```bash
+   # Copy STA firmware where driver looks first
+   mkdir -p /tmp/FwImage
+   cp /mnt/sdcard/var/FwImage/sd8688_ap.bin /tmp/FwImage/
+   # Kill AP driver
+   slay -f devnp-mv8688uap
+   sleep 2
+   # Driver restarts, finds STA firmware in /tmp first
+   ```
+4. Or restart with fwpath override:
+   ```bash
+   io-pkt-v4 -d devnp-mv8688uap.so fwpath=/mnt/sdcard/var
+   ```
+5. Check `ifconfig` — look for `wlan0` or `sta0` instead of `uap0`
+
+#### Risks
+
+- Driver binary is AP-mode code — sends AP-specific commands
+- STA firmware might not respond correctly to AP commands
+- Worst case: WiFi crashes, reboot restores IFS firmware
+- Best case: Marvell does mode logic in firmware, thin driver works
+
+#### Status: UNTESTED / ALPHA
+
+Documented for future experimentation. Safe to test — reboot
+always restores clean IFS firmware. No permanent changes.
