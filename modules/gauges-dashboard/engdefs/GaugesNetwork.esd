@@ -6,7 +6,7 @@
 # Access via GEM: /gauges/network
 # ============================================================
 
-screen GaugesNetwork Gauges
+screen GaugesNetwork Toolkit
 
 # --- Connection Status ---
 keyValue value int per 1 0x00180000 label "USB Devices:"

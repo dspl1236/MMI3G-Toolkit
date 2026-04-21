@@ -6,7 +6,7 @@
 # Access via GEM: /gauges/system
 # ============================================================
 
-screen GaugesSystem Gauges
+screen GaugesSystem Toolkit
 
 # --- Firmware Details ---
 keyValue value String per 3 0x00120004 label "Software Train:"
