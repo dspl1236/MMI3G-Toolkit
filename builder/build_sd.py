@@ -341,6 +341,7 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         '# ============================================================',
         '',
         'SDPATH="${1:-$(dirname $0)}"',
+        'export SDPATH',
         '',
         '# Source platform.sh for QNX compatibility shims (head, basename,',
         '# wc, printf, awk, sync, mkdir -p all shimmed for QNX)',
