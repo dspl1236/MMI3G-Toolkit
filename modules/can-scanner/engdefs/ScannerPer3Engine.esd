@@ -1,7 +1,7 @@
 # Scanner - Per 3 Range 0x0001xxxx
 # Possible engine/drivetrain data from ECU via CAN gateway
 
-screen ScannerPer3Engine Scanner
+screen ScannerPer3Engine Toolkit
 
 keyValue value int per 3 0x00010000 label "per3 0x00010000:"
 poll 500

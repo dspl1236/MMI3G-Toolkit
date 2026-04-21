@@ -1,7 +1,7 @@
 # Scanner - Gap Range 0x15-0x22 + 0x25-0xFF
 # Between known factory addresses
 
-screen ScannerGaps2 Scanner
+screen ScannerGaps2 Toolkit
 
 keyValue value int per 3 0x00000015 label "0x15 (gap):"
 poll 500

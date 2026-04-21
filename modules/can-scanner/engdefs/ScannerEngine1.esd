@@ -4,7 +4,7 @@
 # Per 7 uses 0x000200xx for GPS — per 3 might mirror
 # a similar structure for engine data.
 
-screen ScannerEngine1 Scanner
+screen ScannerEngine1 Toolkit
 
 keyValue value int per 3 0x00020000 label "0x20000:"
 poll 500

@@ -3,7 +3,7 @@
 # CAN Bus Assignment — Komfort (0) vs Dashboard (1)
 # ============================================================
 
-screen CodingBusRouting Coding
+screen CodingBusRouting Toolkit
 
 keyValue value int per 3 0x0014003D label "Air Cond CAN bus:"
 poll 10000

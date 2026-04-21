@@ -1,7 +1,7 @@
 # Scanner - Per 7 GPS/Nav (complete factory set + unknowns)
 # All per 7 addresses found in factory firmware are included.
 
-screen ScannerGPS Scanner
+screen ScannerGPS Toolkit
 
 # KNOWN from factory ESD files:
 keyValue value int per 7 0x000200ae label "0x200ae:"

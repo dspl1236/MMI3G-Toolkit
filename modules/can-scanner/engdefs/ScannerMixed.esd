@@ -1,7 +1,7 @@
 # Scanner - Per 3 High + Per 1 System Data
 # Mixed scan of higher per 3 and key per 1 addresses
 
-screen ScannerMixed Scanner
+screen ScannerMixed Toolkit
 
 keyValue value int per 3 0x00140000 label "per3 0x00140000:"
 poll 500

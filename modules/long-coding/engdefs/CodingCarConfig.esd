@@ -3,7 +3,7 @@
 # Car Device List — shows all installed equipment flags
 # ============================================================
 
-screen CodingCarConfig Coding
+screen CodingCarConfig Toolkit
 
 # Each entry is a feature bit from the Car Device list
 # 0 = not installed, non-zero = installed variant

@@ -1,7 +1,7 @@
 # Scanner - Per 3 Range 0x10-0x30
 # Includes known voltage at 0x23
 
-screen ScannerPer3Mid1 Scanner
+screen ScannerPer3Mid1 Toolkit
 
 keyValue value int per 3 0x00000010 label "per3 0x00000010:"
 poll 500

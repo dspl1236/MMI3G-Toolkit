@@ -1,7 +1,7 @@
 # Scanner - String Values Discovery
 # Some addresses return strings that help identify data sources
 
-screen ScannerStrings Scanner
+screen ScannerStrings Toolkit
 
 keyValue value String per 3 0x00120004 label "per3 0x120004 (KNOWN=train):"
 keyValue value String per 3 0x00120000 label "per3 0x00120000:"

@@ -3,7 +3,7 @@
 # On per 3 it might hold engine sensor data.
 # Reference values included so you can verify the scanner works.
 
-screen ScannerEngine2 Scanner
+screen ScannerEngine2 Toolkit
 
 # REFERENCE - these are KNOWN to return data:
 keyValue value int per 3 0x00000023 label "VOLTS (known):"

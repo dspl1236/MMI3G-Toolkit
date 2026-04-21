@@ -2,7 +2,7 @@
 # Common CAN bus data addresses
 # Watch for non-zero values - those are live!
 
-screen ScannerPer3Low Scanner
+screen ScannerPer3Low Toolkit
 
 keyValue value int per 3 0x00000001 label "per3 0x00000001:"
 poll 500

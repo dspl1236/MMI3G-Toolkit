@@ -6,7 +6,7 @@
 # Access via GEM: /coding
 # ============================================================
 
-screen CodingMain Coding
+screen CodingMain Toolkit
 
 # --- Identification (for reference) ---
 keyValue value String per 3 0x00120004 label "Software Train:"

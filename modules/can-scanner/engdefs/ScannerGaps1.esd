@@ -23,7 +23,7 @@
 # responds to those actions is live vehicle data.
 # ============================================================
 
-screen ScannerGaps1 Scanner
+screen ScannerGaps1 Toolkit
 
 # Gap: 0x0000000B - 0x0000001F (between IOC and voltage)
 keyValue value int per 3 0x0000000B label "0x0B (gap):"
