@@ -1,26 +1,56 @@
 # Scanner - Per 7 GPS/Nav (complete factory set + unknowns)
 # All per 7 addresses found in factory firmware are included.
 
-screen ScannerGPS Toolkit
+screen	ScannerGPS	Toolkit
 
 # KNOWN from factory ESD files:
-keyValue value int per 7 0x000200ae label "0x200ae:"
-poll 1000
-keyValue value int per 7 0x000200b4 label "0x200b4:"
-poll 1000
-keyValue value int per 7 0x000200b5 label "0x200b5:"
-poll 1000
-keyValue value int per 7 0x000200b6 label "0x200b6:"
-poll 1000
-keyValue value int per 7 0x000200b8 label "0x200b8:"
-poll 1000
-keyValue value int per 7 0x000200b9 label "0x200b9:"
-poll 1000
-keyValue value int per 7 0x000200ba label "0x200ba:"
-poll 1000
-keyValue value int per 7 0x000200bb label "0x200bb SATS USED:"
-poll 1000
-keyValue value int per 7 0x000200bc label "0x200bc SATS VIS:"
-poll 1000
 
-script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log Results <<"
+   keyValue
+      value    int per 7 0x000200ae
+      label    "0x200ae:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200b4
+      label    "0x200b4:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200b5
+      label    "0x200b5:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200b6
+      label    "0x200b6:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200b8
+      label    "0x200b8:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200b9
+      label    "0x200b9:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200ba
+      label    "0x200ba:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200bb
+      label    "0x200bb SATS USED:"
+      poll     1000
+
+   keyValue
+      value    int per 7 0x000200bc
+      label    "0x200bc SATS VIS:"
+      poll     1000
+
+
+   script
+      value    sys 1 0x0100 "/scripts/Scanner/scan_log.sh"
+      label    ">> Log Results <<"

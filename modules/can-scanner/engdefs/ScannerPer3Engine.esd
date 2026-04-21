@@ -1,27 +1,60 @@
 # Scanner - Per 3 Range 0x0001xxxx
 # Possible engine/drivetrain data from ECU via CAN gateway
 
-screen ScannerPer3Engine Toolkit
+screen	ScannerPer3Engine	Toolkit
 
-keyValue value int per 3 0x00010000 label "per3 0x00010000:"
-poll 500
-keyValue value int per 3 0x00010001 label "per3 0x00010001:"
-poll 500
-keyValue value int per 3 0x00010002 label "per3 0x00010002:"
-poll 500
-keyValue value int per 3 0x00010003 label "per3 0x00010003:"
-poll 500
-keyValue value int per 3 0x00010004 label "per3 0x00010004:"
-poll 500
-keyValue value int per 3 0x00010005 label "per3 0x00010005:"
-poll 500
-keyValue value int per 3 0x00010010 label "per3 0x00010010:"
-poll 500
-keyValue value int per 3 0x00010020 label "per3 0x00010020:"
-poll 500
-keyValue value int per 3 0x00010050 label "per3 0x00010050:"
-poll 500
-keyValue value int per 3 0x00010100 label "per3 0x00010100:"
-poll 500
 
-script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log All Scanner Data <<"
+   keyValue
+      value    int per 3 0x00010000
+      label    "per3 0x00010000:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010001
+      label    "per3 0x00010001:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010002
+      label    "per3 0x00010002:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010003
+      label    "per3 0x00010003:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010004
+      label    "per3 0x00010004:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010005
+      label    "per3 0x00010005:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010010
+      label    "per3 0x00010010:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010020
+      label    "per3 0x00010020:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010050
+      label    "per3 0x00010050:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00010100
+      label    "per3 0x00010100:"
+      poll     500
+
+
+   script
+      value    sys 1 0x0100 "/scripts/Scanner/scan_log.sh"
+      label    ">> Log All Scanner Data <<"

@@ -1,27 +1,60 @@
 # Scanner - Per 3 High + Per 1 System Data
 # Mixed scan of higher per 3 and key per 1 addresses
 
-screen ScannerMixed Toolkit
+screen	ScannerMixed	Toolkit
 
-keyValue value int per 3 0x00140000 label "per3 0x00140000:"
-poll 500
-keyValue value int per 3 0x00140001 label "per3 0x00140001:"
-poll 500
-keyValue value int per 3 0x00140007 label "per3 0x00140007:"
-poll 500
-keyValue value int per 3 0x00140010 label "per3 0x00140010:"
-poll 500
-keyValue value int per 1 0x00000001 label "per1 0x00000001:"
-poll 500
-keyValue value int per 1 0x00000002 label "per1 0x00000002:"
-poll 500
-keyValue value int per 1 0x00000010 label "per1 0x00000010:"
-poll 500
-keyValue value int per 1 0x00010000 label "per1 0x00010000:"
-poll 500
-keyValue value int per 1 0x00010001 label "per1 0x00010001:"
-poll 500
-keyValue value int per 1 0x00030019 label "per1 0x30019 (KNOWN=GPS alt):"
-poll 500
 
-script value sys 1 0x0100 "/scripts/Scanner/scan_shmem.sh" label ">> Deep Memory Dump <<"
+   keyValue
+      value    int per 3 0x00140000
+      label    "per3 0x00140000:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00140001
+      label    "per3 0x00140001:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00140007
+      label    "per3 0x00140007:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00140010
+      label    "per3 0x00140010:"
+      poll     500
+
+   keyValue
+      value    int per 1 0x00000001
+      label    "per1 0x00000001:"
+      poll     500
+
+   keyValue
+      value    int per 1 0x00000002
+      label    "per1 0x00000002:"
+      poll     500
+
+   keyValue
+      value    int per 1 0x00000010
+      label    "per1 0x00000010:"
+      poll     500
+
+   keyValue
+      value    int per 1 0x00010000
+      label    "per1 0x00010000:"
+      poll     500
+
+   keyValue
+      value    int per 1 0x00010001
+      label    "per1 0x00010001:"
+      poll     500
+
+   keyValue
+      value    int per 1 0x00030019
+      label    "per1 0x30019 (KNOWN=GPS alt):"
+      poll     500
+
+
+   script
+      value    sys 1 0x0100 "/scripts/Scanner/scan_shmem.sh"
+      label    ">> Deep Memory Dump <<"

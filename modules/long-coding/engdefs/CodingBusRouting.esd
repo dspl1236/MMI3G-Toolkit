@@ -3,46 +3,88 @@
 # CAN Bus Assignment — Komfort (0) vs Dashboard (1)
 # ============================================================
 
-screen CodingBusRouting Toolkit
+screen	CodingBusRouting	Toolkit
 
-keyValue value int per 3 0x0014003D label "Air Cond CAN bus:"
-poll 10000
 
-keyValue value int per 3 0x00140040 label "Head-up Display CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x0014003D
+      label    "Air Cond CAN bus:"
+      poll     10000
 
-keyValue value int per 3 0x00140041 label "ACC CAN:"
-poll 10000
 
-keyValue value int per 3 0x00140042 label "Suspension CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x00140040
+      label    "Head-up Display CAN:"
+      poll     10000
 
-keyValue value int per 3 0x00140043 label "Tyre Pressure CAN:"
-poll 10000
 
-keyValue value int per 3 0x00140044 label "Interior Light CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x00140041
+      label    "ACC CAN:"
+      poll     10000
 
-keyValue value int per 3 0x00140045 label "Exterior Light CAN:"
-poll 10000
 
-keyValue value int per 3 0x00140046 label "Park Distance CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x00140042
+      label    "Suspension CAN:"
+      poll     10000
 
-keyValue value int per 3 0x00140047 label "Rearview Camera CAN:"
-poll 10000
 
-keyValue value int per 3 0x00140048 label "Wiper CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x00140043
+      label    "Tyre Pressure CAN:"
+      poll     10000
 
-keyValue value int per 3 0x00140055 label "Lane Dep Warning CAN:"
-poll 10000
 
-keyValue value int per 3 0x00140056 label "Lane Change Assist CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x00140044
+      label    "Interior Light CAN:"
+      poll     10000
 
-keyValue value int per 3 0x00140059 label "Hybrid CAN:"
-poll 10000
 
-keyValue value int per 3 0x0014005D label "Traffic Sign CAN:"
-poll 10000
+   keyValue
+      value    int per 3 0x00140045
+      label    "Exterior Light CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x00140046
+      label    "Park Distance CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x00140047
+      label    "Rearview Camera CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x00140048
+      label    "Wiper CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x00140055
+      label    "Lane Dep Warning CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x00140056
+      label    "Lane Change Assist CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x00140059
+      label    "Hybrid CAN:"
+      poll     10000
+
+
+   keyValue
+      value    int per 3 0x0014005D
+      label    "Traffic Sign CAN:"
+      poll     10000

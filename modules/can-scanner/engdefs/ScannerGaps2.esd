@@ -1,27 +1,60 @@
 # Scanner - Gap Range 0x15-0x22 + 0x25-0xFF
 # Between known factory addresses
 
-screen ScannerGaps2 Toolkit
+screen	ScannerGaps2	Toolkit
 
-keyValue value int per 3 0x00000015 label "0x15 (gap):"
-poll 500
-keyValue value int per 3 0x00000016 label "0x16 (gap):"
-poll 500
-keyValue value int per 3 0x00000017 label "0x17 (gap):"
-poll 500
-keyValue value int per 3 0x00000018 label "0x18 (gap):"
-poll 500
-keyValue value int per 3 0x00000019 label "0x19 (gap):"
-poll 500
-keyValue value int per 3 0x0000001A label "0x1A (gap):"
-poll 500
-keyValue value int per 3 0x00000025 label "0x25 (after voltage):"
-poll 500
-keyValue value int per 3 0x00000030 label "0x30 (gap):"
-poll 500
-keyValue value int per 3 0x00000040 label "0x40 (gap):"
-poll 500
-keyValue value int per 3 0x00000050 label "0x50 (gap):"
-poll 500
 
-script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log Results <<"
+   keyValue
+      value    int per 3 0x00000015
+      label    "0x15 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000016
+      label    "0x16 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000017
+      label    "0x17 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000018
+      label    "0x18 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000019
+      label    "0x19 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x0000001A
+      label    "0x1A (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000025
+      label    "0x25 (after voltage):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000030
+      label    "0x30 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000040
+      label    "0x40 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000050
+      label    "0x50 (gap):"
+      poll     500
+
+
+   script
+      value    sys 1 0x0100 "/scripts/Scanner/scan_log.sh"
+      label    ">> Log Results <<"

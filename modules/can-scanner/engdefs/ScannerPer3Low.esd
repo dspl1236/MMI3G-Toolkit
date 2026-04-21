@@ -2,27 +2,60 @@
 # Common CAN bus data addresses
 # Watch for non-zero values - those are live!
 
-screen ScannerPer3Low Toolkit
+screen	ScannerPer3Low	Toolkit
 
-keyValue value int per 3 0x00000001 label "per3 0x00000001:"
-poll 500
-keyValue value int per 3 0x00000002 label "per3 0x00000002:"
-poll 500
-keyValue value int per 3 0x00000003 label "per3 0x00000003:"
-poll 500
-keyValue value int per 3 0x00000004 label "per3 0x00000004:"
-poll 500
-keyValue value int per 3 0x00000005 label "per3 0x00000005:"
-poll 500
-keyValue value int per 3 0x00000006 label "per3 0x00000006:"
-poll 500
-keyValue value int per 3 0x00000007 label "per3 0x00000007:"
-poll 500
-keyValue value int per 3 0x00000008 label "per3 0x00000008:"
-poll 500
-keyValue value int per 3 0x00000009 label "per3 0x00000009:"
-poll 500
-keyValue value int per 3 0x0000000a label "per3 0x0000000a:"
-poll 500
 
-script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log All Scanner Data <<"
+   keyValue
+      value    int per 3 0x00000001
+      label    "per3 0x00000001:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000002
+      label    "per3 0x00000002:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000003
+      label    "per3 0x00000003:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000004
+      label    "per3 0x00000004:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000005
+      label    "per3 0x00000005:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000006
+      label    "per3 0x00000006:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000007
+      label    "per3 0x00000007:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000008
+      label    "per3 0x00000008:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000009
+      label    "per3 0x00000009:"
+      poll     500
+
+   keyValue
+      value    int per 3 0x0000000a
+      label    "per3 0x0000000a:"
+      poll     500
+
+
+   script
+      value    sys 1 0x0100 "/scripts/Scanner/scan_log.sh"
+      label    ">> Log All Scanner Data <<"

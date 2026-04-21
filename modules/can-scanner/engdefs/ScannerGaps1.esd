@@ -23,28 +23,61 @@
 # responds to those actions is live vehicle data.
 # ============================================================
 
-screen ScannerGaps1 Toolkit
+screen	ScannerGaps1	Toolkit
 
 # Gap: 0x0000000B - 0x0000001F (between IOC and voltage)
-keyValue value int per 3 0x0000000B label "0x0B (gap):"
-poll 500
-keyValue value int per 3 0x0000000C label "0x0C (gap):"
-poll 500
-keyValue value int per 3 0x0000000D label "0x0D (gap):"
-poll 500
-keyValue value int per 3 0x0000000E label "0x0E (gap):"
-poll 500
-keyValue value int per 3 0x0000000F label "0x0F (gap):"
-poll 500
-keyValue value int per 3 0x00000010 label "0x10 (gap):"
-poll 500
-keyValue value int per 3 0x00000011 label "0x11 (gap):"
-poll 500
-keyValue value int per 3 0x00000012 label "0x12 (gap):"
-poll 500
-keyValue value int per 3 0x00000013 label "0x13 (gap):"
-poll 500
-keyValue value int per 3 0x00000014 label "0x14 (gap):"
-poll 500
 
-script value sys 1 0x0100 "/scripts/Scanner/scan_log.sh" label ">> Log Results <<"
+   keyValue
+      value    int per 3 0x0000000B
+      label    "0x0B (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x0000000C
+      label    "0x0C (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x0000000D
+      label    "0x0D (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x0000000E
+      label    "0x0E (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x0000000F
+      label    "0x0F (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000010
+      label    "0x10 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000011
+      label    "0x11 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000012
+      label    "0x12 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000013
+      label    "0x13 (gap):"
+      poll     500
+
+   keyValue
+      value    int per 3 0x00000014
+      label    "0x14 (gap):"
+      poll     500
+
+
+   script
+      value    sys 1 0x0100 "/scripts/Scanner/scan_log.sh"
+      label    ">> Log Results <<"
