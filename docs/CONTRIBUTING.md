@@ -26,6 +26,7 @@
 ## Module Guidelines
 
 - Set `status` to `"planned"` until tested on real hardware
+- Keep `screens`, `scripts`, `run_script`, and `artifact` entries in sync with real files
 - All scripts must handle missing SD card gracefully
 - Use `/bin/ksh` shebang (QNX default shell)
 - Log output to `${SDPATH}/var/` on the SD card
@@ -58,6 +59,12 @@ slider value per 3 0x00140007 0 31 label "Setting:"
 - `per 7` = GPS / Navigation data
 
 ## Testing
+
+Run the local builder smoke tests before opening a PR:
+`python -m unittest discover -s tests -v`
+
+These tests validate manifest loading, prerequisite resolution, target-platform
+filtering, and the core SD-card build flows. They do not replace on-car testing.
 
 Always test on a real MMI3G unit before marking a module as `ready`.
 The QNX 6.5.0 SP1 VM can verify script syntax but cannot simulate
