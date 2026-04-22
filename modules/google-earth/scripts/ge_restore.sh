@@ -1,7 +1,7 @@
 #!/bin/ksh
 # ============================================================
 # MMI3G-Toolkit — Google Earth Restore
-# Reverts all changes made by ge_enable.sh
+# Reverts all changes made by ge_activate.sh
 # ============================================================
 
 _SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
@@ -21,27 +21,40 @@ echo "============================================"
 # Remount rw
 mount -uw ${EFSDIR} 2>/dev/null
 
-# Find most recent backup
-LATEST=""
-for bak in ${BACKUP}/drivers.ini.bak-*; do
-    [ -f "$bak" ] && LATEST="$bak"
+# --- Restore lsd.jxe ---
+LSD_LATEST=""
+for bak in ${BACKUP}/lsd.jxe.bak-*; do
+    [ -f "$bak" ] && LSD_LATEST="$bak"
 done
 
-if [ -n "$LATEST" ] && [ -f "$LATEST" ]; then
-    echo "[RESTORE] Restoring drivers.ini from $LATEST"
-    cp "$LATEST" "$DRIVERS_INI"
-    echo "[OK] drivers.ini restored"
+if [ -n "$LSD_LATEST" ] && [ -f "$LSD_LATEST" ]; then
+    echo "[RESTORE] Restoring lsd.jxe from $LSD_LATEST"
+    cp "$LSD_LATEST" "${EFSDIR}/lsd/lsd.jxe"
+    echo "[OK] lsd.jxe restored (EOLFLAG_GOOGLE_EARTH reverted)"
+else
+    echo "[INFO] No lsd.jxe backup found — skipping"
+fi
+
+# --- Restore drivers.ini ---
+DRV_LATEST=""
+for bak in ${BACKUP}/drivers.ini.bak-*; do
+    [ -f "$bak" ] && DRV_LATEST="$bak"
+done
+
+if [ -n "$DRV_LATEST" ] && [ -f "$DRV_LATEST" ]; then
+    echo "[RESTORE] Restoring drivers.ini from $DRV_LATEST"
+    cp "$DRV_LATEST" "$DRIVERS_INI"
+    echo "[OK] drivers.ini restored (disableAuthKey reverted)"
 else
     # Manual removal of our additions
     if [ -f "$DRIVERS_INI" ] && grep -q "MMI3G-Toolkit" "$DRIVERS_INI"; then
         echo "[RESTORE] Removing MMI3G-Toolkit additions from drivers.ini"
-        # Remove our comment and the disableAuthKey line
         grep -v "Google Earth auth bypass\|Connection/disableAuthKey" "$DRIVERS_INI" > /tmp/drivers_clean.ini
         cp /tmp/drivers_clean.ini "$DRIVERS_INI"
         rm -f /tmp/drivers_clean.ini
         echo "[OK] Removed disableAuthKey from drivers.ini"
     else
-        echo "[INFO] No changes found to revert"
+        echo "[INFO] No drivers.ini changes found to revert"
     fi
 fi
 

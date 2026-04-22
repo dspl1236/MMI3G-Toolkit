@@ -182,9 +182,124 @@ echo "  [OK] Cache ready"
 echo ""
 
 # ============================================================
-# Step 5: Backup + modify drivers.ini
+# Step 5: Patch lsd.jxe — Enable Google Earth EOL flag
 # ============================================================
-echo "[STEP 5] drivers.ini modification..."
+echo "[STEP 5] lsd.jxe EOL flag patch..."
+
+# Find lsd.jxe — check writable EFS first, then read-only IFS
+LSD=""
+LSD_WRITABLE=0
+if [ -f "${EFSDIR}/lsd/lsd.jxe" ]; then
+    LSD="${EFSDIR}/lsd/lsd.jxe"
+    LSD_WRITABLE=1
+    echo "  [OK] lsd.jxe on writable EFS: $LSD"
+elif [ -f "/mnt/ifs-root/lsd/lsd.jxe" ]; then
+    LSD="/mnt/ifs-root/lsd/lsd.jxe"
+    LSD_WRITABLE=0
+    echo "  [WARN] lsd.jxe on read-only IFS: $LSD"
+    echo "  [WARN] Cannot patch from SD card — needs IFS reflash"
+fi
+
+if [ -n "$LSD" ] && [ $LSD_WRITABLE -eq 1 ]; then
+    # Backup lsd.jxe
+    cp "$LSD" "${BACKUP}/lsd.jxe.bak-${TS}"
+    echo "  [OK] Backed up to ${BACKUP}/lsd.jxe.bak-${TS}"
+
+    # Check current state — is GOOGLE_EARTH already =1?
+    # The flag is STORED (uncompressed) in the JAR, so grep works
+    CURRENT=$(strings "$LSD" 2>/dev/null | grep "^EOLFLAG_GOOGLE_EARTH=" | head -1)
+
+    if [ "$CURRENT" = "EOLFLAG_GOOGLE_EARTH=1" ]; then
+        echo "  [OK] EOLFLAG_GOOGLE_EARTH already set to 1 (enabled)"
+    elif [ "$CURRENT" = "EOLFLAG_GOOGLE_EARTH=0" ]; then
+        echo "  [MOD] Patching EOLFLAG_GOOGLE_EARTH=0 → =1"
+
+        # Find the byte offset of the '0' in EOLFLAG_GOOGLE_EARTH=0
+        # Strategy: search for all occurrences, skip RANGE_ entries
+        #
+        # The flag in sysconst.properties is preceded by "available\n"
+        # The RANGE_ entries are preceded by "RANGE_"
+        # We patch the FIRST non-RANGE_ occurrence
+
+        PATCHED=0
+        # Use dd to scan for the pattern in 64KB blocks
+        FILESIZE=$(ls -la "$LSD" | awk '{print $5}')
+        BLOCK=65536
+        OFF=0
+        TARGET="EOLFLAG_GOOGLE_EARTH=0"
+
+        while [ $OFF -lt $FILESIZE ] && [ $PATCHED -eq 0 ]; do
+            # Read a chunk and check for the target
+            CHUNK=$(dd if="$LSD" bs=1 skip=$OFF count=$((BLOCK + 40)) 2>/dev/null)
+            case "$CHUNK" in
+                *"$TARGET"*)
+                    # Found the target in this chunk — now find exact offset
+                    # Read byte-by-byte within this block to find it
+                    INNER=0
+                    while [ $INNER -lt $BLOCK ]; do
+                        SAMPLE=$(dd if="$LSD" bs=1 skip=$((OFF + INNER)) count=22 2>/dev/null)
+                        if [ "$SAMPLE" = "$TARGET" ]; then
+                            # Check if preceded by RANGE_ (6 bytes before)
+                            PRE=""
+                            if [ $((OFF + INNER)) -ge 6 ]; then
+                                PRE=$(dd if="$LSD" bs=1 skip=$((OFF + INNER - 6)) count=6 2>/dev/null)
+                            fi
+                            if [ "$PRE" != "RANGE_" ]; then
+                                # This is the actual flag value — patch it!
+                                BYTE_OFF=$((OFF + INNER + 21))
+                                # Verify the byte is actually '0' (0x30)
+                                OLD=$(dd if="$LSD" bs=1 skip=$BYTE_OFF count=1 2>/dev/null)
+                                if [ "$OLD" = "0" ]; then
+                                    printf '1' | dd of="$LSD" bs=1 seek=$BYTE_OFF conv=notrunc 2>/dev/null
+                                    PATCHED=1
+                                    CHANGES=$((CHANGES + 1))
+                                    echo "  [OK] Patched '0' → '1' at byte offset $BYTE_OFF"
+                                    echo "  [OK] Google Earth EOL flag enabled"
+                                else
+                                    echo "  [WARN] Unexpected byte at offset $BYTE_OFF: '$OLD'"
+                                fi
+                                break
+                            fi
+                        fi
+                        INNER=$((INNER + 1))
+                    done
+                    ;;
+            esac
+            OFF=$((OFF + BLOCK))
+        done
+
+        if [ $PATCHED -eq 0 ]; then
+            echo "  [WARN] Could not find EOLFLAG_GOOGLE_EARTH=0 in lsd.jxe"
+            echo "  [INFO] Flag may already be set, or file format is unexpected"
+            echo "  [INFO] Use eol_modifier.py on PC as fallback"
+        fi
+    else
+        echo "  [WARN] Unexpected flag state: '$CURRENT'"
+    fi
+
+    # Check for RANGE_ block (VW/RNS-850 variants)
+    HAS_RANGE=$(strings "$LSD" 2>/dev/null | grep "^RANGE_EOLFLAG_GOOGLE_EARTH=0$" | head -1)
+    if [ -n "$HAS_RANGE" ]; then
+        echo ""
+        echo "  [WARN] RANGE_EOLFLAG_GOOGLE_EARTH=0 detected!"
+        echo "  [INFO] This variant has a range lock on Google Earth"
+        echo "  [INFO] The flag was set to 1 but the UI may still block it"
+        echo "  [INFO] gemmi_final can still run independently of the UI flag"
+        echo "  [INFO] For full UI unlock, use eol_modifier.py --remove-range"
+    fi
+elif [ -n "$LSD" ] && [ $LSD_WRITABLE -eq 0 ]; then
+    echo "  [SKIP] lsd.jxe is on read-only IFS"
+    echo "  [INFO] To patch, use eol_modifier.py on PC + IFS reflash"
+    echo "  [INFO] Or: gemmi_final may run independently of EOL flags"
+else
+    echo "  [WARN] lsd.jxe not found"
+fi
+echo ""
+
+# ============================================================
+# Step 6: Backup + modify drivers.ini
+# ============================================================
+echo "[STEP 6] drivers.ini modification..."
 if [ -f "$DRIVERS_INI" ]; then
     cp "$DRIVERS_INI" "${BACKUP}/drivers.ini.bak-${TS}"
     echo "  [OK] Backed up to ${BACKUP}/drivers.ini.bak-${TS}"
@@ -204,9 +319,9 @@ fi
 echo ""
 
 # ============================================================
-# Step 6: Network check
+# Step 7: Network check
 # ============================================================
-echo "[STEP 6] Network connectivity..."
+echo "[STEP 7] Network connectivity..."
 HAS_NET=0
 if ifconfig en5 2>/dev/null | grep -q "inet"; then
     echo "  [OK] en5 interface has IP address"
@@ -229,6 +344,8 @@ echo "============================================"
 echo ""
 echo " Changes made:     $CHANGES"
 echo " GEMMI binaries:   $([ -f "${GEMMI_TARGET}/gemmi_final" ] && echo 'PRESENT' || echo 'NOT FOUND')"
+echo " EOL flag:         $(strings "${LSD:-none}" 2>/dev/null | grep '^EOLFLAG_GOOGLE_EARTH=' | head -1 || echo 'UNKNOWN')"
+echo " RANGE lock:       $(strings "${LSD:-none}" 2>/dev/null | grep -c '^RANGE_EOLFLAG_GOOGLE_EARTH=0' || echo '?') entries"
 echo " disableAuthKey:   $(grep -q disableAuthKey "$DRIVERS_INI" 2>/dev/null && echo 'SET' || echo 'NOT SET')"
 echo " Internet:         $([ $HAS_NET -eq 1 ] && echo 'CONNECTED' || echo 'NOT CONNECTED')"
 echo " Backup:           ${BACKUP}/"
