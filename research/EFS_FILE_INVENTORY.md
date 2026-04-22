@@ -29,7 +29,7 @@ brute-force dirent pattern matching across all 148 flash units.
 
 ## Remote Debugging with qconn
 
-After enabling telnet access (see `docs/FLASH_RUNBOOK.md`):
+After enabling telnet access (see `research/ENGINEERING_ACCESS.md`):
 
 ```bash
 # On MMI via telnet:
