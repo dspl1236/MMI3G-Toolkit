@@ -1,0 +1,3 @@
+main=Benchmark
+name=J9 Benchmark
+description=CPU and memory benchmark for the MMI J9 JVM

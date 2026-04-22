@@ -1,26 +1,20 @@
-# ============================================================
-# Games Menu - Launch Java games from SD card
-# ============================================================
-# Games are loaded from /games/ on either SD slot.
-# Use SD slot 2 as your game library!
+#############################################
 #
-# Each game folder needs:
-#   game.jar      - The game JAR file
-#   game.manifest - Config (main=ClassName, name=Display Name)
+#  MMI3G-Toolkit Games Menu
+#  github.com/dspl1236/MMI3G-Toolkit
 #
-# The game runs on the J9 JVM with lsd.jxe as the Java
-# runtime. Output appears in the GEM console.
-# ============================================================
+#############################################
 
-screen GamesMenu Main
+screen	GamesMenu	Main
 
-script value sys 1 0x0100 "/scripts/Games/game_loader.sh" label ">> Scan for Games <<"
+   script
+      value    sys 1 0x0100 "/scripts/Games/game_loader.sh"
+      label    ">> Scan for Games <<"
 
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh snake" label "Play: Snake"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh tetris" label "Play: Tetris"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh adventure" label "Play: Adventure"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh doom" label "Play: Doom"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh chess" label "Play: Chess"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh puzzle" label "Play: Puzzle"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh custom1" label "Play: Custom Game 1"
-script value sys 1 0x0100 "/scripts/Games/launch_game.sh custom2" label "Play: Custom Game 2"
+   script
+      value    sys 1 0x0100 "/scripts/Games/launch_game.sh benchmark"
+      label    "Run: J9 Benchmark"
+
+   script
+      value    sys 1 0x0100 "/scripts/Games/launch_game.sh fortune"
+      label    "Run: Fortune Cookie"
