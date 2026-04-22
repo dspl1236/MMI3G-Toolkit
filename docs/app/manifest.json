@@ -169,7 +169,7 @@
                 },
                 {
                     "path": "games/adventure/game.jar",
-                    "size": 4025
+                    "size": 3993
                 },
                 {
                     "path": "games/adventure/game.manifest",
@@ -177,7 +177,7 @@
                 },
                 {
                     "path": "games/benchmark/game.jar",
-                    "size": 1676
+                    "size": 1644
                 },
                 {
                     "path": "games/benchmark/game.manifest",
@@ -185,7 +185,7 @@
                 },
                 {
                     "path": "games/fortune/game.jar",
-                    "size": 1819
+                    "size": 1785
                 },
                 {
                     "path": "games/fortune/game.manifest",
@@ -197,7 +197,7 @@
                 },
                 {
                     "path": "games/snake/game.jar",
-                    "size": 2657
+                    "size": 2625
                 },
                 {
                     "path": "games/snake/game.manifest",
