@@ -257,11 +257,12 @@ function generateRunSh(selected, manifest) {
     lines.push(`echo "[MODULE] Installing ${modName}..."`);
 
     if (meta.standalone && meta.run_script) {
-      lines.push(`if [ -f "\${SDPATH}/scripts/${meta.run_script}" ]; then`);
-      lines.push(`    ksh "\${SDPATH}/scripts/${meta.run_script}" "\${SDPATH}"`);
+      const runScript = overrides[modName] || meta.run_script;
+      lines.push(`if [ -f "\${SDPATH}/scripts/${runScript}" ]; then`);
+      lines.push(`    ksh "\${SDPATH}/scripts/${runScript}" "\${SDPATH}"`);
       lines.push(`    echo "[OK] ${modName} standalone script executed"`);
       lines.push("else");
-      lines.push(`    echo "[WARN] ${meta.run_script} not found for ${modName}"`);
+      lines.push(`    echo "[WARN] ${runScript} not found for ${modName}"`);
       lines.push("fi");
 
       if (shFiles.length > 0) {
@@ -330,7 +331,8 @@ function generateRunSh(selected, manifest) {
  * Returns an array of { path, bytes } ready to be written either to a
  * directory picker or to a ZIP.
  */
-async function buildSdBundle(selected, onProgress) {
+async function buildSdBundle(selected, onProgress, overrides) {
+  overrides = overrides || {};
   onProgress && onProgress("Loading manifest...", 0);
   const manifest = await fetchJson(MANIFEST_URL);
   const rawBase = manifest.raw_url_base;
@@ -533,6 +535,7 @@ function App() {
   const [selected, setSelected] = useState(new Set(["system-info"]));
   const [model, setModel] = useState("a6c7");
   const [expandedMod, setExpandedMod] = useState(null);
+  const [geScript, setGeScript] = useState("ge_probe.sh");
   const [buildState, setBuildState] = useState("idle"); // idle | building | done | error
   const [buildProgress, setBuildProgress] = useState({ label: "", pct: 0 });
   const [buildError, setBuildError] = useState(null);
@@ -597,7 +600,7 @@ function App() {
     try {
       const bundle = await buildSdBundle([...selected], (label, pct) => {
         setBuildProgress({ label, pct });
-      });
+      }, { "google-earth": geScript });
       const totalBytes = bundle.files.reduce((n, f) => n + f.bytes.length, 0);
       setBuildStats({ fileCount: bundle.files.filter(f => !f.path.endsWith("/.keep")).length, totalBytes });
       return bundle;
@@ -726,6 +729,15 @@ function App() {
               ),
               isExp && React.createElement("div", { style: { fontSize: 11, color: "#888", padding: "6px 0 0 22px", borderTop: "1px solid #1a1a1e", paddingTop: 8, marginTop: 6, lineHeight: 1.5 } },
                 m.detail,
+                m.id === "google-earth" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
+                  React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Script to run"),
+                  React.createElement("select", { value: geScript, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setGeScript(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
+                    React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
+                    React.createElement("option", { value: "ge_enable.sh" }, "\u26A1 Enable (add disableAuthKey)"),
+                    React.createElement("option", { value: "ge_deploy.sh" }, "\u{1F4E6} Deploy (copy GEMMI binaries)"),
+                    React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
+                  )
+                ),
                 m.prereq && React.createElement("div", { style: { marginTop: 4, fontSize: 10, color: "#e84a6a", fontFamily: "IBM Plex Mono" } }, "Requires: " + m.prereq)
               )
             );
