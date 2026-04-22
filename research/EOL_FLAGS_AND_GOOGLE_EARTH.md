@@ -317,3 +317,127 @@ Network/maxRequestsBacklog = 10
 - **GEMMI_PATCH_MAP.md** — Binary patch points in gemmi_final and
   libembeddedearth.so for Google hostname and auth bypass
 - **tools/eol_modifier.py** — CLI tool to modify EOL flags in lsd.jxe
+
+## Congo's GEMMI Restoration — Reverse Engineering Analysis
+
+### How It Works (inferred from forum analysis)
+
+Congo (audi-mib.bg) runs a **proxy tile server** in Bulgaria that
+intercepts GEMMI's Google Earth tile requests and fulfills them:
+
+```
+ORIGINAL (pre-Dec 2020):
+  gemmi_final → VAG/Google GE servers → satellite tiles
+  (blocked for pre-MY2018 after Dec 2020 license expiry)
+
+CONGO'S APPROACH:
+  patched gemmi_final → Congo's proxy → Google Earth API → tiles
+  (proxy handles auth, VIN validation bypassed)
+```
+
+### Key Technical Findings
+
+1. **gemmi_final is a standalone native SH4 binary** — it runs as a
+   separate QNX process, NOT inside the J9 JVM. It provides map tile
+   overlay data to MMI3GApplication via IPC.
+
+2. **The RANGE_EOLFLAG_GOOGLE_EARTH=0 blocks the UI MENU only** — it
+   prevents the Google Earth option from appearing in the nav map
+   settings. But if gemmi_final is running and providing tile data,
+   MMI3GApplication has code to consume it regardless.
+
+3. **GEMMI binaries can be deployed to writable EFS** — they don't need
+   to be in the read-only IFS. DrGER confirmed: "you can add the
+   gemmi_final binary from any MMI3GP source easily enough."
+
+4. **DataPST.db modification** — Congo likely modifies the SQLite HMI
+   persistence database to enable the Google Earth UI option, bypassing
+   the EOLFLAG check at the Java/UI layer.
+
+5. **VIN/BTMAC binding** — Congo uses the vehicle's BTMAC and VIN to
+   generate a unique activation package, tying the proxy authentication
+   to a specific vehicle.
+
+### What Congo's SD Card Package Contains (inferred)
+
+```
+1. gemmi_final          — patched binary (proxy hostname changed)
+2. libembeddedearth.so  — Google Earth rendering library (~20MB)
+3. GEMMI config files   — drivers.ini, res/, models/
+4. run_gemmi.sh         — startup script for gemmi_final
+5. DataPST.db patch     — enables GE UI option in Java layer
+6. DNS/host redirect    — points GE hostname to proxy server
+```
+
+### The Proxy Server
+
+Congo's proxy likely:
+- Accepts tile requests from gemmi_final (same API as original VAG server)
+- Authenticates against vehicle BTMAC/VIN (his licensing system)
+- Fetches tiles from Google Earth API (using his own API key or scraping)
+- Returns tiles to the MMI in the expected format
+
+### Open Questions for Our Research
+
+1. **Can we identify the Google Earth hostname?** — Check
+   `libembeddedearth.so` strings for URLs/hostnames
+2. **What's the tile API format?** — The request/response protocol
+3. **Can DNS redirection replace binary patching?** — Simpler approach
+   if gemmi_final reads hostname from config vs hardcoded
+4. **Self-hosted tile proxy?** — An open-source proxy using free
+   satellite imagery (Bing Maps, Mapbox, etc.) instead of Google
+
+### Google Earth Server Endpoints (from gemmi_final strings)
+
+```
+# StreetView tile server (cbk = "click back" / panorama server)
+http://cbk0.google.com/cbk?output=tile&panoid=%s&zoom=%u&x=%u&y=%u&cb_client=auto.audi
+http://cbk0.google.com/cbk?output=xml&ll=%.6f,%.6f&cb_client=auto.audi
+http://cbk0.google.com/cbk?output=xml&panoid=%s&cb_client=auto.audi
+
+# Street View API
+http://maps.googleapis.com/maps/api/streetview?fov=60&size=%dx%d&location=%lf,%lf&sensor=false
+
+# KML POI overlays
+http://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png
+http://maps.google.com/mapfiles/kml/paddle/red-circle.png
+
+# Client identifier
+cb_client=auto.audi
+```
+
+### Configurable Server (from libembeddedearth.so)
+
+The strings `?server=` and `DefaultServer` in libembeddedearth.so
+indicate the tile server hostname is **configurable**, not just
+hardcoded. This opens three bypass approaches:
+
+1. **DNS redirect** — Point `cbk0.google.com` to a proxy via
+   `/etc/resolv.conf` or a local DNS server on the LTE router
+2. **Command-line arg** — gemmi_final may accept a `-server` parameter
+3. **Config file** — drivers.ini `Connection/` settings
+
+### Developer Breadcrumb
+
+Build path found in gemmi_final:
+```
+D:\CMandal\GEarth_products\sh4-qnx-m632-3.4.4-osp-trc-rel\gen\project\devctrl\interface\hydragoogle\src\dsi2\SPHydraGoogle.c
+```
+
+Developer: C. Mandal at Harman-Becker, using the "HydraGoogle" DSI
+interface project. The `-osp-trc-rel` suffix indicates "OSP trace
+release" build — an automotive-grade build with trace logging.
+
+### gemmi_final Command-Line Options
+
+```
+-logintimeout <seconds>     — time to wait for login server
+-nogooglepois               — disable Google POI overlay
+-maxmem <megabytes>         — memory limit (default ~13MB)
+-maxfps <fps>               — frame rate limit
+-maxcpu <value>             — CPU usage limit (0-1)
+-dontusegps                 — disable GPS input
+-disableroute               — disable route drawing
+-cursormodel <path>         — custom cursor model (default: AudiCursor.dae)
+-gpssource <source>         — GPS data source
+```
