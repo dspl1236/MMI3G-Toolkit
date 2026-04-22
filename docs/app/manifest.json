@@ -376,7 +376,7 @@
                 },
                 {
                     "path": "scripts/ge_activate.sh",
-                    "size": 14472
+                    "size": 17001
                 },
                 {
                     "path": "scripts/ge_deploy.sh",

@@ -336,6 +336,69 @@ fi
 echo ""
 
 # ============================================================
+# Step 8: Direct GEMMI launch (no reboot needed!)
+# ============================================================
+echo "[STEP 8] Direct GEMMI launch..."
+
+GEMMI_LAUNCHED=0
+GEMMI_BIN="${GEMMI_TARGET}/gemmi_final"
+GEMMI_RUN="${GEMMI_TARGET}/run_gemmi.sh"
+
+# Check if GEMMI is already running
+GEMMI_PID=$(pidin -F "%a %N" 2>/dev/null | grep gemmi_final | awk '{print $1}')
+if [ -n "$GEMMI_PID" ]; then
+    echo "  [OK] gemmi_final already running (PID: $GEMMI_PID)"
+    GEMMI_LAUNCHED=1
+elif [ -x "$GEMMI_BIN" ]; then
+    echo "  [INFO] Attempting direct launch of gemmi_final..."
+
+    # Set up library path for GEMMI
+    export LD_LIBRARY_PATH="${GEMMI_TARGET}:${LD_LIBRARY_PATH}"
+
+    if [ -x "$GEMMI_RUN" ]; then
+        # Use the official run_gemmi.sh (handles region, memory, priority)
+        echo "  [EXEC] ${GEMMI_RUN}"
+        ksh "${GEMMI_RUN}" > /dev/null 2>&1 &
+        GEMMI_LAUNCHED=1
+    else
+        # Direct launch with sensible defaults
+        echo "  [EXEC] ${GEMMI_BIN} (direct)"
+        "${GEMMI_BIN}" \
+            -roadwidthscale 0.0116 \
+            -opt 1 \
+            -prefetch 1 \
+            -maxfps 12 \
+            -maxmem 55 \
+            -targetmem 40 \
+            -maxpingtime 2000 \
+            -framestats 0 \
+            -minsleep 10 \
+            -streetviewtexeldensity 2.0 \
+            -createroadsinmultibunch \
+            > /dev/null 2>&1 &
+        GEMMI_LAUNCHED=1
+    fi
+
+    if [ $GEMMI_LAUNCHED -eq 1 ]; then
+        sleep 2
+        # Verify it's running
+        CHECK_PID=$(pidin -F "%a %N" 2>/dev/null | grep gemmi_final | awk '{print $1}')
+        if [ -n "$CHECK_PID" ]; then
+            echo "  [OK] gemmi_final running! (PID: $CHECK_PID)"
+            echo "  [OK] Google Earth should appear on the nav map"
+        else
+            echo "  [WARN] gemmi_final started but may have exited"
+            echo "  [INFO] Check log for errors, may need internet first"
+            GEMMI_LAUNCHED=0
+        fi
+    fi
+else
+    echo "  [SKIP] gemmi_final not found at ${GEMMI_BIN}"
+    echo "  [INFO] Deploy GEMMI binaries first"
+fi
+echo ""
+
+# ============================================================
 # Summary
 # ============================================================
 echo "============================================"
@@ -348,20 +411,27 @@ echo " EOL flag:         $(strings "${LSD:-none}" 2>/dev/null | grep '^EOLFLAG_G
 echo " RANGE lock:       $(strings "${LSD:-none}" 2>/dev/null | grep -c '^RANGE_EOLFLAG_GOOGLE_EARTH=0' || echo '?') entries"
 echo " disableAuthKey:   $(grep -q disableAuthKey "$DRIVERS_INI" 2>/dev/null && echo 'SET' || echo 'NOT SET')"
 echo " Internet:         $([ $HAS_NET -eq 1 ] && echo 'CONNECTED' || echo 'NOT CONNECTED')"
+echo " GEMMI running:    $([ $GEMMI_LAUNCHED -eq 1 ] && echo 'YES' || echo 'NO')"
 echo " Backup:           ${BACKUP}/"
 echo ""
 
-if [ $CHANGES -gt 0 ]; then
-    echo " REBOOT REQUIRED for changes to take effect"
+if [ $GEMMI_LAUNCHED -eq 1 ]; then
+    echo " GEMMI launched directly — check nav map for GE overlay!"
+    echo " Note: direct launch is non-persistent (lost on reboot)"
+    echo " For persistent launch, the EOL flag + menu enable is needed"
+    echo " (or reflash IFS with patched srv-starter.cfg)"
+elif [ $CHANGES -gt 0 ]; then
+    echo " REBOOT to apply EOL flag + drivers.ini changes"
     echo ""
     echo " After reboot:"
     echo "   1. Ensure internet is connected"
     echo "   2. Open NAV > Map Settings > check for Google Earth"
     echo "   3. If GE option appears, enable it"
     echo "   4. If not, run ge_probe.sh and share results"
-    echo ""
-    echo " To revert: run ge_restore.sh from SD card"
 fi
+
+echo ""
+echo " To revert: run ge_restore.sh from SD card"
 
 echo ""
 echo " Log: ${LOG}"
