@@ -11,6 +11,7 @@
     "requires_reboot": false,
     "scripts": [
         "ge_probe.sh - Probe GEMMI state, check binaries, network, EOL flags (safe, read-only)",
+        "ge_deploy.sh - Deploy GEMMI binaries from SD card to EFS (for cars without GE)",
         "ge_enable.sh - EXPERIMENTAL: Add disableAuthKey to drivers.ini (requires reboot)",
         "ge_restore.sh - Revert all changes made by ge_enable.sh"
     ],
