@@ -742,8 +742,8 @@ function App() {
                 m.id === "lte-setup" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
                   React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Configuration"),
                   React.createElement("select", { value: lteMode, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setLteMode(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
-                    React.createElement("option", { value: "lte_setup.sh" }, "\u{1F50C} DHCP Fair Mode \u2014 Standard adapter (772/A/B)"),
-                    React.createElement("option", { value: "lte_static.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 Standard adapter"),
+                    React.createElement("option", { value: "lte_setup.sh" }, "\u{1F50C} DHCP Fair Mode \u2014 Standard ASIX (88172/88178/772/A/B)"),
+                    React.createElement("option", { value: "lte_static.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 Standard ASIX adapter"),
                     React.createElement("option", { value: "lte_static_772d.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 AX88772D")
                   )
                 ),
