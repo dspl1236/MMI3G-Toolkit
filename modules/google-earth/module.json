@@ -1,37 +1,46 @@
 {
     "name": "google-earth",
-    "version": "0.1.0-alpha",
-    "description": "Google Earth restoration — probe diagnostics and experimental auth bypass. Based on reverse engineering of gemmi_final, libembeddedearth.so, and live server testing showing kh.google.com still serves tile data and /geauth has been removed.",
+    "version": "0.2.0-alpha",
+    "description": "Google Earth restoration — probe, enable, and deploy. Evidence suggests kh.google.com still serves dbRoot.v5 (HTTP 200) and /geauth auth has been removed (HTTP 404). Audi NAR (variant 6) has no RANGE_ block. The simplest path may be: disableAuthKey + EOL flag flip + internet. GEMMI binaries may self-provision from Google or may need deployment from EU nav update.",
     "author": "dspl1236",
     "status": "alpha",
     "compatible": ["MMI3G+", "RNS-850"],
     "standalone": true,
     "run_script": "ge_probe.sh",
     "script_dir": "/scripts/GoogleEarth",
-    "requires_reboot": false,
+    "requires_reboot": true,
     "scripts": [
-        "ge_probe.sh - Probe GEMMI state, check binaries, network, EOL flags (safe, read-only)",
-        "ge_deploy.sh - Deploy GEMMI binaries from SD card to EFS (for cars without GE)",
-        "ge_enable.sh - EXPERIMENTAL: Add disableAuthKey to drivers.ini (requires reboot)",
-        "ge_restore.sh - Revert all changes made by ge_enable.sh"
+        "ge_probe.sh - SAFE: Probe GEMMI state, binaries, network, EOL flags, variant (read-only)",
+        "ge_enable.sh - PRIMARY: Add disableAuthKey to drivers.ini — may be all that is needed",
+        "ge_deploy.sh - FALLBACK: Deploy GEMMI binaries from SD card if self-provisioning fails",
+        "ge_restore.sh - SAFE: Revert all changes made by enable/deploy"
+    ],
+    "recommended_flow": [
+        "1. Run ge_probe.sh — share report with community",
+        "2. Connect internet (USB ethernet + LTE router)",
+        "3. Run ge_enable.sh — adds disableAuthKey, reboot",
+        "4. Check if Google Earth appears in NAV map settings",
+        "5. If YES: done! Self-provisioning worked",
+        "6. If NO: run ge_deploy.sh with GEMMI binaries on SD card"
+    ],
+    "research_findings": [
+        "kh.google.com/dbRoot.v5 returns HTTP 200 (16KB, server ALIVE April 2026)",
+        "kh.google.com/geauth returns HTTP 404 (auth endpoint REMOVED)",
+        "disableAuthKey parameter in libembeddedearth.so",
+        "geFreeLoginServer — free login mode exists in binary",
+        "GEMMI binaries live at /mnt/nav/gemmi/ (NAV HDD, writable)",
+        "EU nav updates include GEMMI; NAR do not",
+        "Audi NAR (HU_VARIANT=6): NO RANGE_ block on Google Earth",
+        "VW (HU_VARIANT=15): RANGE_ blocked, gemmi_final runs independently",
+        "Congo: US RNS-850 works as long as internet works",
+        "Self-provisioning: GEE protocol may download binaries automatically"
     ],
     "risks": [
-        "EXPERIMENTAL: Based on binary analysis, NOT car-tested.",
-        "ge_probe.sh is safe (read-only diagnostic).",
-        "ge_enable.sh modifies drivers.ini on writable EFS (backed up before change).",
-        "ge_enable.sh does NOT modify IFS, lsd.jxe, or any firmware files.",
-        "The disableAuthKey parameter was found in libembeddedearth.so strings — its effect is theoretical.",
-        "Google may change their server behavior at any time.",
-        "ge_restore.sh reverts all changes cleanly."
-    ],
-    "research": [
-        "kh.google.com/dbRoot.v5 returns HTTP 200 (16KB config) — server is alive",
-        "kh.google.com/geauth returns HTTP 404 — auth endpoint REMOVED",
-        "disableAuthKey found in libembeddedearth.so strings",
-        "geFreeLoginServer found next to kh.google.com in binary",
-        "Audi NAR (HU_VARIANT=6) has NO RANGE_ block on Google Earth",
-        "VW variants have RANGE_EOLFLAG_GOOGLE_EARTH=0 (UI blocked)",
-        "gemmi_final runs as standalone QNX process, independent of EOL flags",
-        "See research/EOL_FLAGS_AND_GOOGLE_EARTH.md for full analysis"
+        "EXPERIMENTAL: binary analysis + live server testing, NOT car-tested",
+        "ge_probe.sh completely safe (read-only)",
+        "ge_enable.sh modifies drivers.ini on writable EFS (backed up)",
+        "ge_deploy.sh copies to /mnt/nav/gemmi/ on writable HDD",
+        "NO IFS, lsd.jxe, or firmware modified by any script",
+        "ge_restore.sh cleanly reverts all changes"
     ]
 }

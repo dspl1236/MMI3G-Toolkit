@@ -359,7 +359,7 @@
         },
         "google-earth": {
             "status": "alpha",
-            "description": "Google Earth restoration \u2014 probe diagnostics and experimental auth bypass. Based on reverse engineering of gemmi_final, libembeddedearth.so, and live server testing showing kh.google.com still serves tile data and /geauth has been removed.",
+            "description": "Google Earth restoration \u2014 probe, enable, and deploy. Evidence suggests kh.google.com still serves dbRoot.v5 (HTTP 200) and /geauth auth has been removed (HTTP 404). Audi NAR (variant 6) has no RANGE_ block. The simplest path may be: disableAuthKey + EOL flag flip + internet. GEMMI binaries may self-provision from Google or may need deployment from EU nav update.",
             "standalone": true,
             "run_script": "ge_probe.sh",
             "artifact": null,
@@ -372,7 +372,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2059
+                    "size": 2594
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
