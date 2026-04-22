@@ -85,6 +85,20 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
             'files': files,
         }
 
+    # GEMMI release assets (hosted as GitHub Release, not in git repo)
+    manifest['gemmi_assets'] = {
+        'base_url': 'https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi/',
+        'files': [
+            {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1937608},
+            {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20447232},
+            {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826052},
+            {'name': 'drivers.ini', 'path': 'gemmi/drivers.ini', 'size': 1087},
+            {'name': 'run_gemmi.sh', 'path': 'gemmi/run_gemmi.sh', 'size': 4156},
+        ],
+        'total_size_mb': 22.1,
+        'note': 'Downloaded from GitHub Release assets (not in git repo). Only fetched when google-earth module is selected.',
+    }
+
     return manifest
 
 
