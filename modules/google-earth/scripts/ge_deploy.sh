@@ -49,7 +49,7 @@ mkdir -p "${OUTDIR}" 2>/dev/null
 mkdir -p "${BACKUP}" 2>/dev/null
 
 EFSDIR="/mnt/efs-system"
-GEMMI_TARGET="${EFSDIR}/gemmi"
+GEMMI_TARGET="/mnt/nav/gemmi"
 
 exec > "${LOG}" 2>&1
 
@@ -256,3 +256,19 @@ fi
 echo ""
 echo " Log: ${LOG}"
 echo "============================================"
+
+# ============================================================
+# Step 6: Set up GEMMI cache directory
+# ============================================================
+echo "[STEP 6] Setting up GEMMI cache..."
+
+for cachedir in /mnt/img-cache/gemmi /mnt/img-cache/gemmi/.config \
+                /mnt/img-cache/gemmi/cache /mnt/img-cache/gemmi/scache \
+                /mnt/img-cache/gemmi/temp; do
+    if [ ! -d "$cachedir" ]; then
+        mkdir -p "$cachedir" 2>/dev/null
+        echo "  [MKDIR] $cachedir"
+    fi
+done
+echo "  [OK] Cache directories ready"
+echo ""

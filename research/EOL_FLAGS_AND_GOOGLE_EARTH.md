@@ -717,3 +717,24 @@ can be enabled by simply setting the EOLFLAG to 1.
 **VW/Bentley/Japan/Korea variants DO load this file** — Google Earth
 requires either IFS modification (to remove the RANGE_ constraint)
 or running gemmi_final independently (bypasses UI check entirely).
+
+### GEMMI Deployment Path (CRITICAL)
+
+GEMMI binaries live at **`/mnt/nav/gemmi/`** — the NAV HDD partition,
+NOT on EFS. This is the path `run_gemmi.sh` checks:
+
+```sh
+if [ -x /mnt/nav/gemmi/gemmi_final ]; then
+    export LD_LIBRARY_PATH=/mnt/nav/gemmi
+    # ... launches gemmi_final with 55MB max memory, 12fps cap
+fi
+```
+
+Cache directory: `/mnt/img-cache/gemmi/` (separate HDD partition)
+
+When Congo says "don't worry about GEMMI files" — the binaries are
+deployed automatically as part of **nav map updates**. EU nav packages
+include the full GEMMI suite. NAR packages do not.
+
+This explains why the GEMMI binaries are NOT in the IFS or EFS on
+NAR firmware — they're part of the nav database content on the HDD.

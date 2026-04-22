@@ -67,7 +67,7 @@ echo ""
 GEMMI_FOUND=0
 
 # Check standard GEMMI locations
-for dir in /mnt/efs-system/gemmi /mnt/nav/gemmi /HBpersistence/gemmi \
+for dir in /mnt/nav/gemmi /mnt/efs-system/gemmi /HBpersistence/gemmi \
            /mnt/efs-system/lsd/gemmi /mnt/persistence/gemmi; do
     if [ -d "$dir" ]; then
         echo "[FOUND] GEMMI directory: $dir"
@@ -78,7 +78,7 @@ for dir in /mnt/efs-system/gemmi /mnt/nav/gemmi /HBpersistence/gemmi \
 done
 
 # Check for gemmi_final binary
-for path in /mnt/efs-system/gemmi/gemmi_final \
+for path in /mnt/nav/gemmi/gemmi_final /mnt/efs-system/gemmi/gemmi_final \
             /mnt/nav/gemmi/gemmi_final \
             /HBpersistence/gemmi_final \
             /usr/apps/gemmi_final; do
