@@ -175,7 +175,8 @@ async function fetchJson(url) {
  * Generate the combined run.sh installer from selected modules.
  * Mirrors generate_run_sh() in builder/build_sd.py.
  */
-function generateRunSh(selected, manifest) {
+function generateRunSh(selected, manifest, overrides) {
+  overrides = overrides || {};
   const lines = [
     "#!/bin/ksh",
     "# ============================================================",
@@ -426,7 +427,7 @@ async function buildSdBundle(selected, onProgress, overrides) {
 
   // --- Generated run.sh ---
   onProgress && onProgress("Generating run.sh...", 97);
-  const runSh = generateRunSh(selected, manifest);
+  const runSh = generateRunSh(selected, manifest, overrides);
   files.push({ path: "run.sh", bytes: new TextEncoder().encode(runSh) });
 
   // --- Placeholder dirs so bin/ lib/ var/ exist even if empty ---
