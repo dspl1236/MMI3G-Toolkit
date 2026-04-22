@@ -372,7 +372,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2594
+                    "size": 2479
+                },
+                {
+                    "path": "scripts/ge_activate.sh",
+                    "size": 9002
                 },
                 {
                     "path": "scripts/ge_deploy.sh",

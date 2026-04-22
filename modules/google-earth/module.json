@@ -1,33 +1,34 @@
 {
     "name": "google-earth",
     "version": "0.2.0-alpha",
-    "description": "Google Earth restoration — probe, enable, and deploy. Evidence suggests kh.google.com still serves dbRoot.v5 (HTTP 200) and /geauth auth has been removed (HTTP 404). Audi NAR (variant 6) has no RANGE_ block. The simplest path may be: disableAuthKey + EOL flag flip + internet. GEMMI binaries may self-provision from Google or may need deployment from EU nav update.",
+    "description": "Google Earth restoration \u2014 probe, enable, and deploy. Evidence suggests kh.google.com still serves dbRoot.v5 (HTTP 200) and /geauth auth has been removed (HTTP 404). Audi NAR (variant 6) has no RANGE_ block. The simplest path may be: disableAuthKey + EOL flag flip + internet. GEMMI binaries may self-provision from Google or may need deployment from EU nav update.",
     "author": "dspl1236",
     "status": "alpha",
-    "compatible": ["MMI3G+", "RNS-850"],
+    "compatible": [
+        "MMI3G+",
+        "RNS-850"
+    ],
     "standalone": true,
     "run_script": "ge_probe.sh",
     "script_dir": "/scripts/GoogleEarth",
     "requires_reboot": true,
     "scripts": [
         "ge_probe.sh - SAFE: Probe GEMMI state, binaries, network, EOL flags, variant (read-only)",
-        "ge_enable.sh - PRIMARY: Add disableAuthKey to drivers.ini — may be all that is needed",
-        "ge_deploy.sh - FALLBACK: Deploy GEMMI binaries from SD card if self-provisioning fails",
-        "ge_restore.sh - SAFE: Revert all changes made by enable/deploy"
+        "ge_activate.sh - Enable + Deploy: deploys GEMMI binaries (if needed) AND adds disableAuthKey",
+        "ge_restore.sh - SAFE: Revert all changes made by ge_activate.sh"
     ],
     "recommended_flow": [
-        "1. Run ge_probe.sh — share report with community",
+        "1. Run ge_probe.sh \u2014 share report with community",
         "2. Connect internet (USB ethernet + LTE router)",
-        "3. Run ge_enable.sh — adds disableAuthKey, reboot",
-        "4. Check if Google Earth appears in NAV map settings",
-        "5. If YES: done! Self-provisioning worked",
-        "6. If NO: run ge_deploy.sh with GEMMI binaries on SD card"
+        "3. Run ge_activate.sh \u2014 deploys GEMMI + adds disableAuthKey",
+        "4. Reboot, check NAV > Map Settings > Google Earth",
+        "5. If something goes wrong: run ge_restore.sh"
     ],
     "research_findings": [
         "kh.google.com/dbRoot.v5 returns HTTP 200 (16KB, server ALIVE April 2026)",
         "kh.google.com/geauth returns HTTP 404 (auth endpoint REMOVED)",
         "disableAuthKey parameter in libembeddedearth.so",
-        "geFreeLoginServer — free login mode exists in binary",
+        "geFreeLoginServer \u2014 free login mode exists in binary",
         "GEMMI binaries live at /mnt/nav/gemmi/ (NAV HDD, writable)",
         "EU nav updates include GEMMI; NAR do not",
         "Audi NAR (HU_VARIANT=6): NO RANGE_ block on Google Earth",
