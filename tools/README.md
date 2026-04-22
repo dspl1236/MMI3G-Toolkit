@@ -145,9 +145,9 @@ Container notes:
   when the local native build fails
 - `--container-tool podman` or `--container-tool docker` pins the runtime
 - `--container-image` overrides the default image (`debian:bookworm-slim`)
-- on Fedora/SELinux hosts, the podman path disables label confinement for the
-  disposable container so it can read the repo and temp bind mounts without
-  relabeling host files
+- on Fedora/SELinux hosts, the disposable podman/docker path disables label
+  confinement so it can read the repo and temp bind mounts without relabeling
+  host files
 
 Verified on MU9411 K0942_4 variant 41:
 - `ifs-root.ifs`: LZO, 671 chunks → 104 MB uncompressed, 345 files

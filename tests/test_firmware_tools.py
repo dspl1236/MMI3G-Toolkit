@@ -185,6 +185,19 @@ class InflateIfsTests(unittest.TestCase):
         self.assertIn('/mnt/host1/extracted', command_text)
         self.assertIn('--no-container-fallback', command_text)
 
+    def test_build_container_command_adds_selinux_compat_for_docker(self):
+        command = self.module.build_container_command(
+            container_tool='docker',
+            image='debian:bookworm-slim',
+            ifs_path='/tmp/ifs-root.ifs',
+            output_path='/tmp/ifs-root.decomp',
+            repo_root='/repo/MMI3G-Toolkit',
+        )
+
+        command_text = ' '.join(command)
+        self.assertIn('docker run --rm', command_text)
+        self.assertIn('--security-opt label=disable', command_text)
+
     def test_translate_host_path_prefers_workspace_for_repo_files(self):
         repo_root = '/repo/MMI3G-Toolkit'
         translated = self.module.translate_host_path(
