@@ -739,6 +739,33 @@
                 }
             ]
         },
+        "region-audit": {
+            "status": "planned",
+            "description": "Read-only region and VZE/TSR audit. Shows live region-related persistence values in GEM and writes a structured audit report to SD card.",
+            "standalone": false,
+            "run_script": null,
+            "artifact": null,
+            "script_dir": "/scripts/RegionAudit",
+            "installs_to_flash": true,
+            "compatible": [
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "engdefs/RegionAuditMain.esd",
+                    "size": 1221
+                },
+                {
+                    "path": "module.json",
+                    "size": 1540
+                },
+                {
+                    "path": "scripts/region_audit.sh",
+                    "size": 9719
+                }
+            ]
+        },
         "splash-screen": {
             "status": "ready",
             "description": "Custom boot splash screen installer - upload any image, auto-formatted to 800x480 PNG via the desktop app",
