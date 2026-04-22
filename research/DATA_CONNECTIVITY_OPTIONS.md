@@ -396,3 +396,72 @@ original 3G connection (`/mnt/efs-persist/usedhcp`) is still in place.
 - daredoole — Confirmed AX88772A works, AX88772D does NOT
 - Audi Service Action 91CD — Mojio OBD-II dongle (NOT an MMI solution)
 - Audizine/AudiWorld — Multiple threads, nobody has done the LTE swap
+
+### Driver Injection Without IFS Reflash
+
+QNX loads `.so` drivers dynamically. Custom drivers can be loaded
+from writable storage without modifying the read-only IFS firmware.
+
+#### Method 1: LD_LIBRARY_PATH (Recommended)
+
+The `dhcp-up` script already has a commented-out line for this:
+```sh
+#export LD_LIBRARY_PATH=/mnt/persistence/nws:$LD_LIBRARY_PATH
+```
+
+To inject a custom driver:
+```sh
+# Place patched driver on writable partition
+cp devn-asix-patched.so /mnt/persistence/nws/devn-asix.so
+
+# Set library path (in startup script)
+export LD_LIBRARY_PATH=/mnt/persistence/nws:$LD_LIBRARY_PATH
+
+# QNX finds the patched version BEFORE the IFS version
+```
+
+#### Method 2: Explicit io-pkt Mount
+
+```sh
+# Load a custom network driver at runtime
+mount -T io-pkt /mnt/efs-system/drivers/devn-custom.so
+```
+
+#### Method 3: SD Card Drivers (Testing)
+
+```sh
+# Load drivers from SD card (great for testing)
+for drv in /mnt/sdcard10t12/drivers/*.so; do
+    mount -T io-pkt "$drv"
+done
+```
+
+#### Current ASIX Driver
+
+`devn-asix.so` (75KB, SH4 ELF) supports:
+- AX88172, AX88172A, AX88178
+- AX88772, AX88772B
+- **NOT** AX88772D (different USB product ID)
+
+To add AX88772D support:
+1. Extract `devn-asix.so` from IFS (75KB)
+2. Find the USB product ID table in the binary
+3. Hex-patch to add AX88772D's product ID (0x1790:0x0074)
+4. Place patched driver on writable partition
+5. Set LD_LIBRARY_PATH or mount explicitly
+
+Alternatively, compile a new driver from QNX eval VM:
+```sh
+# On QNX 6.5 eval VM (from qnx650sp1-vm.zip in Flashdaten)
+qcc -Vgcc_ntosh -shared -o devn-asix-patched.so asix_driver.c
+```
+
+#### Writable Paths for Drivers
+
+| Path | Storage | Size | Survives Reboot? |
+|------|---------|------|-----------------|
+| /mnt/efs-system/ | NOR flash | 38MB | ✅ Yes |
+| /mnt/persistence/ | NOR flash | 30MB | ✅ Yes |
+| /mnt/nav/ | HDD | 28GB | ✅ Yes |
+| /mnt/sdcard10t12/ | SD card | varies | ❌ Removable |
+| /tmp/ | tmpfs/RAM | limited | ❌ Lost on reboot |
