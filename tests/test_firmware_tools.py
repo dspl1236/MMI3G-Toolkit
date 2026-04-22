@@ -2,6 +2,7 @@ import importlib.util
 import os
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 import zipfile
 
@@ -111,6 +112,34 @@ class EolModifierTests(unittest.TestCase):
         self.assertEqual(summary['eol_count'], 0)
         self.assertEqual(summary['range_count'], 1)
         self.assertIsNone(summary['hu_variant'])
+
+    def test_modify_jxe_keeps_google_earth_enable_flow(self):
+        tmpdir, jxe_path = self.make_sample_jxe()
+        self.addCleanup(tmpdir.cleanup)
+
+        output_path = Path(tmpdir.name) / 'modified_lsd.jxe'
+        self.module.modify_jxe(
+            str(jxe_path),
+            str(output_path),
+            {'EOLFLAG_GOOGLE_EARTH': '1'},
+        )
+
+        flags, _ = self.module.read_flags(str(output_path))
+        self.assertEqual(flags['EOLFLAG_GOOGLE_EARTH'], '1')
+        self.assertEqual(flags['EOLFLAG_INNOVATIONFEATURES'], '0')
+
+        with zipfile.ZipFile(output_path, 'r') as zf:
+            self.assertIn('resources/sysconst/variant.properties', zf.namelist())
+
+    def test_build_changes_accepts_google_earth_shorthand(self):
+        args = SimpleNamespace(
+            enable=['GOOGLE_EARTH'],
+            disable=[],
+            set=[],
+        )
+
+        changes = self.module.build_changes(args)
+        self.assertEqual(changes['EOLFLAG_GOOGLE_EARTH'], '1')
 
 
 class InflateIfsTests(unittest.TestCase):
