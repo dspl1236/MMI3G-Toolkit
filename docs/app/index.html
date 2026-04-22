@@ -61,9 +61,9 @@ class MMI3GCipher {
 const MANIFEST_URL = "./manifest.json";
 const MODULES_DISPLAY = [
   { id: "system-info", name: "System Info", status: "tested",
-    desc: "Full diagnostic — identity, activations, credentials, storage, persistence backup. Single pass, no flash writes.",
+    desc: "Complete diagnostic — identity, activations, credentials, nav DB, persistence backup, bus topology. Single pass, no flash writes.",
     compat: ["3G", "3G+", "RNS-850"], category: "diag", primary: true,
-    prereq: null, detail: "10-section report covering GEM state, nav/FSC activation, WiFi/BT credentials, VIN, storage, HBpersistence backup. QNX-safe (no head/tail). Consolidates system-info + password-finder + variant-dump." },
+    prereq: null, detail: "14-section report: system identity, GEM state, activation/FSC, credentials + sweep, storage, network, installed mods, HBpersistence backup, processes, syslog, nav DB/map/acios_db.ini, credential sweep, CVALUE/FSC file backup, QNX kernel + IPC/DSP/MOST/CAN bus topology. Consolidates system-info + password-finder + variant-dump + persistence-dump + map-parser." },
   { id: "gem-activator", name: "GEM Activator", status: "tested",
     desc: "Enable the Green Engineering Menu from SD card — creates /HBpersistence/DBGModeActive. No VCDS needed!",
     compat: ["3G", "3G+", "RNS-850"], category: "system",

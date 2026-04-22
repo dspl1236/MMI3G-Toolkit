@@ -197,7 +197,7 @@ for f in /mnt/efs-persist/wlan_*.conf /mnt/efs-system/etc/wpa_supplicant.conf /e
     if [ -f "$f" ]; then
         echo "FOUND: $f"
         cat "$f" 2>/dev/null
-        cp "$f" "${BACKUP}/$(basename $f)" 2>/dev/null
+        cp "$f" "${BACKUP}/${f##/*}" 2>/dev/null
     fi
 done
 
@@ -214,7 +214,7 @@ for f in /mnt/efs-system/scripts/Connectivity/common.cfg /lsd/MMI3G_MyAudi.prope
     if [ -f "$f" ]; then
         echo "FOUND: $f"
         grep -i "user\|pass\|key\|token\|auth\|ssid\|psk" "$f" 2>/dev/null
-        cp "$f" "${BACKUP}/$(basename $f)" 2>/dev/null
+        cp "$f" "${BACKUP}/${f##/*}" 2>/dev/null
     fi
 done
 
@@ -339,6 +339,141 @@ echo "================================================================"
 
 sloginfo 2>/dev/null | sed -n '1,200p' > "${OUTDIR}/syslog.txt" 2>/dev/null
 echo "Syslog saved (first 200 lines)"
+
+# ============================================================
+# 11. NAVIGATION DATABASE & MAP STATE
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  11. NAVIGATION DATABASE & MAP STATE"
+echo "================================================================"
+
+echo ""
+echo "--- acios_db.ini ---"
+ACIOS=""
+for candidate in /mnt/nav/db/acios_db.ini /mnt/lvm/acios_db.ini \
+                 /mnt/hdd/acios_db.ini /mnt/efs-persist/acios_db.ini; do
+    if [ -f "$candidate" ]; then
+        ACIOS="$candidate"
+        echo "Found: $candidate"
+        cat "$candidate" 2>/dev/null
+        cp "$candidate" "${BACKUP}/acios_db.ini" 2>/dev/null
+        break
+    fi
+done
+[ -z "$ACIOS" ] && echo "acios_db.ini not found"
+
+echo ""
+echo "--- DBInfo.txt ---"
+DBINFO=/mnt/nav/db/DBInfo.txt
+if [ -f "$DBINFO" ]; then
+    cat "$DBINFO" 2>/dev/null
+    cp "$DBINFO" "${BACKUP}/" 2>/dev/null
+else
+    echo "DBInfo.txt not found"
+fi
+
+echo ""
+echo "--- FSC Activation Files ---"
+for searchdir in /mnt/efs-persist/FSC /HBpersistence/FSC /mnt/persist/FSC; do
+    if [ -d "$searchdir" ]; then
+        echo "  $searchdir:"
+        ls -la "$searchdir"/*.fsc 2>/dev/null
+        mkdir -p "${BACKUP}/FSC" 2>/dev/null
+        cp "$searchdir"/*.fsc "${BACKUP}/FSC/" 2>/dev/null
+    fi
+done
+
+echo ""
+echo "--- MAC Address (for FSC lookup) ---"
+ifconfig en0 2>/dev/null | grep -i "address"
+ifconfig lo0 2>/dev/null | grep -i "address"
+
+echo ""
+echo "--- Nav Unblocker State ---"
+ls -la /mnt/efs-system/scripts/manage_cd_original.sh 2>/dev/null && echo "Nav unblocker: INSTALLED" || echo "Nav unblocker: not installed"
+ls -la /mnt/efs-system/scripts/manage_cd.sh 2>/dev/null
+
+# ============================================================
+# 12. CREDENTIAL SWEEP
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  12. CREDENTIAL SWEEP"
+echo "================================================================"
+
+echo ""
+echo "--- Broad string sweep (ssid/psk/password/token) ---"
+for searchdir in /mnt/efs-persist /mnt/persist /mnt/efs-system/etc; do
+    if [ -d "$searchdir" ]; then
+        HITS=$(find "$searchdir" -type f 2>/dev/null | xargs grep -il "ssid\|psk\|passphrase\|password\|token\|apikey" 2>/dev/null)
+        if [ -n "$HITS" ]; then
+            echo "  Files with credential-like strings in $searchdir:"
+            echo "$HITS" | while read f; do
+                echo "    $f"
+                grep -Ein "ssid=|psk=|passphrase=|password=|token=|apikey=" "$f" 2>/dev/null | head -5 | sed 's/^/      /'
+            done
+        fi
+    fi
+done
+
+# ============================================================
+# 13. PERSISTENCE FILE BACKUP
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  13. PERSISTENCE FILE BACKUP"
+echo "================================================================"
+
+echo ""
+echo "--- CVALUE Coding Files ---"
+for cva in /HBpersistence/CVALUE*.CVA /mnt/efs-persist/CVALUE*.CVA; do
+    if [ -f "$cva" ]; then
+        cp "$cva" "${BACKUP}/" 2>/dev/null
+        echo "  Backed up: ${cva##*/}"
+    fi
+done
+
+echo ""
+echo "--- Shared Memory State ---"
+ls /dev/shmem/ 2>/dev/null
+
+echo ""
+echo "--- efs-persist listing ---"
+ls -la /mnt/efs-persist/ 2>/dev/null | head -30
+
+# ============================================================
+# 14. QNX KERNEL & BUS TOPOLOGY
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  14. QNX KERNEL & BUS TOPOLOGY"
+echo "================================================================"
+
+echo ""
+echo "--- QNX Kernel ---"
+uname -a 2>/dev/null
+
+echo ""
+echo "--- IPC / IOC Devices ---"
+ls -laR /dev/ipc/ 2>/dev/null
+ls -laR /dev/dspipc/ 2>/dev/null
+
+echo ""
+echo "--- MOST / CAN / Serial ---"
+ls -la /dev/most* /dev/can* /dev/ser* 2>/dev/null
+
+echo ""
+echo "--- FPGA Sysregs ---"
+ls /dev/sysregs/ 2>/dev/null
+
+echo ""
+echo "--- Service Broker ---"
+ls -la /srv/ 2>/dev/null
+
+echo ""
+echo "--- hbsystem ---"
+ls -laR /hbsystem/ 2>/dev/null
 
 # ============================================================
 echo ""
