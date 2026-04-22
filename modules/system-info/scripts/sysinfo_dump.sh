@@ -9,6 +9,13 @@
 # ============================================================
 
 SDPATH="${1:-$(dirname $0)}"
+
+# Source platform.sh for QNX compatibility shims
+if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
+    . "${SDPATH}/scripts/common/platform.sh"
+elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
+    . "/mnt/efs-system/scripts/common/platform.sh"
+fi
 TS=$(date +%H%M%S 2>/dev/null || echo "000000")
 
 # Use getTime if available (QNX epoch timestamp)

@@ -1,5 +1,5 @@
 {
-    "generated": "2026-04-21",
+    "generated": "2026-04-22",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -309,7 +309,7 @@
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 2833
+                    "size": 3101
                 },
                 {
                     "path": "scripts/gem_status.sh",
@@ -337,7 +337,7 @@
                 },
                 {
                     "path": "scripts/gemmi_dump.sh",
-                    "size": 3111
+                    "size": 3379
                 }
             ]
         },
@@ -736,7 +736,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 12065
+                    "size": 12332
                 }
             ]
         },

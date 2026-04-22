@@ -35,6 +35,137 @@
 #   * RNS-850 is identified by "_VW_" appearing in the train name
 #     (e.g. HN+_US_VW_K0711), not by a literal "RNS" string.
 #   * Use getTime not date for real wall-clock timestamps.
+
+# ============================================================
+# QNX Compatibility Shims
+# ============================================================
+# QNX 6.3 ships a minimal userland — many standard POSIX/GNU
+# utilities are missing.  The functions below provide drop-in
+# replacements that activate ONLY when the real command is absent.
+# On Linux/macOS the native commands are used unchanged.
+# ============================================================
+
+# head — QNX has no head; use sed to print first N lines
+if ! command -v head >/dev/null 2>&1; then
+    head() {
+        case "$1" in
+            -n) shift; sed -n "1,${1}p"; shift ;;
+            -[0-9]*) sed -n "1,${1#-}p" ;;
+            *)  sed -n '1,10p' ;;
+        esac
+    }
+fi
+
+# basename — QNX has no basename; use parameter expansion
+if ! command -v basename >/dev/null 2>&1; then
+    basename() {
+        local _p="${1%/}"
+        _p="${_p##*/}"
+        if [ -n "$2" ]; then
+            _p="${_p%$2}"
+        fi
+        echo "$_p"
+    }
+fi
+
+# wc — QNX has no wc; count lines with a read loop
+if ! command -v wc >/dev/null 2>&1; then
+    wc() {
+        if [ "$1" = "-l" ]; then
+            shift
+            if [ -n "$1" ]; then
+                local _c=0
+                while IFS= read -r _; do _c=$((_c + 1)); done < "$1"
+                echo "      $_c $1"
+            else
+                local _c=0
+                while IFS= read -r _; do _c=$((_c + 1)); done
+                echo "$_c"
+            fi
+        fi
+    }
+fi
+
+# printf — QNX has no printf; use echo for simple cases
+if ! command -v printf >/dev/null 2>&1; then
+    printf() {
+        local _fmt="$1"; shift
+        # Handle the most common cases: %s and plain strings
+        case "$_fmt" in
+            *%s*) echo "$@" ;;
+            *%d*) echo "$@" ;;
+            *)    echo "$_fmt" "$@" ;;
+        esac
+    }
+fi
+
+# awk — QNX has no awk; provide minimal field extraction
+if ! command -v awk >/dev/null 2>&1; then
+    awk() {
+        # Only handles: awk '{print $N}' and awk -F: '{print $N}'
+        local _sep=" " _field=""
+        case "$1" in
+            -F*)  _sep="${1#-F}"; shift ;;
+        esac
+        case "$1" in
+            '{print $'*) _field=$(echo "$1" | sed 's/.*\$\([0-9]*\).*/\1/') ;;
+        esac
+        if [ -n "$_field" ]; then
+            while IFS="$_sep" read -r _line; do
+                set -- $_line
+                eval "echo \"\${$_field}\""
+            done
+        else
+            cat  # pass through if we can't parse the awk expression
+        fi
+    }
+fi
+
+# sync — QNX may not have sync; no-op if missing
+if ! command -v sync >/dev/null 2>&1; then
+    sync() { :; }
+fi
+
+# mkdir -p — QNX mkdir exists but -p may not create nested dirs
+# Override with a function that creates each path component
+_qnx_mkdir_p() {
+    # Create each path component one at a time
+    # Avoids QNX's "Function not implemented" error with mkdir -p
+    local _d="$1"
+    local _built=""
+    # Handle absolute paths
+    case "$_d" in /*) _built="/" ;; esac
+    # Save and change IFS to split on /
+    local _oldIFS="$IFS"
+    IFS="/"
+    set -- $_d
+    IFS="$_oldIFS"
+    for _seg in "$@"; do
+        [ -z "$_seg" ] && continue
+        _built="${_built}${_seg}"
+        [ -d "$_built" ] || mkdir "$_built" 2>/dev/null
+        _built="${_built}/"
+    done
+}
+
+# Override mkdir to handle -p flag on QNX
+# Test if mkdir -p actually works; only override if it fails
+if ! mkdir -p /tmp/_mmi_test_mkdir_p 2>/dev/null; then
+    _real_mkdir=$(command -v mkdir)
+    mkdir() {
+        if [ "$1" = "-p" ]; then
+            shift
+            for _d in "$@"; do
+                _qnx_mkdir_p "$_d"
+            done
+        else
+            $_real_mkdir "$@"
+        fi
+    }
+else
+    rmdir /tmp/_mmi_test_mkdir_p 2>/dev/null
+fi
+
 # ============================================================
 
 # -------- Variant detection (authoritative: /etc/pci-3g_*.cfg) --------
@@ -163,121 +294,3 @@ mmi_reclaim_release() {
     rm -f /tmp/disableReclaim 2>/dev/null
 }
 
-# ============================================================
-# QNX Compatibility Shims
-# ============================================================
-# QNX 6.3 ships a minimal userland — many standard POSIX/GNU
-# utilities are missing.  The functions below provide drop-in
-# replacements that activate ONLY when the real command is absent.
-# On Linux/macOS the native commands are used unchanged.
-# ============================================================
-
-# head — QNX has no head; use sed to print first N lines
-if ! command -v head >/dev/null 2>&1; then
-    head() {
-        case "$1" in
-            -n) shift; sed -n "1,${1}p"; shift ;;
-            -[0-9]*) sed -n "1,${1#-}p" ;;
-            *)  sed -n '1,10p' ;;
-        esac
-    }
-fi
-
-# basename — QNX has no basename; use parameter expansion
-if ! command -v basename >/dev/null 2>&1; then
-    basename() {
-        local _p="${1%/}"
-        _p="${_p##*/}"
-        if [ -n "$2" ]; then
-            _p="${_p%$2}"
-        fi
-        echo "$_p"
-    }
-fi
-
-# wc — QNX has no wc; count lines with a read loop
-if ! command -v wc >/dev/null 2>&1; then
-    wc() {
-        if [ "$1" = "-l" ]; then
-            shift
-            if [ -n "$1" ]; then
-                local _c=0
-                while IFS= read -r _; do _c=$((_c + 1)); done < "$1"
-                echo "      $_c $1"
-            else
-                local _c=0
-                while IFS= read -r _; do _c=$((_c + 1)); done
-                echo "$_c"
-            fi
-        fi
-    }
-fi
-
-# printf — QNX has no printf; use echo for simple cases
-if ! command -v printf >/dev/null 2>&1; then
-    printf() {
-        local _fmt="$1"; shift
-        # Handle the most common cases: %s and plain strings
-        case "$_fmt" in
-            *%s*) echo "$@" ;;
-            *%d*) echo "$@" ;;
-            *)    echo "$_fmt" "$@" ;;
-        esac
-    }
-fi
-
-# awk — QNX has no awk; provide minimal field extraction
-if ! command -v awk >/dev/null 2>&1; then
-    awk() {
-        # Only handles: awk '{print $N}' and awk -F: '{print $N}'
-        local _sep=" " _field=""
-        case "$1" in
-            -F*)  _sep="${1#-F}"; shift ;;
-        esac
-        case "$1" in
-            '{print $'*) _field=$(echo "$1" | sed 's/.*\$\([0-9]*\).*/\1/') ;;
-        esac
-        if [ -n "$_field" ]; then
-            while IFS="$_sep" read -r _line; do
-                set -- $_line
-                eval "echo \"\${$_field}\""
-            done
-        else
-            cat  # pass through if we can't parse the awk expression
-        fi
-    }
-fi
-
-# sync — QNX may not have sync; no-op if missing
-if ! command -v sync >/dev/null 2>&1; then
-    sync() { :; }
-fi
-
-# mkdir -p — QNX mkdir exists but -p may not create nested dirs
-# Override with a function that creates each path component
-_qnx_mkdir_p() {
-    local _path="$1"
-    local _current=""
-    # Split on / and create each component
-    echo "$_path" | sed 's|/|\n|g' | while read -r _comp; do
-        [ -z "$_comp" ] && { _current="/"; continue; }
-        _current="${_current}${_comp}"
-        [ -d "$_current" ] || mkdir "$_current" 2>/dev/null
-        _current="${_current}/"
-    done
-}
-
-# Wrap mkdir to handle -p flag on QNX
-if [ "$(uname -s 2>/dev/null)" = "QNX" ]; then
-    _real_mkdir=$(command -v mkdir)
-    mkdir() {
-        if [ "$1" = "-p" ]; then
-            shift
-            for _d in "$@"; do
-                _qnx_mkdir_p "$_d"
-            done
-        else
-            $_real_mkdir "$@"
-        fi
-    }
-fi

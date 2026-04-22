@@ -16,6 +16,14 @@
 # ============================================================
 
 SDPATH="${1:-$(dirname $0)}"
+
+# Source platform.sh for QNX compatibility shims
+if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
+    . "${SDPATH}/scripts/common/platform.sh"
+elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
+    . "/mnt/efs-system/scripts/common/platform.sh"
+fi
+
 LOG="${SDPATH}/var/gem_enable.log"
 mkdir -p "${SDPATH}/var" 2>/dev/null
 

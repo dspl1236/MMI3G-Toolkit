@@ -4,6 +4,14 @@
 # Part of MMI-Toolkit: github.com/dspl1236/MMI-Toolkit
 
 SDPATH="${1:-$(dirname $0)}"
+
+# Source platform.sh for QNX compatibility shims
+if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
+    . "${SDPATH}/scripts/common/platform.sh"
+elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
+    . "/mnt/efs-system/scripts/common/platform.sh"
+fi
+
 TS=$(date +%H%M%S 2>/dev/null || echo "000000")
 if command -v getTime >/dev/null 2>&1; then TS="epoch-$(getTime)"; fi
 
