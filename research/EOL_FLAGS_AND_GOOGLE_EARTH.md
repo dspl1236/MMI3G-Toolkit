@@ -518,3 +518,96 @@ Proxy endpoints:
 | OpenStreetMap | PNG tiles | Free (attribution) |
 | Thunderforest | PNG tiles | 150K/month free |
 | Google Maps Static | PNG | 28K loads/month |
+
+### Local DNS Redirect — No External Proxy Needed
+
+gemmi_final uses standard POSIX DNS resolution. The lookup order is:
+
+```
+1. /etc/hosts          ← Static hostname file (checked FIRST)
+2. /etc/host.conf      ← Resolution order config  
+3. HOSTALIASES env var ← Shell-level aliases
+4. /etc/resolv.conf    ← DNS server (checked LAST)
+```
+
+A simple SD card startup script can redirect ALL Google Earth traffic
+locally by creating `/etc/hosts`:
+
+```sh
+#!/bin/ksh
+# Redirect Google Earth to local tile proxy (LTE router)
+PROXY_IP="192.168.0.1"   # Digi WR11 XT IP
+
+echo "$PROXY_IP kh.google.com"          >> /etc/hosts
+echo "$PROXY_IP cbk0.google.com"        >> /etc/hosts  
+echo "$PROXY_IP maps.googleapis.com"    >> /etc/hosts
+echo "$PROXY_IP mw1.google.com"         >> /etc/hosts
+```
+
+This keeps everything local — no external DNS server, no third-party
+proxy. The Digi WR11 XT (Linux-based) runs a lightweight tile proxy
+that serves satellite imagery from free sources.
+
+### RANGE_ Flag Mechanism Explained
+
+The `RANGE_` prefix in sysconst properties creates a **hard constraint**
+on the allowed values for a flag. Normal `EOLFLAG_X=0` is a soft default
+that can be overridden. `RANGE_EOLFLAG_X=0` means "the ONLY allowed
+value for X is 0" — no other config file can set it to 1.
+
+```
+EOLFLAG_GOOGLE_EARTH=0         → soft default, CAN be overridden
+RANGE_EOLFLAG_GOOGLE_EARTH=0   → HARD LOCK, cannot be overridden
+```
+
+### Per-Variant Google Earth Status
+
+| HU_VARIANT | Platform | RANGE_GE Block? | GE Possible? |
+|-----------|----------|-----------------|--------------|
+| 5 | Audi EU | ❌ No | ✅ Yes — just flip flag |
+| **6** | **Audi NAR** | **❌ No** | **✅ Yes — Andrew's car!** |
+| 7 | Japan | ✅ Yes | ❌ Needs IFS mod |
+| 8 | China | ❌ No | ✅ Yes |
+| 9 | Korea | ✅ Yes | ❌ Needs IFS mod |
+| 15 | VW EU/NAR | ✅ Yes | ❌ Needs IFS mod |
+| 16 | Bentley | ✅ Yes | ❌ Needs IFS mod |
+
+### Andrew's A6 — Google Earth Restoration Path
+
+Andrew's car (HU_VARIANT=6, K0942_3) has NO RANGE_ blocks on
+Google Earth. The complete restoration requires:
+
+1. **Internet connection** — USB ethernet + Digi WR11 XT LTE router
+2. **Flip EOLFLAG_GOOGLE_EARTH=1** — via DataPST.db on writable EFS
+3. **Flip EOLFLAG_INNOVATIONFEATURES=1** — same method
+4. **DNS redirect** — `/etc/hosts` pointing kh.google.com to tile proxy
+5. **Tile proxy** — lightweight server on Digi WR11 XT serving free tiles
+6. **GEMMI already installed** — confirmed present on K0942_3 firmware
+
+No binary patching. No IFS modification. No RANGE_ constraint removal.
+Just a persistence DB change + DNS redirect + local tile proxy.
+
+### Fully Local Architecture (No External Dependencies)
+
+```
+┌─────────────────────┐     ┌──────────────────────┐
+│  MMI3G+ (QNX)       │     │  Digi WR11 XT        │
+│                     │     │  (Linux LTE router)  │
+│  gemmi_final        │     │                      │
+│    ↓                │     │  nginx/node proxy    │
+│  /etc/hosts         │USB  │    ↓                 │
+│  kh.google.com ─────┼────→│  Fetch tiles from    │
+│     → 192.168.0.1   │eth  │  Bing/Mapbox/OSM     │
+│                     │     │    ↓                 │
+│  MMI3GApplication   │     │  Return in GEE       │
+│  displays tiles     │     │  /flatfile? format   │
+│                     │     │                      │
+└─────────────────────┘     └──────────────────────┘
+                                    │ LTE
+                                    ↓
+                            Free tile servers
+                            (no Google needed)
+```
+
+All components are local. No data goes to Congo's server or any
+third party beyond the tile imagery provider.
