@@ -490,6 +490,18 @@
                     "size": 9883
                 },
                 {
+                    "path": "scripts/lte_setup_772d.sh",
+                    "size": 9883
+                },
+                {
+                    "path": "scripts/lte_static.sh",
+                    "size": 1541
+                },
+                {
+                    "path": "scripts/lte_static_772d.sh",
+                    "size": 1532
+                },
+                {
                     "path": "scripts/lte_status.sh",
                     "size": 4455
                 }

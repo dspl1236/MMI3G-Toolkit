@@ -537,6 +537,7 @@ function App() {
   const [model, setModel] = useState("a6c7");
   const [expandedMod, setExpandedMod] = useState(null);
   const [geScript, setGeScript] = useState("ge_probe.sh");
+  const [lteMode, setLteMode] = useState("lte_setup.sh");
   const [buildState, setBuildState] = useState("idle"); // idle | building | done | error
   const [buildProgress, setBuildProgress] = useState({ label: "", pct: 0 });
   const [buildError, setBuildError] = useState(null);
@@ -601,7 +602,7 @@ function App() {
     try {
       const bundle = await buildSdBundle([...selected], (label, pct) => {
         setBuildProgress({ label, pct });
-      }, { "google-earth": geScript });
+      }, { "google-earth": geScript, "lte-setup": lteMode });
       const totalBytes = bundle.files.reduce((n, f) => n + f.bytes.length, 0);
       setBuildStats({ fileCount: bundle.files.filter(f => !f.path.endsWith("/.keep")).length, totalBytes });
       return bundle;
@@ -736,6 +737,14 @@ function App() {
                     React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
                     React.createElement("option", { value: "ge_activate.sh" }, "\u26A1 Enable + Deploy (activate Google Earth)"),
                     React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
+                  )
+                ),
+                m.id === "lte-setup" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
+                  React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Configuration"),
+                  React.createElement("select", { value: lteMode, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setLteMode(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
+                    React.createElement("option", { value: "lte_setup.sh" }, "\u{1F50C} DHCP Fair Mode \u2014 Standard adapter (772/A/B)"),
+                    React.createElement("option", { value: "lte_static.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 Standard adapter"),
+                    React.createElement("option", { value: "lte_static_772d.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 AX88772D")
                   )
                 ),
                 m.prereq && React.createElement("div", { style: { marginTop: 4, fontSize: 10, color: "#e84a6a", fontFamily: "IBM Plex Mono" } }, "Requires: " + m.prereq)
