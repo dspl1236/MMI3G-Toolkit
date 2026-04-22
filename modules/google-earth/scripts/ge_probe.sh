@@ -165,9 +165,80 @@ echo ""
 echo "--- Connectivity Test ---"
 # Try to ping Google's tile server
 if command -v ping >/dev/null 2>&1; then
+    echo "Ping kh.google.com:"
     ping -c 1 -w 3 kh.google.com 2>&1 | head -3
 else
     echo "ping not available"
+fi
+echo ""
+
+echo "--- Google Earth Server Tests ---"
+# Test the 4 key endpoints we need for Google Earth
+# kh.google.com/dbRoot.v5 = tile config (MUST return data)
+# kh.google.com/geauth = auth endpoint (DEAD, should 404)
+# auth.keyhole.com = legacy auth (DEAD)
+
+# Try wget first (most likely on QNX), then curl, then raw TCP
+HTTP_TOOL=""
+if command -v wget >/dev/null 2>&1; then
+    HTTP_TOOL="wget"
+elif command -v curl >/dev/null 2>&1; then
+    HTTP_TOOL="curl"
+fi
+
+if [ -n "$HTTP_TOOL" ]; then
+    echo "HTTP tool: $HTTP_TOOL"
+    echo ""
+
+    # Test 1: Tile server (dbRoot.v5) — CRITICAL
+    echo "  [TEST] kh.google.com/dbRoot.v5 (tile config):"
+    if [ "$HTTP_TOOL" = "wget" ]; then
+        RESULT=$(wget -q -O /dev/null --spider -S "http://kh.google.com/dbRoot.v5" 2>&1 | head -5)
+    else
+        RESULT=$(curl -s -o /dev/null -w "HTTP %{http_code} (%{size_download} bytes)" "http://kh.google.com/dbRoot.v5" 2>&1)
+    fi
+    echo "    $RESULT"
+    echo ""
+
+    # Test 2: Auth endpoint (should be 404/dead)
+    echo "  [TEST] kh.google.com/geauth (auth, should be dead):"
+    if [ "$HTTP_TOOL" = "wget" ]; then
+        RESULT=$(wget -q -O /dev/null --spider -S "http://kh.google.com/geauth" 2>&1 | head -3)
+    else
+        RESULT=$(curl -s -o /dev/null -w "HTTP %{http_code}" "http://kh.google.com/geauth" 2>&1)
+    fi
+    echo "    $RESULT"
+    echo ""
+
+    # Test 3: Legacy auth (should be dead)
+    echo "  [TEST] auth.keyhole.com (legacy auth):"
+    if [ "$HTTP_TOOL" = "wget" ]; then
+        RESULT=$(wget -q -O /dev/null --spider -S -T 5 "http://auth.keyhole.com/" 2>&1 | head -3)
+    else
+        RESULT=$(curl -s -o /dev/null -w "HTTP %{http_code}" --connect-timeout 5 "http://auth.keyhole.com/" 2>&1)
+    fi
+    echo "    $RESULT"
+    echo ""
+
+    # Test 4: Download dbRoot.v5 to SD card for analysis
+    echo "  [TEST] Downloading dbRoot.v5 to SD card..."
+    if [ "$HTTP_TOOL" = "wget" ]; then
+        wget -q -O "${OUTDIR}/dbRoot.v5" "http://kh.google.com/dbRoot.v5" 2>&1
+    else
+        curl -s -o "${OUTDIR}/dbRoot.v5" "http://kh.google.com/dbRoot.v5" 2>&1
+    fi
+    if [ -f "${OUTDIR}/dbRoot.v5" ] && [ -s "${OUTDIR}/dbRoot.v5" ]; then
+        DBSIZE=$(ls -la "${OUTDIR}/dbRoot.v5" | awk '{print $5}')
+        echo "    [OK] Downloaded ${DBSIZE} bytes → ${OUTDIR}/dbRoot.v5"
+        echo "    [OK] Google tile server is ALIVE and responding!"
+    else
+        echo "    [FAIL] Could not download dbRoot.v5"
+        echo "    [INFO] Server may be unreachable or internet is not connected"
+    fi
+else
+    echo "  No HTTP tools available (wget/curl)"
+    echo "  DNS resolution test:"
+    nslookup kh.google.com 2>&1 | head -5
 fi
 echo ""
 

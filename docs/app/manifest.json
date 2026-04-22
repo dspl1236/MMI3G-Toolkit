@@ -388,7 +388,7 @@
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 9896
+                    "size": 12583
                 },
                 {
                     "path": "scripts/ge_restore.sh",
