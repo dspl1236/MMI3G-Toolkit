@@ -454,3 +454,106 @@ ARB variants use speech keys (GDB, LABEL, LIT, SDB, XAC, SDS, CITY).
 
 All fw400 bootscreens are **PNG files** with `.bin` extension (not raw RGB565).
 SubID 099 is the only JPEG. Total: 79 bootscreens in fw400.
+
+## RNS-850 NAR IFS Deep Analysis (K0711, April 2026)
+
+### IFS Extraction Results
+
+Extracted from `DVDRNS850V711US/2/MU9478/ifs-root/41/default/ifs-root.ifs`:
+- 336 files, 28 directories, 55 symlinks
+- Compressed: 42MB, Decompressed: 100MB
+- Compression: LZO1X (657 chunks)
+- Build: HN+_US_VW_K0711, variant 9478
+
+### Audi vs RNS-850 NAR Comparison
+
+| Component | Audi K0942 | RNS-850 K0711 | Match? |
+|-----------|-----------|---------------|--------|
+| proc_scriptlauncher | 17,600 bytes | 17,600 bytes | Same size, different MD5 |
+| copie_scr.sh strings | Identical | Identical | ✅ Same autorun |
+| MMI3GApplication | 10,702,848 | 10,690,560 | ~12KB diff (branding) |
+| pppd | 265,140 | 265,140 | ✅ Identical |
+| dhcp.client | 57,048 | 57,048 | ✅ Identical |
+| devnp-mv8688uap.so (WiFi) | 93,538 | 93,538 | ✅ Identical |
+| J9 JVM + libraries | Present | Present | ✅ Same set |
+| lsd.jxe location | EFS (writable) | **IFS (read-only)** | ❌ CRITICAL |
+| lsd.jxe size | ~27MB | 24MB | Smaller on VW NAR |
+| lsd.jxe entries | 342 | 210 | Fewer on VW NAR |
+| EOLFLAG entries | 1617 | 391 | Far fewer on VW |
+| GEMMI binaries | In EU lsd.jxe | **ABSENT** | ❌ Not in NAR |
+| AppDevelopment.jar | In EFS | **Not in IFS** | In EFS only |
+| Telit modem firmware | In Flashdaten | Not in Flashdaten | Different cellular |
+| Total IFS files | 345 | 336 | 9 fewer on VW |
+
+### Critical Finding: lsd.jxe Location
+
+On the Audi, `lsd.jxe` lives on the writable EFS partition and can be
+modified without reflashing firmware. On the RNS-850, it's baked into
+the **read-only IFS**. This means:
+
+- Modifying EOL flags on RNS-850 requires IFS decompress → modify →
+  recompress → reflash (using inflate_ifs.py + patch_ifs.py pipeline)
+- On the Audi, it's a simple file replacement on EFS
+
+### EOL Flags — VW NAR Variant
+
+The VW NAR variant (`vw_high_nar.properties`) is the most locked-down:
+
+```properties
+EOLFLAG_HU_VARIANT=15         # VW identifier (vs 5=EU Audi, 6=NAR Audi)
+RANGE_EOLFLAG_HU_VARIANT=15   # Locked to VW
+RANGE_EOLFLAG_REGION=1         # Locked to NAR
+```
+
+Google Earth is blocked via `no_online_services.properties`:
+
+```properties
+RANGE_EOLFLAG_GOOGLE_EARTH=0
+RANGE_EOLFLAG_ONLINE_SEARCH=0
+RANGE_EOLFLAG_ONLINE_SERVICES=0
+```
+
+The `RANGE_` prefix means the flag is **hardware-locked** — it cannot
+be overridden by the normal EOLFLAG settings. To enable Google Earth
+on the RNS-850, the `RANGE_` constraints must be removed from the
+lsd.jxe, which requires IFS modification.
+
+### Variant Hierarchy (sysconst loading order)
+
+1. `sysconst.properties` — base defaults (everything OFF)
+2. `variant.properties` — build-level (sets RANGE_INNOVATIONFEATURES=1)
+3. `vw_high.properties` — VW platform overrides
+4. `vw_high_nar.properties` — NAR market overrides
+5. `no_online_services.properties` — Google Earth block
+
+### VW HU_VARIANT Map (from variant.properties)
+
+| ID | Variant |
+|----|---------|
+| 5 | Audi EU |
+| 6 | Audi NAR |
+| 7 | Japan |
+| 8 | China |
+| 9 | Korea |
+| 15 | VW EU/NAR |
+| 16 | Bentley |
+| 18 | RSE Asia |
+
+### Networking Stack
+
+**Identical** between Audi and RNS-850:
+- pppd, dhcp.client, dhcpd (same binary, same size)
+- devnp-mv8688uap.so WiFi driver (same binary)
+- pfctl, ifconfig, route (same tools)
+- devnp-shim.so, devnp-mlb.so (same network shims)
+
+This confirms: USB ethernet + external LTE router works identically
+on both platforms. DrGER's approach applies 1:1 to the RNS-850.
+
+### Implications for Daredoole's Touareg
+
+1. **SD card scripts work** — proc_scriptlauncher confirmed, same autorun
+2. **MMI3G-Toolkit compatible** — same QNX 6.3, same J9, same networking
+3. **Google Earth requires IFS mod** — lsd.jxe is in read-only IFS
+4. **GEMMI binaries needed** — must deploy from EU Audi firmware
+5. **USB ethernet works** — identical networking stack
