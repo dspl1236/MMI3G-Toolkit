@@ -89,13 +89,16 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
     manifest['gemmi_assets'] = {
         'base_url': 'https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi/',
         'files': [
-            {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1937608},
-            {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20447232},
-            {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826052},
-            {'name': 'drivers.ini', 'path': 'gemmi/drivers.ini', 'size': 1087},
-            {'name': 'run_gemmi.sh', 'path': 'gemmi/run_gemmi.sh', 'size': 4156},
+            {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1965004},
+            {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20563703},
+            {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826149},
+            {'name': 'libthirdparty_icu_3_5.so', 'path': 'gemmi/libthirdparty_icu_3_5.so', 'size': 1524205},
+            {'name': 'mapStylesWrite', 'path': 'gemmi/mapStylesWrite', 'size': 507383},
+            {'name': 'drivers.ini', 'path': 'gemmi/drivers.ini', 'size': 1119},
+            {'name': 'run_gemmi.sh', 'path': 'gemmi/run_gemmi.sh', 'size': 4140},
+            {'name': 'gemmi_models_res.zip', 'path': 'gemmi/gemmi_models_res.zip', 'size': 801183},
         ],
-        'total_size_mb': 22.1,
+        'total_size_mb': 24.8,
         'note': 'Downloaded from GitHub Release assets (not in git repo). Only fetched when google-earth module is selected.',
     }
 
