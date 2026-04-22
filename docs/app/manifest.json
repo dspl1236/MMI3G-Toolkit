@@ -376,7 +376,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 8404
+                    "size": 8967
                 },
                 {
                     "path": "scripts/ge_enable.sh",
@@ -384,7 +384,7 @@
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 9869
+                    "size": 9896
                 },
                 {
                     "path": "scripts/ge_restore.sh",
