@@ -738,3 +738,50 @@ include the full GEMMI suite. NAR packages do not.
 
 This explains why the GEMMI binaries are NOT in the IFS or EFS on
 NAR firmware — they're part of the nav database content on the HDD.
+
+### The Self-Provisioning Theory (April 2026)
+
+Congo's service works on US RNS-850 which has ZERO GEMMI files in
+firmware. He says "as long as the MMI has internet, it works" and
+"don't worry about the GEMMI files."
+
+Combined with our findings:
+- kh.google.com/dbRoot.v5 returns HTTP 200 (server ALIVE)
+- kh.google.com/geauth returns HTTP 404 (auth REMOVED)
+- GEMMI binaries live at /mnt/nav/gemmi/ (nav HDD, writable)
+- Google Earth Enterprise protocol supports client provisioning
+- disableAuthKey parameter exists in the client
+
+**Theory A: Congo's proxy serves everything**
+His proxy provides: dbRoot config → GEMMI binaries → tile data.
+The MMI downloads the ~23MB GEMMI package from his proxy on first
+connect, caches it to /mnt/nav/gemmi/, and subsequent tile requests
+also go through his proxy. One server, complete solution.
+
+**Theory B: Google still serves everything, no proxy needed**
+Google removed /geauth (404). The dbRoot.v5 is still served (200).
+If disableAuthKey bypasses the client-side check AND Google's server
+no longer enforces auth, then the MMI might connect directly to
+Google, download the GEMMI binaries via the GEE provisioning
+protocol, and fetch tiles — with no proxy at all.
+
+**Theory C: Hybrid**
+Congo's proxy was necessary when Google's auth was active (2020-2023).
+Google may have since removed the auth check. Congo's proxy still
+works but may no longer be required. The simplest test:
+
+```
+1. Set disableAuthKey = true in drivers.ini
+2. Flip EOLFLAG_GOOGLE_EARTH=1
+3. Connect internet (no proxy, no DNS redirect)
+4. Reboot
+5. Does GEMMI self-provision and start?
+```
+
+**Why this matters:** If Theory B or C is correct, Google Earth
+restoration is a 2-line config change + internet connection. No
+€90 service, no proxy server, no binary deployment. The community
+could restore Google Earth on every HN+ platform car for free.
+
+**Status: UNTESTED** — needs a car with internet connectivity.
+Andrew's A6 is the ideal first test once the AX88772A adapter arrives.
