@@ -441,3 +441,80 @@ release" build — an automotive-grade build with trace logging.
 -cursormodel <path>         — custom cursor model (default: AudiCursor.dae)
 -gpssource <source>         — GPS data source
 ```
+
+### Complete GEMMI Server Configuration Map
+
+All configurable server parameters found in `libembeddedearth.so`:
+
+| Parameter | Purpose |
+|-----------|---------|
+| `loginServer` | Primary login endpoint |
+| `authServer` | Authentication server |
+| `geFreeLoginServer` | **FREE login server** (no license!) |
+| `disableAuthKey` | **Disable auth key validation!** |
+| `enableSeamlessLogin` | Auto-login (already TRUE in drivers.ini) |
+| `deauthServer` | De-authentication |
+| `metaDataFetchServer` | Tile metadata |
+| `depthMapFetchServer` | Depth map tiles |
+| `reverseGeocodingServer` | Reverse geocoding |
+| `csiLogServer` | Client-side logging |
+| `bbsServer` | Bulletin board |
+| `googleMFEServer` | Google Maps frontend |
+
+### Protocol Flow
+
+```
+1. CONNECT    → kh.google.com (DefaultServer)
+2. AUTH       → /geauth (or geFreeLoginServer)
+3. DBROOT     → dbRoot.v5 (protobuf — contains all tile URLs)
+4. TILES      → /flatfile?db=&t=&q=&channel=&version= 
+5. STREETVIEW → cbk0.google.com/cbk?output=tile&...
+6. WEATHER    → mw1.google.com/mw-weather/clouds/root.kmz
+7. GEOCODE    → maps.google.com/maps/api/earth/GeocodeService
+```
+
+### Self-Hosted Proxy Architecture
+
+The protocol is **Google Earth Enterprise** (GEE), which Google
+open-sourced in 2017 (github.com/google/earthenterprise, archived).
+
+A self-hosted tile proxy needs:
+
+```
+DNS: kh.google.com → 192.168.x.x (LTE router DNS override)
+
+Proxy endpoints:
+  /geauth              → return valid auth response (static)
+  /dbRoot.v5           → return custom protobuf (points to proxy)
+  /flatfile?q=QUADKEY  → fetch tile from Bing/Mapbox/etc, convert format
+  /localdbroot         → local database config
+```
+
+### Bypass Approaches (Easiest to Hardest)
+
+1. **drivers.ini + DNS redirect** (no binary mod)
+   - Set `disableAuthKey` in drivers.ini on EFS
+   - DNS redirect `kh.google.com` on LTE router
+   - Proxy serves free tiles
+
+2. **gemmi_final command-line args** (no binary mod)
+   - Launch with custom server args
+   - Modify `run_gemmi.sh` startup script
+
+3. **dbRoot override** (no binary mod)
+   - Serve custom dbRoot protobuf from proxy
+   - dbRoot contains ALL server URLs — one redirect rules them all
+
+4. **Binary patch** (Congo's likely approach)
+   - Replace `kh.google.com` hostname in binary
+   - Most reliable but requires binary modification
+
+### Open-Source Tile Sources
+
+| Source | Format | Free Tier |
+|--------|--------|-----------|
+| Bing Maps | Quadkey tiles | Yes (terms apply) |
+| Mapbox | Raster tiles | 200K/month free |
+| OpenStreetMap | PNG tiles | Free (attribution) |
+| Thunderforest | PNG tiles | 150K/month free |
+| Google Maps Static | PNG | 28K loads/month |
