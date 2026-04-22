@@ -785,3 +785,93 @@ could restore Google Earth on every HN+ platform car for free.
 
 **Status: UNTESTED** — needs a car with internet connectivity.
 Andrew's A6 is the ideal first test once the AX88772A adapter arrives.
+
+### Complete Google Earth Server Infrastructure (April 22, 2026)
+
+Full status of every known Google Earth / Keyhole server endpoint:
+
+```
+✅ ALIVE — Serving Data:
+   kh.google.com/dbRoot.v5          → 200 (16,930 bytes, protobuf config)
+   kh.google.com/dbRoot.v5?proto    → 200 (17,627 bytes, proto format)
+   maps.googleapis.com/streetview   → 400 (alive, needs API key + params)
+   www.keyhole.com                  → 301 → earth.google.com/web/
+
+❌ AUTH REMOVED — All Return 404:
+   kh.google.com/geauth             → 404 (primary auth, GONE)
+   auth.keyhole.com                 → 404 (legacy Keyhole auth, GONE)
+   geoauth.google.com               → 404 (Google geo auth, GONE)
+
+❌ OFFLINE:
+   geo.keyhole.com                  → 000 (connection refused)
+   bbs.keyhole.com                  → 404 (community BBS, dead)
+   cbk0.google.com/cbk              → 404 (StreetView, needs session)
+   kh.google.com/flatfile           → 404 (tiles, needs dbRoot handshake)
+```
+
+### Original Google Earth Connection Flow
+
+From community documentation and forum posts, the original GE
+boot sequence required three servers on port 80:
+
+```
+1. www.keyhole.com/updatecheck/   → version number (plain text)
+2. kh.google.com/geauth           → authenticate (POST request)
+3. kh.google.com/dbRoot.v5        → download tile config (protobuf)
+4. kh.google.com/flatfile?...     → fetch map tiles
+5. cbk0.google.com/cbk?...        → fetch StreetView tiles
+```
+
+Step 2 is GONE across ALL three auth domains. Step 3 still works.
+The `disableAuthKey` parameter in drivers.ini tells the GEMMI client
+to skip step 2 entirely and proceed directly to step 3.
+
+### libembeddedearth.so Server Configuration
+
+All server endpoints are configurable via the binary:
+
+| Parameter | Default | Purpose |
+|-----------|---------|---------|
+| DefaultServer | http://kh.google.com/ | Tile/data server |
+| authServer | /geauth | Authentication (404) |
+| deauthServer | (endpoint) | Logout |
+| loginServer | (endpoint) | Login |
+| geFreeLoginServer | kh.google.com | FREE login mode |
+| bbsServer | bbs.keyhole.com | Community (dead) |
+| googleMFEServer | (endpoint) | Maps Frontend |
+| depthMapFetchServer | (endpoint) | StreetView depth |
+| reverseGeocodingServer | (endpoint) | Address lookup |
+| csiLogServer | (endpoint) | Client logging |
+| metaDataFetchServer | (endpoint) | Metadata |
+
+### Auth Flow Classes (from binary symbols)
+
+```
+GEFreeLoginServer        — Free login (no auth)
+GEAuthBuffer             — Auth token buffer
+GEAuthSignature          — Signature validation
+LoginHandler             — Login state machine
+LogoutHandler            — Clean logout
+AsyncHandleAuthFailure   — Graceful auth failure
+```
+
+The auth flow sequence: `b_auth → b_login → b_render_init →
+b_layer_init → b_first_earth`
+
+With `disableAuthKey = true`, the auth step is skipped and the
+client proceeds directly to render initialization.
+
+### dbRoot.v5 — The Key File
+
+The `dbRoot.v5` served by `kh.google.com` is a 16,930-byte binary
+blob (protobuf format) that configures the entire tile-fetching
+pipeline. It tells the client:
+- Where to find satellite imagery tiles
+- Where to find terrain data
+- Layer configuration (roads, borders, labels)
+- Tile server URLs and formats
+- Cache configuration
+- Available zoom levels
+
+This file is the "phone book" for Google Earth. As long as Google
+serves it, the client knows how to fetch everything else.
