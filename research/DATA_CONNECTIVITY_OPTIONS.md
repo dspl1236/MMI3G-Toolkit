@@ -465,3 +465,22 @@ qcc -Vgcc_ntosh -shared -o devn-asix-patched.so asix_driver.c
 | /mnt/nav/ | HDD | 28GB | ✅ Yes |
 | /mnt/sdcard10t12/ | SD card | varies | ❌ Removable |
 | /tmp/ | tmpfs/RAM | limited | ❌ Lost on reboot |
+
+## PCM 3.1 (Porsche) Connectivity
+
+The Porsche PCM 3.1 shares the HN+ platform and has **identical**
+USB ethernet support to the Audi MMI3G+:
+
+| Component | PCM 3.1 | MMI3G+ |
+|-----------|---------|--------|
+| USB ethernet driver | `devn-asix.so` ✅ | `devn-asix.so` ✅ |
+| Network interface | `en5` | `en5` |
+| DHCP client | ✅ | ✅ |
+| Original modem | Cinterion AC75i (3G) | Telit UC864 (3G) |
+| Modem status | ❌ Dead (3G sunset) | ❌ Dead (3G sunset) |
+| Google Earth | ❌ Never implemented | ✅ GEMMI (restorable) |
+
+The same AX88772 USB ethernet adapter + LTE router setup works on
+both platforms. The PCM3.1 uses USB stick delivery instead of SD card.
+
+See PCM-Forge `research/PCM31_CONNECTIVITY.md` for full analysis.

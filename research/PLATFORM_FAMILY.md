@@ -130,3 +130,16 @@ Analyzed firmware: `MHIG_US_AU_K2019 MU0406 8V0906961AF` (Audi A3, 2014)
 The copie_scr.sh autorun mechanism does not exist on MHIG — this is
 where the HN+ platform family ends and a new generation begins.
 The MMI3G-Toolkit is not applicable to MHIG or later platforms.
+
+## PCM 3.1 Connectivity Details
+
+Confirmed by firmware analysis (April 2026):
+- `devn-asix.so` present in PCM3_IFS2.ifs
+- `npm-pppmgr.so` PPP manager present
+- `en5` network interface referenced
+- Cinterion AC75i modem (dead after 3G sunset)
+- SIM slot physically present in head unit
+- MuxBtNad multiplexer shares BT and modem serial
+- Online services: AHARadio, Weather (Baron Services), Traffic
+- IFS uses `hbcifs` format (different from standard QNX IFS)
+- Zero GEMMI/Google Earth infrastructure
