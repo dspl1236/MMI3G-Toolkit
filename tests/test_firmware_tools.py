@@ -175,6 +175,7 @@ class InflateIfsTests(unittest.TestCase):
 
         command_text = ' '.join(command)
         self.assertIn('podman run --rm', command_text)
+        self.assertIn('--security-opt label=disable', command_text)
         self.assertIn('{}:/workspace'.format(repo_root), command_text)
         self.assertIn('{}:/mnt/host0'.format(firmware_root), command_text)
         self.assertIn('{}:/mnt/host1'.format(output_root), command_text)

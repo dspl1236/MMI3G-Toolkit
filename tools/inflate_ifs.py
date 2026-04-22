@@ -193,6 +193,11 @@ def build_container_command(container_tool, image, ifs_path, output_path=None, e
     )
 
     command = [container_tool, 'run', '--rm', '-e', '{}=1'.format(CONTAINER_REEXEC_ENV), '-w', '/workspace']
+    if container_tool == 'podman':
+        # Fedora/SELinux hosts commonly deny read access to arbitrary bind mounts unless
+        # labels are adjusted. Disabling label confinement for this disposable container
+        # avoids relabeling the repo or temp firmware directories on the host.
+        command.extend(['--security-opt', 'label=disable'])
     for host_path, target_path in mounts:
         command.extend(['-v', '{}:{}'.format(host_path, target_path)])
     command.extend([image, 'sh', '-lc', inner_command])
