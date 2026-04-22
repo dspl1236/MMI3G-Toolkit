@@ -611,3 +611,109 @@ Just a persistence DB change + DNS redirect + local tile proxy.
 
 All components are local. No data goes to Congo's server or any
 third party beyond the tile imagery provider.
+
+### CRITICAL FINDING: Google's Tile Server Is Still Live (April 2026)
+
+Live testing of Google's GEE endpoints:
+
+```
+http://kh.google.com/                  → 404 (root, expected)
+http://kh.google.com/dbRoot.v5         → 200 (16,930 bytes!) ← ALIVE!
+http://kh.google.com/dbRoot.v5?output=proto&hl=en → 200 (17,627 bytes)
+http://kh.google.com/flatfile?...      → 400 (endpoint exists, wrong params)
+http://kh.google.com/geauth            → 404 (auth endpoint REMOVED!)
+```
+
+Key implications:
+1. **The tile server still serves data** — dbRoot.v5 returns valid config
+2. **The auth endpoint (/geauth) returns 404** — authentication may no
+   longer be enforced server-side
+3. **The flatfile endpoint exists** (returns 400, not 404) — just needs
+   correct query parameters
+
+### What This Means
+
+If `/geauth` is gone and `disableAuthKey` is set in drivers.ini:
+- gemmi_final skips client-side auth check
+- Server no longer enforces auth (404 on /geauth)
+- Tiles may be served without any authentication at all
+- **NO PROXY NEEDED** — just DNS + flag flip + internet connection
+
+### Local DNS Redirect Options
+
+QNX supports these DNS/hostname resolution methods:
+
+```sh
+# Method 1: /etc/hosts (simplest, checked FIRST before DNS)
+echo "216.239.32.55 kh.google.com" >> /etc/hosts
+
+# Method 2: /etc/resolv.conf (DNS server override)
+echo "nameserver 192.168.0.1" > /etc/resolv.conf
+
+# Method 3: setconf (QNX system config)
+setconf _CS_RESOLVE "nameserver 192.168.0.1"
+```
+
+For Google Earth restoration, `/etc/hosts` is likely NOT needed
+because kh.google.com already resolves correctly. The issue was
+authentication, not hostname resolution. With `disableAuthKey`,
+the existing DNS should work as-is.
+
+### Simplest Possible Google Earth Restoration
+
+If the server truly no longer enforces auth:
+
+```sh
+#!/bin/ksh
+# Google Earth Restoration — SD card script
+
+# 1. Flip EOL flags (Andrew's car: HU_VARIANT=6, no RANGE_ block)
+# This enables the GE menu option in the Java UI
+sqlite3 /HBpersistence/DataPST.db \
+  "UPDATE tb_intvalues SET pst_value=1 \
+   WHERE pst_key=<EOLFLAG_GOOGLE_EARTH_KEY>"
+
+# 2. Set disableAuthKey in drivers.ini (writable EFS)
+echo "    Connection/disableAuthKey = true" >> \
+  /mnt/efs-system/lsd/drivers.ini
+
+# 3. Ensure GEMMI binaries are deployed
+# (Already present on K0942_3 firmware)
+
+# 4. Done — reboot and connect to internet
+```
+
+**UNTESTED** — this is the theory based on binary analysis and live
+server testing. The actual per3/DataPST.db key addresses for the
+EOL flags need to be determined by live testing.
+
+### no_online_services.properties — The RANGE_ Lock
+
+This file is loaded for specific HU_VARIANT values:
+
+```
+EOLFLAG_HU_VARIANT 7  → Japan      → RANGE_EOLFLAG_GOOGLE_EARTH=0
+EOLFLAG_HU_VARIANT 9  → Korea      → RANGE_EOLFLAG_GOOGLE_EARTH=0
+EOLFLAG_HU_VARIANT 15 → VW         → RANGE_EOLFLAG_GOOGLE_EARTH=0
+EOLFLAG_HU_VARIANT 16 → Bentley    → RANGE_EOLFLAG_GOOGLE_EARTH=0
+EOLFLAG_HU_VARIANT 19 → Bentley RSE→ RANGE_EOLFLAG_GOOGLE_EARTH=0
+```
+
+The `RANGE_` prefix means: "constrain the allowed values to ONLY this
+value." When `RANGE_EOLFLAG_GOOGLE_EARTH=0` is set, no other config
+file can override Google Earth to 1. The Java UI code checks:
+
+```java
+if (sysconst.isInRange("EOLFLAG_GOOGLE_EARTH", 1)) {
+    // Show Google Earth option in nav menu
+}
+```
+
+With RANGE=0, `isInRange(1)` returns false → menu option hidden.
+
+**Audi NAR (variant 6) does NOT load this file** — Google Earth
+can be enabled by simply setting the EOLFLAG to 1.
+
+**VW/Bentley/Japan/Korea variants DO load this file** — Google Earth
+requires either IFS modification (to remove the RANGE_ constraint)
+or running gemmi_final independently (bypasses UI check entirely).
