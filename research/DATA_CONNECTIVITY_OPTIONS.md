@@ -309,3 +309,90 @@ Encrypt method: 0x11 (not Simos 0x0A — different decompressor needed)
 - FRF decryption: `bri3d/VW_Flash/frf/decryptfrf.py`
 - Key file: `bri3d/VW_Flash/data/frf.key` (4095 bytes, public)
 - Produces ZIP → ODX (XML flash container)
+
+### OEM LTE Module Swap — Research Path
+
+**Status: Feasibility assessed, not yet attempted**
+
+The MMI3G+ J794 contains a Telit UC864-AWS-AUTO 3G UMTS modem on an
+internal LGA board. With 3G networks sunset globally, the question is
+whether a compatible LTE module can be swapped in.
+
+#### Current Architecture
+
+```
+NWSProcess → libmodemservice.so → pppd → USB serial → Telit UC864 → 3G
+     (IFS)        (EFS, writable!)   (IFS)   (generic)    (hardware)
+```
+
+Key finding: `libmodemservice.so` is on the **writable EFS partition**,
+NOT the read-only IFS. This means the modem service library can be
+modified or replaced via SD card script — no firmware reflash needed.
+
+#### AT Command Flow (from libmodemservice.so strings)
+
+```
+ATZ                    → Reset modem
+AT+CBST=%d,%d,%d       → Set bearer service type
+ATDT%s                 → Dial data connection
+```
+
+Standard PPP chat script. Most LTE modems support legacy PPP mode
+(`ATDT*99#`) for backward compatibility.
+
+#### Telit.bin — Modem Firmware
+
+The Flashdaten includes `Telit/Main/100/default/Telit.bin` (13.8MB).
+This is the modem's own firmware, flashed separately from QNX. Each
+Telit module family has its own firmware blob.
+
+#### What Would Need to Change for LTE
+
+1. **Physical module** — Telit UC864 uses a specific LGA footprint.
+   Telit LTE modules (LE910, LE920 series) use different form factors.
+   An adapter PCB or a compatible LTE module would be needed.
+
+2. **Telit.bin** — New modem firmware for the LTE module. Available
+   from Telit for their supported modules.
+
+3. **libmodemservice.so** (EFS, writable) — May work as-is if the LTE
+   modem supports legacy PPP AT commands. If not, this `.so` can be
+   replaced via SD card without reflashing IFS.
+
+4. **APN configuration** — Update for carrier's LTE APN settings.
+
+5. **pppd** (IFS) — Standard PPP daemon, likely compatible with any
+   modem that presents a USB serial interface.
+
+#### Feasibility Assessment
+
+| Component | Difficulty | Notes |
+|-----------|-----------|-------|
+| Physical swap | Hard | Different LGA footprint, needs adapter |
+| Modem firmware | Medium | Telit provides tools for flashing |
+| libmodemservice.so | Easy | Writable EFS, replaceable via SD |
+| APN/PPP config | Easy | Standard AT command changes |
+| QNX USB serial driver | None | Generic `devc-serusb` handles any USB serial |
+
+**Bottom line:** The software side is surprisingly doable — the blocker
+is finding a physically compatible LTE module. The QNX side barely needs
+to change since the cellular stack uses standard PPP over USB serial.
+
+#### Alternative: External LTE (Proven, Recommended)
+
+DrGER's approach bypasses all modem compatibility issues:
+
+```
+USB ethernet (AX88772A) → External LTE router → Any carrier SIM
+```
+
+The MMI doesn't care HOW it gets internet — it just needs `en5` to have
+an IP address and DNS resolution. The existing DHCP config from the
+original 3G connection (`/mnt/efs-persist/usedhcp`) is still in place.
+
+#### Community References
+
+- DrGER — A5OC thread: extensive research on Telit module internals
+- daredoole — Confirmed AX88772A works, AX88772D does NOT
+- Audi Service Action 91CD — Mojio OBD-II dongle (NOT an MMI solution)
+- Audizine/AudiWorld — Multiple threads, nobody has done the LTE swap
