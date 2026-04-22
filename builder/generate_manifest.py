@@ -13,6 +13,7 @@ import json
 import os
 import sys
 from datetime import date
+from typing import Optional
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SCRIPT_DIR)
@@ -21,6 +22,16 @@ CORE_DIR = os.path.join(REPO_ROOT, 'core')
 OUT_FILE = os.path.join(REPO_ROOT, 'docs', 'app', 'manifest.json')
 
 RAW_BASE = 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/'
+CORE_FILES = {
+    'copie_scr_plain_sh': 'core/copie_scr_plain.sh',
+    'uninstall_sh': 'core/uninstall.sh',
+    'platform_sh': 'core/platform.sh',
+    'showScreen': 'core/bin/showScreen',
+    'lib_running_png': 'core/lib/running.png',
+    'lib_done_png': 'core/lib/done.png',
+    'lib_gem_enabled_png': 'core/lib/gem_enabled.png',
+    'lib_gem_disabled_png': 'core/lib/gem_disabled.png',
+}
 
 
 def walk_module(mod_dir: str) -> list:
@@ -35,24 +46,22 @@ def walk_module(mod_dir: str) -> list:
     return sorted(files, key=lambda f: f['path'])
 
 
-def main():
-    if not os.path.isdir(MODULES_DIR):
-        print(f"error: {MODULES_DIR} not found", file=sys.stderr)
+def build_manifest(modules_dir: Optional[str] = None) -> dict:
+    modules_dir = modules_dir or MODULES_DIR
+    if not os.path.isdir(modules_dir):
+        print(f"error: {modules_dir} not found", file=sys.stderr)
         sys.exit(1)
 
     manifest = {
         'generated': date.today().isoformat(),
         'branch': 'main',
         'raw_url_base': RAW_BASE,
-        'core_files': {
-            'copie_scr_plain_sh': 'core/copie_scr_plain.sh',
-            'uninstall_sh': 'core/uninstall.sh',
-        },
+        'core_files': dict(CORE_FILES),
         'modules': {}
     }
 
-    for name in sorted(os.listdir(MODULES_DIR)):
-        mod_path = os.path.join(MODULES_DIR, name)
+    for name in sorted(os.listdir(modules_dir)):
+        mod_path = os.path.join(modules_dir, name)
         if not os.path.isdir(mod_path):
             continue
         meta_file = os.path.join(mod_path, 'module.json')
@@ -69,15 +78,22 @@ def main():
             'description': meta.get('description', ''),
             'standalone': meta.get('standalone', False),
             'run_script': meta.get('run_script'),
+            'artifact': meta.get('artifact'),
             'script_dir': meta.get('script_dir', f'/scripts/{name}'),
             'installs_to_flash': meta.get('installs_to_flash', True),
             'compatible': meta.get('compatible', ['MMI3G+']),
             'files': files,
         }
 
+    return manifest
+
+
+def main():
+    manifest = build_manifest()
+
     os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
     with open(OUT_FILE, 'w') as f:
-        json.dump(manifest, f, indent=2)
+        json.dump(manifest, f, indent=4)
 
     total_files = sum(len(m['files']) for m in manifest['modules'].values())
     total_size = sum(sum(f['size'] for f in m['files']) for m in manifest['modules'].values())

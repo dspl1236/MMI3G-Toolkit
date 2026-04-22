@@ -565,6 +565,26 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
             dst.write(src.read().replace(b'\r\n', b'\n'))
         print(f"  [OK] scripts/common/platform.sh")
 
+    # Ship the showScreen helper and status PNGs used by run.sh
+    status_assets = [
+        ('core/bin/showScreen', 'bin/showScreen'),
+        ('core/lib/running.png', 'lib/running.png'),
+        ('core/lib/done.png', 'lib/done.png'),
+    ]
+    if 'gem-activator' in selected_modules:
+        status_assets.extend([
+            ('core/lib/gem_enabled.png', 'lib/gem_enabled.png'),
+            ('core/lib/gem_disabled.png', 'lib/gem_disabled.png'),
+        ])
+
+    for src_rel, dest_rel in status_assets:
+        src_path = os.path.join(REPO_ROOT, src_rel)
+        if not os.path.isfile(src_path):
+            continue
+        dest_path = os.path.join(output_dir, *dest_rel.split('/'))
+        shutil.copy2(src_path, dest_path)
+        print(f"  [OK] {dest_rel}")
+
     # Copy module files
     for mod_name in selected_modules:
         meta = modules[mod_name]
