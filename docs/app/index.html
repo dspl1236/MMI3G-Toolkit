@@ -115,7 +115,7 @@ const MODULES_DISPLAY = [
   { id: "google-earth", name: "Google Earth", status: "alpha",
     desc: "Google Earth restoration — probe diagnostics and experimental auth bypass",
     compat: ["3G+", "RNS-850"], category: "system",
-    prereq: null, detail: "EXPERIMENTAL: Probes GEMMI state, checks binaries/network/EOL flags, and optionally adds disableAuthKey to drivers.ini. Based on reverse engineering showing kh.google.com still serves tiles and /geauth auth endpoint has been removed. Audi NAR has no RANGE_ block. Safe probe + experimental enabler + clean restore." },
+    prereq: null, detail: "EXPERIMENTAL: Probes GEMMI state, checks binaries/network/EOL flags, and optionally adds disableAuthKey to drivers.ini. GEMMI binaries (~22MB) are automatically downloaded from GitHub Release and included on the SD card for deployment to cars without Google Earth. Based on reverse engineering showing kh.google.com still serves tiles and /geauth auth endpoint has been removed. Audi NAR has no RANGE_ block. Safe probe + experimental enabler + clean restore." },
   { id: "diag-tool", name: "Diag Tool", status: "alpha",
     desc: "UDS diagnostic scanner — needs VAG-COM cable",
     compat: ["3G+"], category: "diag",
@@ -458,6 +458,23 @@ async function buildSdBundle(selected, onProgress) {
   files.push({ path: "bin/.keep", bytes: new Uint8Array(0) });
   files.push({ path: "lib/.keep", bytes: new Uint8Array(0) });
   files.push({ path: "var/.keep", bytes: new Uint8Array(0) });
+
+  // --- GEMMI binaries (only when google-earth module is selected) ---
+  if (selected.includes("google-earth") && manifest.gemmi_assets) {
+    const ga = manifest.gemmi_assets;
+    onProgress && onProgress("Fetching GEMMI binaries (~22MB)...", 96);
+    for (const asset of ga.files) {
+      try {
+        const url = ga.base_url + asset.name;
+        const bytes = await fetchBinary(url);
+        files.push({ path: asset.path, bytes });
+        step(`Fetched ${asset.name} (${(bytes.length / 1024 / 1024).toFixed(1)}MB)`);
+      } catch (e) {
+        console.warn(`GEMMI asset ${asset.name} not available:`, e);
+        // Don't fail the build — ge_deploy.sh handles missing files gracefully
+      }
+    }
+  }
 
   onProgress && onProgress("Bundle ready", 100);
   return { files, manifest };
