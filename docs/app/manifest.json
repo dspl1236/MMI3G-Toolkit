@@ -357,6 +357,37 @@
                 }
             ]
         },
+        "google-earth": {
+            "status": "alpha",
+            "description": "Google Earth restoration \u2014 probe diagnostics and experimental auth bypass. Based on reverse engineering of gemmi_final, libembeddedearth.so, and live server testing showing kh.google.com still serves tile data and /geauth has been removed.",
+            "standalone": true,
+            "run_script": "ge_probe.sh",
+            "artifact": null,
+            "script_dir": "/scripts/GoogleEarth",
+            "installs_to_flash": true,
+            "compatible": [
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "module.json",
+                    "size": 1969
+                },
+                {
+                    "path": "scripts/ge_enable.sh",
+                    "size": 8236
+                },
+                {
+                    "path": "scripts/ge_probe.sh",
+                    "size": 9869
+                },
+                {
+                    "path": "scripts/ge_restore.sh",
+                    "size": 2095
+                }
+            ]
+        },
         "jvm-extract": {
             "status": "ready",
             "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u2014 the first step toward custom MMI menu entries",

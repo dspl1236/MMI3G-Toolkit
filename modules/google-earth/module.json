@@ -1,0 +1,36 @@
+{
+    "name": "google-earth",
+    "version": "0.1.0-alpha",
+    "description": "Google Earth restoration — probe diagnostics and experimental auth bypass. Based on reverse engineering of gemmi_final, libembeddedearth.so, and live server testing showing kh.google.com still serves tile data and /geauth has been removed.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": ["MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "ge_probe.sh",
+    "script_dir": "/scripts/GoogleEarth",
+    "requires_reboot": false,
+    "scripts": [
+        "ge_probe.sh - Probe GEMMI state, check binaries, network, EOL flags (safe, read-only)",
+        "ge_enable.sh - EXPERIMENTAL: Add disableAuthKey to drivers.ini (requires reboot)",
+        "ge_restore.sh - Revert all changes made by ge_enable.sh"
+    ],
+    "risks": [
+        "EXPERIMENTAL: Based on binary analysis, NOT car-tested.",
+        "ge_probe.sh is safe (read-only diagnostic).",
+        "ge_enable.sh modifies drivers.ini on writable EFS (backed up before change).",
+        "ge_enable.sh does NOT modify IFS, lsd.jxe, or any firmware files.",
+        "The disableAuthKey parameter was found in libembeddedearth.so strings — its effect is theoretical.",
+        "Google may change their server behavior at any time.",
+        "ge_restore.sh reverts all changes cleanly."
+    ],
+    "research": [
+        "kh.google.com/dbRoot.v5 returns HTTP 200 (16KB config) — server is alive",
+        "kh.google.com/geauth returns HTTP 404 — auth endpoint REMOVED",
+        "disableAuthKey found in libembeddedearth.so strings",
+        "geFreeLoginServer found next to kh.google.com in binary",
+        "Audi NAR (HU_VARIANT=6) has NO RANGE_ block on Google Earth",
+        "VW variants have RANGE_EOLFLAG_GOOGLE_EARTH=0 (UI blocked)",
+        "gemmi_final runs as standalone QNX process, independent of EOL flags",
+        "See research/EOL_FLAGS_AND_GOOGLE_EARTH.md for full analysis"
+    ]
+}
