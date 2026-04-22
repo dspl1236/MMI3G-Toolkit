@@ -70,3 +70,49 @@ When plugged in, a compatible adapter appears as interface `en5`
 | devnp-mv8688uap.so | Marvell 88W8688 WiFi (built-in AP, 192.168.1.1) |
 | devnp-shim.so | io-net compatibility shim |
 | devnp-mlb.so | MOST Link Bus (internal car network) |
+
+## QNX devn-asix.so Driver — Device ID Override (CRITICAL)
+
+Official QNX documentation confirms the ASIX driver supports
+explicit USB device ID override via command-line parameters:
+
+```sh
+io-pkt-v4-hc -d asix did=0xXXXX,vid=0xXXXX &
+```
+
+### AX88772D Fix — No Hex Patching Needed
+
+The AX88772D fails only because its USB product ID isn't in the
+driver's auto-detection table. The register layout is compatible
+with AX88772/A/B. Forcing the device ID bypasses auto-detection:
+
+```sh
+# ASIX-branded AX88772D
+io-pkt-v4-hc -d asix did=0x772D,vid=0x0B95 &
+
+# Third-party AX88772D (check lsusb for your adapter's IDs)
+io-pkt-v4-hc -d asix did=0x0074,vid=0x1790 &
+```
+
+This can be added to a startup script or run from an SD card module.
+
+### All Driver Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `did=0xXXXX` | Force USB device ID | Auto-detect |
+| `vid=0xXXXX` | Force USB vendor ID | Auto-detect |
+| `busnum=0xXX` | Target USB bus | Any |
+| `devnum=0xXX` | Target USB device | Any |
+| `speed=10\|100` | Force speed (Mbps) | Auto-negotiate |
+| `duplex=0\|1` | Force half/full duplex | Auto-negotiate |
+| `mac=XXXXXXXXXXXX` | Override MAC address | From hardware |
+| `verbose=1..4` | Debug output (slogger) | 0 (off) |
+| `wait=num` | Seconds to wait for USB | 60 |
+| `mtu=num` | Max transmission unit | 1514 |
+| `promiscuous` | Pass all packets | Disabled |
+
+### Source
+
+QNX Neutrino 6.4.0 documentation:
+https://qnx.com/developers/docs/6.4.0/neutrino/utilities/d/devn-asix.so.html

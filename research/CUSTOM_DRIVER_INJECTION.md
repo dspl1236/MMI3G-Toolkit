@@ -131,3 +131,24 @@ drivers, and even a local tile proxy server for Google Earth.
 - `research/HMI_ARCHITECTURE.md` — QNX process model
 - `research/SWDL_UPDATE_SYSTEM.md` — Firmware update system
 - `research/EOL_FLAGS_AND_GOOGLE_EARTH.md` — GEMMI server protocol
+
+## Update: Device ID Override (No Patching Required)
+
+QNX documentation reveals that `devn-asix.so` supports explicit
+USB device ID override via command-line parameters. This eliminates
+the need for hex-patching to add AX88772D support:
+
+```sh
+io-pkt-v4-hc -d asix did=0x772D,vid=0x0B95 &
+```
+
+The `did` and `vid` options force the driver to bind to any USB
+device regardless of its product ID. As long as the register
+layout is compatible (which it is for all AX88772 revisions),
+the driver works normally.
+
+This is simpler than all three injection methods documented above
+and requires no custom driver binary at all — just a command-line
+argument change in the network startup script.
+
+Source: qnx.com/developers/docs/6.4.0/neutrino/utilities/d/devn-asix.so.html
