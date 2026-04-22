@@ -311,3 +311,9 @@ Network/maxRequestsBacklog = 10
 | HN+R_EU_VW_P0824 | VW RNS-850 (MU9478) | EU | ✅ Full package | ✅ Enabled |
 | HN+_EU_VW_P0534 | VW RNS-850 (MU9478) | EU | ✅ Full package | ✅ Enabled |
 | HN+_US_VW_P0738 | VW RNS-850 (MU9478) | NAR | ❌ Not included | ❌ Blocked |
+
+## Related Research
+
+- **GEMMI_PATCH_MAP.md** — Binary patch points in gemmi_final and
+  libembeddedearth.so for Google hostname and auth bypass
+- **tools/eol_modifier.py** — CLI tool to modify EOL flags in lsd.jxe

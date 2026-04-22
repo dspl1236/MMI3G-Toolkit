@@ -157,3 +157,10 @@ A3. If neither works → need binary patch on kh.google.com string
 2. Test on car with LTE connected
 3. Check GEMMI logs for behavior change
 4. If auth bypass works but tiles 403 → need server redirect too
+
+## Related Research
+
+- **EOL_FLAGS_AND_GOOGLE_EARTH.md** — lsd.jxe EOL flag analysis,
+  `EOLFLAG_INNOVATIONFEATURES` and `EOLFLAG_GOOGLE_EARTH` settings
+  per market variant (Audi EU/NAR, VW EU/NAR)
+- **eol_modifier.py** — Tool to enable/disable EOL flags in lsd.jxe

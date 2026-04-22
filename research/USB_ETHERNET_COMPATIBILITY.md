@@ -24,14 +24,14 @@ and all other chipsets will NOT work without adding custom drivers
 | ASIX AX88772 | 10/100 | Supported — DrGER confirmed |
 | ASIX AX88772A | 10/100 | Supported |
 | ASIX AX88772B | 10/100 | Supported |
-| ASIX AX88772D | 10/100 | Likely works (same family, untested) |
+| ASIX AX88772D | 10/100 | ❌ NOT COMPATIBLE — confirmed by daredoole (Touareg RNS-850). USB detected but no en5 device created. |
 
 ## Confirmed Working Adapters
 
 | Adapter | Chipset | Confirmed By |
 |---|---|---|
 | D-Link DUB-E100 | ASIX AX88772 | DrGER — reference adapter |
-| UGREEN USB Ethernet (RJ45) | ASIX AX88772D | Andrew — untested, likely works |
+| UGREEN USB Ethernet (RJ45) | ASIX AX88772D | ❌ NOT COMPATIBLE — D revision not supported by QNX devn-asix.so driver |
 
 ## How to Verify Chipset Before Buying
 

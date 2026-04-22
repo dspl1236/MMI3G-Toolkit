@@ -12,7 +12,8 @@ platform. They share the same CPU, OS, build system, and USB autorun mechanism.
 |---|:---:|:---:|:---:|
 | **Vehicle** | A4/A5/A6/A7/A8/Q5/Q7 | Touareg 7P | 911/Cayenne/Panamera/Macan/Boxster |
 | **Years** | 2010–2016 | 2010–2016 | 2010–2016 |
-| **CPU** | Renesas SH4 (SH7785) | Renesas SH4 (SH7785) | Renesas SH4 (SH7785) |
+| **CPU** | SH4A (SH7785) @ 792MHz | SH4A (SH7785) @ 792MHz | SH4A (SH7785) @ 792MHz |
+| **RAM** | 476MB | 476MB | 476MB |
 | **OS** | QNX 6.3.2 | QNX 6.3.2 | QNX 6.3.2 |
 | **Display** | 800×480 | 800×480 | 800×480 |
 | **Storage** | HDD + Flash | HDD + Flash | HDD + Flash |

@@ -458,3 +458,67 @@ screen  ToolkitMonitor Main
 - DSI architecture: `research/DSI_ARCHITECTURE.md`
 - Per3 address map: `research/PER3_ADDRESS_MAP.md`
 - GEM activation: `modules/gem-activator/`
+
+## CRITICAL: Block Format Requirement
+
+**Discovered 2026-04-21 during car testing.**
+
+The GEM ESD parser requires **multi-line block format**. Single-line
+inline syntax is silently ignored — screens appear in the menu but
+display NO data.
+
+### Correct (block format — WORKS):
+
+```
+screen	MyScreen	Toolkit
+
+   keyValue
+      value    int per 3 0x00000023
+      label    "Battery (x100 mV)"
+      poll     500
+
+   script
+      value    sys 1 0x0100 "/scripts/myscript.sh"
+      label    ">> Run Script <<"
+```
+
+### WRONG (inline format — screen appears but is BLANK):
+
+```
+screen MyScreen Toolkit
+
+keyValue value int per 3 0x00000023 label "Battery (x100 mV):"
+poll 500
+
+script value sys 1 0x0100 "/scripts/myscript.sh" label ">> Run Script <<"
+```
+
+### Key syntax rules:
+
+- `screen` line uses **tabs** as separators: `screen\tName\tParent`
+- `keyValue` and `script` keywords on their own line, indented 3 spaces
+- `value`, `label`, `poll` each on separate lines, indented 6 spaces
+- Empty line between each keyValue/script block
+- Comments start with `#` (full line only)
+
+### Parent Group Requirement
+
+The parent name in the `screen` directive MUST be either:
+- A **firmware-defined group**: Main, Config, Car, Coding, Nav, Version,
+  MOST, Display, Settings, Radio, etc.
+- Another **custom screen name** already defined in an ESD file
+
+Custom parent names (e.g., "Gauges", "Scanner") are **silently ignored** —
+the screen definition is loaded but never appears in the GEM menu tree.
+
+The MMI-Toolkit uses this hierarchy:
+```
+Main (firmware)
+  ├── GamesMenu (top-level, like Audi's factory games)
+  └── Toolkit (our root screen)
+        ├── ToolkitDiag / ToolkitSWDL
+        ├── GaugesDashboard / Network / System
+        ├── ScannerEngine1..10
+        ├── DTC_Overview / Detail / Control
+        └── CodingMain / BusRouting / CarConfig
+```

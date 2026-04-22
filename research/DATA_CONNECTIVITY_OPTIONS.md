@@ -21,7 +21,7 @@ data connectivity to fetch satellite tiles.
 - **TP-Link TL-MR3020** — Backup/alternative travel router (also owned)
 - **UGREEN USB to Ethernet (AX88772D)** — Andrew's existing USB ethernet adapter
   - QNX has native devn-asix.so driver for AX88772/A/B
-  - AX88772D may work but is untested — D revision not listed in QNX docs
+  - AX88772D confirmed NOT compatible — D revision not recognized by QNX devn-asix.so (daredoole tested, Nov 2025)
   - If it doesn't work, D-Link DUB-E100 is the confirmed-compatible fallback
 - **DrGER LAN setup** — already installed on Andrew's A6 (usedhcp + DLinkReplacesPPP flags set)
 

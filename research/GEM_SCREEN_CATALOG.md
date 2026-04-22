@@ -1,4 +1,9 @@
 # MMI3G GEM Screen Catalog
+
+> **Note:** This is a quick-reference catalog. For full element-level details,
+> see **GEM_COMPLETE_MAP.md**.
+
+
 # Source: HN+R_US_AU_K0942_3 factory ESD files (138 screens)
 # Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 

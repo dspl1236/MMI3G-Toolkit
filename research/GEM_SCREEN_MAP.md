@@ -1,5 +1,11 @@
 # GEM Engineering Menu — Complete Screen Map
 
+> **Note:** This is an early version of the GEM screen map. For the complete,
+> authoritative reference, see **GEM_COMPLETE_MAP.md** (1624 lines, every screen,
+> every element, every per3 address).
+
+
+
 > Extracted from VW RNS 850 EFS-system (HN+ P0534, MU9478)
 > Applicable to: Audi MMI3G, VW RNS 850, Porsche PCM 3.1
 > Date: April 19, 2026

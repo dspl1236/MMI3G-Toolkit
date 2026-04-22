@@ -17,7 +17,8 @@ See also:
 
 ```
 QNX version        6.3.2 (RL_qnx_os_632_PSP3_08041A)
-CPU                Renesas SH4 (EM_SH, 32-bit LE)
+CPU                Renesas SH7785 (SH4A) @ 792MHz, 32-bit LE
+RAM                476MB (114MB free under normal load)
 Header board ID   10EE / 9411 (vendor 0x10EE = Xilinx, device 0x9411)
 Firmware banner    Harman/Becker MMI3GP Build 9411 C1 D1-15515A
 HMI mountpoint     /

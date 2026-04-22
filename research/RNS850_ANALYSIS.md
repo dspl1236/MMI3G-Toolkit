@@ -159,8 +159,8 @@ BTH         (at 0x25f7de)
 - ✅ Diagnostic data collection
 - ✅ /HBpersistence/ file operations
 - ✅ QNX system commands
-- ⚠️ GEM engineering menu (likely same ESD format, untested)
-- ⚠️ per3 persistence (same DSI framework, untested)
+- ✅ GEM engineering menu — confirmed working by daredoole (2016 Touareg, HN+_US_VW_P0738). Same ESD format, same block syntax requirement.
+- ⚠️ per3 persistence (same DSI framework, untested on RNS-850)
 
 ### What does NOT work:
 - ❌ Audi FSC 2-byte patch (different crypto implementation)
