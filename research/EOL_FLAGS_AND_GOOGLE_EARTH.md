@@ -875,3 +875,90 @@ pipeline. It tells the client:
 
 This file is the "phone book" for Google Earth. As long as Google
 serves it, the client knows how to fetch everything else.
+
+### srv-starter GEMMI Configuration Comparison (CRITICAL FINDING)
+
+The `mmi3g-srv-starter.cfg` reveals exactly how GEMMI was removed
+from the US firmware and how Congo restores it:
+
+```
+                          EU VW (K0821)    Audi NAR (K0942)    US RNS-850 (K0711)
+                          ─────────────    ────────────────    ──────────────────
+ProcessCount:             100              101                 98
+Process 97:               run_gemmi.sh     run_gemmi.sh        pintest (REPLACED!)
+Package 28 (GEMMI):       
+  RequestState:           STOP             STOP                STOP
+  HostsProcess:           97 (connected)   97 (connected)      EMPTY (gutted!)
+```
+
+**US RNS-850 was surgically modified:**
+1. Process 97 replaced: `run_gemmi.sh` → `pintest` (test utility)
+2. Package 28 disconnected: `HostsProcess` emptied
+3. `no_online_services.properties` locks RANGE_ flags
+4. GEMMI binaries not included in NAR nav updates
+
+**How GEMMI launches on a working system:**
+1. Boot → srv-starter loads → GEMMI package state = STOP
+2. LSD Java app checks EOLFLAG_GOOGLE_EARTH
+3. If flag = 1 AND user enables in menu → LSD sends START to srv-starter
+4. srv-starter launches Process 97 (`/usr/bin/run_gemmi.sh`)
+5. `run_gemmi.sh` checks `/mnt/nav/gemmi/gemmi_final` exists
+6. Launches gemmi_final with rendering params
+7. Google Earth overlay appears on nav map
+
+**Congo's approach (confirmed via audi-mib.bg):**
+Flash the EU K0821 firmware onto US RNS-850. The EU firmware has:
+- Process 97 = run_gemmi.sh (GEMMI launcher present)
+- Package 28 connected to Process 97
+- GEMMI binaries deploy with EU nav maps
+- Full Google Earth infrastructure
+
+His page literally states: "K0821 adds the Google Earth map option"
+
+### Custom SWDL Update Path (Alternative to Full EU Flash)
+
+Instead of replacing the entire firmware with EU, a minimal
+patch could add Google Earth to any US RNS-850:
+
+**What needs to change in the IFS:**
+
+1. `mmi3g-srv-starter.cfg`:
+   - Replace Process 97 from `pintest` to `run_gemmi.sh`
+   - Set Package 28 HostsProcess to 97
+
+2. `lsd.jxe` (inside the JAR):
+   - Remove `RANGE_EOLFLAG_GOOGLE_EARTH=0` from
+     `no_online_services.properties`
+   - Set `EOLFLAG_GOOGLE_EARTH=1` in `sysconst.properties`
+
+3. Deploy GEMMI binaries to `/mnt/nav/gemmi/`
+   (via SWDL Dir component, same as EU firmware does)
+
+**Build pipeline:**
+```
+inflate_ifs.py  → decompress US RNS-850 IFS
+patch_ifs.py    → replace srv-starter.cfg + lsd.jxe
+repack_ifs.py   → recompress IFS
+mu_crc_patcher  → fix checksums
+Package as SWDL → user flashes via Engineering Menu
+```
+
+**Advantages over full EU flash:**
+- Preserves NAR-specific features (SiriusXM, TPMS, etc.)
+- Smaller update package (~50MB IFS vs full firmware)
+- Less risk (fewer components modified)
+- Users stay on their current firmware version
+- Only the IFS needs to change
+
+**User workflow:**
+1. Identify current firmware version (ge_probe.sh reports this)
+2. Download matching pre-patched IFS from GitHub Release
+3. Copy to SD card in SWDL format
+4. Flash via Engineering Menu (SETUP + PHONE)
+5. Install GEMMI binaries (ge_activate.sh or EU nav maps)
+6. Connect internet → Google Earth works
+
+**Version matching requirement:**
+Each firmware version has a different IFS. Users must match
+their current version or update to a specific target version.
+The probe script reports the firmware train name for matching.
