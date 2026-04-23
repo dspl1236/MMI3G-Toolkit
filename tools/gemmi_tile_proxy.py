@@ -1,131 +1,64 @@
 #!/usr/bin/env python3
+"""GEMMI Tile Proxy — Cookie Auth Mode
+Based on binary analysis of libembeddedearth.so:
+  geFreeLoginServer = kh.google.com + /geauth
+  Auth uses Set-Cookie (Netscape HTTP Cookie File format)
 """
-gemmi_tile_proxy.py — Google Earth tile proxy for MMI3G+ GEMMI
-
-Runs on your PC (e.g. 192.168.0.91). The MMI's /etc/hosts points
-kh.google.com at this proxy. GEMMI sends tile requests using the
-old Google Earth Enterprise protocol; this proxy translates them
-to Google's public tile API which still serves imagery.
-
-Setup:
-  1. On MMI (telnet root shell):
-     echo "192.168.0.91 kh.google.com" >> /etc/hosts
-     slay gemmi_final
-
-  2. On your PC:
-     python gemmi_tile_proxy.py
-
-  3. GEMMI auto-restarts and requests tiles through this proxy.
-
-Protocol translation:
-  GEMMI requests:  GET /flatfile?db=earth&t=tqsrts&q=250&channel=0&version=943
-  Quadkey 't...' is a Google-style tile address (t=root, then q/r/s/t quadrants)
-  This proxy converts the quadkey to x/y/z coordinates and fetches from:
-    https://mt0.google.com/vt?lyrs=s&x={x}&y={y}&z={z}
-
-  GEMMI also requests:
-    /dbRoot.v5        -> forwarded to real kh.google.com (still works, 200)
-    /geauth           -> returns fake success (endpoint is dead, 404)
-    /flatfile?...     -> tile proxy (the main job)
-
-Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
-"""
-
-import http.server
-import os
-import urllib.request
-import urllib.error
-import ssl
-import sys
-import re
+import http.server, os, urllib.request, urllib.error, ssl, sys, re, time
 
 LISTEN_PORT = 80
 REAL_KH_HOST = "kh.google.com"
 TILE_HOST = "mt0.google.com"
-
-# Cached dbRoot.v5 — fetched without cobrand parameter (Google 404s cobrand=AUDI)
 DBROOT_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dbRoot.v5.cached")
-
-# Google quadkey: t=root, then q=0,r=1,s=2,t=3 for each zoom level
 QUADKEY_MAP = {'q': 0, 'r': 1, 's': 2, 't': 3}
 
-def quadkey_to_xyz(quadkey):
-    """Convert Google Earth quadkey (tqsrts...) to x, y, z tile coords."""
-    # Strip leading 't' (root)
-    if quadkey.startswith('t'):
-        quadkey = quadkey[1:]
-    z = len(quadkey)
-    x = 0
-    y = 0
-    for i, ch in enumerate(quadkey):
-        bit = z - 1 - i
-        val = QUADKEY_MAP.get(ch, 0)
-        x |= (val & 1) << bit
-        y |= ((val >> 1) & 1) << bit
+def quadkey_to_xyz(qk):
+    if qk.startswith('t'): qk = qk[1:]
+    z = len(qk); x = y = 0
+    for i, ch in enumerate(qk):
+        bit = z - 1 - i; val = QUADKEY_MAP.get(ch, 0)
+        x |= (val & 1) << bit; y |= ((val >> 1) & 1) << bit
     return x, y, z
 
-
-class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
-
-    def log_message(self, format, *args):
-        print(f"[GEMMI] {args[0]}")
+class Handler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, fmt, *args): print(f"[GEMMI] {args[0]}")
 
     def do_POST(self):
-        """Handle POST requests — GEMMI sends auth via POST."""
         path = self.path
-
-        # --- /geauth — fake auth success ---
         if '/geauth' in path:
-            # Read and log the POST body
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = b""
-            if content_length > 0:
-                body = self.rfile.read(content_length)
-            print(f"[AUTH]  POST /geauth ({content_length} bytes)")
-            print(f"[AUTH]  Headers: {dict(self.headers)}")
-            print(f"[AUTH]  Body: {body}")
-            print(f"[AUTH]  Body (text): {body.decode('utf-8', errors='replace')}")
-            # Try returning empty 200 (maybe GEMMI just needs HTTP 200 with no body)
+            cl = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(cl) if cl > 0 else b""
+            print(f"[AUTH]  POST /geauth ({cl} bytes)")
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
-            self.send_header("Content-Length", "0")
+            self.send_header("Set-Cookie", "SID=gemmi_session_valid; Domain=.google.com; Path=/; Expires=Thu, 01 Jan 2099 00:00:00 GMT")
+            self.send_header("Set-Cookie", "HSID=AkGEhV3xR; Domain=.google.com; Path=/; HttpOnly")
             self.end_headers()
+            self.wfile.write(b"1")
+            print(f"[AUTH]  Returned 200 + Set-Cookie")
             return
-
-        # Everything else via POST — return 200 OK
-        content_length = int(self.headers.get('Content-Length', 0))
-        if content_length > 0:
-            self.rfile.read(content_length)
-        print(f"[POST] Unhandled POST: {path}")
-        self.send_response(200)
-        self.end_headers()
+        cl = int(self.headers.get('Content-Length', 0))
+        if cl > 0: self.rfile.read(cl)
+        self.send_response(200); self.end_headers()
 
     def do_GET(self):
         path = self.path
-
-        # --- /geauth — fake auth success ---
         if '/geauth' in path:
-            print(f"[AUTH]  Faking auth success for: {path}")
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
+            self.send_header("Set-Cookie", "SID=gemmi_session_valid; Domain=.google.com; Path=/")
             self.end_headers()
-            self.wfile.write(b"authorized")
+            self.wfile.write(b"1")
             return
-
-        # --- /flatfile — tile proxy (the main job) ---
         if '/flatfile' in path:
-            # Parse quadkey from 't' parameter
             m = re.search(r'[&?]t=([qrst]+)', path)
             if m:
-                quadkey = m.group(1)
-                x, y, z = quadkey_to_xyz(quadkey)
-                tile_url = f"https://{TILE_HOST}/vt?lyrs=s&x={x}&y={y}&z={z}"
-                print(f"[TILE]  {quadkey} -> z={z} x={x} y={y}")
+                qk = m.group(1); x, y, z = quadkey_to_xyz(qk)
+                url = f"https://{TILE_HOST}/vt?lyrs=s&x={x}&y={y}&z={z}"
+                print(f"[TILE]  {qk} -> z={z} x={x} y={y}")
                 try:
                     ctx = ssl.create_default_context()
-                    req = urllib.request.Request(tile_url, headers={
-                        "User-Agent": "GoogleEarth/5.2.0.6394"
-                    })
+                    req = urllib.request.Request(url, headers={"User-Agent": "GoogleEarth/5.2.0.6394"})
                     resp = urllib.request.urlopen(req, context=ctx, timeout=10)
                     data = resp.read()
                     self.send_response(200)
@@ -134,25 +67,14 @@ class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(data)
                     print(f"[TILE]  Served {len(data)} bytes")
-                    return
                 except Exception as e:
                     print(f"[TILE]  FAILED: {e}")
-                    self.send_response(502)
-                    self.end_headers()
-                    return
-            else:
-                print(f"[TILE]  No quadkey in: {path}")
-                self.send_response(404)
-                self.end_headers()
+                    self.send_response(502); self.end_headers()
                 return
-
-        # --- /dbRoot.v5 — serve cached version ---
-        # Google returns 404 for cobrand=AUDI requests, but plain dbRoot.v5
-        # still works (200, 16.9KB). We cache it locally.
+            self.send_response(404); self.end_headers(); return
         if '/dbRoot' in path:
             if os.path.exists(DBROOT_CACHE):
-                with open(DBROOT_CACHE, 'rb') as f:
-                    data = f.read()
+                with open(DBROOT_CACHE, 'rb') as f: data = f.read()
                 print(f"[ROOT] Serving cached dbRoot.v5 ({len(data)} bytes)")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/octet-stream")
@@ -160,40 +82,13 @@ class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(data)
             else:
-                # No cache — try fetching without cobrand
-                try:
-                    real_url = f"https://{REAL_KH_HOST}/dbRoot.v5"
-                    print(f"[ROOT] Fetching fresh dbRoot (no cobrand)")
-                    ctx = ssl.create_default_context()
-                    req = urllib.request.Request(real_url, headers={
-                        "User-Agent": "GoogleEarth/5.2.0.6394",
-                    })
-                    resp = urllib.request.urlopen(req, context=ctx, timeout=10)
-                    data = resp.read()
-                    # Cache for next time
-                    with open(DBROOT_CACHE, 'wb') as f:
-                        f.write(data)
-                    print(f"[ROOT] Fetched and cached dbRoot ({len(data)} bytes)")
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/octet-stream")
-                    self.send_header("Content-Length", str(len(data)))
-                    self.end_headers()
-                    self.wfile.write(data)
-                except Exception as e:
-                    print(f"[ROOT] FAILED: {e}")
-                    self.send_response(502)
-                    self.end_headers()
+                self.send_response(404); self.end_headers()
             return
-
-        # --- Everything else — forward to real Google ---
         try:
-            real_url = f"https://{REAL_KH_HOST}{path}"
-            print(f"[FWD]  -> {real_url}")
+            url = f"https://{REAL_KH_HOST}{path}"
+            print(f"[FWD]  -> {url}")
             ctx = ssl.create_default_context()
-            req = urllib.request.Request(real_url, headers={
-                "User-Agent": "GoogleEarth/5.2.0.6394",
-                "Host": REAL_KH_HOST,
-            })
+            req = urllib.request.Request(url, headers={"User-Agent": "GoogleEarth/5.2.0.6394", "Host": REAL_KH_HOST})
             resp = urllib.request.urlopen(req, context=ctx, timeout=10)
             data = resp.read()
             self.send_response(resp.status)
@@ -202,40 +97,19 @@ class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(data)
         except urllib.error.HTTPError as e:
-            print(f"[FWD]  HTTP {e.code}: {real_url}")
-            self.send_response(e.code)
-            self.end_headers()
+            self.send_response(e.code); self.end_headers()
         except Exception as e:
-            print(f"[FWD]  FAILED: {e}")
-            self.send_response(502)
-            self.end_headers()
-
+            self.send_response(502); self.end_headers()
 
 def main():
     port = LISTEN_PORT
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1])
-
-    print(f"=" * 50)
-    print(f"  GEMMI Tile Proxy")
+    if len(sys.argv) > 1: port = int(sys.argv[1])
+    print(f"{'='*50}")
+    print(f"  GEMMI Tile Proxy — Cookie Auth")
     print(f"  Listening on 0.0.0.0:{port}")
-    print(f"  Tile source: {TILE_HOST}")
-    print(f"=" * 50)
-    print()
-    print("  On the MMI root shell, run:")
-    print(f'  echo "192.168.0.91 kh.google.com" >> /etc/hosts')
-    print("  slay gemmi_final")
-    print()
-    print("  Waiting for GEMMI connections...")
-    print()
+    print(f"{'='*50}\n  Waiting for GEMMI connections...\n")
+    server = http.server.HTTPServer(("0.0.0.0", port), Handler)
+    try: server.serve_forever()
+    except KeyboardInterrupt: print("\nStopped."); server.server_close()
 
-    server = http.server.HTTPServer(("0.0.0.0", port), GEMMIProxyHandler)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nProxy stopped.")
-        server.server_close()
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
