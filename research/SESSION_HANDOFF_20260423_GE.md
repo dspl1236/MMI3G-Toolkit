@@ -121,3 +121,93 @@ Located at: `/mnt/nav/gemmi/drivers.ini` (writable nav HDD)
 - Game JARs missing from CLI builder (webapp handles them)
 - Port 2323 not persistent (inetd.conf is IFS) — port 23 is the real path
 - Test GEM screens (Scanner, Coding, Games) — ESDs installed but not verified on display
+
+## BINARY ANALYSIS RESULTS (Late Session)
+
+### gemmi_final (2.1MB, SH4A ELF, stripped)
+- Built from: `D:\CMandal\GEarth_products\sh4-qnx-m632-3.4.4-osp-trc-rel\`
+- HydraGoogleClient v5.0.3
+- Contains: Street View URLs (`cbk0.google.com`), cookie handling, auth flow strings
+- Does NOT contain `kh.google.com` — that's in libembeddedearth.so
+- Congo patches THIS binary to redirect (but hostname is in the .so)
+
+### libembeddedearth.so (20.8MB, SH4A ELF, not stripped)
+**Auth Config Block at ~offset 17081400:**
+```
+auth.google.com                    ← auth server
+/cgi-bin/viewer_reg_login          ← registration login path
+retries                            ← retry count
+authInfo                           ← auth info
+disableAuthKey                     ← config toggle (from drivers.ini)
+expiration                         ← session expiration
+cookie                             ← cookie handling  
+deauthServer                       ← deauth server
+/deactivate                        ← deauth path
+googleMFEServer                    ← Maps FE server
+http://maps.google.com             ← maps URL
+geFreeLoginServer                  ← FREE LOGIN SERVER
+kh.google.com         @17081788    ← value for geFreeLoginServer
+/geauth               @17081804    ← auth endpoint path
+bbsServer                          ← BBS server
+bbs.keyhole.com                    ← keyhole BBS
+```
+
+**Default Server URL:**
+```
+DefaultServer
+http://kh.google.com/    @17055180  ← base URL for dbRoot + tiles
+```
+
+### Key Byte Offsets for Patching
+| Offset | String | Purpose |
+|--------|--------|---------|
+| 17055180 | `http://kh.google.com/` | DefaultServer URL (21 bytes) |
+| 17081464 | `disableAuthKey` | Config field name |
+| 17081788 | `kh.google.com` | geFreeLoginServer value (13 bytes) |
+| 17081804 | `/geauth` | Auth endpoint path (7 bytes) |
+
+### Auth Protocol (from proxy captures)
+- GEMMI POSTs 39 bytes to `/geauth`
+- Body: 4-byte header + 1-byte command (0x03) + 16-byte hash + 8 extra bytes + "QNX-unset"
+- "QNX-unset" = OS name + empty token (wants token back)
+- GEMMI uses HTTP cookies for session (Set-Cookie/Cookie headers)
+- But auth validation is DEEPER than cookies — checks binary response body
+- Neither plain text, empty body, nor Set-Cookie responses break the auth loop
+
+### Auth Approaches Tried and Failed
+1. ❌ `disableAuthKey = true` outside SETTINGS block (not read)
+2. ❌ `disableAuthKey = true` inside SETTINGS block (overridden by dbRoot)
+3. ❌ `maxLoginAttempts = 0` (greys out GE toggle)
+4. ❌ Proxy returns "authorized" text
+5. ❌ Proxy returns empty 200
+6. ❌ Proxy returns Set-Cookie headers
+7. ❌ Proxy returns "1"
+
+### NEXT SESSION: Binary Patch Options
+
+**Option A: Null out geFreeLoginServer**
+- At offset 17081788, replace `kh.google.com` with 13 null bytes
+- GEMMI can't find auth server → might skip auth or use embedded dbRoot
+
+**Option B: NOP the auth check**
+- Disassemble libembeddedearth.so (SH4A architecture)
+- Find the auth validation function
+- Patch the conditional jump to always-pass
+- Requires Ghidra with SH4A support
+
+**Option C: Build custom dbRoot protobuf**
+- Create minimal DbRootProto with `disable_authentication = true` (field 3)
+- Encrypt with GEE etEncoder (1016-byte key, rotated XOR)
+- Serve from proxy instead of Google's encrypted version
+- Challenge: Google's public server may use different encryption than GEE
+
+**Option D: Patch DefaultServer URL**
+- At offset 17055180, replace `http://kh.google.com/` with proxy URL
+- `http://192.168.0.91/` is 20 chars (original is 21) — needs padding
+- Or use a 13-char hostname to match exactly
+
+### Files on Andrew's PC
+- `D:\MMI\gemmi_final` — 2.1MB binary (from car)
+- `D:\MMI\libembeddedearth.so` — 20.8MB library (from car)
+- `D:\MMI\proxy\gemmi_tile_proxy.py` — latest proxy with cookie auth
+- `D:\MMI\proxy\dbRoot.v5.cached` — cached generic dbRoot (16.9KB)
