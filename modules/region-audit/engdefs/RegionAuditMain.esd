@@ -1,0 +1,50 @@
+# ============================================================
+# RegionAuditMain.esd
+# Read-only region / VZE audit
+# ============================================================
+# Access via GEM: /region
+# ============================================================
+
+screen	RegionAuditMain	Toolkit
+
+   keyValue
+      value    String per 3 0x00120004
+      label    "Software Train:"
+
+   keyValue
+      value    String per 1 0x0000100d
+      label    "MU Software:"
+
+   keyValue
+      value    int per 3 0x0011000F
+      label    "Internal Region Code:"
+      poll     5000
+
+   keyValue
+      value    int per 3 0x00100000
+      label    "Active HDD Nav DB:"
+      poll     5000
+
+   keyValue
+      value    int per 3 0x0010002D
+      label    "Traffic Sign Recognition:"
+      poll     5000
+
+   keyValue
+      value    int per 3 0x0014005D
+      label    "Traffic Sign CAN:"
+      poll     5000
+
+   keyValue
+      value    int per 3 0x0013FFFE
+      label    "VZE Menu Routing:"
+      poll     5000
+
+   keyValue
+      value    int per 1 0x00030080
+      label    "ADAS %:"
+      poll     3000
+
+   script
+      value    sys 1 0x0100 "/scripts/RegionAudit/region_audit.sh"
+      label    ">> Write region report to SD <<"
