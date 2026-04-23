@@ -64,7 +64,7 @@ done
 ## Use Case: AX88772D Support
 
 The existing `devn-asix.so` (75KB, SH4 ELF) supports AX88172/A,
-AX88178, AX88772, and AX88772B — but NOT the AX88772D revision.
+AX88772, AX88772A, and AX88772B (NOT AX88178 — different chip family) — but NOT the AX88772D revision.
 
 The D revision uses a different USB product ID that the driver
 doesn't recognize. Fix options:

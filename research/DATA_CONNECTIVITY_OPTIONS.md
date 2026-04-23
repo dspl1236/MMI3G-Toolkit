@@ -439,7 +439,7 @@ done
 #### Current ASIX Driver
 
 `devn-asix.so` (75KB, SH4 ELF) supports:
-- AX88172, AX88172A, AX88178
+- AX88172, AX88172A (AX88178 NOT compatible — null MAC)
 - AX88772, AX88772B
 - **NOT** AX88772D (different USB product ID)
 

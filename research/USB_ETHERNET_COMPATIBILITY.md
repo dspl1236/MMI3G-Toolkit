@@ -20,7 +20,7 @@ and all other chipsets will NOT work without adding custom drivers
 |---|---|---|
 | ASIX AX88172 | 10/100 | Supported |
 | ASIX AX88172A | 10/100 | Supported |
-| ASIX AX88178 | 10/100/1000 | Supported |
+| ASIX AX88178 | 10/100/1000 | ❌ Incompatible — different chip family, null MAC with Harman driver |
 | ASIX AX88772 | 10/100 | Supported — DrGER confirmed |
 | ASIX AX88772A | 10/100 | Supported |
 | ASIX AX88772B | 10/100 | Supported |
@@ -35,7 +35,7 @@ and all other chipsets will NOT work without adding custom drivers
 
 ## How to Verify Chipset Before Buying
 
-Look for "ASIX AX88772" or "AX88178" in the product specs or reviews.
+Look for "ASIX AX88772" or "AX88772A" in the product specs or reviews.
 Common brands using ASIX chips:
 - D-Link (DUB-E100, DUB-E100 rev C)
 - UGREEN (some models — check chip version)
