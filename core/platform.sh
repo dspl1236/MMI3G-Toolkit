@@ -166,6 +166,44 @@ else
     rmdir /tmp/_mmi_test_mkdir_p 2>/dev/null
 fi
 
+# readlink — QNX 6.3.2 has no readlink; return the path as-is
+# or resolve symlinks manually with ls -la
+if ! command -v readlink >/dev/null 2>&1; then
+    readlink() {
+        case "$1" in
+            -f) shift
+                # Best effort: resolve symlink via ls -la
+                _target="$1"
+                _link="$(ls -la "$_target" 2>/dev/null | sed -n 's/.* -> //p')"
+                if [ -n "$_link" ]; then
+                    echo "$_link"
+                else
+                    echo "$_target"
+                fi
+                ;;
+            *)  # Simple readlink — just check symlink target
+                _link="$(ls -la "$1" 2>/dev/null | sed -n 's/.* -> //p')"
+                if [ -n "$_link" ]; then
+                    echo "$_link"
+                else
+                    echo "$1"
+                fi
+                ;;
+        esac
+    }
+fi
+
+# sort — QNX 6.3.2 has no sort; pass through unsorted
+# (better than crashing, and most uses are cosmetic)
+if ! command -v sort >/dev/null 2>&1; then
+    sort() {
+        case "$1" in
+            -u) shift; cat "$@" ;;  # -u = unique, just pass through
+            *)  cat "$@" ;;
+        esac
+    }
+fi
+
 # ============================================================
 
 # -------- Variant detection (authoritative: /etc/pci-3g_*.cfg) --------
