@@ -123,13 +123,31 @@ Format:
 The C decompressor (`qnx_ifs_decompress.c`, ~140 lines) is built
 automatically on first use.
 
+If local native deps are missing (`gcc`, `libucl-dev` / `libucl-devel`),
+the script can re-run itself inside a disposable `podman` or `docker`
+container. This is useful on fresh Fedora/macOS/Linux hosts where the
+toolchain is not installed yet.
+
 ```
 # Decompress only
 python3 tools/inflate_ifs.py ifs-root.ifs -o ifs-root.decomp
 
 # Decompress and extract to a directory (chains through extract_qnx_ifs.py)
 python3 tools/inflate_ifs.py ifs-root.ifs --extract outdir/
+
+# Force the disposable container path
+python3 tools/inflate_ifs.py ifs-root.ifs --extract outdir/ --container
 ```
+
+Container notes:
+- `--container` forces the disposable runtime path even if local native deps exist
+- without `--container`, the script auto-falls back to `podman` / `docker`
+  when the local native build fails
+- `--container-tool podman` or `--container-tool docker` pins the runtime
+- `--container-image` overrides the default image (`debian:bookworm-slim`)
+- on Fedora/SELinux hosts, the disposable podman/docker path disables label
+  confinement so it can read the repo and temp bind mounts without relabeling
+  host files
 
 Verified on MU9411 K0942_4 variant 41:
 - `ifs-root.ifs`: LZO, 671 chunks → 104 MB uncompressed, 345 files
@@ -406,16 +424,43 @@ python3 tools/mu_repack.py \
 
 ## eol_modifier.py
 
-**Modify EOL (End-of-Line) feature flags in `lsd.jxe`.**
+**Inspect variant/range overlays and modify EOL (End-of-Line) feature flags in `lsd.jxe`.**
 
 EOL flags in `sysconst.properties` inside the `lsd.jxe` JAR control which
-features are available on the MMI3G head unit. This tool modifies flags to
-enable or disable features — particularly useful for enabling Google Earth
-on NAR units that have the code but not the UI flag set.
+features are available on the MMI3G head unit. This tool can now:
+
+- list base `sysconst.properties` EOL flags
+- show the raw `variant.properties` selector and infer active variant layers
+- list available `variants/*.properties` bundles with region / variant summaries
+- diff two variant bundles
+- show `RANGE_` constraints and effective values after overlaying variant bundles
+- modify base `sysconst.properties` flags for patching workflows
+
+This is particularly useful for Google Earth, market-gating, and other
+cases where the same binary contains the feature code but variant overlays
+or `RANGE_` constraints hide the UI.
 
 ```bash
 # List all flags and their current state
 python3 tools/eol_modifier.py /path/to/lsd.jxe --list
+
+# Show variant selector + inferred active layers
+python3 tools/eol_modifier.py /path/to/lsd.jxe --show-variant
+
+# List available variant bundles
+python3 tools/eol_modifier.py /path/to/lsd.jxe --list-variants
+
+# Compare Audi NAR vs VW NAR overlays
+python3 tools/eol_modifier.py /path/to/lsd.jxe \
+    --diff-variants high_nav_nar vw_high_nar
+
+# Inspect range locks / effective values for a chosen overlay stack
+python3 tools/eol_modifier.py /path/to/lsd.jxe \
+    --variant vw_high_nar \
+    --variant no_online_services \
+    --show-range-locks \
+    --show-effective GOOGLE_EARTH \
+    --show-effective INNOVATIONFEATURES
 
 # Enable Google Earth
 python3 tools/eol_modifier.py /path/to/lsd.jxe --output modified_lsd.jxe \
@@ -439,6 +484,12 @@ python3 tools/patch_ifs.py ifs_decomp.ifs ifs_patched.ifs \
 ```
 
 **Relevance to GEMMI/Google Earth restoration**: DrGER identified that NAR
-RNS-850 units lack the Google Earth UI in `lsd.jxe`. This tool can enable
-the `EOLFLAG_GOOGLE_EARTH` flag, which may be all that's needed for NAR
-units that have the GEMMI binaries but not the UI toggle.
+RNS-850 units lack the Google Earth UI in `lsd.jxe`. The inspection mode
+helps answer whether a feature is blocked by:
+
+- base `sysconst.properties` defaults,
+- the selected market / brand variant bundle,
+- or a hard `RANGE_` constraint such as `RANGE_EOLFLAG_GOOGLE_EARTH=0`.
+
+That makes `eol_modifier.py` useful as a read-only research tool even when
+you are not ready to patch `lsd.jxe` yet.
