@@ -116,6 +116,22 @@ const MODULES_DISPLAY = [
     desc: "Google Earth restoration — probe diagnostics and experimental auth bypass",
     compat: ["3G+", "RNS-850"], category: "system",
     prereq: null, detail: "EXPERIMENTAL: Probes GEMMI state, checks binaries/network/EOL flags, and optionally adds disableAuthKey to drivers.ini. GEMMI binaries (~22MB) are automatically downloaded from GitHub Release and included on the SD card for deployment to cars without Google Earth. Based on reverse engineering showing kh.google.com still serves tiles and /geauth auth endpoint has been removed. Audi NAR has no RANGE_ block. Safe probe + experimental enabler + clean restore." },
+  { id: "google-earth-gemmi-wrappers", name: "GEMMI Wrappers", status: "alpha",
+    desc: "Install legacy /scripts/GEMMI controls expected by the OEM Google Earth screen",
+    compat: ["RNS-850"], category: "system",
+    prereq: null, detail: "Installs shell wrappers for activate/deactivate/start/stop/cache controls that forward to the deployed /mnt/nav/gemmi runtime." },
+  { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha",
+    desc: "Deploy bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi",
+    compat: ["RNS-850"], category: "system",
+    prereq: null, detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware." },
+  { id: "google-earth-p0824-restore", name: "P0824 GEMMI Restore", status: "alpha",
+    desc: "Restore /mnt/nav/gemmi from the backup made by P0824 GEMMI Deploy",
+    compat: ["RNS-850"], category: "system",
+    prereq: null, detail: "Uses /mnt/nav/.mmi3g_toolkit/google-earth-p0824/active.env to restore the previous GEMMI tree or remove the donor tree if none existed before deploy." },
+  { id: "dns-refresh-probe", name: "DNS Refresh Probe", status: "alpha",
+    desc: "One-shot route/DNS diagnostic and temporary /etc/resolv.conf refresh",
+    compat: ["3G+", "RNS-850"], category: "net",
+    prereq: null, detail: "Snapshots route and DNS state, backs up /etc/resolv.conf to SD, rewrites nameserver to /dns-refresh-target.txt override or the default gateway, then reruns connectivity checks." },
   { id: "diag-tool", name: "Diag Tool", status: "alpha",
     desc: "UDS diagnostic scanner — needs VAG-COM cable",
     compat: ["3G+"], category: "diag",
@@ -177,6 +193,10 @@ async function fetchJson(url) {
  */
 function generateRunSh(selected, manifest, overrides) {
   overrides = overrides || {};
+  const needsFlashInstall = selected.some((modName) => {
+    const meta = manifest.modules[modName];
+    return meta && meta.installs_to_flash !== false;
+  });
   const lines = [
     "#!/bin/ksh",
     "# ============================================================",
@@ -214,38 +234,51 @@ function generateRunSh(selected, manifest, overrides) {
     "echo \"============================================\"",
     "echo \"\"",
     "",
-    "# Safety checks",
-    "if [ ! -d \"${EFSDIR}\" ]; then",
-    "    echo \"[ERROR] /mnt/efs-system not found!\"",
-    "    exit 1",
-    "fi",
-    "",
-    "# Create engdefs if needed (gem-activator will populate it)",
-    "mkdir -p \"${ENGDEFS}\" 2>/dev/null",
-    "",
-    "# Remount read-write",
-    "mount -uw ${EFSDIR} 2>/dev/null",
-    "if [ $? -ne 0 ]; then",
-    "    echo \"[ERROR] Failed to remount efs-system\"",
-    "    exit 1",
-    "fi",
-    "echo \"[OK] efs-system remounted rw\"",
-    "echo \"\"",
-    "",
-    "# Install shared platform.sh helper (sourced by module scripts)",
-    "if [ -f \"${SDPATH}/scripts/common/platform.sh\" ]; then",
-    "    mkdir -p \"${EFSDIR}/scripts/common\"",
-    "    cp -v \"${SDPATH}/scripts/common/platform.sh\" \"${EFSDIR}/scripts/common/platform.sh\"",
-    "    chmod 0644 \"${EFSDIR}/scripts/common/platform.sh\"",
-    "    echo \"[OK] platform.sh installed to ${EFSDIR}/scripts/common/\"",
-    "fi",
-    "echo \"\"",
-    "",
   ];
+
+  if (needsFlashInstall) {
+    lines.push(
+      "# Safety checks",
+      "if [ ! -d \"${EFSDIR}\" ]; then",
+      "    echo \"[ERROR] /mnt/efs-system not found!\"",
+      "    exit 1",
+      "fi",
+      "",
+      "# Create engdefs if needed (gem-activator will populate it)",
+      "mkdir -p \"${ENGDEFS}\" 2>/dev/null",
+      "",
+      "# Remount read-write",
+      "mount -uw ${EFSDIR} 2>/dev/null",
+      "if [ $? -ne 0 ]; then",
+      "    echo \"[ERROR] Failed to remount efs-system\"",
+      "    exit 1",
+      "fi",
+      "echo \"[OK] efs-system remounted rw\"",
+      "echo \"\"",
+      "",
+      "# Install shared platform.sh helper (sourced by module scripts)",
+      "if [ -f \"${SDPATH}/scripts/common/platform.sh\" ]; then",
+      "    mkdir -p \"${EFSDIR}/scripts/common\"",
+      "    cp -v \"${SDPATH}/scripts/common/platform.sh\" \"${EFSDIR}/scripts/common/platform.sh\"",
+      "    chmod 0644 \"${EFSDIR}/scripts/common/platform.sh\"",
+      "    echo \"[OK] platform.sh installed to ${EFSDIR}/scripts/common/\"",
+      "fi",
+      "echo \"\"",
+      "",
+    );
+  } else {
+    lines.push(
+      "# Selected modules are SD-only; do not remount or write efs-system.",
+      "echo \"[INFO] SD-only module set; efs-system will not be remounted\"",
+      "echo \"\"",
+      "",
+    );
+  }
 
   for (const modName of selected) {
     const meta = manifest.modules[modName];
     if (!meta) continue;
+    const installsToFlash = meta.installs_to_flash !== false;
     const scriptDir = meta.script_dir || `/scripts/${modName}`;
     const esdFiles = (meta.files || [])
       .filter(f => f.path.startsWith("engdefs/") && f.path.endsWith(".esd"))
@@ -256,8 +289,12 @@ function generateRunSh(selected, manifest, overrides) {
 
     lines.push(`# --- Module: ${modName} ---`);
     lines.push(`echo "[MODULE] Installing ${modName}..."`);
-    // Re-mount EFS rw (standalone modules may trigger F3S reclaim)
-    lines.push('mount -uw ${EFSDIR} 2>/dev/null');
+    if (installsToFlash) {
+      // Re-mount EFS rw (standalone modules may trigger F3S reclaim)
+      lines.push('mount -uw ${EFSDIR} 2>/dev/null');
+    } else {
+      lines.push("# SD-only module: run from card and skip flash install");
+    }
     if (meta.standalone && meta.run_script) {
       const runScript = overrides[modName] || meta.run_script;
       lines.push(`if [ -f "\${SDPATH}/scripts/${runScript}" ]; then`);
@@ -267,7 +304,7 @@ function generateRunSh(selected, manifest, overrides) {
       lines.push(`    echo "[WARN] ${runScript} not found for ${modName}"`);
       lines.push("fi");
 
-      if (shFiles.length > 0) {
+      if (installsToFlash && shFiles.length > 0) {
         lines.push(`SCRIPTDIR="\${EFSDIR}${scriptDir}"`);
         lines.push("mkdir -p ${SCRIPTDIR}");
         for (const f of shFiles) {
@@ -278,7 +315,7 @@ function generateRunSh(selected, manifest, overrides) {
           lines.push("fi");
         }
       }
-    } else {
+    } else if (installsToFlash) {
       lines.push(`if [ -d "\${SDPATH}/engdefs" ]; then`);
       for (const f of esdFiles) {
         const name = f.path.split("/").pop();
@@ -302,6 +339,8 @@ function generateRunSh(selected, manifest, overrides) {
         }
         lines.push(`fi`);
       }
+    } else {
+      lines.push(`echo "[INFO] ${modName} is SD-only; no flash files installed"`);
     }
 
     lines.push(`echo "[OK] ${modName} installed"`);
@@ -338,6 +377,19 @@ async function buildSdBundle(selected, onProgress, overrides) {
   onProgress && onProgress("Loading manifest...", 0);
   const manifest = await fetchJson(MANIFEST_URL);
   const rawBase = manifest.raw_url_base;
+  const moduleOutputPath = (modName, meta, f) => {
+    if (f.path === "module.json") return null;
+    if (f.path.startsWith("engdefs/") || f.path.startsWith("scripts/")) return f.path;
+    if (meta.artifact && f.path === meta.artifact) return `modules/${modName}/${f.path}`;
+    for (const payload of (meta.payload_dirs || [])) {
+      const source = String(payload.source || "").replace(/\/+$/, "");
+      const target = String(payload.target || source).replace(/\/+$/, "");
+      if (source && target && f.path.startsWith(`${source}/`)) {
+        return `${target}/${f.path.slice(source.length + 1)}`;
+      }
+    }
+    return null;
+  };
 
   // Count total fetches for progress
   let totalFiles = 2; // copie_scr_plain.sh + uninstall.sh
@@ -354,11 +406,7 @@ async function buildSdBundle(selected, onProgress, overrides) {
   for (const mod of selected) {
     const meta = manifest.modules[mod];
     if (!meta) continue;
-    totalFiles += (meta.files || []).filter((f) => {
-      if (f.path === "module.json") return false;
-      if (f.path.startsWith("engdefs/") || f.path.startsWith("scripts/")) return true;
-      return Boolean(meta.artifact) && f.path === meta.artifact;
-    }).length;
+    totalFiles += (meta.files || []).filter((f) => moduleOutputPath(mod, meta, f)).length;
   }
   let done = 0;
   const step = (label) => {
@@ -407,20 +455,12 @@ async function buildSdBundle(selected, onProgress, overrides) {
   for (const modName of selected) {
     const meta = manifest.modules[modName];
     if (!meta) continue;
-    const bundleFiles = (meta.files || []).filter((f) => {
-      if (f.path === "module.json") return false;
-      if (f.path.startsWith("engdefs/") || f.path.startsWith("scripts/")) return true;
-      return Boolean(meta.artifact) && f.path === meta.artifact;
-    });
+    const bundleFiles = (meta.files || []).filter((f) => moduleOutputPath(modName, meta, f));
     const tasks = bundleFiles.map(async (f) => {
       const url = rawBase + `modules/${modName}/${f.path}`;
       const bytes = await fetchBinary(url);
       step(`Fetched ${modName}/${f.path}`);
-      if (f.path.startsWith("engdefs/") || f.path.startsWith("scripts/")) {
-        return { path: f.path, bytes };
-      }
-      // Declared artifacts match builder output under modules/<name>/.
-      return { path: `modules/${modName}/${f.path}`, bytes };
+      return { path: moduleOutputPath(modName, meta, f), bytes };
     });
     const results = await Promise.all(tasks);
     for (const r of results) if (r) files.push(r);
@@ -464,7 +504,8 @@ async function buildSdBundle(selected, onProgress, overrides) {
   files.push({ path: "var/.keep", bytes: new Uint8Array(0) });
 
   // --- GEMMI binaries (only when google-earth module is selected) ---
-  if (selected.includes("google-earth") && manifest.gemmi_assets) {
+  // P0824 deploy already bundles a /gemmi payload, so avoid overwriting it.
+  if (selected.includes("google-earth") && !selected.includes("google-earth-p0824-deploy") && manifest.gemmi_assets) {
     const ga = manifest.gemmi_assets;
     onProgress && onProgress("Fetching GEMMI binaries (~22MB)...", 96);
     for (const asset of ga.files) {

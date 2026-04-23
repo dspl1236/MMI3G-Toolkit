@@ -1,0 +1,21 @@
+{
+    "name": "google-earth-gemmi-wrappers",
+    "version": "0.1.0-alpha",
+    "description": "Install legacy /scripts/GEMMI control-script wrappers so the OEM GoogleEarth GEM screen can call the donor GEMMI runtime already deployed under /mnt/nav/gemmi/.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": [
+        "RNS-850"
+    ],
+    "standalone": true,
+    "run_script": "gemmi_wrapper_install.sh",
+    "script_dir": "/scripts/GEMMI",
+    "requires_reboot": false,
+    "notes": [
+        "Installs legacy /scripts/GEMMI/*.sh names expected by GoogleEarth.esd",
+        "Wrappers target /mnt/nav/gemmi/run_gemmi.sh and gemmi_final",
+        "Does NOT modify lsd.jxe or firmware",
+        "Tested on a US RNS-850 (HN+_US_VW_P0738) after donor GEMMI deployment."
+    ],
+    "uninstall": "Use build_sd.py --uninstall to remove /mnt/efs-system/scripts/GEMMI/, or delete that script directory manually."
+}

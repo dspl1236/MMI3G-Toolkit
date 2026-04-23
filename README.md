@@ -25,7 +25,7 @@ Reverse engineering of the GEMMI protocol has revealed that Google's tile server
 3. **`ge_deploy.sh`** — Fallback: deploys GEMMI binaries from SD card to `/mnt/nav/gemmi/`
 4. **`ge_restore.sh`** — Clean revert of all changes
 
-GEMMI binaries (24.8MB) are hosted as [GitHub Release assets](https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi) and automatically included when building an SD card with the Google Earth module. The git repo stays lightweight (~2MB clone).
+The original `google-earth` module still pulls its GEMMI payload from [GitHub Release assets](https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi). The `google-earth-p0824-deploy` module bundles the EU VW P0824 donor payload directly so users do not need to source those files separately.
 
 See [research/EOL_FLAGS_AND_GOOGLE_EARTH.md](research/EOL_FLAGS_AND_GOOGLE_EARTH.md) for the full protocol analysis including per-variant RANGE flags, self-provisioning theory, and server endpoint map.
 
@@ -95,7 +95,11 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **game-loader** | ✅ Ready | Java game launcher — run games on the MMI's J9 JVM |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
 | **persistence-dump** | ✅ Ready | Dump persistence data and configuration |
+| **dns-refresh-probe** | 🧪 Alpha | One-shot route/DNS diagnostic that rewrites `/etc/resolv.conf` to the SD override or gateway and logs before/after checks |
 | **google-earth** | 🧪 Alpha | Google Earth restoration — probe, enable, deploy, restore. [GEMMI binaries](https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi) auto-included from GitHub Release |
+| **google-earth-gemmi-wrappers** | 🧪 Alpha | Install legacy `/scripts/GEMMI/*.sh` controls expected by the OEM Google Earth screen |
+| **google-earth-p0824-deploy** | 🧪 Alpha | Deploy bundled EU VW `P0824` GEMMI donor payload to `/mnt/nav/gemmi` with backup |
+| **google-earth-p0824-restore** | 🧪 Alpha | Restore `/mnt/nav/gemmi` to the pre-donor state saved by the P0824 deploy card |
 | **diag-tool** ⚠️ | 🧪 Alpha | UDS diagnostic scanner (**needs VAG-COM cable for live mode**) |
 | **long-coding** | 🧪 Alpha | Live display of current adaptation values via GEM screens |
 | **per3-reader** ⚠️ | 🧪 Alpha | OSGi DSI persistence bridge. See [research/PER3_READER.md](research/PER3_READER.md) |

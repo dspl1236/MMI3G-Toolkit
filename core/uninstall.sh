@@ -78,6 +78,9 @@ for d in \
     VariantDump \
     LTE \
     GEM \
+    GEMMI \
+    GoogleEarth \
+    NetDiag \
     JVMExtract \
     DiagTool
 do
@@ -100,6 +103,7 @@ echo "--- Modules with separate restore scripts ---"
 echo "  splash-screen:  run splash_restore.sh to revert boot image"
 echo "  lte-setup:      run lte_restore.sh to revert network config"
 echo "  nav-unblocker:  run nav_restore.sh to restore manage_cd.sh"
+echo "  google-earth-p0824-restore: restore /mnt/nav/gemmi donor payload"
 echo "  (These are NOT undone automatically — they touch files outside engdefs/scripts)"
 echo ""
 

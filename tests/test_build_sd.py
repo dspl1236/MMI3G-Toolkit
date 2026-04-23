@@ -146,6 +146,77 @@ class BuildSdCliTests(unittest.TestCase):
             self.assertIn('ksh "${SDPATH}/scripts/lte_setup.sh" "${SDPATH}"', run_sh)
             self.assertIn('scripts/common/platform.sh', run_sh)
 
+    def test_google_earth_p0824_deploy_card_includes_donor_script(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir) / 'sdcard'
+            result = self.run_builder(
+                '-m', 'google-earth-p0824-deploy',
+                '--target-platform', 'RNS-850',
+                '-o', str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+            self.assertTrue((output_dir / 'scripts' / 'ge_p0824_deploy.sh').is_file())
+            for payload_file in (
+                'drivers.ini',
+                'gemmi_final',
+                'libembeddedearth.so',
+                'libmessaging.so',
+                'mapStylesWrite',
+                'run_gemmi.sh',
+            ):
+                self.assertTrue((output_dir / 'gemmi' / payload_file).is_file(), payload_file)
+
+            run_sh = (output_dir / 'run.sh').read_text(encoding='utf-8')
+            self.assertIn('ksh "${SDPATH}/scripts/ge_p0824_deploy.sh" "${SDPATH}"', run_sh)
+            self.assertIn('SCRIPTDIR="${EFSDIR}/scripts/GoogleEarth"', run_sh)
+
+    def test_dns_refresh_probe_card_includes_netdiag_runner(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir) / 'sdcard'
+            result = self.run_builder(
+                '-m', 'dns-refresh-probe',
+                '--target-platform', 'RNS-850',
+                '-o', str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+            self.assertTrue((output_dir / 'scripts' / 'dns_refresh_probe.sh').is_file())
+
+            run_sh = (output_dir / 'run.sh').read_text(encoding='utf-8')
+            self.assertIn('ksh "${SDPATH}/scripts/dns_refresh_probe.sh" "${SDPATH}"', run_sh)
+            self.assertIn('SD-only module set; efs-system will not be remounted', run_sh)
+            self.assertNotIn('SCRIPTDIR="${EFSDIR}/scripts/NetDiag"', run_sh)
+            self.assertNotIn('cp -v "${SDPATH}/scripts/dns_refresh_probe.sh"', run_sh)
+            self.assertNotIn('mount -uw ${EFSDIR}', run_sh)
+
+    def test_google_earth_gemmi_wrappers_card_includes_legacy_scripts(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir) / 'sdcard'
+            result = self.run_builder(
+                '-m', 'google-earth-gemmi-wrappers',
+                '--target-platform', 'RNS-850',
+                '-o', str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+            for script in (
+                'activateGEMMI.sh',
+                'deactivateGEMMI.sh',
+                'deleteCacheGEMMI.sh',
+                'gemmi_wrapper_install.sh',
+                'getCacheStatus.sh',
+                'getInfoGEMMI.sh',
+                'restartGEMMI.sh',
+                'shutdownGEMMI.sh',
+                'startGEMMI.sh',
+            ):
+                self.assertTrue((output_dir / 'scripts' / script).is_file(), script)
+
+            run_sh = (output_dir / 'run.sh').read_text(encoding='utf-8')
+            self.assertIn('ksh "${SDPATH}/scripts/gemmi_wrapper_install.sh" "${SDPATH}"', run_sh)
+            self.assertIn('SCRIPTDIR="${EFSDIR}/scripts/GEMMI"', run_sh)
+
     def test_all_build_for_rns850_writes_expected_fake_sd_tree(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir) / 'sdcard'
@@ -220,6 +291,33 @@ class BuildSdValidationTests(unittest.TestCase):
                     self.builder.find_modules()
 
             self.assertIn('run_script', str(exc.exception))
+
+    def test_find_modules_rejects_missing_payload_dir(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            modules_dir = Path(tmpdir) / 'modules'
+            bad_dir = modules_dir / 'broken'
+            bad_dir.mkdir(parents=True)
+            (bad_dir / 'module.json').write_text(
+                json.dumps(
+                    {
+                        'name': 'broken',
+                        'version': '1.0.0',
+                        'description': 'broken module',
+                        'author': 'test',
+                        'status': 'ready',
+                        'compatible': ['MMI3G+'],
+                        'payload_dirs': [{'source': 'missing', 'target': 'gemmi'}],
+                    },
+                    indent=2,
+                ),
+                encoding='utf-8',
+            )
+
+            with mock.patch.object(self.builder, 'MODULES_DIR', str(modules_dir)):
+                with self.assertRaises(self.builder.ModuleConfigError) as exc:
+                    self.builder.find_modules()
+
+            self.assertIn('payload_dir', str(exc.exception))
 
 
 if __name__ == '__main__':

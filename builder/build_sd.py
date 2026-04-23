@@ -14,7 +14,7 @@ Usage:
 The builder:
   1. Validates module manifests before doing any work
   2. Copies core files (encoded copie_scr.sh, run.sh)
-  3. Copies selected module files (engdefs, scripts, artifacts)
+  3. Copies selected module files (engdefs, scripts, artifacts, payload dirs)
   4. Generates a combined run.sh that installs all selected modules
   5. Creates the required directory structure (bin, lib, var)
 """
@@ -108,6 +108,56 @@ def validate_declared_assets(
     return errors
 
 
+def is_safe_relative_path(path: str) -> bool:
+    """Return True for manifest paths that stay within the module/output tree."""
+    if not isinstance(path, str) or not path.strip():
+        return False
+
+    if '\\' in path:
+        return False
+
+    normalized = os.path.normpath(path.strip())
+    return (
+        normalized not in ('.', '..')
+        and not os.path.isabs(normalized)
+        and not normalized.startswith(f'..{os.sep}')
+    )
+
+
+def validate_payload_dirs(mod_dir: str, meta: dict) -> list:
+    """Validate module payload directories copied verbatim to SD card output."""
+    errors = []
+    payload_dirs = meta.get('payload_dirs')
+    if payload_dirs is None:
+        return errors
+
+    if not isinstance(payload_dirs, list):
+        return ["'payload_dirs' must be a list"]
+
+    for entry in payload_dirs:
+        if not isinstance(entry, dict):
+            errors.append("'payload_dirs' entries must be objects")
+            continue
+
+        source = entry.get('source')
+        target = entry.get('target')
+        if not is_safe_relative_path(source):
+            errors.append("'payload_dirs[].source' must be a safe relative path")
+            continue
+        if target is not None and not is_safe_relative_path(target):
+            errors.append("'payload_dirs[].target' must be a safe relative path")
+            continue
+
+        source_path = os.path.join(mod_dir, os.path.normpath(source))
+        if not os.path.isdir(source_path):
+            errors.append(
+                f"declares payload_dir '{source}' but directory is missing at "
+                f"{source_path}"
+            )
+
+    return errors
+
+
 def validate_module_metadata(mod_name: str, mod_dir: str, meta: dict):
     """Validate a single module manifest."""
     errors = []
@@ -187,6 +237,7 @@ def validate_module_metadata(mod_name: str, mod_dir: str, meta: dict):
     errors.extend(
         validate_declared_assets(mod_name, mod_dir, meta, 'scripts', 'scripts', '.sh')
     )
+    errors.extend(validate_payload_dirs(mod_dir, meta))
 
     if errors:
         raise ModuleConfigError(f"module '{mod_name}': " + '; '.join(errors))
@@ -332,6 +383,10 @@ def resolve_selected_modules(
 
 def generate_run_sh(selected_modules: list, modules: dict) -> str:
     """Generate the combined run.sh for selected modules."""
+    needs_flash_install = any(
+        modules[name].get('installs_to_flash', True)
+        for name in selected_modules
+    )
 
     lines = [
         '#!/bin/ksh',
@@ -370,42 +425,57 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         'echo "============================================"',
         'echo ""',
         '',
-        '# Safety checks',
-        'if [ ! -d "${EFSDIR}" ]; then',
-        '    echo "[ERROR] /mnt/efs-system not found!"',
-        '    exit 1',
-        'fi',
-        '',
-        '# Create engdefs if needed (gem-activator will populate it)',
-        'mkdir -p "${ENGDEFS}" 2>/dev/null',
-        '',
-        '# Remount read-write',
-        'mount -uw ${EFSDIR} 2>/dev/null',
-        'if [ $? -ne 0 ]; then',
-        '    echo "[ERROR] Failed to remount efs-system"',
-        '    exit 1',
-        'fi',
-        'echo "[OK] efs-system remounted rw"',
-        'echo ""',
-        '',
-        '# Install shared platform.sh helper (sourced by module scripts)',
-        'if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then',
-        '    mkdir -p "${EFSDIR}/scripts/common"',
-        '    cp -v "${SDPATH}/scripts/common/platform.sh" "${EFSDIR}/scripts/common/platform.sh"',
-        '    chmod 0644 "${EFSDIR}/scripts/common/platform.sh"',
-        '    echo "[OK] platform.sh installed to ${EFSDIR}/scripts/common/"',
-        'fi',
-        'echo ""',
-        '',
     ]
+
+    if needs_flash_install:
+        lines.extend([
+            '# Safety checks',
+            'if [ ! -d "${EFSDIR}" ]; then',
+            '    echo "[ERROR] /mnt/efs-system not found!"',
+            '    exit 1',
+            'fi',
+            '',
+            '# Create engdefs if needed (gem-activator will populate it)',
+            'mkdir -p "${ENGDEFS}" 2>/dev/null',
+            '',
+            '# Remount read-write',
+            'mount -uw ${EFSDIR} 2>/dev/null',
+            'if [ $? -ne 0 ]; then',
+            '    echo "[ERROR] Failed to remount efs-system"',
+            '    exit 1',
+            'fi',
+            'echo "[OK] efs-system remounted rw"',
+            'echo ""',
+            '',
+            '# Install shared platform.sh helper (sourced by module scripts)',
+            'if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then',
+            '    mkdir -p "${EFSDIR}/scripts/common"',
+            '    cp -v "${SDPATH}/scripts/common/platform.sh" "${EFSDIR}/scripts/common/platform.sh"',
+            '    chmod 0644 "${EFSDIR}/scripts/common/platform.sh"',
+            '    echo "[OK] platform.sh installed to ${EFSDIR}/scripts/common/"',
+            'fi',
+            'echo ""',
+            '',
+        ])
+    else:
+        lines.extend([
+            '# Selected modules are SD-only; do not remount or write efs-system.',
+            'echo "[INFO] SD-only module set; efs-system will not be remounted"',
+            'echo ""',
+            '',
+        ])
 
     # Add install section for each module
     for mod_name in selected_modules:
         meta = modules[mod_name]
+        installs_to_flash = meta.get('installs_to_flash', True)
         lines.append(f'# --- Module: {mod_name} ---')
         lines.append(f'echo "[MODULE] Installing {mod_name}..."')
-        # Re-mount EFS rw (standalone modules may trigger F3S reclaim)
-        lines.append('mount -uw ${EFSDIR} 2>/dev/null')
+        if installs_to_flash:
+            # Re-mount EFS rw (standalone modules may trigger F3S reclaim)
+            lines.append('mount -uw ${EFSDIR} 2>/dev/null')
+        else:
+            lines.append('# SD-only module: run from card and skip flash install')
 
         # Check if module has a standalone run script
         # (e.g. gem-activator runs its own install logic)
@@ -418,9 +488,12 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
             lines.append(f'    echo "[WARN] {run_script} not found for {mod_name}"')
             lines.append(f'fi')
 
-            # Also install scripts to flash for future use from GEM
-            scripts_dir = os.path.join(meta['_dir'], 'scripts')
-            if os.path.isdir(scripts_dir):
+            if installs_to_flash:
+                # Also install scripts to flash for future use from GEM
+                scripts_dir = os.path.join(meta['_dir'], 'scripts')
+            else:
+                scripts_dir = None
+            if scripts_dir and os.path.isdir(scripts_dir):
                 script_dest = meta.get('script_dir', f'/scripts/{mod_name}')
                 lines.append(f'SCRIPTDIR="${{EFSDIR}}{script_dest}"')
                 lines.append(f'mkdir -p ${{SCRIPTDIR}}')
@@ -433,7 +506,7 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
                         )
                         lines.append(f'    chmod +x "${{SCRIPTDIR}}/{script}"')
                         lines.append(f'fi')
-        else:
+        elif installs_to_flash:
             # Standard module — install engdefs and scripts
 
             # Install engdefs
@@ -474,6 +547,8 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
                         lines.append(f'    fi')
 
                 lines.append('fi')
+        else:
+            lines.append(f'echo "[INFO] {mod_name} is SD-only; no flash files installed"')
 
         lines.append(f'echo "[OK] {mod_name} installed"')
         lines.append('echo ""')
@@ -623,6 +698,14 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
             os.makedirs(art_dest_dir, exist_ok=True)
             shutil.copy2(artifact_src, os.path.join(art_dest_dir, artifact))
             print(f"  [OK] modules/{mod_name}/{artifact}")
+
+        for payload in meta.get('payload_dirs', []):
+            source = os.path.normpath(payload['source'])
+            target = os.path.normpath(payload.get('target') or source)
+            payload_src = os.path.join(mod_dir, source)
+            payload_dest = os.path.join(output_dir, target)
+            shutil.copytree(payload_src, payload_dest, dirs_exist_ok=True)
+            print(f"  [OK] {target}/ payload")
 
     # Generate combined run.sh
     run_sh = generate_run_sh(selected_modules, modules)
