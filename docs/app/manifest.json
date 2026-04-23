@@ -376,7 +376,7 @@
                 },
                 {
                     "path": "scripts/ge_activate.sh",
-                    "size": 17001
+                    "size": 17175
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
@@ -384,11 +384,11 @@
                 },
                 {
                     "path": "scripts/ge_enable.sh",
-                    "size": 8236
+                    "size": 8410
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 12583
+                    "size": 12870
                 },
                 {
                     "path": "scripts/ge_restore.sh",
@@ -479,19 +479,19 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1092
+                    "size": 1136
                 },
                 {
                     "path": "scripts/lte_restore.sh",
-                    "size": 3826
+                    "size": 4611
                 },
                 {
                     "path": "scripts/lte_setup.sh",
-                    "size": 9883
+                    "size": 12305
                 },
                 {
                     "path": "scripts/lte_setup_772d.sh",
-                    "size": 9883
+                    "size": 12305
                 },
                 {
                     "path": "scripts/lte_static.sh",
@@ -830,7 +830,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 16586
+                    "size": 17135
                 }
             ]
         },
