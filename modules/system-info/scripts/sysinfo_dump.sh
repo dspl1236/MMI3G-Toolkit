@@ -224,6 +224,29 @@ if [ -f /HBpersistence/vin ]; then
     echo "VIN: $(cat /HBpersistence/vin 2>/dev/null)"
 fi
 
+echo ""
+echo "--- System Login Credentials ---"
+echo "/etc/passwd:"
+cat /etc/passwd 2>&1
+echo ""
+echo "/etc/shadow:"
+cat /etc/shadow 2>&1
+echo ""
+echo "passwd file location:"
+ls -la /etc/passwd 2>&1
+readlink -f /etc/passwd 2>&1
+echo ""
+echo "shadow file location:"
+ls -la /etc/shadow 2>&1
+readlink -f /etc/shadow 2>&1
+echo ""
+echo "/etc/default/login:"
+cat /etc/default/login 2>&1
+# Backup to SD
+cp /etc/passwd "${BACKUP}/passwd" 2>/dev/null
+cp /etc/shadow "${BACKUP}/shadow" 2>/dev/null
+cp /etc/default/login "${BACKUP}/default_login" 2>/dev/null
+
 # ============================================================
 # 5. STORAGE & PARTITIONS
 # ============================================================
