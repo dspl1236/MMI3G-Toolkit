@@ -32,6 +32,7 @@ Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 """
 
 import http.server
+import os
 import urllib.request
 import urllib.error
 import ssl
@@ -41,6 +42,9 @@ import re
 LISTEN_PORT = 80
 REAL_KH_HOST = "kh.google.com"
 TILE_HOST = "mt0.google.com"
+
+# Cached dbRoot.v5 — fetched without cobrand parameter (Google 404s cobrand=AUDI)
+DBROOT_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dbRoot.v5.cached")
 
 # Google quadkey: t=root, then q=0,r=1,s=2,t=3 for each zoom level
 QUADKEY_MAP = {'q': 0, 'r': 1, 's': 2, 't': 3}
@@ -65,6 +69,31 @@ class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         print(f"[GEMMI] {args[0]}")
+
+    def do_POST(self):
+        """Handle POST requests — GEMMI sends auth via POST."""
+        path = self.path
+
+        # --- /geauth — fake auth success ---
+        if '/geauth' in path:
+            # Read and discard the POST body
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                self.rfile.read(content_length)
+            print(f"[AUTH]  POST /geauth — returning fake success")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"authorized")
+            return
+
+        # Everything else via POST — return 200 OK
+        content_length = int(self.headers.get('Content-Length', 0))
+        if content_length > 0:
+            self.rfile.read(content_length)
+        print(f"[POST] Unhandled POST: {path}")
+        self.send_response(200)
+        self.end_headers()
 
     def do_GET(self):
         path = self.path
@@ -112,7 +141,46 @@ class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 return
 
-        # --- /dbRoot.v5 and everything else — forward to real Google ---
+        # --- /dbRoot.v5 — serve cached version ---
+        # Google returns 404 for cobrand=AUDI requests, but plain dbRoot.v5
+        # still works (200, 16.9KB). We cache it locally.
+        if '/dbRoot' in path:
+            if os.path.exists(DBROOT_CACHE):
+                with open(DBROOT_CACHE, 'rb') as f:
+                    data = f.read()
+                print(f"[ROOT] Serving cached dbRoot.v5 ({len(data)} bytes)")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/octet-stream")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+            else:
+                # No cache — try fetching without cobrand
+                try:
+                    real_url = f"https://{REAL_KH_HOST}/dbRoot.v5"
+                    print(f"[ROOT] Fetching fresh dbRoot (no cobrand)")
+                    ctx = ssl.create_default_context()
+                    req = urllib.request.Request(real_url, headers={
+                        "User-Agent": "GoogleEarth/5.2.0.6394",
+                    })
+                    resp = urllib.request.urlopen(req, context=ctx, timeout=10)
+                    data = resp.read()
+                    # Cache for next time
+                    with open(DBROOT_CACHE, 'wb') as f:
+                        f.write(data)
+                    print(f"[ROOT] Fetched and cached dbRoot ({len(data)} bytes)")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/octet-stream")
+                    self.send_header("Content-Length", str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data)
+                except Exception as e:
+                    print(f"[ROOT] FAILED: {e}")
+                    self.send_response(502)
+                    self.end_headers()
+            return
+
+        # --- Everything else — forward to real Google ---
         try:
             real_url = f"https://{REAL_KH_HOST}{path}"
             print(f"[FWD]  -> {real_url}")
