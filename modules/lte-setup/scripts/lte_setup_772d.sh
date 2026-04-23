@@ -150,7 +150,7 @@ echo "[BACK]  Network state backed up"
 echo ""
 
 # === STEP 1: DLinkReplacesPPP flag ===
-echo "[STEP]  1/4 — Setting DLinkReplacesPPP flag..."
+echo "[STEP]  1/5 — Setting DLinkReplacesPPP flag..."
 
 # This flag tells NWSProcess to use USB Ethernet (en5) instead
 # of the internal 3G PPP modem for data connectivity.
@@ -174,7 +174,7 @@ fi
 echo ""
 
 # === STEP 2: DHCP marker ===
-echo "[STEP]  2/4 — Enabling DHCP client..."
+echo "[STEP]  2/5 — Enabling DHCP client..."
 
 # When /mnt/efs-persist/usedhcp exists, NWSProcess starts the
 # DHCP client on en5 when the USB Ethernet device appears.
@@ -191,7 +191,7 @@ fi
 echo ""
 
 # === STEP 3: dhcp-up script ===
-echo "[STEP]  3/4 — Installing dhcp-up script..."
+echo "[STEP]  3/5 — Installing dhcp-up script..."
 
 # The DHCP client runs /etc/dhcp-up after obtaining a lease.
 # This script populates /etc/resolv.conf with DNS servers
@@ -230,7 +230,7 @@ echo "[OK]    dhcp-up script installed"
 echo ""
 
 # === STEP 4: DNS fallback ===
-echo "[STEP]  4/4 — Setting fallback DNS..."
+echo "[STEP]  4/5 — Setting fallback DNS..."
 
 # Write a fallback resolv.conf pointing to common router gateway.
 # The dhcp-up script will overwrite this with the actual DNS
@@ -242,6 +242,32 @@ else
     echo "[OK]    resolv.conf already has content"
     cat /etc/resolv.conf
 fi
+echo ""
+
+# === STEP 5: Persistent root shell on port 2323 ===
+echo "[STEP]  5/5 — Setting up persistent root shell..."
+
+# Add ksh shell listener to the system inetd.conf so it
+# survives reboots. This gives telnet-style root access on
+# port 2323 whenever the network adapter is connected.
+INETD_CONF="/etc/inetd.conf"
+
+if grep -q "2323" "$INETD_CONF" 2>/dev/null; then
+    echo "[OK]    Port 2323 already in inetd.conf"
+else
+    cp "$INETD_CONF" "${BACKUPDIR}/inetd.conf.bak" 2>/dev/null
+    echo "" >> "$INETD_CONF"
+    echo "# Root shell — MMI3G-Toolkit LTE module" >> "$INETD_CONF"
+    echo "2323 stream tcp nowait root /bin/ksh ksh -i" >> "$INETD_CONF"
+    echo "[OK]    Added port 2323 to inetd.conf (persistent)"
+    echo "[BACK]  Original saved to ${BACKUPDIR}/inetd.conf.bak"
+fi
+
+# Start immediate listener for this session (before reboot)
+TMPCONF="/tmp/inetd_shell.conf"
+echo "2323 stream tcp nowait root /bin/ksh ksh -i" > "$TMPCONF"
+/usr/sbin/inetd "$TMPCONF" 2>/dev/null &
+echo "[OK]    Shell active NOW on port 2323"
 echo ""
 
 # --- Sync ---
@@ -266,6 +292,11 @@ echo "   After reboot with hardware connected:"
 echo "   - GEM > /gauges/network for status"
 echo "   - Or run lte_status.sh for full diagnostic"
 echo "   - en5 interface should show 192.168.0.x IP"
+echo ""
+echo " ROOT SHELL:"
+echo "   telnet <MMI_IP> 2323  (persists across reboots)"
+echo "   PuTTY: Raw connection to port 2323"
+echo "   Note: 'Can't find tty' warning is normal"
 echo ""
 echo " Compatible adapters:"
 echo "   - D-Link DUB-E100 rev A4 (ven=2001, dev=3c05)"

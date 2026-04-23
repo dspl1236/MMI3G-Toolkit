@@ -88,6 +88,17 @@ else
     echo "[OK]    dhcp-up removed"
 fi
 
+echo "[ACTI]  Removing port 2323 shell from inetd.conf..."
+INETD_CONF="/etc/inetd.conf"
+if grep -q "2323" "$INETD_CONF" 2>/dev/null; then
+    sed '/2323.*ksh/d' "$INETD_CONF" > /tmp/inetd_clean.conf 2>/dev/null
+    sed '/MMI3G-Toolkit LTE/d' /tmp/inetd_clean.conf > "$INETD_CONF" 2>/dev/null
+    rm -f /tmp/inetd_clean.conf
+    echo "[OK]    Port 2323 removed from inetd.conf"
+else
+    echo "[OK]    Port 2323 not in inetd.conf (already clean)"
+fi
+
 sync
 echo ""
 echo "Factory PPP modem configuration restored."

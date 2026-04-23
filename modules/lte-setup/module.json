@@ -9,8 +9,8 @@
     "run_script": "lte_setup.sh",
     "script_dir": "/scripts/LTE",
     "scripts": [
-        "lte_setup.sh - Configure fair/DLINK mode for USB Ethernet",
-        "lte_restore.sh - Remove fair mode, restore factory PPP config",
+        "lte_setup.sh - Configure fair/DLINK mode for USB Ethernet + persistent root shell on port 2323",
+        "lte_restore.sh - Remove fair mode, shell, restore factory PPP config",
         "lte_status.sh - Diagnose USB Ethernet, DHCP, DNS, connectivity"
     ],
     "hardware": {
