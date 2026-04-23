@@ -76,15 +76,20 @@ class GEMMIProxyHandler(http.server.BaseHTTPRequestHandler):
 
         # --- /geauth — fake auth success ---
         if '/geauth' in path:
-            # Read and discard the POST body
+            # Read and log the POST body
             content_length = int(self.headers.get('Content-Length', 0))
+            body = b""
             if content_length > 0:
-                self.rfile.read(content_length)
-            print(f"[AUTH]  POST /geauth — returning fake success")
+                body = self.rfile.read(content_length)
+            print(f"[AUTH]  POST /geauth ({content_length} bytes)")
+            print(f"[AUTH]  Headers: {dict(self.headers)}")
+            print(f"[AUTH]  Body: {body}")
+            print(f"[AUTH]  Body (text): {body.decode('utf-8', errors='replace')}")
+            # Try returning empty 200 (maybe GEMMI just needs HTTP 200 with no body)
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", "0")
             self.end_headers()
-            self.wfile.write(b"authorized")
             return
 
         # Everything else via POST — return 200 OK
