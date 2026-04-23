@@ -19,6 +19,7 @@
             "standalone": false,
             "run_script": null,
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/Scanner",
             "installs_to_flash": true,
             "compatible": [
@@ -91,6 +92,7 @@
             "standalone": false,
             "run_script": null,
             "artifact": "diag-tool.jar",
+            "payload_dirs": [],
             "script_dir": "/scripts/DiagTool",
             "installs_to_flash": true,
             "compatible": [
@@ -145,12 +147,37 @@
                 }
             ]
         },
+        "dns-refresh-probe": {
+            "status": "alpha",
+            "description": "One-shot network diagnostic that snapshots route/DNS state, rewrites /etc/resolv.conf to a better DNS candidate, and reruns connectivity checks.",
+            "standalone": true,
+            "run_script": "dns_refresh_probe.sh",
+            "artifact": null,
+            "payload_dirs": [],
+            "script_dir": "/scripts/NetDiag",
+            "installs_to_flash": false,
+            "compatible": [
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "module.json",
+                    "size": 1006
+                },
+                {
+                    "path": "scripts/dns_refresh_probe.sh",
+                    "size": 3972
+                }
+            ]
+        },
         "game-loader": {
             "status": "ready",
             "description": "Java game launcher for MMI3G \u2014 run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
             "standalone": false,
             "run_script": null,
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/game-loader",
             "installs_to_flash": true,
             "compatible": [
@@ -227,6 +254,7 @@
             "standalone": false,
             "run_script": null,
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/Gauges",
             "installs_to_flash": true,
             "compatible": [
@@ -295,6 +323,7 @@
             "standalone": true,
             "run_script": "gem_enable.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/GEM",
             "installs_to_flash": true,
             "compatible": [
@@ -339,6 +368,7 @@
             "standalone": true,
             "run_script": "gemmi_dump.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/GEMMIDump",
             "installs_to_flash": false,
             "compatible": [
@@ -363,6 +393,7 @@
             "standalone": true,
             "run_script": "ge_probe.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -396,12 +427,471 @@
                 }
             ]
         },
+        "google-earth-gemmi-wrappers": {
+            "status": "alpha",
+            "description": "Install legacy /scripts/GEMMI control-script wrappers so the OEM GoogleEarth GEM screen can call the donor GEMMI runtime already deployed under /mnt/nav/gemmi/.",
+            "standalone": true,
+            "run_script": "gemmi_wrapper_install.sh",
+            "artifact": null,
+            "payload_dirs": [],
+            "script_dir": "/scripts/GEMMI",
+            "installs_to_flash": true,
+            "compatible": [
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "module.json",
+                    "size": 923
+                },
+                {
+                    "path": "scripts/activateGEMMI.sh",
+                    "size": 447
+                },
+                {
+                    "path": "scripts/deactivateGEMMI.sh",
+                    "size": 404
+                },
+                {
+                    "path": "scripts/deleteCacheGEMMI.sh",
+                    "size": 195
+                },
+                {
+                    "path": "scripts/gemmi_wrapper_install.sh",
+                    "size": 1360
+                },
+                {
+                    "path": "scripts/getCacheStatus.sh",
+                    "size": 331
+                },
+                {
+                    "path": "scripts/getInfoGEMMI.sh",
+                    "size": 628
+                },
+                {
+                    "path": "scripts/restartGEMMI.sh",
+                    "size": 549
+                },
+                {
+                    "path": "scripts/shutdownGEMMI.sh",
+                    "size": 216
+                },
+                {
+                    "path": "scripts/startGEMMI.sh",
+                    "size": 582
+                }
+            ]
+        },
+        "google-earth-p0824-deploy": {
+            "status": "alpha",
+            "description": "Deploy the bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi with on-car backup and minimal drivers.ini auth-bypass patching. SD-card only; does not modify lsd.jxe or firmware.",
+            "standalone": true,
+            "run_script": "ge_p0824_deploy.sh",
+            "artifact": null,
+            "payload_dirs": [
+                {
+                    "source": "gemmi",
+                    "target": "gemmi"
+                }
+            ],
+            "script_dir": "/scripts/GoogleEarth",
+            "installs_to_flash": true,
+            "compatible": [
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "gemmi/debug_gemmi.sh",
+                    "size": 152
+                },
+                {
+                    "path": "gemmi/debug_memcpu.sh",
+                    "size": 269
+                },
+                {
+                    "path": "gemmi/drivers.ini",
+                    "size": 1119
+                },
+                {
+                    "path": "gemmi/gemmi_final",
+                    "size": 1958876
+                },
+                {
+                    "path": "gemmi/libembeddedearth.so",
+                    "size": 20563840
+                },
+                {
+                    "path": "gemmi/libmessaging.so",
+                    "size": 826149
+                },
+                {
+                    "path": "gemmi/mapStylesWrite",
+                    "size": 507383
+                },
+                {
+                    "path": "gemmi/models/Cursor.dae",
+                    "size": 72236
+                },
+                {
+                    "path": "gemmi/models/GoogleEarthPOILayerIcon.png",
+                    "size": 2180
+                },
+                {
+                    "path": "gemmi/models/GoogleEarthPOILayerIcon_businesses.png",
+                    "size": 559
+                },
+                {
+                    "path": "gemmi/models/GoogleEarthPOILayerIcon_panoramio.png",
+                    "size": 1936
+                },
+                {
+                    "path": "gemmi/models/GoogleEarthPOILayerIcon_places.png",
+                    "size": 569
+                },
+                {
+                    "path": "gemmi/models/GoogleEarthPOILayerIcon_wikipedia.png",
+                    "size": 1297
+                },
+                {
+                    "path": "gemmi/models/UserLayerIcon.png",
+                    "size": 1585
+                },
+                {
+                    "path": "gemmi/models/arrowday.png",
+                    "size": 249
+                },
+                {
+                    "path": "gemmi/models/audisvcursor.png",
+                    "size": 4107
+                },
+                {
+                    "path": "gemmi/models/audisvinfocursor.png",
+                    "size": 5168
+                },
+                {
+                    "path": "gemmi/models/audisvjumpcursor.png",
+                    "size": 3105
+                },
+                {
+                    "path": "gemmi/models/cpu_blue_throttle.png",
+                    "size": 2138
+                },
+                {
+                    "path": "gemmi/models/cpu_red_throttle.png",
+                    "size": 3334
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_10.png",
+                    "size": 478
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_2.png",
+                    "size": 415
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_20.png",
+                    "size": 606
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_25.png",
+                    "size": 578
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_30.png",
+                    "size": 620
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_35.png",
+                    "size": 583
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_40.png",
+                    "size": 548
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_5.png",
+                    "size": 393
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_60.png",
+                    "size": 664
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_exclamation.png",
+                    "size": 244
+                },
+                {
+                    "path": "gemmi/models/cpu_throttle_highlight.png",
+                    "size": 389
+                },
+                {
+                    "path": "gemmi/models/cpu_yellow_throttle.png",
+                    "size": 3830
+                },
+                {
+                    "path": "gemmi/models/cursors.png",
+                    "size": 107879
+                },
+                {
+                    "path": "gemmi/models/dpflag.png",
+                    "size": 2044
+                },
+                {
+                    "path": "gemmi/models/erl_dev_build_image.png",
+                    "size": 255539
+                },
+                {
+                    "path": "gemmi/models/starttarget.png",
+                    "size": 1669
+                },
+                {
+                    "path": "gemmi/models/streetviewguy.png",
+                    "size": 816
+                },
+                {
+                    "path": "gemmi/models/throttle_red.png",
+                    "size": 4460
+                },
+                {
+                    "path": "gemmi/models/throttle_yellow.png",
+                    "size": 4956
+                },
+                {
+                    "path": "gemmi/models/trafficstatus00.png",
+                    "size": 195
+                },
+                {
+                    "path": "gemmi/models/trafficstatus00UK.png",
+                    "size": 195
+                },
+                {
+                    "path": "gemmi/models/trafficstatus01.png",
+                    "size": 195
+                },
+                {
+                    "path": "gemmi/models/trafficstatus01UK.png",
+                    "size": 195
+                },
+                {
+                    "path": "gemmi/models/trafficstatus02.png",
+                    "size": 3053
+                },
+                {
+                    "path": "gemmi/models/trafficstatus02UK.png",
+                    "size": 2806
+                },
+                {
+                    "path": "gemmi/models/trafficstatus03.png",
+                    "size": 1224
+                },
+                {
+                    "path": "gemmi/models/trafficstatus03UK.png",
+                    "size": 1224
+                },
+                {
+                    "path": "gemmi/models/trafficstatus04.png",
+                    "size": 2807
+                },
+                {
+                    "path": "gemmi/models/trafficstatus04UK.png",
+                    "size": 2806
+                },
+                {
+                    "path": "gemmi/models/trafficstatus05.png",
+                    "size": 2808
+                },
+                {
+                    "path": "gemmi/models/trafficstatus05UK.png",
+                    "size": 2806
+                },
+                {
+                    "path": "gemmi/models/trafficstatus10.png",
+                    "size": 265
+                },
+                {
+                    "path": "gemmi/models/trafficstatus10UK.png",
+                    "size": 343
+                },
+                {
+                    "path": "gemmi/models/trafficstatus11.png",
+                    "size": 2971
+                },
+                {
+                    "path": "gemmi/models/trafficstatus11UK.png",
+                    "size": 2974
+                },
+                {
+                    "path": "gemmi/models/trafficstatus12.png",
+                    "size": 212
+                },
+                {
+                    "path": "gemmi/models/trafficstatus12UK.png",
+                    "size": 214
+                },
+                {
+                    "path": "gemmi/models/trafficstatus13.png",
+                    "size": 2898
+                },
+                {
+                    "path": "gemmi/models/trafficstatus13UK.png",
+                    "size": 2896
+                },
+                {
+                    "path": "gemmi/models/trafficstatus20.png",
+                    "size": 2856
+                },
+                {
+                    "path": "gemmi/models/trafficstatus20UK.png",
+                    "size": 2958
+                },
+                {
+                    "path": "gemmi/models/trafficstatus21.png",
+                    "size": 2838
+                },
+                {
+                    "path": "gemmi/models/trafficstatus21UK.png",
+                    "size": 2835
+                },
+                {
+                    "path": "gemmi/models/trafficstatus22.png",
+                    "size": 2856
+                },
+                {
+                    "path": "gemmi/models/trafficstatus22UK.png",
+                    "size": 2958
+                },
+                {
+                    "path": "gemmi/models/trafficstatus23.png",
+                    "size": 2837
+                },
+                {
+                    "path": "gemmi/models/trafficstatus23UK.png",
+                    "size": 2836
+                },
+                {
+                    "path": "gemmi/models/trafficstatus24.png",
+                    "size": 1837
+                },
+                {
+                    "path": "gemmi/models/trafficstatus24UK.png",
+                    "size": 1483
+                },
+                {
+                    "path": "gemmi/models/trafficstatus25.png",
+                    "size": 19567
+                },
+                {
+                    "path": "gemmi/models/trafficstatus25UK.png",
+                    "size": 19399
+                },
+                {
+                    "path": "gemmi/models/trafficstatus26.png",
+                    "size": 19559
+                },
+                {
+                    "path": "gemmi/models/trafficstatus26UK.png",
+                    "size": 19434
+                },
+                {
+                    "path": "gemmi/models/trafficstatus27.png",
+                    "size": 19047
+                },
+                {
+                    "path": "gemmi/models/trafficstatus27UK.png",
+                    "size": 19130
+                },
+                {
+                    "path": "gemmi/models/trafficstatus28.png",
+                    "size": 19026
+                },
+                {
+                    "path": "gemmi/models/trafficstatus28UK.png",
+                    "size": 19125
+                },
+                {
+                    "path": "gemmi/models/trafficstatus29.png",
+                    "size": 122
+                },
+                {
+                    "path": "gemmi/models/trafficstatus29UK.png",
+                    "size": 122
+                },
+                {
+                    "path": "gemmi/models/trafficstatus2A.png",
+                    "size": 2971
+                },
+                {
+                    "path": "gemmi/models/trafficstatus2AUK.png",
+                    "size": 2974
+                },
+                {
+                    "path": "gemmi/models/trafficstatus2B.png",
+                    "size": 409
+                },
+                {
+                    "path": "gemmi/models/trafficstatus2BUK.png",
+                    "size": 431
+                },
+                {
+                    "path": "gemmi/pg.sh",
+                    "size": 410
+                },
+                {
+                    "path": "gemmi/res/VWThesisSansLight.ttf",
+                    "size": 153320
+                },
+                {
+                    "path": "gemmi/res/VWThesisSansRegular.ttf",
+                    "size": 134068
+                },
+                {
+                    "path": "gemmi/res/VWThesisSansSemibold.ttf",
+                    "size": 134124
+                },
+                {
+                    "path": "gemmi/run_gemmi.sh",
+                    "size": 4155
+                },
+                {
+                    "path": "module.json",
+                    "size": 1186
+                },
+                {
+                    "path": "scripts/ge_p0824_deploy.sh",
+                    "size": 5459
+                }
+            ]
+        },
+        "google-earth-p0824-restore": {
+            "status": "alpha",
+            "description": "Restore /mnt/nav/gemmi to the pre-deploy state saved by google-earth-p0824-deploy. SD-card only; does not touch firmware.",
+            "standalone": true,
+            "run_script": "ge_p0824_restore.sh",
+            "artifact": null,
+            "payload_dirs": [],
+            "script_dir": "/scripts/GoogleEarth",
+            "installs_to_flash": true,
+            "compatible": [
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "module.json",
+                    "size": 925
+                },
+                {
+                    "path": "scripts/ge_p0824_restore.sh",
+                    "size": 2308
+                }
+            ]
+        },
         "jvm-extract": {
             "status": "ready",
             "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u2014 the first step toward custom MMI menu entries",
             "standalone": true,
             "run_script": "jvm_extract.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/jvm-extract",
             "installs_to_flash": false,
             "compatible": [
@@ -426,6 +916,7 @@
             "standalone": false,
             "run_script": null,
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/long-coding",
             "installs_to_flash": true,
             "compatible": [
@@ -470,6 +961,7 @@
             "standalone": true,
             "run_script": "lte_setup.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/LTE",
             "installs_to_flash": true,
             "compatible": [
@@ -513,6 +1005,7 @@
             "standalone": true,
             "run_script": "map_parse.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/MapParser",
             "installs_to_flash": false,
             "compatible": [
@@ -537,6 +1030,7 @@
             "standalone": true,
             "run_script": "nav_unblocker.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/NavUnblocker",
             "installs_to_flash": true,
             "compatible": [
@@ -569,6 +1063,7 @@
             "standalone": true,
             "run_script": "password_dump.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/PasswordFinder",
             "installs_to_flash": false,
             "compatible": [
@@ -593,6 +1088,7 @@
             "standalone": true,
             "run_script": "per3_install.sh",
             "artifact": "per3-reader.jar",
+            "payload_dirs": [],
             "script_dir": "/scripts/Per3Reader",
             "installs_to_flash": true,
             "compatible": [
@@ -713,6 +1209,7 @@
             "standalone": false,
             "run_script": null,
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/per3-writer",
             "installs_to_flash": true,
             "compatible": [
@@ -737,6 +1234,7 @@
             "standalone": true,
             "run_script": "persist_dump.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/PersistDump",
             "installs_to_flash": false,
             "compatible": [
@@ -761,6 +1259,7 @@
             "standalone": false,
             "run_script": null,
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/RegionAudit",
             "installs_to_flash": true,
             "compatible": [
@@ -788,6 +1287,7 @@
             "standalone": true,
             "run_script": "splash_install.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/Splash",
             "installs_to_flash": true,
             "compatible": [
@@ -816,6 +1316,7 @@
             "standalone": true,
             "run_script": "sysinfo_dump.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/SystemInfo",
             "installs_to_flash": false,
             "compatible": [
@@ -840,6 +1341,7 @@
             "standalone": true,
             "run_script": "variant_dump.sh",
             "artifact": null,
+            "payload_dirs": [],
             "script_dir": "/scripts/VariantDump",
             "installs_to_flash": false,
             "compatible": [

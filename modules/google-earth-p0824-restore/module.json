@@ -1,0 +1,21 @@
+{
+    "name": "google-earth-p0824-restore",
+    "version": "0.1.0-alpha",
+    "description": "Restore /mnt/nav/gemmi to the pre-deploy state saved by google-earth-p0824-deploy. SD-card only; does not touch firmware.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": [
+        "RNS-850"
+    ],
+    "standalone": true,
+    "run_script": "ge_p0824_restore.sh",
+    "script_dir": "/scripts/GoogleEarth",
+    "requires_reboot": true,
+    "notes": [
+        "Reads on-car backup metadata from /mnt/nav/.mmi3g_toolkit/google-earth-p0824/active.env",
+        "Restores the previous /mnt/nav/gemmi tree if a backup exists",
+        "If the deploy created /mnt/nav/gemmi from nothing, restore removes it again",
+        "Validated against the matching google-earth-p0824-deploy workflow on a US RNS-850."
+    ],
+    "uninstall": "Use this restore card before removing helper scripts with build_sd.py --uninstall."
+}

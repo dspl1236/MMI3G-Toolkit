@@ -34,11 +34,15 @@ class WebBuilderParityTests(unittest.TestCase):
             self.source,
         )
         self.assertIn(
-            'return Boolean(meta.artifact) && f.path === meta.artifact;',
+            'if (meta.artifact && f.path === meta.artifact) return `modules/${modName}/${f.path}`;',
             self.source,
         )
         self.assertIn(
-            'return { path: `modules/${modName}/${f.path}`, bytes };',
+            'for (const payload of (meta.payload_dirs || [])) {',
+            self.source,
+        )
+        self.assertIn(
+            'return { path: moduleOutputPath(modName, meta, f), bytes };',
             self.source,
         )
 

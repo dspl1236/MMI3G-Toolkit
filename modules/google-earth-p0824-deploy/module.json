@@ -1,0 +1,28 @@
+{
+    "name": "google-earth-p0824-deploy",
+    "version": "0.1.0-alpha",
+    "description": "Deploy the bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi with on-car backup and minimal drivers.ini auth-bypass patching. SD-card only; does not modify lsd.jxe or firmware.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": [
+        "RNS-850"
+    ],
+    "standalone": true,
+    "run_script": "ge_p0824_deploy.sh",
+    "script_dir": "/scripts/GoogleEarth",
+    "payload_dirs": [
+        {
+            "source": "gemmi",
+            "target": "gemmi"
+        }
+    ],
+    "requires_reboot": true,
+    "notes": [
+        "Backs up the existing /mnt/nav/gemmi tree to /mnt/nav/.mmi3g_toolkit/google-earth-p0824/",
+        "Deploys bundled donor files from SD card root /gemmi/",
+        "Patches donor /mnt/nav/gemmi/drivers.ini with auth-bypass settings only",
+        "Does NOT patch lsd.jxe or remove VW RANGE_ locks",
+        "Tested on a US RNS-850 (HN+_US_VW_P0738) using the bundled HN+_EU_VW_P0824 donor payload."
+    ],
+    "uninstall": "Use build_sd.py --uninstall to remove helper scripts only. Use google-earth-p0824-restore to revert /mnt/nav/gemmi."
+}

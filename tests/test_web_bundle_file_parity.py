@@ -42,6 +42,7 @@ class WebBundleFileParityTests(unittest.TestCase):
         for mod_name in selected:
             meta = self.manifest['modules'][mod_name]
             artifact = meta.get('artifact')
+            payload_dirs = meta.get('payload_dirs', [])
             for entry in meta['files']:
                 path = entry['path']
                 if path == 'module.json':
@@ -50,6 +51,13 @@ class WebBundleFileParityTests(unittest.TestCase):
                     files.add(path)
                 elif artifact and path == artifact:
                     files.add(f'modules/{mod_name}/{path}')
+                else:
+                    for payload in payload_dirs:
+                        source = payload['source'].rstrip('/')
+                        target = payload.get('target', source).rstrip('/')
+                        if path.startswith(f'{source}/'):
+                            files.add(f'{target}/{path[len(source) + 1:]}')
+                            break
 
         return files
 
@@ -69,6 +77,7 @@ class WebBundleFileParityTests(unittest.TestCase):
             ['gem-activator', 'can-scanner'],
             ['diag-tool'],
             ['per3-reader'],
+            ['google-earth-p0824-deploy'],
         )
 
         for selected in representative_sets:

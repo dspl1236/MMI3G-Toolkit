@@ -76,6 +76,7 @@ class GenerateManifestTests(unittest.TestCase):
                         'status': 'ready',
                         'description': 'artifact demo',
                         'artifact': 'demo.jar',
+                        'payload_dirs': [{'source': 'payload', 'target': 'payload'}],
                     },
                     indent=2,
                 ),
@@ -87,6 +88,10 @@ class GenerateManifestTests(unittest.TestCase):
         self.assertEqual(
             manifest['modules']['artifact-module']['artifact'],
             'demo.jar',
+        )
+        self.assertEqual(
+            manifest['modules']['artifact-module']['payload_dirs'],
+            [{'source': 'payload', 'target': 'payload'}],
         )
 
     def test_checked_in_manifest_matches_generated_output(self):

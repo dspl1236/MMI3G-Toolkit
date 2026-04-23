@@ -79,6 +79,7 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
             'standalone': meta.get('standalone', False),
             'run_script': meta.get('run_script'),
             'artifact': meta.get('artifact'),
+            'payload_dirs': meta.get('payload_dirs', []),
             'script_dir': meta.get('script_dir', f'/scripts/{name}'),
             'installs_to_flash': meta.get('installs_to_flash', True),
             'compatible': meta.get('compatible', ['MMI3G+']),

@@ -1,0 +1,21 @@
+{
+    "name": "dns-refresh-probe",
+    "version": "0.1.0",
+    "description": "One-shot network diagnostic that snapshots route/DNS state, rewrites /etc/resolv.conf to a better DNS candidate, and reruns connectivity checks.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": ["MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "dns_refresh_probe.sh",
+    "script_dir": "/scripts/NetDiag",
+    "installs_to_flash": false,
+    "requires_reboot": false,
+    "scripts": [
+        "dns_refresh_probe.sh - Back up resolv.conf to SD, pick a DNS target from SD override or default gateway, rewrite resolv.conf, and log before/after connectivity checks"
+    ],
+    "notes": [
+        "Tested on a US RNS-850 (HN+_US_VW_P0738) to recover from stale DNS after LTE setup.",
+        "Writes only /etc/resolv.conf and logs results to SD card; does not persist changes in flash.",
+        "If present, /dns-refresh-target.txt on the SD card overrides the auto-detected DNS target."
+    ]
+}
