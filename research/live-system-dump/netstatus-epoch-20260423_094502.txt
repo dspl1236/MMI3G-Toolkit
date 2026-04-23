@@ -1,0 +1,67 @@
+=== Network Status ===
+Date: Thu Jan 01 00:03:42 UTC 1970
+
+--- Interfaces ---
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 33192
+	inet 127.0.0.1 netmask 0xff000000
+pflog0: flags=100<PROMISC> mtu 33192
+mam0: flags=843<UP,BROADCAST,RUNNING,SIMPLEX> mtu 1008
+	address: 00:00:00:00:01:00
+	inet 10.0.0.100 netmask 0xffffff00 broadcast 10.0.0.255
+mhp0: flags=842<BROADCAST,RUNNING,SIMPLEX> mtu 1500
+	address: 00:00:00:00:01:00
+en5: flags=80008a43<UP,BROADCAST,RUNNING,ALLMULTI,SIMPLEX,MULTICAST,SHIM> mtu 1500
+	address: 00:0e:c6:06:44:1d
+	media: Ethernet 10baseT full-duplex
+	status: active
+	inet 192.168.0.154 netmask 0xffffff00 broadcast 192.168.0.255
+uap0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	address: 00:1c:d7:43:72:86
+	media: <unknown type> autoselect
+	inet 192.168.1.1 netmask 0xffffff00 broadcast 192.168.1.255
+	link 00:00:00:00:00:00
+
+--- Routing ---
+Routing tables
+
+Internet:
+Destination        Gateway            Flags    Refs      Use    Mtu  Interface
+default            192.168.0.1        UG          0        0      -  en5
+10.0.0/24          link#3             UC          0        0      -  mam0
+127.0.0.1          127.0.0.1          UH          2       47  33192  lo0
+192.168.0/24       link#5             UC          1        0      -  en5
+192.168.0.1        bc:9a:8e:ba:2e:01  UHLc        1       96      -  en5
+192.168.1/24       link#6             UC          1        0      -  uap0
+192.168.1.1        00:1c:d7:43:72:86  UHLc        1        0      -  lo0
+239.255.255.250/32 192.168.1.1        UGS         0        7      -  uap0
+
+--- DNS ---
+nameserver 192.168.0.1
+
+--- Connections ---
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        State
+tcp        0      0  *.2323                 *.*                    LISTEN
+tcp        0      0  127.0.0.1.4444         127.0.0.1.65513        ESTABLISHED
+tcp        0      0  127.0.0.1.65513        127.0.0.1.4444         ESTABLISHED
+tcp        0      0  *.4444                 *.*                    LISTEN
+tcp        0      0  *.18193                *.*                    LISTEN
+tcp        0      0  *.23                   *.*                    LISTEN
+tcp        0      0  *.8100                 *.*                    LISTEN
+tcp        0      0  *.2021                 *.*                    LISTEN
+tcp        0      0  *.2011                 *.*                    LISTEN
+tcp        0      0  *.10200                *.*                    LISTEN
+tcp        0      0  *.*                    *.*                    CLOSED
+tcp        0      0  *.33040                *.*                    LISTEN
+tcp        0      0  *.9402                 *.*                    LISTEN
+tcp        0      0  *.851                  *.*                    LISTEN
+udp        0      0  *.*                    *.*                   
+udp        0      0  *.67                   *.*                   
+udp        0      0  *.1900                 *.*                   
+udp        0      0  *.*                    *.*                   
+udp        0      0  *.851                  *.*                   
+udp        0      0  *.*                    *.*                   
+
+--- ARP ---
+dsldevice.attlocal.net (192.168.0.1) at bc:9a:8e:ba:2e:01 on en5
+? (192.168.1.1) at 00:1c:d7:43:72:86 on uap0 permanent

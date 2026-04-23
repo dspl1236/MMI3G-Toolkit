@@ -1,0 +1,22 @@
+/mnt/nav/db/pkgdb/S       610380    610380         0     100%  /SDS/           
+/dev/sdcard10t12        15549952      1376  15548576       1%  /mnt/sdcard10t12
+/dev/blk/file-4-iof            0         0         0     100%  /fs/avrcp0/     
+/dev/blk/ram-0-allo        12288       712     11576       6%  /fs/tmpfs/      
+/hbsystem/multicore         1072      1072         0     100%  /hbsystem/multic
+/dev/fs4p1                  8128       261      7866       4%  /mnt/phonedb    
+/dev/hd0t187.4           1044176     65948    978228       7%  /mnt/pv-cache/  
+/dev/hd0t187.3           2136596     84608   2051988       4%  /mnt/img-cache/ 
+/dev/hd0t187.2            176664     12804    163860       8%  /mnt/persistence
+/dev/hd0t187.1            168632     11089    157543       7%  /mnt/mmebackup1/
+/dev/hd0t78             19928616   5573791  14354825      28%  /mnt/mediadisk/ 
+/dev/hd0t187             5245172   1748503   3496669      34%  /mnt/gracenode/ 
+/dev/hd0t77             28836624  23507060   5329564      82%  /mnt/nav/       
+/dev/fs1p3                   960       120       839      13%  /mnt/hmisql     
+/dev/hd0t79              1068304    196263    872041      19%  /mnt/sss/       
+/dev/fs0p3                 29440      3179     26260      11%  /mnt/efs-persist
+/mnt/gracenode/boar       562504    562504         0     100%  /mnt/efs-persist
+/dev/fs0p2                 37632     35814      1817      96%  /mnt/efs-system 
+/dev/fs0p1                 12032       110     11921       1%  /mnt/efs-extende
+/dev/sdcard10           15558144  15558144         0     100%                  
+/dev/hd0                58605120  58605120         0     100%                  
+/dev/cd0                       0         0         0     100%  (/fs/cd0/)      

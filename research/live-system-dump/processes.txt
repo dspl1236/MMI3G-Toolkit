@@ -1,0 +1,83 @@
+     pid Arguments
+       1 procnto
+   12290 devf-generic -r -b9 -t4 -p30000,32 -s0x0,128m -R
+   12292 inflator /mnt/efs-system/bin /mnt/efs-extended
+   28677 devc-sersci -e -F -H -b115200 -c44000000/16 scif1 -e -F -H -t0,48 -r60 -b57600 -c44000000/16 scif0
+   28678 slogger -s 250k
+   36872 /usr/bin/srv-starter-QNX -u -p30 -vv -g -c /etc/mmi3g-srv-starter.cfg
+   36873 /usr/bin/pci-sh7785 -w 50 -v -c /etc/pci-3g_9411.cfg
+   40967 login root /bin/ksh -i
+   40972 /usr/bin/servicebroker
+   40975 /usr/bin/checkFreeMem /etc/cfmem.cfg
+   49166 /usr/bin/devg-NVMiniRM -d 11 -p 21 -l 0xffffffff
+   53259 /usr/bin/devg-NVMEM
+   53264 /usr/bin/devb-eide-hbfpga eide did=0x9411,vid=0x10ee,noslave,bs=int=0x30,base=0x60000,dmabase=0x70000,dmachannel=0,dmamode=fpga,decrypt=all,master=atapi,resets=125 eide did=0x9411,vid=0x10ee,nomaster,bs=int=0x30,base=0x800000,dmabase=0x810000,dmachannel=1,dmamode=fpga,slave=smart,resets=5,slave=ata blk marking=none,cache=2m,vnode=128,map=1024 qnx4 noatime,bitmap=lazy,unbusy qnx6 noatime cam resmgr cdrom timeout=20:10:7:7,retries=3 udf case=asis,format=udf:rrip:joliet:iso9660e:iso9660:audio
+   53265 /sbin/pipe
+   53266 /usr/sbin/mcd -vvvvvvv /sbin/mcd.cfg
+   53267 /usr/bin/dev-ipc -I38 -c10 -A0xB0000 -V10EE -D9411 -vvv
+   53268 /usr/bin/dev-sysregs -r -A 0x00001000,2k -c /etc/sysregs-mmi3g-9411.cfg
+   53269 /sbin/io-pkt-v4-hc -S -ptcpip stacksize=8192,mclbytes=4096 -ppf-v4
+   53270 /usr/bin/multicored -D1 -F1 -n750 -v -m /hbsystem/multicore -R
+   53271 /usr/apps/dev-irc -c /etc/IRCConfig.cfg
+   53272 /usr/bin/pintest -n 4096 -p 8245 -b
+   53274 /usr/sbin/dumper -m -w -z 1 -c -d /HBpersistence/core -d /mnt/persistence -f io-pkt-v4-hc -f devc-serusb -f io-usb
+   53275 devf-ram -s0,1m -i1,3
+   57373 /usr/bin/devg-NVTS -p 21
+   61470 /usr/sbin/io-audio -o intr_thread_prio=63 -d hb_fpga fpga_pci_device_id=0x9411,playback_devices=6,capture_devices=1,dindex=0,play_fpga_offset=0x240000,play_dma_channel=4,play_interrupt_vector=22,play_name=ent3,dindex=1,play_fpga_offset=0x0180000,play_dma_channel=9,play_interrupt_vector=30,play_name=navi,dindex=2,play_fpga_offset=0x160000,play_dma_channel=0,play_interrupt_vector=28,play_name=SDS,dindex=3,play_fpga_offset=0x140000,play_dma_channel=5,play_interrupt_vector=24,play_name=BT-Tr,dindex=4,play_fpga_offset=0x00300000,play_dma_channel=6,play_interrupt_vector=26,play_name=NAD,dindex=5,play_fpga_offset=0x002A0000,play_dma_channel=8,play_interrupt_vector=32,play_name=tones1,dindex=0,cap_fpga_offset=0x000E0000,cap_dma_channel=1,cap_interrupt_vector=20,cap_name=MicINRefBTNad
+   61471 /usr/bin/dev-nvram -d -V0x10ee -D0x9411 -B0 -A0x40 -m0x40 name=navi
+   61472 /usr/bin/devc-ser8250hb -V10ee -D9411 -B0 -b115200 -c66000000/1 -E -t4 -T15 0x10000^2,40 -b921600 -c66000000/1 -E -t4 -T15 0x500000^2,42 -b57600 -c66000000/1 -F -E -t4 -T15 0x520000^2,44
+   61474 /usr/bin/vdev-flexgps -vv -c/dev/ser2 -d/hbsystem/multicore/navi/g -b9600 -C115200 -R -L1 -r1 -g/etc/g5_1.7.cfg
+   61475 /usr/bin/dev-mv2trace -b 10000 -w 20 -m multicored
+   73767 /sbin/io-media-nvidia -c /etc/iom.cfg
+   81960 /usr/bin/ndr -hfs=/etc/hfs.cfg -e=lvm -e=disChina
+  102437 /usr/apps/NavCore --api-routing=shmem
+  118812 /usr/sbin/io-display -dvid=0x10de,did=0x187
+  118817 /usr/bin/layermanagerV2 -c /etc/layermanagerV2_nvidia.cfg
+  118820 /usr/bin/dev-videoctrl -c /etc/videoctrl-Audi3G.cfg -v
+  163853 /usr/bin/srv-hddmgr -c /usr/bin/hddmgr.cfg -v0 -s1
+  180262 /bin/ksh /bin/runAMRController.sh
+  180267 /bin/EncodeStream -inputfile /dev/shmem/sss/audiostream.pcm -outputfile /dev/shmem/sss/poi_name.amr -parallelencode
+  204844 /usr/apps/MMI3GApplication --memtrace=0 --bp --tp=/etc/DefaultScope.hbtc
+  204845 MMI3GNavigation 3 --memtrace=0 --bp --tp=/etc/DefaultScope.hbtc
+  221194 j9 -Djdsi.trialtimeout=50000 -Djava.library.path=.:/proc/boot:/lib:/lib/dll:/usr/lib:/usr/lib/dll:/j9/bin:/lsd -Dcom.ibm.oti.vm.bootstrap.library.path=.:/proc/boot:/lib:/lib/dll:/usr/lib:/usr/lib/dll:/j9/bin:/lsd -Xmca8k -Xmco8k -Xmo11264k -Xmoi0 -Xmn512k -Xmx13312k -Xjit:code=512 -Xjit:codeTotal=2048 -DUseIconExtractor=true -DSLOG=Ext.Benchmark=0 -DNoTraceClient -Djdsi.3SoftOSGi=true -Djdsi.noDispatcher -Djdsi.trialcount=2000 -Ddsi.debuglevel=2 -Ddsi.channel.priority=+1 -Ddsi.decoder.priority=+1 -Ddsi.maxPacketLength=16384 -Ddsi.channel=msgpassing -Ddsi.memmode=nopooling -Dshowcombi=true -Dde.audi.tghu.engineering.base_dir=/HBpersistence/engdefs -DImageRoot=/lsd/images -Dpoiproducer.properties=/lsd/poiproducer.properties -DMMI3G_MyAudi.properties=/lsd/MMI3G_MyAudi.properties -Donlineservices.url=http://menu.audi-online.com/menu/template -DmyAudi.IMSI=232106908113543 -Xbootclasspath:/lsd/DSITracer.jar:/lsd/AppDevelopment.jar:/lsd/texts.jar:/lsd/myaudiconnect_nodataconnect.jar:/lsd/lsd.jxe 
+  229401 /sbin/mqueue
+  229422 /usr/bin/dev-adjmanager -f0x8000000 -s0x40000 -d0x20 -m0
+  229423 /usr/bin/srv_drivehandler -l /usr/lib/libmldr.so -d 0
+  229424 /sbin/io-fs-media -d tmp,maxsize=12M
+  229425 /sbin/io-fs-media -d ipod,config=/etc/ipod.cfg,transport=ser:dev=serfpga3,playback,eq=off,sndchk=on,fnames=short,splash=:/etc/iPodLogo.ipod,restore=!shuffle,noalbart
+  229426 /sbin/io-fs-media -dupnp,scp_path=/dev/scp_nws
+  229427 /usr/sbin/usbPowerMonitor -v -m interval=3,num_rootports=1,switch_off_interval=60
+  229428 /usr/bin/ejecthandler
+  229429 mmelauncher -v -c /etc/mmelauncher.cfg
+  229430 /usr/sbin/gracenote_srvr -d /mnt/gracenode/db -k /tmp/gracenotekey -c /tmp -r /tmp/reg.xml
+  229431 /sbin/io-usb -c -d ehci -d ohci pindex=0,dis_sf,pindex=1,dis_sf
+  229432 /usr/sbin/qdb -v -c /etc/qdb.cfg -O unblock=0,thread=35 -O tempstore=/fs/tmpfs -X /mnt/efs-system/scripts/delete-image-cache.sh
+  245817 /sbin/mme-becker -c /etc/mme.conf -o singledb
+  245818 /usr/bin/usbcheck
+  245819 /mnt/ifs-root/usr/bin/vdev-medialaunch -z -C -f /etc/umass-enum.cfg -R -I usbpfs -n 1 -H poll=1000,hub_detect
+  245820 /usr/bin/mme-update -M -S static -n 4
+  245821 /usr/bin/devb-sdc-hbfpga -V10ee -D9411 -A0x420000 -C0x102 -I52 -n -v cam retries=3:0:0:0,pnp blk normv,auto=none,commit=high,delwri=0,cache=512k disk name=sdcard2, dos hidden=dot
+  245822 /usr/bin/devb-sdc-hbfpga -V10ee -D9411 -A0x440000 -C0x103 -I54 -n -v cam retries=3:0:0:0,pnp blk normv,auto=none,commit=high,delwri=0,cache=512k disk name=sdcard1, dos hidden=dot
+  245823 MMI3GMedia 3 --memtrace=0 --bp --tp=/etc/DefaultScope.hbtc
+  266243 MMI3GMisc 3 --memtrace=0 --bp --tp=/etc/DefaultScope.hbtc
+  266305 devf-ram -s0,8m -i4,1
+  266306 /usr/bin/SSSProcess -f /mnt/sss/general/default.cfg -s sss_config -c HostAgent MonitorService IntegrityService AliveService GDM AudioMatrixService RecorderService RecognitionService PrompterService UARService SAIPService SAOPService SpellmatcherService ConfigService ExportService SCFService RmssService TNService
+  290883 usr/bin/NWSProcess -f /usr/data/nws.cfg -s pss_config -c HostAgent MonitorService AliveService RmssService ConfigService NetworkingService UPnPService DSIService -k VerboseLevel=2
+  331844 /usr/bin/PSSBSSProcess -f /usr/data/pss.cfg -s pss_config -c HostAgent MonitorService IntegrityService AliveService AudioMatrixService PhoneService BSSService NetAccessService SIMService DataService DmlService MediaService MediaRMService SAIPService SAOPService RmssService RemoteCtrlService TTYdevService ModemService DSIService -k VerboseLevel=2 MonitorService.Port=2021 NetAccess.NADName=UC864 Phone2.DriverVendor=PHONE_VENDOR_TELIT Phone2.DriverModel=PHONE_MODEL_TELIT_GE864 
+  340038 /sbin/io-fs-media -d mediabt,verbose=5
+  348224 MMI3GTelephone 3 --memtrace=0 --bp --tp=/etc/DefaultScope.hbtc
+  348229 dhcp.client -b -i en5
+  348232 devc-serusb -vv -I 8192 -O 12288 -d vid=0x1bc7,did=0x1003,busno=2,devno=1,unit=1,ign_remove
+  352327 dhcpd -f -q -cf /mnt/phonedb/dhcpd.uap0.conf -lf /mnt/phonedb/dhcpd.uap0.leases uap0
+  417866 /bin/proc_scriptlauncher -i 30 -p /dev/shmem/copie_scr.sh
+  417867 /sbin/devc-pty
+  430153 /usr/sbin/inetd
+  434252 /bin/sh /usr/bin/run_gemmi.sh
+  434253 mmi3g-flashctl -f /HBpersistence -r 4096 -t 2048 -p 100 -c 16 -s 300
+  434254 /bin/sh /mnt/nav/gemmi/run_gemmi.sh
+  507983 /mnt/nav/gemmi/gemmi_final -roadwidthscale 0.0116 -opt 1 -prefetch 1 -printromeevents 0 -poithresholdspeed 500 -lodmode 12 -roadnamescale 0.85 -roadnamecolor ffd0ffff -framestats 0 -minsleep 10 -maxfps 12 -maxmem 55 -targetmem 40 -maxpingtime 2000 -createroadsinmultibunch -trafficregion 0 
+  581673 ksh ./run.sh /mnt/sdcard10t12
+  692266 /tmp/showScreen /mnt/sdcard10t12/lib/running.png
+  757840 ksh /mnt/sdcard10t12/scripts/sysinfo_dump.sh /mnt/sdcard10t12
+  893009 /mnt/sdcard10t12/bin/showScreen /mnt/sdcard10t12/lib/running.png
+ 1347666 pidin ar

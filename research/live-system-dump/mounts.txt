@@ -1,0 +1,20 @@
+/mnt/nav/db/pkgdb/SDS3GP_NAR/SDS_Data.iso on /SDS type cd (joliet) 
+/dev/sdcard10t12 on /fs/sd0 type dos (fat32) 
+/dev/blk/file-4-iofsmediabt-4294967295-media on /fs/avrcp0 type iofsmediabt 
+/dev/blk/ram-0-alloc-0-tmp on /fs/tmpfs type tmp 
+multicored on /hbsystem/multicore type multicore 
+/dev/sdcard10t12 on /mnt/sdcard10t12 type dos (fat32) 
+/dev/fs4p1 on /mnt/phonedb type flash 
+/dev/hd0t187.4 on /mnt/pv-cache type qnx6 
+/dev/hd0t187.3 on /mnt/img-cache type qnx6 
+/dev/hd0t187.2 on /mnt/persistence type qnx6 
+/dev/hd0t187.1 on /mnt/mmebackup1 type qnx6 
+/dev/hd0t78 on /mnt/mediadisk type qnx6 
+/dev/hd0t187 on /mnt/gracenode type qnx6 
+/dev/hd0t77 on /mnt/nav type qnx6 
+/dev/fs1p3 on /mnt/hmisql type flash 
+/dev/hd0t79 on /mnt/sss type qnx6 
+/dev/fs0p3 on /mnt/efs-persist type flash 
+/mnt/gracenode/boardbook/boardbook.iso on /mnt/efs-persist/boardbook type cd (joliet) 
+/dev/fs0p2 on /mnt/efs-system type flash 
+/dev/fs0p1 on /mnt/efs-extended type flash 

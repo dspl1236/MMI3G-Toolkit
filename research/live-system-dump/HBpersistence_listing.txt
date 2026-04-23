@@ -1,0 +1,526 @@
+
+/HBpersistence/:
+total 645
+-rw-------  1 root      root             87 Jan 01 00:02 CVALUE00020224.CVA
+-rw-------  1 root      root             12 Jan 01 00:00 CVALUE00020226.CVA
+-rwxrwxrwx  1 root      root             11 May 24  2012 CVALUE0002032d.CVA
+lrwxrwxrwx  1 root      root             38 Jan 01 00:02 CVALUE000203b3.CVA -> /mnt/efs-system/CVA/CVALUE000203b3.CVA
+-rw-------  1 root      root             20 Jan 01 00:00 CVALUE000203bb.CVA
+-rw-------  1 root      root            170 Jan 01 00:04 CVALUE00020685.CVA
+-rw-------  1 root      root           4114 Jan 01 00:20 CVALUE00020686.CVA
+-rw-------  1 root      root            488 Jan 01 00:04 CVALUE00020687.CVA
+lrwxrwxrwx  1 root      root             38 Jan 01 00:02 CVALUE0002068c.CVA -> /mnt/efs-system/CVA/CVALUE0002068c.CVA
+lrwxrwxrwx  1 root      root             38 Jan 01 00:02 CVALUE0002068d.CVA -> /mnt/efs-system/CVA/CVALUE0002068d.CVA
+-rw-------  1 root      root             10 Jan 01 00:05 CVALUE0002068e.CVA
+-rw-------  1 root      root           5749 Jan 01 00:54 CVALUE0002068f.CVA
+-rw-------  1 root      root             12 Jan 01 00:00 CVALUE00020690.CVA
+-rw-rw-rw-  1 root      root              0 Jan 01 00:02 DBGModeActive
+-rw-rw-rw-  1 root      root              0 Jan 01 00:08 DLinkReplacesPPP
+-rwxrwxrwx  1 root      root              4 Jan 01 00:02 DataPST.crc
+-rwxrwxrwx  1 root      root          51200 Jan 01 00:01 DataPST.db
+drwxrwxrwx  2 root      root            560 Jan 01 00:00 EarlyPersistencyFiles
+drwxrwxrwx  4 root      root            116 May 24  2012 FSC
+drwxrwxrwx  5 root      root            112 May 24  2012 Keys
+drwxrwxrwx  2 root      root           1036 Jan 01 00:00 NormalPersistencyFiles
+-rw-rw-rw-  1 root      root           1175 Jan 01 00:00 PDL.dat
+-rw-rw-rw-  1 root      root              0 Jan 01 00:00 PhoneModule_Telit
+drwxr-xr-x  8 root      root            552 Jan 01 00:01 SWDL
+lrwxrwxrwx  1 root      root             38 Jan 01 00:23 Splashscreen.png -> /etc/splashscreens/startup_generic.png
+lrwxrwxrwx  1 root      root             27 Jan 01 00:02 TraceScopes -> /mnt/efs-system/TraceScopes
+-rw-r--r--  1 root      root         159744 Jan 01 00:01 addressbook.db
+-rw-------  1 root      root           8749 Jan 01 00:02 addressbook.db.check
+lrwxrwxrwx  1 root      root             26 Jan 01 00:02 audiofiles -> /mnt/efs-system/audiofiles
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 boardbook
+-rw-rw-rw-  1 root      root           2942 Jan 01 00:00 bss.bak
+-rw-rw-rw-  1 root      root           2942 Jan 01 00:01 bss.ddb
+drwxr-xr-x  2 root      root              0 Jan 01 00:00 bundledata
+lrwxrwxrwx  1 root      root             28 Jan 01 00:02 core -> /mnt/efs-persist/syslog/core
+lrwxrwxrwx  1 root      root             25 Jan 01 00:02 coverflow -> /mnt/efs-system/coverflow
+-rw-rw-rw-  1 root      root            176 Jan 01 00:04 en_US_speaker.spp
+-rw-rw-rw-  1 root      root              4 Jan 01 00:04 en_US_speaker.spp.crc
+lrwxrwxrwx  1 root      root             23 Jan 01 00:02 engdefs -> /mnt/efs-system/engdefs
+lrwxrwxrwx  1 root      root             30 Jan 01 00:02 errlog -> /mnt/efs-persist/syslog/errlog
+-rw-rw-rw-  1 root      root            187 Jan 01 00:04 hddmgr.persistency
+drwxrwxrwx  2 root      root             52 May 24  2012 imageInfo
+lrwxrwxrwx  1 root      root             27 Jan 01 00:02 irc -> /mnt/efs-persist/syslog/irc
+lrwxrwxrwx  1 root      root             19 Jan 01 00:02 mme -> /mnt/efs-system/mme
+drwxrwxr-x  3 root      root             40 May 24  2012 mnt
+drwxr-xr-x  5 root      root            104 Jan 01 00:00 navi
+-rw-r--r--  1 root      root          68608 Jan 01 00:01 oadb_simuCS.dbf
+lrwxrwxrwx  1 root      root             19 Jan 01 00:02 sss -> /mnt/efs-system/sss
+drwxr-xr-x  5 root      root            240 Jan 01 00:00 syslog
+lrwxrwxrwx  1 root      root             21 Jan 01 00:02 tools -> /mnt/efs-system/tools
+-rw-rw-rw-  1 root      root             12 Jan 01 00:03 trace.txt
+-rw-rw-rw-  1 root      root              0 Jan 01 00:08 usedhcp
+drwxrwxrwx  2 root      root             52 May 24  2012 version
+
+/HBpersistence/EarlyPersistencyFiles:
+total 56
+-rwxrwxrwx  1 root      root          24735 Jan 01 00:24 generalPersistencyData_MMEPlayerPresCtrl
+-rwxrwxrwx  1 root      root            254 Jan 01 00:04 generalPersistencyData_MapViewerPresCtrl
+-rwxrwxrwx  1 root      root            252 Jan 01 00:04 generalPersistencyData_MediaRecorderPresCtrl
+-rwxrwxrwx  1 root      root            238 Jan 01 00:04 generalPersistencyData_Medialist
+-rwxrwxrwx  1 root      root            165 Jan 01 00:04 generalPersistencyData_RingerTonePresCtrl
+-rwxrwxrwx  1 root      root            165 Jan 01 00:04 generalPersistencyData_SystemTonePresCtrl
+-rwxrwxrwx  1 root      root            313 Jan 01 00:17 generalPersistencyData_Time
+-rwxrwxrwx  1 root      root            370 Jan 01 00:04 profilePersistencyData_VideoManagementDevCtrl_0
+
+/HBpersistence/FSC:
+total 2
+-rwxrwxrwx  1 root      root            202 Jan 05  2016 0004000B.fsc
+drwxrwxrwx  2 root      root             52 Jan 01 00:00 Logs
+drwxrwxrwx  2 root      root              0 Jan 01 00:00 cache
+
+/HBpersistence/FSC/Logs:
+total 14
+-rwxrwxrwx  1 root      root           6900 Jan 01 00:05 Security_Exceptions.log
+
+/HBpersistence/FSC/cache:
+total 0
+
+/HBpersistence/Keys:
+total 3
+drwxrwxrwx  2 root      root             52 May 24  2012 DataKey
+drwxrwxrwx  2 root      root             52 May 24  2012 FSCKey
+drwxrwxrwx  2 root      root             52 May 24  2012 MetainfoKey
+
+/HBpersistence/Keys/DataKey:
+total 1
+-rwxrwxrwx  1 root      root            256 May 24  2012 DK_public_signiert.bin
+
+/HBpersistence/Keys/FSCKey:
+total 1
+-rwxrwxrwx  1 root      root            256 May 24  2012 FSC_public_signiert.bin
+
+/HBpersistence/Keys/MetainfoKey:
+total 1
+-rwxrwxrwx  1 root      root            256 May 24  2012 MI_public_signiert.bin
+
+/HBpersistence/NormalPersistencyFiles:
+total 204
+-rwxrwxrwx  1 root      root          20672 Jan 01 00:39 generalPersistencyData_AMFMTunerPresCtrl
+-rwxrwxrwx  1 root      root            218 Jan 01 00:38 generalPersistencyData_BluetoothPresCtrl
+-rwxrwxrwx  1 root      root           2580 Jan 01 00:01 generalPersistencyData_DTCPDevCtrl
+-rwxrwxrwx  1 root      root           3332 Jan 01 00:37 generalPersistencyData_DataConfigurationPresCtrl
+-rwxrwxrwx  1 root      root           1522 Jan 01 00:04 generalPersistencyData_DiagnoseSpeechService
+-rwxrwxrwx  1 root      root            223 Jan 01 00:08 generalPersistencyData_IPPresCtrl
+-rwxrwxrwx  1 root      root          25245 Jan 01 00:49 generalPersistencyData_NavAppCtrl
+-rwxrwxrwx  1 root      root          13038 Jan 01 00:29 generalPersistencyData_NavRMPRCtrl
+-rwxrwxrwx  1 root      root           2520 Jan 01 00:42 generalPersistencyData_NavRMRPCtrl
+-rwxrwxrwx  1 root      root          19703 Jan 01 00:57 generalPersistencyData_SDARSTunerPresCtrl
+-rwxrwxrwx  1 root      root           4730 Jan 01 00:00 generalPersistencyData_TelephonyPresCtrl
+-rwxrwxrwx  1 root      root           1887 Jan 01 00:00 generalPersistencyData_TelephonyPresCtrl_NAD
+-rwxrwxrwx  1 root      root            153 Jan 01 00:04 generalPersistencyData_Time
+-rwxrwxrwx  1 root      root           2097 Jan 01 00:00 generalPersistencyData_WLANPresCtrl
+-rwxrwxrwx  1 root      root           2379 Jan 01 00:27 profilePersistencyData_AudioManagementDevCtrl_0
+
+/HBpersistence/SWDL:
+total 29
+drwxr-xr-x  2 root      root            504 Jan 01 00:01 FileCopyInfo
+drwxr-xr-x  2 root      root              0 Jan 01 00:00 INIC
+drwxr-xr-x  2 root      root             40 Jan 01 00:02 IT
+drwxr-xr-x  4 root      root            392 Jan 01 00:02 Log
+-rw-rw-rw-  1 root      root           2189 Jan 01 00:01 MainUnit-version2.txt
+-rw-rw-rw-  1 root      root              5 Jan 01 00:01 MainUnit-version2.txt.SWDL.compatibility.txt
+-rw-rw-rw-  1 root      root             13 Jan 01 00:01 MainUnit-version2.txt.SWDL.version.txt
+-rw-rw-rw-  1 root      root             10 Jan 01 00:50 MuRingType.txt
+drwxr-xr-x  2 root      root             88 Jan 01 00:01 Telit
+drwxr-xr-x  2 root      root            188 Jan 01 00:02 info
+-rw-rw-rw-  1 root      root              9 Jan 01 00:03 region.txt.z
+-rw-rw-rw-  1 root      root           7169 Jan 01 00:09 update.txt.Abort.old
+
+/HBpersistence/SWDL/FileCopyInfo:
+total 17
+-rw-rw-rw-  1 root      root           1545 Jan 01 00:00 AUDI_MMI3G_NAR.info
+-rw-rw-rw-  1 root      root             92 Jan 01 00:10 AudiSupportedFscs.info
+-rw-rw-rw-  1 root      root            579 Jan 01 00:00 CombiStyles.info
+-rw-rw-rw-  1 root      root             54 Jan 01 00:10 GEMMI.info
+-rw-rw-rw-  1 root      root             91 Jan 01 00:10 MUConsistency.info
+-rw-rw-rw-  1 root      root           1110 Jan 01 00:14 MapStyles.info
+-rw-rw-rw-  1 root      root             73 Jan 01 00:10 MuTnrRef.info
+-rw-rw-rw-  1 root      root            185 Jan 01 00:00 NaviPersistence.info
+-rw-rw-rw-  1 root      root            134 Jan 01 00:15 TMCConfig.info
+-rw-rw-rw-  1 root      root            242 Jan 01 00:01 boardbook.info
+-rw-rw-rw-  1 root      root            278 Jan 01 00:10 sss.info
+
+/HBpersistence/SWDL/INIC:
+total 0
+
+/HBpersistence/SWDL/IT:
+total 1
+-rw-rw-rw-  1 root      root              1 Jan 01 00:02 hwIndex.txt
+
+/HBpersistence/SWDL/Log:
+total 9
+-rw-rw-rw-  1 root      root             10 Jan 01 00:02 CfgAck.z
+-rw-rw-rw-  1 root      root             10 Jan 01 00:01 CfgAckRand.z
+-rw-rw-rw-  1 root      root              9 Jan 01 00:02 RepeatCo.unt.z
+-rw-rw-rw-  1 root      root              9 Jan 01 00:02 SubDirsIndex.txt.z
+-rw-rw-rw-  1 root      root              9 Jan 01 00:02 SubDirsRestart.txt.z
+-rwxrwxrwx  1 root      root             29 Jan 01 00:01 SvmInfoIgnoreImages.txt
+-rw-rw-rw-  1 root      root            483 Jan 01 00:48 SvmOld.z
+drwxr-xr-x 11 root      root            288 Jan 01 00:01 service
+drwxr-xr-x  3 root      root             32 Jan 01 00:01 user
+
+/HBpersistence/SWDL/Log/service:
+total 9
+drwxr-xr-x  2 root      root            160 Jan 01 00:17 1
+drwxr-xr-x  2 root      root            160 Jan 01 00:02 2
+drwxr-xr-x  2 root      root            160 Jan 01 00:49 3
+drwxr-xr-x  2 root      root            160 Jan 01 00:07 4
+drwxr-xr-x  2 root      root            200 Jan 01 00:50 5
+drwxr-xr-x  2 root      root            200 Jan 01 00:11 6
+drwxr-xr-x  2 root      root            160 Jan 01 00:14 7
+drwxr-xr-x  2 root      root            160 Jan 01 00:13 8
+drwxr-xr-x  2 root      root            160 Jan 01 00:09 9
+
+/HBpersistence/SWDL/Log/service/1:
+total 6
+-rw-rw-rw-  1 root      root             47 Jan 01 00:17 DirInfo.z
+-rw-rw-rw-  1 root      root            199 Jan 01 00:17 General.z
+-rw-rw-rw-  1 root      root            976 Jan 01 00:02 PostSWDL.z
+-rw-rw-rw-  1 root      root            863 Jan 01 00:17 PreSWDL.z
+
+/HBpersistence/SWDL/Log/service/2:
+total 6
+-rw-rw-rw-  1 root      root             51 Jan 01 00:02 DirInfo.z
+-rw-rw-rw-  1 root      root            325 Jan 01 00:02 General.z
+-rw-rw-rw-  1 root      root           1008 Jan 01 00:01 PostSWDL.z
+-rw-rw-rw-  1 root      root            833 Jan 01 00:02 PreSWDL.z
+
+/HBpersistence/SWDL/Log/service/3:
+total 8
+-rw-rw-rw-  1 root      root             47 Jan 01 00:49 DirInfo.z
+-rw-rw-rw-  1 root      root            199 Jan 01 00:49 General.z
+-rw-rw-rw-  1 root      root           1117 Jan 01 00:01 PostSWDL.z
+-rw-rw-rw-  1 root      root           1030 Jan 01 00:49 PreSWDL.z
+
+/HBpersistence/SWDL/Log/service/4:
+total 7
+-rw-rw-rw-  1 root      root             48 Jan 01 00:07 DirInfo.z
+-rw-rw-rw-  1 root      root            200 Jan 01 00:07 General.z
+-rw-rw-rw-  1 root      root           1143 Jan 01 00:04 PostSWDL.z
+-rw-rw-rw-  1 root      root           1024 Jan 01 00:07 PreSWDL.z
+
+/HBpersistence/SWDL/Log/service/5:
+total 8
+-rw-rw-rw-  1 root      root             51 Jan 01 00:50 DirInfo.z
+-rw-rw-rw-  1 root      root            325 Jan 01 00:50 General.z
+-rw-rw-rw-  1 root      root           1062 Jan 01 00:02 PostSWDL.z
+-rw-rw-rw-  1 root      root            914 Jan 01 00:50 PreSWDL.z
+-rw-rw-rw-  1 root      root             63 Jan 01 00:02 Unusual.z
+
+/HBpersistence/SWDL/Log/service/6:
+total 8
+-rw-rw-rw-  1 root      root             51 Jan 01 00:11 DirInfo.z
+-rw-rw-rw-  1 root      root            325 Jan 01 00:11 General.z
+-rw-rw-rw-  1 root      root           1063 Jan 01 00:02 PostSWDL.z
+-rw-rw-rw-  1 root      root            908 Jan 01 00:11 PreSWDL.z
+-rw-rw-rw-  1 root      root             78 Jan 01 00:02 Unusual.z
+
+/HBpersistence/SWDL/Log/service/7:
+total 7
+-rw-rw-rw-  1 root      root             51 Jan 01 00:14 DirInfo.z
+-rw-rw-rw-  1 root      root            325 Jan 01 00:14 General.z
+-rw-rw-rw-  1 root      root           1055 Jan 01 00:02 PostSWDL.z
+-rw-rw-rw-  1 root      root            901 Jan 01 00:14 PreSWDL.z
+
+/HBpersistence/SWDL/Log/service/8:
+total 7
+-rw-rw-rw-  1 root      root             47 Jan 01 00:13 DirInfo.z
+-rw-rw-rw-  1 root      root            199 Jan 01 00:13 General.z
+-rw-rw-rw-  1 root      root           1082 Jan 01 00:05 PostSWDL.z
+-rw-rw-rw-  1 root      root           1002 Jan 01 00:13 PreSWDL.z
+
+/HBpersistence/SWDL/Log/service/9:
+total 7
+-rw-rw-rw-  1 root      root             51 Jan 01 00:09 DirInfo.z
+-rw-rw-rw-  1 root      root            325 Jan 01 00:09 General.z
+-rw-rw-rw-  1 root      root           1043 Jan 01 00:02 PostSWDL.z
+-rw-rw-rw-  1 root      root            881 Jan 01 00:09 PreSWDL.z
+
+/HBpersistence/SWDL/Log/user:
+total 1
+drwxr-xr-x  2 root      root            160 Jan 01 00:01 1
+
+/HBpersistence/SWDL/Log/user/1:
+total 5
+-rw-rw-rw-  1 root      root             37 Jan 01 00:01 DirInfo.z
+-rw-rw-rw-  1 root      root            189 Jan 01 00:01 General.z
+-rw-rw-rw-  1 root      root            639 Jan 01 00:04 PostSWDL.z
+-rw-rw-rw-  1 root      root            511 Jan 01 00:01 PreSWDL.z
+
+/HBpersistence/SWDL/Telit:
+total 2
+-rw-rw-rw-  1 root      root             17 Jan 01 00:01 TelitDetected.txt
+-rw-rw-rw-  1 root      root              4 Jan 01 00:01 hwIndex.txt
+
+/HBpersistence/SWDL/info:
+total 4
+-rw-rw-rw-  1 root      root              9 Jan 01 00:02 IgnoreRegionVariant.txt.z
+-rw-rw-rw-  1 root      root              8 Jan 01 00:02 MuHwIndex.txt.z
+-rw-rw-rw-  1 root      root              8 Jan 01 00:02 MuRegion.txt.z
+-rw-rw-rw-  1 root      root              8 Jan 01 00:02 MuVariant.txt.z
+
+/HBpersistence/boardbook:
+total 13
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 ..
+dr-xr-xr-x  1 root      root             13 Jan 01 00:01 .info.
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 boardbook
+
+/HBpersistence/boardbook/.info.:
+total 4
+-r--r--r--  1 root      root             18 Jan 01 00:01 CD_Application
+-r--r--r--  1 root      root             24 Dec 20  2012 CD_CreationDate
+-r--r--r--  1 root      root             24 Dec 20  2012 CD_ModificationDate
+-r--r--r--  1 root      root              7 Jan 01 00:01 CD_Volume
+
+/HBpersistence/boardbook/boardbook:
+total 12
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 ..
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 en_US
+
+/HBpersistence/boardbook/boardbook/en_US:
+total 113
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 ..
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 buttons
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 css
+-r--r--r--  1 root      root           1946 Nov 14  2012 inhalt.htm
+-r--r--r--  1 root      root           2341 Dec 14  2012 inhalt_bluetooth.htm
+-r--r--r--  1 root      root           1778 Dec 20  2012 inhalt_bo.htm
+-r--r--r--  1 root      root           4286 Mar 13  2012 inhalt_climate.htm
+-r--r--r--  1 root      root           2310 Nov 27  2012 inhalt_connect.htm
+-r--r--r--  1 root      root           2874 Dec 20  2012 inhalt_media.htm
+-r--r--r--  1 root      root           2314 Nov 27  2012 inhalt_mmi.htm
+-r--r--r--  1 root      root           2309 Dec 14  2012 inhalt_navi.htm
+-r--r--r--  1 root      root           2423 Mar 13  2012 inhalt_nightvision.htm
+-r--r--r--  1 root      root           2297 Mar 13  2012 inhalt_presense.htm
+-r--r--r--  1 root      root           3545 Dec 14  2012 inhalt_sds.htm
+-r--r--r--  1 root      root           2920 Mar 13  2012 inhalt_seating.htm
+-r--r--r--  1 root      root           6506 Nov 16  2012 inhalt_structured.htm
+-r--r--r--  1 root      root           2966 Nov 16  2012 inhalt_vehicle.htm
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 pic
+dr-xr-xr-x  2 root      root           4096 Dec 20  2012 video
+
+/HBpersistence/boardbook/boardbook/en_US/buttons:
+total 34
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 ..
+-r--r--r--  1 root      root           3170 Oct 26  2011 filmrolle.png
+-r--r--r--  1 root      root           2911 Oct 26  2011 pfeil.png
+-r--r--r--  1 root      root            243 Mar 09  2012 pfeil_back.png
+-r--r--r--  1 root      root           2138 Oct 26  2011 zeile_highlight.gif
+-r--r--r--  1 root      root           1872 Oct 26  2011 zeile_highlight_fade.gif
+-r--r--r--  1 root      root           1117 Oct 26  2011 zeile_nohighlight.gif
+
+/HBpersistence/boardbook/boardbook/en_US/css:
+total 16
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 ..
+-r--r--r--  1 root      root           1558 Oct 26  2011 onboard_buttons.css
+-r--r--r--  1 root      root            228 Oct 23  2011 onboard_content.css
+-r--r--r--  1 root      root           1141 Oct 21  2011 onboard_struktur.css
+
+/HBpersistence/boardbook/boardbook/en_US/pic:
+total 98
+dr-xr-xr-x  2 root      root           2048 Dec 20  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 ..
+-r--r--r--  1 root      root           4240 Oct 22  2011 audi_connect.png
+-r--r--r--  1 root      root           2806 Oct 21  2011 bedienung.png
+-r--r--r--  1 root      root           2471 Oct 21  2011 bluetooth.png
+-r--r--r--  1 root      root           2997 Oct 21  2011 climate.png
+-r--r--r--  1 root      root           5304 Oct 22  2011 leer.png
+-r--r--r--  1 root      root           2280 Oct 21  2011 media.png
+-r--r--r--  1 root      root           2941 Oct 21  2011 mmi.png
+-r--r--r--  1 root      root           3344 Oct 21  2011 navigation.png
+-r--r--r--  1 root      root           2836 Oct 21  2011 nightvision.png
+-r--r--r--  1 root      root           2001 Oct 22  2011 presense.png
+-r--r--r--  1 root      root           3980 Oct 22  2011 sds.png
+-r--r--r--  1 root      root           2363 Oct 21  2011 seating.png
+-r--r--r--  1 root      root           2359 Oct 23  2011 speaker.png
+-r--r--r--  1 root      root             43 Apr 25  2008 trans.gif
+-r--r--r--  1 root      root           2910 Oct 21  2011 vehicle.png
+
+/HBpersistence/boardbook/boardbook/en_US/video:
+total 1123946
+dr-xr-xr-x  2 root      root           4096 Dec 20  2012 .
+dr-xr-xr-x  2 root      root           2048 Dec 14  2012 ..
+-r--r--r--  1 root      root       65210368 Mar 08  2012 10a_Audi_Presense_Basic.MPG
+-r--r--r--  1 root      root       13555712 Mar 08  2012 10b_Audi_Presense_Plus.MPG
+-r--r--r--  1 root      root       19904512 Mar 08  2012 12a_Customizing_BO_Sound_Settings.MPG
+-r--r--r--  1 root      root       13205504 Mar 08  2012 3a_Radio_Tuner.MPG
+-r--r--r--  1 root      root       31678464 Mar 08  2012 3b_Media_Jukebox_Functions.MPG
+-r--r--r--  1 root      root       13537280 Mar 08  2012 3c_Audi_Music_Interface.MPG
+-r--r--r--  1 root      root       13264896 Mar 08  2012 4a_Drive_Mode_and_Vehicle_Settings.MPG
+-r--r--r--  1 root      root       32802816 Mar 08  2012 4b_Multifunction_Steering_Wheel.MPG
+-r--r--r--  1 root      root       33665024 Mar 08  2012 4c_Audi_Head_Up_Display.MPG
+-r--r--r--  1 root      root       15546368 Mar 08  2012 6b_Voice_Recognition_Commands.MPG
+-r--r--r--  1 root      root       14100480 Mar 08  2012 6c_Voice_Recognition_Best_Practices.MPG
+-r--r--r--  1 root      root       10862592 Mar 08  2012 7a_Night_Vision_Assistant_Features.MPG
+-r--r--r--  1 root      root       15273984 Mar 08  2012 7b_Activating_Night_Vision_Assistant.MPG
+-r--r--r--  1 root      root       15364096 Mar 08  2012 8a_Activating_Automatic_Climate_Controls.MPG
+-r--r--r--  1 root      root       10256384 Mar 08  2012 8b_Additional_Climate_Control_Features.MPG
+-r--r--r--  1 root      root        8073216 Mar 08  2012 8c_Synchronizing_Climate_Zones.MPG
+-r--r--r--  1 root      root        6467584 Mar 08  2012 8d_Adjusting_Climate_Controls.MPG
+-r--r--r--  1 root      root        9050112 Mar 08  2012 8e_Activating_Heated_Ventilated_Seats.MPG
+-r--r--r--  1 root      root       21387264 Mar 08  2012 9a_Adjusting_Seats.MPG
+-r--r--r--  1 root      root       19914752 Mar 08  2012 9c_Storing_Memory_Settings.MPG
+-r--r--r--  1 root      root       11476992 Mar 08  2012 9d_Recalling_Memory_Seat_Settings.MPG
+-r--r--r--  1 root      root       38651908 Nov 28  2012 C7_MMI_Bluetooth.MPG
+-r--r--r--  1 root      root       37564420 Nov 28  2012 C7_MMI_Navigation.MPG
+-r--r--r--  1 root      root       26535940 Nov 28  2012 C7_Setup_Audi_connect.MPG
+-r--r--r--  1 root      root       30007300 Nov 28  2012 C7_Using_Audi_connect.MPG
+-r--r--r--  1 root      root       24082436 Nov 28  2012 C7_VR_Navigation.MPG
+-r--r--r--  1 root      root       24010756 Nov 28  2012 C7_VR_Phone.MPG
+
+/HBpersistence/bundledata:
+total 0
+
+/HBpersistence/imageInfo:
+total 1
+-rwxrwxrwx  1 root      root             64 May 24  2012 efs-persist-info.txt
+
+/HBpersistence/mnt:
+total 1
+drwxrwxr-x  4 root      root             76 May 24  2012 efs-persist
+
+/HBpersistence/mnt/efs-persist:
+total 2
+drwxrwxr-x  2 root      root             52 May 24  2012 imageInfo
+drwxrwxr-x  2 root      root             52 May 24  2012 version
+
+/HBpersistence/mnt/efs-persist/imageInfo:
+total 1
+-r--r--r--  1 root      root             64 May 24  2012 efs-persist-info.txt
+
+/HBpersistence/mnt/efs-persist/version:
+total 1
+-r--r--r--  1 root      root             28 May 24  2012 efs-persist-version.txt
+
+/HBpersistence/navi:
+total 4
+drwxr-xr-x  2 root      root            536 Jan 01 00:00 db
+drwxr-xr-x  2 root      root             72 Jan 01 00:00 flash
+drwxr-xr-x  2 root      root             44 Jan 01 00:00 nobss
+
+/HBpersistence/navi/db:
+total 12
+lrwxrwxrwx  1 root      root             52 Jan 01 00:00 MMI3G_MapArchive.xar -> /database/map/styles/02/MMI3G_MapArchive_H_06_02.xar
+lrwxrwxrwx  1 root      root             41 Jan 01 00:00 SDS.iso -> /mnt/nav/db/pkgdb/SDS3GP_NAR/SDS_Data.iso
+-rw-rw-rw-  1 root      root           1048 Jan 01 00:00 acios_db.ini
+-rw-rw-rw-  1 root      root            783 Jan 01 00:00 clearLastCityHistory.sh
+-rw-rw-rw-  1 root      root              5 Jan 01 00:00 clearLastCityHistory.sh.SWDL.compatibility.txt
+-rw-rw-rw-  1 root      root             10 Jan 01 00:00 clearLastCityHistory.sh.SWDL.version.txt
+-rw-rw-rw-  1 root      root            413 Jan 01 00:00 clearLastCityHistory.xml
+-rw-rw-rw-  1 root      root              5 Jan 01 00:00 clearLastCityHistory.xml.SWDL.compatibility.txt
+-rw-rw-rw-  1 root      root             10 Jan 01 00:00 clearLastCityHistory.xml.SWDL.version.txt
+
+/HBpersistence/navi/flash:
+total 2
+-rw-------  1 root      root              8 Jan 01 00:04 5247
+-rw-------  1 root      root             76 Jan 01 00:00 5343
+
+/HBpersistence/navi/nobss:
+total 86
+-rw-rw-rw-  1 root      root          44000 Jan 01 00:23 AUDIMMI3G.swap
+
+/HBpersistence/syslog:
+total 13
+drwxr-xr-x  2 root      root            168 Jan 01 00:00 core
+drwxr-xr-x  2 root      root            760 Jan 01 00:00 errlog
+drwxr-xr-x  2 root      root           2352 Jan 01 00:00 irc
+-rwxrwxrwx  1 root      root            671 Jan 01 00:00 sqlite_import_1970-01-01_00.00.06.txt
+-rwxrwxrwx  1 root      root           1107 Jan 01 00:00 sqlite_import_1970-01-01_00.00.07.txt
+
+/HBpersistence/syslog/core:
+total 571
+-rw-r--r--  1 root      root         138495 Jan 01 00:01 WDWARN_MMI3GApplication.core.gz
+-rw-r--r--  1 root      root          97437 Jan 01 00:01 WDWARN_MMI3GNavigation.core.gz
+-rw-r--r--  1 root      root          55331 Jan 01 00:56 gemmi_final.core.gz
+
+/HBpersistence/syslog/errlog:
+total 1496
+-rw-rw-rw-  1 root      root          38651 Jan 01 00:29 error_1000623-001.zip
+-rw-rw-rw-  1 root      root          20312 Jan 01 00:01 error_1004082-001.zip
+-rw-rw-rw-  1 root      root          40984 Jan 01 01:09 hb_core_dump_20180106_225648.log.gz
+-rw-rw-rw-  1 root      root          49849 Jan 01 00:56 hb_core_dump_20181222_085038.log.gz
+-rw-rw-rw-  1 root      root          17624 Jan 01 00:01 hb_hl_warn_20161014_142614.log.gz
+-rw-rw-rw-  1 root      root          14202 Jan 01 00:01 hb_hl_warn_20170927_132119.log.gz
+-rw-rw-rw-  1 root      root         139900 Jan 01 00:01 hb_hl_warn_KT_20161014_142615.log.gz
+-rw-rw-rw-  1 root      root         135423 Jan 01 00:01 hb_hl_warn_KT_20170927_132120.log.gz
+-rw-rw-rw-  1 root      root          21640 Jan 01 00:01 hb_wd_warn_20251126_130825.log.gz
+-rw-rw-rw-  1 root      root              0 Jan 01 00:02 hb_wd_warn_20251126_130935.log.gz
+-rw-rw-rw-  1 root      root         143701 Jan 01 00:01 hb_wd_warn_KT_20170927_132053.log.gz
+-rw-rw-rw-  1 root      root         140520 Jan 01 00:01 hb_wd_warn_KT_20251126_130835.log.gz
+
+/HBpersistence/syslog/irc:
+total 1259
+-rw-r--r--  1 root      root         144523 Jan 01 00:27 Audio
+-rw-r--r--  1 root      root          13555 Jan 01 00:00 Audio_1
+-rw-r--r--  1 root      root            189 Jan 01 00:27 BTDevices
+-rw-r--r--  1 root      root             88 Jan 01 00:00 BTDevices_1
+-rw-r--r--  1 root      root             92 Jan 01 00:27 BTFIX
+-rw-r--r--  1 root      root             92 Jan 01 00:00 BTFIX_1
+-rw-r--r--  1 root      root            473 Jan 01 00:27 DRIVE
+-rw-r--r--  1 root      root            448 Jan 01 00:00 DRIVE_1
+-rw-r--r--  1 root      root           3888 Jan 01 00:27 Diagnosis
+-rw-r--r--  1 root      root           2667 Jan 01 00:00 Diagnosis_1
+-rw-r--r--  1 root      root           2125 Jan 01 01:11 Display
+-rw-r--r--  1 root      root             88 Jan 01 00:00 Display_1
+-rw-r--r--  1 root      root           6521 Jan 01 00:27 ENV
+-rw-r--r--  1 root      root           1281 Jan 01 00:00 ENV_1
+-rw-r--r--  1 root      root             43 Jan 01 00:01 Exception
+-rw-r--r--  1 root      root            445 Jan 01 00:17 GeneralPhonebook
+-rw-r--r--  1 root      root          28021 Jan 01 00:27 KeyBoard
+-rw-r--r--  1 root      root          11207 Jan 01 00:00 KeyBoard_1
+-rw-r--r--  1 root      root          24675 Jan 01 00:27 MAPINFO
+-rw-r--r--  1 root      root           8000 Jan 01 00:00 MAPINFO_1
+-rw-r--r--  1 root      root            563 Jan 01 00:02 MEDIA
+-rw-r--r--  1 root      root            104 Jan 01 00:00 MEDIA_1
+-rw-r--r--  1 root      root          95034 Jan 01 00:02 MOST
+-rw-r--r--  1 root      root          52425 Jan 01 00:00 MOST_1
+-rw-r--r--  1 root      root          54024 Jan 01 00:02 Memory
+-rw-r--r--  1 root      root           6891 Jan 01 00:00 Memory_1
+-rw-r--r--  1 root      root            238 Jan 01 00:01 Misc
+-rw-r--r--  1 root      root           3025 Jan 01 00:02 Misc_RU
+-rw-r--r--  1 root      root           3087 Jan 01 00:00 Misc_RU_1
+-rw-r--r--  1 root      root           1978 Jan 01 00:27 MostNavGuide
+-rw-r--r--  1 root      root            678 Jan 01 00:00 MostNavGuide_1
+-rw-r--r--  1 root      root          10197 Jan 01 00:27 NAV
+-rw-r--r--  1 root      root          10312 Jan 01 00:00 NAV_1
+-rw-r--r--  1 root      root          60713 Jan 01 00:18 OnOff
+-rw-r--r--  1 root      root          23072 Jan 01 00:00 OnOff_1
+-rw-r--r--  1 root      root           3895 Jan 01 00:27 OnOff_RU
+-rw-r--r--  1 root      root           1701 Jan 01 00:00 OnOff_RU_1
+-rw-r--r--  1 root      root            621 Jan 01 00:27 PSD
+-rw-r--r--  1 root      root            219 Jan 01 00:00 PSD_1
+-rw-r--r--  1 root      root          18023 Jan 01 00:18 Panel
+-rw-r--r--  1 root      root           4613 Jan 01 00:00 Panel_1
+-rw-r--r--  1 root      root           1120 Jan 01 00:02 SD
+-rw-r--r--  1 root      root            526 Jan 01 00:00 SD_1
+-rw-r--r--  1 root      root             93 Jan 01 00:18 SETTINGS
+-rw-r--r--  1 root      root             93 Jan 01 00:00 SETTINGS_1
+-rw-r--r--  1 root      root             50 Jan 01 00:27 SysConfig
+-rw-r--r--  1 root      root             50 Jan 01 00:00 SysConfig_1
+-rw-r--r--  1 root      root             41 Jan 01 00:27 TELFIX
+-rw-r--r--  1 root      root             41 Jan 01 00:00 TELFIX_1
+-rw-r--r--  1 root      root             29 Jan 01 00:00 TRIGGER
+-rw-r--r--  1 root      root             29 Jan 01 00:00 TRIGGER_1
+-rw-r--r--  1 root      root            163 Jan 01 00:27 TUNER_HW_RU
+-rw-r--r--  1 root      root            163 Jan 01 00:00 TUNER_HW_RU_1
+-rw-r--r--  1 root      root           7959 Jan 01 00:18 Timer
+-rw-r--r--  1 root      root           1015 Jan 01 00:00 Timer_1
+-rw-r--r--  1 root      root           7962 Jan 01 00:27 Timer_RU
+-rw-r--r--  1 root      root           1607 Jan 01 00:00 Timer_RU_1
+-rw-r--r--  1 root      root           1721 Jan 01 00:18 USB
+-rw-r--r--  1 root      root           1585 Jan 01 00:00 USB_1
+-rw-r--r--  1 root      root            188 Jan 01 00:01 WatchDog
+-rw-r--r--  1 root      root             32 Jan 01 00:00 WatchDog_RU
+-rw-r--r--  1 root      root             32 Jan 01 00:00 WatchDog_RU_1
+
+/HBpersistence/version:
+total 1
+-rwxrwxrwx  1 root      root             28 May 24  2012 efs-persist-version.txt

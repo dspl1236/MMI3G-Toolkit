@@ -1,0 +1,4 @@
+#description file for database
+PartNumber="8R0060884JE" # mandatory 11 characters 
+ApplicationSoftwareVersionNumber="2400" # mandatory 4 characters 
+SystemName="NAR 2021/2022" # mandatory 13 characters

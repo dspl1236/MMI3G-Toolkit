@@ -1,0 +1,200 @@
+Time             Sev Major Minor Args
+Jan 01 00:00:00    6 20000     0 Option -u is active! APS is disabled!
+Jan 01 00:00:00    6 20000     0 
+Service Starter QNX - Process launch manager (version core 4.2.23)
+
+Jan 01 00:00:00    6 20000     0 Config FilePath = "/etc/mmi3g-srv-starter.cfg"
+Jan 01 00:00:00    6 20000     0 Package [00]: 'POST_STARTING' 'PCI'
+Jan 01 00:00:00    6 20000     0 Package [01]: 'POST_STARTING' 'DEV_SER8250'
+Jan 01 00:00:00    6 20000     0 Package [02]: 'POST_STARTING' 'MANAGE_HD'
+Jan 01 00:00:00    6 20000     0 Package [05]: 'POST_STARTING' 'LINKS_1'
+Jan 01 00:00:00    6 20000     0 Package [11]: 'POST_STARTING' 'GRAPHICS_BASIC'
+Jan 01 00:00:00    6 20000     0 Package [12]: 'POST_STARTING' 'COMMON'
+Jan 01 00:00:00    6 20000     0 Package [26]: 'RUN' 'START_TRACKER'
+Jan 01 00:00:00    6 20000     0 Package [29]: 'POST_STARTING' 'MONITORING'
+Jan 01 00:00:00    6 20000     0 Process[46]: 'POST_STARTING' '/usr/bin/pci-sh7785'
+Jan 01 00:00:00    6 20000     0 Process[11]: 'PRE_STARTING' '/usr/bin/devc-ser8250hb'
+Jan 01 00:00:00    5    17     0 /usr/bin/pci-sh7785: PL_qnx_pci-sh7785_07285A, built 2007/07/13_14-34-49_UTC
+Jan 01 00:00:00    5    17     0 CPU detected: SH7785 (>= 5th cut)
+Jan 01 00:00:00    3    17     0 PCI: PCILTM override=0x20
+Jan 01 00:00:00    5    17     0 PCI IRQ slot 0  0:0
+Jan 01 00:00:00    5    17     0 PCI IRQ slot 1  0:24
+Jan 01 00:00:00    5    17     0 PCI IRQ slot 2  0:10 1:10 2:10
+Jan 01 00:00:00    5    17     0 PCI IRQ slot 4  0:4
+Jan 01 00:00:00    6 20000     0 Process[38]: 'POST_STARTING' '/usr/bin/start_hddmgr.sh'
+Jan 01 00:00:00    6 20000     0 Process[82]: 'RUN' '/bin/lnAll'
+Jan 01 00:00:00    6 20000     0 Process[99]: 'PRE_STARTING' '/bin/runAMRController.sh'
+Jan 01 00:00:00    6 20000     0 Process[66]: 'PRE_STARTING' '/sbin/NvElfLoader'
+Jan 01 00:00:00    6 20000     0 Process[14]: 'PRE_STARTING' '/usr/bin/devg-NVMiniRM'
+Jan 01 00:00:00    6 20000     0 Process[68]: 'PRE_STARTING' '/usr/bin/GPIOSet'
+Jan 01 00:00:00    6 20000     0 Process[67]: 'PRE_STARTING' '/usr/bin/devg-NVTS'
+Jan 01 00:00:00    6 20000     0 Process[21]: 'PRE_STARTING' '/sbin/io-media-nvidia'
+Jan 01 00:00:00    6 20000     0 Process[19]: 'PRE_STARTING' '/usr/sbin/io-display'
+Jan 01 00:00:00    6 20000     0 Process[73]: 'PRE_STARTING' '/usr/bin/devg-NVMEM'
+Jan 01 00:00:00    6 20000     0 Process[18]: 'PRE_STARTING' '/usr/sbin/io-audio'
+Jan 01 00:00:00    6 20000     0 Process[05]: 'PRE_STARTING' '/usr/bin/dev-nvram'
+Jan 01 00:00:00    6 20000     0 Process[53]: 'PRE_STARTING' '/usr/bin/ndr'
+Jan 01 00:00:00    6 20000     0 Process[08]: 'PRE_STARTING' '/usr/bin/devb-eide-hbfpga'
+Jan 01 00:00:00    6 20000     0 Process[47]: 'PRE_STARTING' '/sbin/pipe'
+Jan 01 00:00:00    6 20000     0 Process[95]: 'RUN' '/usr/bin/servicebroker'
+Jan 01 00:00:00    6 20000     0 Process[75]: 'RUN' '/usr/bin/checkFreeMem'
+Jan 01 00:00:00    6 20000     0 Process[100]: 'PRE_STARTING' '/usr/bin/usbcheck'
+Jan 01 00:00:00    6 20000     0 Process[82]: 'STOP' '/bin/lnAll'
+Jan 01 00:00:00    5    17     0 RAM @08000000..0fffffff
+Jan 01 00:00:00    6 20000     0 Interface [87]: 'AVAIL' '/mnt/sss'
+Jan 01 00:00:00    5    17     0 RAM @40000000..47ffffff
+Jan 01 00:00:00    5    17     0 RAM @50000000..5dbfffff
+Jan 01 00:00:00    5    17     0 total RAM: 476MB
+Jan 01 00:00:00    4    17     0 PCILTM initialized to 0x20
+Jan 01 00:00:00    4    17     0 PCICR initialized to 0xe40<PFCS,FTO,PFE,BMAM>
+Jan 01 00:00:00    5    17     0 PCI: scan for devices
+Jan 01 00:00:00    5    17     0 PCI: 0.0 vid:10ee did:9411
+Jan 01 00:00:00    5    17     0 PCI: 1.0 vid:10de did:0187
+Jan 01 00:00:00    5    17     0 PCI: 2.0 vid:1131 did:1561
+Jan 01 00:00:00    5    17     0 PCI: 2.1 vid:1131 did:1561
+Jan 01 00:00:00    5    17     0 PCI: 2.2 vid:1131 did:1562
+Jan 01 00:00:00    5    17     0 PCI: 4.0 vid:104c did:9065
+Jan 01 00:00:00    5    17     0 PCI: allocate memory and I/O
+Jan 01 00:00:00    5    17     0 PCI: 4:0:2 addr:001ff000 size:00000010 I/O
+Jan 01 00:00:00    5    17     0 PCI: 0:0:0 addr:c0000000 size:08000000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 1:0:1 addr:d8000000 size:08000000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 1:0:0 addr:d7000000 size:01000000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 4:0:1 addr:d6800000 size:00800000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 4:0:0 addr:d6400000 size:00400000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 2:0:0 addr:d63ff000 size:00001000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 2:1:0 addr:d63fe000 size:00001000 MEM
+Jan 01 00:00:00    5    17     0 PCI: 2:2:0 addr:d63fd000 size:00000100 MEM
+Jan 01 00:00:00    5    17     0 PCI: configure latency timers
+Jan 01 00:00:00    5    17     0 PCI error monitor thread starting ...
+Jan 01 00:00:00    5    17     0 reserve_resource: Start c0000000 - End dfffffff - Name pcimemory/Bus0
+Jan 01 00:00:00    5    17     0 reserve_resource: Start fe200000 - End fe3fffff - Name io/Bus0
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 0 - Function 0 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 10ee Device 9411 Index 0 ClassCode 78000
+Jan 01 00:00:00    5    17     0 MEM c0000000 8000000 
+Jan 01 00:00:00    5    17     0 MEM c0000000 8000000
+Jan 01 00:00:00    5    17     0 No. Host bridges 1 - Class 78000
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 0 - Function 0 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 10ee Device 9411 Index 1 ClassCode 78000
+Jan 01 00:00:00    5    17     0 MEM c0000000 8000000 
+Jan 01 00:00:00    2    17     0 scan_windows: Alloc failed c0000000 - Size 8000000
+Jan 01 00:00:00    5    17     0 MEM c0000000 8000000
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 1 - Function 0 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 10de Device 187 Index 0 ClassCode 30000
+Jan 01 00:00:00    5    17     0 Min_Gnt = 0x5 - Max_Lat = 0x1 - Bandwidth = 0x14fb180
+Jan 01 00:00:00    5    17     0 MEM d7000000 1000000 
+Jan 01 00:00:00    5    17     0 MEM d8000000 8000000 pref
+Jan 01 00:00:00    3    17     0 Range check failed (ROM) - Dev 187 - Vend 10de - Class 30000 - Addr 0 - Size 20000
+Jan 01 00:00:00    5    17     0 ROM 0 - 20000
+Jan 01 00:00:00    5    17     0 MEM d7000000 1000000
+Jan 01 00:00:00    5    17     0 MEM d8000000 8000000
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 2 - Function 0 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 1131 Device 1561 Index 0 ClassCode c0310
+Jan 01 00:00:00    5    17     0 Min_Gnt = 0x1 - Max_Lat = 0x2a - Bandwidth = 0x120da39
+Jan 01 00:00:00    5    17     0 MEM d63ff000 1000 
+Jan 01 00:00:00    5    17     0 MEM d63ff000 1000
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 2 - Function 1 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 1131 Device 1561 Index 1 ClassCode c0310
+Jan 01 00:00:00    5    17     0 Min_Gnt = 0x1 - Max_Lat = 0x2a - Bandwidth = 0xf202f2
+Jan 01 00:00:00    5    17     0 MEM d63fe000 1000 
+Jan 01 00:00:00    5    17     0 MEM d63fe000 1000
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 2 - Function 2 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 1131 Device 1562 Index 0 ClassCode c0320
+Jan 01 00:00:00    5    17     0 Min_Gnt = 0x2 - Max_Lat = 0x10 - Bandwidth = 0x123748
+Jan 01 00:00:00    5    17     0 MEM d63fd000 100 
+Jan 01 00:00:00    5    17     0 MEM d63fd000 100
+Jan 01 00:00:00    5    17     0 scan_device: Bus 0 - Device 4 - Function 0 - SecBus 0
+Jan 01 00:00:00    5    17     0 Vendor 104c Device 9065 Index 0 ClassCode 0
+Jan 01 00:00:00    5    17     0 MEM d6400000 400000 pref
+Jan 01 00:00:00    5    17     0 MEM d6800000 800000 
+Jan 01 00:00:00    5    17     0 IO 1ff000 10
+Jan 01 00:00:00    5    17     0 MEM d6400000 400000
+Jan 01 00:00:00    5    17     0 MEM d6800000 800000
+Jan 01 00:00:00    5    17     0 IO fe3ff000 10
+Jan 01 00:00:00    5    17     0 Map 80580a0 - Next 0 - Prev 0 - Peer 0
+Jan 01 00:00:00    5    17     0 Prim 0 - Sec 0 - Sub 1
+Jan 01 00:00:00    5    17     0 io_open for id = 20003
+Jan 01 00:00:00    5    17     0 io_close_ocb
+Jan 01 00:00:00    6 20000     0 Interface [19]: 'AVAIL' '/dev/pci'
+Jan 01 00:00:00    6 20000     0 Process[46]: 'RUN' '/usr/bin/pci-sh7785'
+Jan 01 00:00:00    6 20000     0 Package [00]: 'RUN' 'PCI'
+Jan 01 00:00:01    5    17     0 io_open for id = 3
+Jan 01 00:00:01    5    17     0 io_close_ocb
+Jan 01 00:00:01    6 20000     0 Process[66]: 'POST_STARTING' '/sbin/NvElfLoader'
+Jan 01 00:00:01    5    17     0 io_open for id = 3
+Jan 01 00:00:01    6 20000     0 Process[14]: 'POST_STARTING' '/usr/bin/devg-NVMiniRM'
+Jan 01 00:00:01    6 20000     0 Process[73]: 'POST_STARTING' '/usr/bin/devg-NVMEM'
+Jan 01 00:00:01    6 20000     0 Process[08]: 'POST_STARTING' '/usr/bin/devb-eide-hbfpga'
+Jan 01 00:00:01    2    19     0 devb-eide-hbfpga 1.00A (Apr  1 2011 16:58:26)
+Jan 01 00:00:01    6 20000     0 Process[47]: 'POST_STARTING' '/sbin/pipe'
+Jan 01 00:00:01    6 20000     0 Package [03]: 'POST_STARTING' 'MANAGE_CD'
+Jan 01 00:00:01    6 20000     0 Package [09]: 'POST_STARTING' 'ROOT'
+Jan 01 00:00:01    6 20000     0 Package [10]: 'POST_STARTING' 'MV2_APP'
+Jan 01 00:00:01    6 20000     0 Package [18]: 'POST_STARTING' 'GRAPHICS_EARLY_APP'
+Jan 01 00:00:01    6 20000     0 Interface [75]: 'AVAIL' '/dev/shmem/nvdsploader.finished'
+Jan 01 00:00:01    6 20000     0 Process[66]: 'RUN' '/sbin/NvElfLoader'
+Jan 01 00:00:01    6 20000     0 Process[37]: 'PRE_STARTING' '/usr/bin/manage_cd.sh'
+Jan 01 00:00:01    2 981710     0 NVRM: clkGetAttr: Attr 19 space not allocated for Clk(0). Returning 0.
+
+Jan 01 00:00:01    2     5     0 libcam.so (Sep  7 2012 14:42:53) bver 42000017
+Jan 01 00:00:01    2 981710     0 NVRM: bifInit_NV04: Detected native AGP GPU & AGP bus Interface - Unsupported Configuration
+
+Jan 01 00:00:01    6 20000     0 Process[39]: 'RUN' '/usr/sbin/mcd'
+Jan 01 00:00:01    2 981710     0 NVRM: CAUTION:: TMDS PLL is not powered during TMDS access, turning it ON
+
+Jan 01 00:00:01    5    17     0 io_open for id = 4
+Jan 01 00:00:01    2    19     0 hbfpga_init:  XSYS Coreversion=08072501
+Jan 01 00:00:01    2    19     0 hbfpga_init:  CPPM module at 0x00004000
+Jan 01 00:00:01    2    19     0 hbfpga_init:  CSS module at 0x00008000
+Jan 01 00:00:01    2    19     0 hbfpga_init:  XSYS Coreversion=08072501
+Jan 01 00:00:01    2 981710     0 POST: PostChip()#1720 freq = 20000, doubleFlag=0, freqIndex=7
+
+Jan 01 00:00:01    5    23     0 /fs/avrcp0 notification via callout PATH_MEDIA_PROCMGR
+Jan 01 00:00:01    5    23     0 /dev/cd0 notification via callout CD_MEDIA_IOBLK
+Jan 01 00:00:01    6 20000     0 Process[03]: 'POST_STARTING' '/usr/bin/dev-ipc'
+Jan 01 00:00:01    5    23     0 /mnt/umass* notification via callout PATH_MEDIA_PROCMGR
+Jan 01 00:00:01    2 981710     0 POST: PostChip()#1785 freq = 39000, doubleFlag=1, freqIndex=7
+
+Jan 01 00:00:01    5    23     0 /mnt/sdcard1* notification via callout PATH_MEDIA_PROCMGR
+Jan 01 00:00:01    5    23     0 /mnt/sdcard2* notification via callout PATH_MEDIA_PROCMGR
+[pcidma] rsrcdbmgr_attach(0xb) failed: Invalid argument [IGNORED]
+Jan 01 00:00:01    5    17     0 io_open for id = 5
+Jan 01 00:00:01    2 981710     0  InbDlyInitial = 0x7a7a7a7a
+
+Jan 01 00:00:01    2 981710     0  InbDqsDlyInitial = 0xc0c0c0c, InbDataDlyInitial = 0x2020202
+
+Jan 01 00:00:01    2 981710     0  InbDqsDlyHashed = 0x8080808, InbDataDlyHashed = 0x2020202
+
+Jan 01 00:00:01    2 981710     0  pDrvSlwParms->InbCombinedDlyInitial = 0xa0a0a0a, pBiosDrvSlwParms->InbCombinedDlySlow = 0x1e1e1e1e
+
+Jan 01 00:00:01    2 981710     0  pDrvSlwParms->InbCombinedDlySlowAvg = 0x8080808
+
+Jan 01 00:00:01    6 10000     0 GPU: 130880K, GPU_maxAlloc: 130880K
+Jan 01 00:00:01    6 20000     0 Process[06]: 'POST_STARTING' '/usr/bin/dev-sysregs'
+Jan 01 00:00:01    6 20000     0 Process[27]: 'PRE_STARTING' '/usr/bin/ipc-test'
+Jan 01 00:00:01    5 20001     1 dev-sysregs: process started PID=0x0000D014
+Jan 01 00:00:01    5 20001     0 dev-sysregs: Label: PL_qnx_dev-sysregs_09521A QNX: RL_qnx_632_PSP3_09502A Built: 2009/12/21_16-15-48_UTC
+Jan 01 00:00:01    5    17     0 io_open for id = 6
+Jan 01 00:00:01    4 10000     0 [pcidma] PL_qnx_pcidma_FMod08363A_09274A, built 2009/07/02_11-10-37_UTC
+Jan 01 00:00:01    6 20000     0 Process[20]: 'POST_STARTING' '/sbin/io-pkt-v4-hc'
+Jan 01 00:00:01    6 20000     0 Process[01]: 'PRE_STARTING' '/usr/bin/mount_mam0.sh'
+Jan 01 00:00:01    5    14     0 tcpip starting
+Jan 01 00:00:01    5    17     0 io_open for id = 10007
+Jan 01 00:00:01    3    14     0 Using pseudo random generator.  See "random" option
+Jan 01 00:00:01    5    14     0 initializing IPsec... done
+Jan 01 00:00:01    5    14     0 IPsec: Initialized Security Association Processing.
+Jan 01 00:00:01    6 20000     0 Process[45]: 'POST_STARTING' '/usr/bin/multicored'
+Jan 01 00:00:01    6 20000     0 Process[59]: 'PRE_STARTING' '/usr/bin/vdev-flexgps'
+Jan 01 00:00:01    5 20001     0 multicored [000000001.782]:version 4.6.d, verbosity 1 (supported 4), scope 0x00000001, console: /dev/ser1 (fd=3), FILE_LOGGING, TESTCONTROL, DYNAMIC_LOAD
+
+Jan 01 00:00:01    5 20001     0 multicored [000000001.786]:using 750 buffers of size 1460 (total  1095000 bytes)
+
+Jan 01 00:00:01    6 20000     0 Process[00]: 'RUN' '/usr/apps/dev-irc'
+Jan 01 00:00:01    5 20001     0 multicored [000000001.823]:version 4.6.d, verbosity 2 (supported 4), scope 0x00000001, console: /dev/ser1 (fd=3), FILE_LOGGING, TESTCONTROL, DYNAMIC_LOAD
+
+Jan 01 00:00:01    5 20001     0 multicored [000000001.844]:udp: broadcaster created
+
+Jan 01 00:00:01    6 20000     0 Process[98]: 'RUN' '/usr/bin/pintest'
+Jan 01 00:00:01    5 20001     0 multicored [000000001.888]:attached to filesystem at /hbsystem/multicore, port 851
+
+Jan 01 00:00:01    5 20001     0 multicored [000000001.923]:MACHINE:SH(1), total MEM 499122176, 1: 271582976 SH7785 (SH4A) 792MHz, FPU
+

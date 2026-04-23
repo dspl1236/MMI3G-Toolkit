@@ -1,0 +1,18 @@
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 33192
+	inet 127.0.0.1 netmask 0xff000000
+pflog0: flags=100<PROMISC> mtu 33192
+mam0: flags=843<UP,BROADCAST,RUNNING,SIMPLEX> mtu 1008
+	address: 00:00:00:00:01:00
+	inet 10.0.0.100 netmask 0xffffff00 broadcast 10.0.0.255
+mhp0: flags=842<BROADCAST,RUNNING,SIMPLEX> mtu 1500
+	address: 00:00:00:00:01:00
+en5: flags=80008a43<UP,BROADCAST,RUNNING,ALLMULTI,SIMPLEX,MULTICAST,SHIM> mtu 1500
+	address: 00:0e:c6:06:44:1d
+	media: Ethernet 10baseT full-duplex
+	status: active
+	inet 192.168.0.154 netmask 0xffffff00 broadcast 192.168.0.255
+uap0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	address: 00:1c:d7:43:72:86
+	media: <unknown type> autoselect
+	inet 192.168.1.1 netmask 0xffffff00 broadcast 192.168.1.255
+	link 00:00:00:00:00:00
