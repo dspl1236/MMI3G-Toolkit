@@ -256,7 +256,8 @@ function generateRunSh(selected, manifest, overrides) {
 
     lines.push(`# --- Module: ${modName} ---`);
     lines.push(`echo "[MODULE] Installing ${modName}..."`);
-
+    // Re-mount EFS rw (standalone modules may trigger F3S reclaim)
+    lines.push('mount -uw ${EFSDIR} 2>/dev/null');
     if (meta.standalone && meta.run_script) {
       const runScript = overrides[modName] || meta.run_script;
       lines.push(`if [ -f "\${SDPATH}/scripts/${runScript}" ]; then`);

@@ -404,6 +404,8 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         meta = modules[mod_name]
         lines.append(f'# --- Module: {mod_name} ---')
         lines.append(f'echo "[MODULE] Installing {mod_name}..."')
+        # Re-mount EFS rw (standalone modules may trigger F3S reclaim)
+        lines.append('mount -uw ${EFSDIR} 2>/dev/null')
 
         # Check if module has a standalone run script
         # (e.g. gem-activator runs its own install logic)
