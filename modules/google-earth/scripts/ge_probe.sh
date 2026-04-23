@@ -121,20 +121,32 @@ echo "================================================================"
 echo ""
 
 DRIVERS_INI="/mnt/efs-system/lsd/drivers.ini"
-if [ -f "$DRIVERS_INI" ]; then
-    echo "[FOUND] $DRIVERS_INI"
-    cat "$DRIVERS_INI"
-    echo ""
-    
-    # Check for disableAuthKey
-    if grep -q "disableAuthKey" "$DRIVERS_INI" 2>/dev/null; then
-        echo "[INFO] disableAuthKey already present in drivers.ini"
-    else
-        echo "[INFO] disableAuthKey NOT in drivers.ini"
-        echo "[INFO] Adding disableAuthKey may bypass Google auth check"
+DRIVERS_INI_GEMMI="/mnt/nav/gemmi/drivers.ini"
+
+# Check both locations — EFS copy and GEMMI copy
+FOUND_INI=""
+for _ini in "$DRIVERS_INI" "$DRIVERS_INI_GEMMI"; do
+    if [ -f "$_ini" ]; then
+        FOUND_INI="$_ini"
+        echo "[FOUND] $_ini"
+        cat "$_ini"
+        echo ""
+
+        # Check for disableAuthKey
+        if grep -q "disableAuthKey" "$_ini" 2>/dev/null; then
+            echo "[INFO] disableAuthKey PRESENT in $_ini"
+        else
+            echo "[INFO] disableAuthKey NOT in $_ini"
+        fi
+        echo ""
     fi
-else
-    echo "[WARN] drivers.ini not found at $DRIVERS_INI"
+done
+
+if [ -z "$FOUND_INI" ]; then
+    echo "[WARN] drivers.ini not found at either:"
+    echo "       $DRIVERS_INI"
+    echo "       $DRIVERS_INI_GEMMI"
+    FOUND_INI="MISSING"
 fi
 echo ""
 
@@ -326,8 +338,8 @@ echo "#  Summary"
 echo "################################################################"
 echo ""
 echo "GEMMI binaries:     $([ $GEMMI_FOUND -eq 1 ] && echo 'PRESENT' || echo 'NOT FOUND')"
-echo "drivers.ini:        $([ -f "$DRIVERS_INI" ] && echo 'PRESENT' || echo 'MISSING')"
-echo "disableAuthKey:     $(grep -q disableAuthKey "$DRIVERS_INI" 2>/dev/null && echo 'SET' || echo 'NOT SET')"
+echo "drivers.ini:        $([ -n "$FOUND_INI" ] && [ "$FOUND_INI" != "MISSING" ] && echo "PRESENT ($FOUND_INI)" || echo 'MISSING')"
+echo "disableAuthKey:     $(grep -q disableAuthKey "$FOUND_INI" 2>/dev/null && echo 'SET' || echo 'NOT SET')"
 echo "Internet (en5):     $(ifconfig en5 2>/dev/null | grep -q inet && echo 'CONNECTED' || echo 'NOT CONNECTED')"
 echo "gemmi_final:        $([ -n "$GEMMI_PID" ] && echo 'RUNNING' || echo 'STOPPED')"
 echo "Variant:            ${MMI_VARIANT:-unknown} (${MMI_VARIANT_ID:-?})"

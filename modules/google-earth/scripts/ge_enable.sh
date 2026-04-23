@@ -61,6 +61,10 @@ echo "============================================"
 echo ""
 
 DRIVERS_INI="/mnt/efs-system/lsd/drivers.ini"
+# GEMMI reads its own drivers.ini — check there too
+if [ ! -f "$DRIVERS_INI" ] && [ -f "/mnt/nav/gemmi/drivers.ini" ]; then
+    DRIVERS_INI="/mnt/nav/gemmi/drivers.ini"
+fi
 EFSDIR="/mnt/efs-system"
 CHANGES=0
 

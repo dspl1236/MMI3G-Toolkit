@@ -37,6 +37,10 @@ mkdir -p "${BACKUP}" 2>/dev/null
 
 EFSDIR="/mnt/efs-system"
 DRIVERS_INI="${EFSDIR}/lsd/drivers.ini"
+# GEMMI reads its own drivers.ini — check there too
+if [ ! -f "$DRIVERS_INI" ] && [ -f "/mnt/nav/gemmi/drivers.ini" ]; then
+    DRIVERS_INI="/mnt/nav/gemmi/drivers.ini"
+fi
 GEMMI_TARGET="/mnt/nav/gemmi"
 
 # Show status

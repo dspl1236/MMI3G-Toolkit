@@ -99,6 +99,16 @@ else
     echo "[OK]    Port 2323 not in inetd.conf (already clean)"
 fi
 
+echo "[ACTI]  Restoring root password..."
+SHADOW_EFS="/mnt/efs-system/etc/shadow"
+SHADOW_ORIG="${SHADOW_EFS}-orig"
+if [ -f "$SHADOW_ORIG" ]; then
+    cp "$SHADOW_ORIG" "$SHADOW_EFS" 2>/dev/null
+    echo "[OK]    Original shadow restored from ${SHADOW_ORIG}"
+else
+    echo "[WARN]  No shadow-orig found — password state unchanged"
+fi
+
 sync
 echo ""
 echo "Factory PPP modem configuration restored."

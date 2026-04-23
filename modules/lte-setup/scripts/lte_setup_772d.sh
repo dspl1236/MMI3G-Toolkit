@@ -150,7 +150,7 @@ echo "[BACK]  Network state backed up"
 echo ""
 
 # === STEP 1: DLinkReplacesPPP flag ===
-echo "[STEP]  1/5 — Setting DLinkReplacesPPP flag..."
+echo "[STEP]  1/6 — Setting DLinkReplacesPPP flag..."
 
 # This flag tells NWSProcess to use USB Ethernet (en5) instead
 # of the internal 3G PPP modem for data connectivity.
@@ -174,7 +174,7 @@ fi
 echo ""
 
 # === STEP 2: DHCP marker ===
-echo "[STEP]  2/5 — Enabling DHCP client..."
+echo "[STEP]  2/6 — Enabling DHCP client..."
 
 # When /mnt/efs-persist/usedhcp exists, NWSProcess starts the
 # DHCP client on en5 when the USB Ethernet device appears.
@@ -191,7 +191,7 @@ fi
 echo ""
 
 # === STEP 3: dhcp-up script ===
-echo "[STEP]  3/5 — Installing dhcp-up script..."
+echo "[STEP]  3/6 — Installing dhcp-up script..."
 
 # The DHCP client runs /etc/dhcp-up after obtaining a lease.
 # This script populates /etc/resolv.conf with DNS servers
@@ -230,7 +230,7 @@ echo "[OK]    dhcp-up script installed"
 echo ""
 
 # === STEP 4: DNS fallback ===
-echo "[STEP]  4/5 — Setting fallback DNS..."
+echo "[STEP]  4/6 — Setting fallback DNS..."
 
 # Write a fallback resolv.conf pointing to common router gateway.
 # The dhcp-up script will overwrite this with the actual DNS
@@ -245,7 +245,7 @@ fi
 echo ""
 
 # === STEP 5: Persistent root shell on port 2323 ===
-echo "[STEP]  5/5 — Setting up persistent root shell..."
+echo "[STEP]  5/6 — Setting up persistent root shell..."
 
 # Add ksh shell listener to the system inetd.conf so it
 # survives reboots. This gives telnet-style root access on
@@ -268,6 +268,36 @@ TMPCONF="/tmp/inetd_shell.conf"
 echo "2323 stream tcp nowait root /bin/ksh ksh -i" > "$TMPCONF"
 /usr/sbin/inetd "$TMPCONF" 2>/dev/null &
 echo "[OK]    Shell active NOW on port 2323"
+echo ""
+
+# === STEP 6: Passwordless root login (DrGER2 method) ===
+echo "[STEP]  6/6 — Enabling passwordless root login..."
+
+# Replace /etc/shadow with empty-password version so port 23
+# telnet works with just Enter at the password prompt.
+# DrGER2: "I replace /etc/shadow with a version that removes
+# the root password -- just hit return at the password prompt."
+# Reference: github.com/DrGER2/MMI3GP-LAN-Setup
+SHADOW_EFS="${EFSDIR}/etc/shadow"
+
+if [ -f "$SHADOW_EFS" ]; then
+    # Check if already passwordless
+    if grep -q "^root::0" "$SHADOW_EFS" 2>/dev/null; then
+        echo "[OK]    Root already passwordless"
+    else
+        # Backup original
+        cp "$SHADOW_EFS" "${BACKUPDIR}/shadow.bak" 2>/dev/null
+        cp "$SHADOW_EFS" "${SHADOW_EFS}-orig" 2>/dev/null
+        echo "[BACK]  Original shadow saved"
+
+        # Replace with passwordless version
+        echo "root::0:0:0" > "$SHADOW_EFS"
+        echo "[OK]    Root password removed (just hit Enter at login)"
+        echo "[OK]    Port 23 telnet now works with full PTY"
+    fi
+else
+    echo "[WARN]  Shadow file not found at ${SHADOW_EFS}"
+fi
 echo ""
 
 # --- Sync ---
@@ -294,9 +324,10 @@ echo "   - Or run lte_status.sh for full diagnostic"
 echo "   - en5 interface should show 192.168.0.x IP"
 echo ""
 echo " ROOT SHELL:"
-echo "   telnet <MMI_IP> 2323  (persists across reboots)"
-echo "   PuTTY: Raw connection to port 2323"
-echo "   Note: 'Can't find tty' warning is normal"
+echo "   Port 23:  telnet <MMI_IP> (login: root, password: just Enter)"
+echo "   Port 2323: telnet <MMI_IP> 2323 (raw shell, no login)"
+echo "   Both persist across reboots"
+echo "   Note: MMI auto-sleeps after ~15min without CAN activity"
 echo ""
 echo " Compatible adapters:"
 echo "   - D-Link DUB-E100 rev A4 (ven=2001, dev=3c05)"
