@@ -22,6 +22,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/Scanner",
             "installs_to_flash": true,
             "compatible": [
@@ -97,6 +99,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/DiagTool",
             "installs_to_flash": true,
             "compatible": [
@@ -160,6 +164,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/NetDiag",
             "installs_to_flash": false,
             "compatible": [
@@ -186,6 +192,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/game-loader",
             "installs_to_flash": true,
             "compatible": [
@@ -265,6 +273,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/Gauges",
             "installs_to_flash": true,
             "compatible": [
@@ -336,6 +346,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/GEM",
             "installs_to_flash": true,
             "compatible": [
@@ -383,6 +395,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/GEMMIDump",
             "installs_to_flash": false,
             "compatible": [
@@ -410,6 +424,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -452,6 +468,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/GEMMI",
             "installs_to_flash": true,
             "compatible": [
@@ -958,6 +976,8 @@
                     }
                 ]
             },
+            "web_build": false,
+            "prebuilt_zip": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -990,7 +1010,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 16533
+                    "size": 16835
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",
@@ -1007,6 +1027,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -1032,6 +1054,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/jvm-extract",
             "installs_to_flash": false,
             "compatible": [
@@ -1059,6 +1083,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/long-coding",
             "installs_to_flash": true,
             "compatible": [
@@ -1106,6 +1132,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/LTE",
             "installs_to_flash": true,
             "compatible": [
@@ -1152,6 +1180,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/MapParser",
             "installs_to_flash": false,
             "compatible": [
@@ -1179,6 +1209,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/NavUnblocker",
             "installs_to_flash": true,
             "compatible": [
@@ -1214,6 +1246,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/PasswordFinder",
             "installs_to_flash": false,
             "compatible": [
@@ -1241,6 +1275,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/Per3Reader",
             "installs_to_flash": true,
             "compatible": [
@@ -1364,6 +1400,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/per3-writer",
             "installs_to_flash": true,
             "compatible": [
@@ -1391,6 +1429,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/PersistDump",
             "installs_to_flash": false,
             "compatible": [
@@ -1418,6 +1458,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/RegionAudit",
             "installs_to_flash": true,
             "compatible": [
@@ -1448,6 +1490,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/Splash",
             "installs_to_flash": true,
             "compatible": [
@@ -1479,6 +1523,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/SystemInfo",
             "installs_to_flash": false,
             "compatible": [
@@ -1506,6 +1552,8 @@
             "payload_dirs": [],
             "release_zip": null,
             "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
             "script_dir": "/scripts/VariantDump",
             "installs_to_flash": false,
             "compatible": [

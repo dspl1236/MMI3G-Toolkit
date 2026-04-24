@@ -671,6 +671,19 @@ function App() {
 
   // Build bundle into memory. Used by both "Write to SD" and "Download ZIP".
   const buildInMemory = async () => {
+    // Check for modules that can't be web-built (CORS-blocked release assets)
+    const blocked = [...selected].filter(m => manifest?.modules?.[m]?.web_build === false);
+    if (blocked.length > 0) {
+      const mod = manifest.modules[blocked[0]];
+      const zipUrl = mod.prebuilt_zip || "";
+      setBuildError(
+        `"${blocked[0]}" requires large binaries hosted on GitHub Releases which browsers cannot download (CORS).\n\n` +
+        `Use the CLI builder instead:\n  python builder/build_sd.py -m ${blocked[0]} -o F:\\\n\n` +
+        (zipUrl ? `Or download the prebuilt payload:\n  ${zipUrl}` : "")
+      );
+      setBuildState("error");
+      throw new Error("Module requires CLI builder");
+    }
     setBuildState("building");
     setBuildError(null);
     setBuildStats(null);
@@ -799,7 +812,7 @@ function App() {
                   React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: isSel ? "#fff" : "#bbb", display: "flex", alignItems: "center", gap: 6 } },
                     React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
                     m.name,
-                    m.status === "alpha" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#451a03", color: "#fbbf24", fontFamily: "IBM Plex Mono" } }, "alpha"), m.status === "tested" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#052e16", color: "#4ade80", fontFamily: "IBM Plex Mono" } }, "tested"), m.status === "design" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#818cf8", fontFamily: "IBM Plex Mono" } }, "design")
+                    m.status === "alpha" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#451a03", color: "#fbbf24", fontFamily: "IBM Plex Mono" } }, "alpha"), m.status === "tested" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#052e16", color: "#4ade80", fontFamily: "IBM Plex Mono" } }, "tested"), m.status === "design" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#818cf8", fontFamily: "IBM Plex Mono" } }, "design"), manifest && manifest.modules && manifest.modules[m.id] && manifest.modules[m.id].web_build === false && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#c084fc", fontFamily: "IBM Plex Mono" } }, "CLI only")
                   ),
                   React.createElement("div", { style: { fontSize: 11, color: "#666", marginTop: 1 } }, m.desc)
                 ),

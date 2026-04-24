@@ -469,5 +469,8 @@
                 "size": 4155
             }
         ]
-    }
+    },
+    "web_build": false,
+    "web_build_note": "GEMMI binaries are hosted on GitHub Releases which are CORS-blocked in browsers. Use the CLI builder or download the prebuilt ZIP.",
+    "prebuilt_zip": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip"
 }
