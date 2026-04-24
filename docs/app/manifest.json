@@ -21,6 +21,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/Scanner",
             "installs_to_flash": true,
             "compatible": [
@@ -95,6 +96,7 @@
             "artifact": "diag-tool.jar",
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/DiagTool",
             "installs_to_flash": true,
             "compatible": [
@@ -157,6 +159,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/NetDiag",
             "installs_to_flash": false,
             "compatible": [
@@ -182,6 +185,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/game-loader",
             "installs_to_flash": true,
             "compatible": [
@@ -260,6 +264,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/Gauges",
             "installs_to_flash": true,
             "compatible": [
@@ -330,6 +335,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/GEM",
             "installs_to_flash": true,
             "compatible": [
@@ -376,6 +382,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/GEMMIDump",
             "installs_to_flash": false,
             "compatible": [
@@ -402,6 +409,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -443,6 +451,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/GEMMI",
             "installs_to_flash": true,
             "compatible": [
@@ -509,6 +518,7 @@
                 "size": 9823685,
                 "note": "P0824 EU VW GEMMI binaries \u2014 downloaded at build time"
             },
+            "release_assets": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -541,7 +551,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1461
+                    "size": 1464
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",
@@ -557,6 +567,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -581,6 +592,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/jvm-extract",
             "installs_to_flash": false,
             "compatible": [
@@ -607,6 +619,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/long-coding",
             "installs_to_flash": true,
             "compatible": [
@@ -653,6 +666,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/LTE",
             "installs_to_flash": true,
             "compatible": [
@@ -698,6 +712,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/MapParser",
             "installs_to_flash": false,
             "compatible": [
@@ -724,6 +739,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/NavUnblocker",
             "installs_to_flash": true,
             "compatible": [
@@ -758,6 +774,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/PasswordFinder",
             "installs_to_flash": false,
             "compatible": [
@@ -784,6 +801,7 @@
             "artifact": "per3-reader.jar",
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/Per3Reader",
             "installs_to_flash": true,
             "compatible": [
@@ -906,6 +924,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/per3-writer",
             "installs_to_flash": true,
             "compatible": [
@@ -932,6 +951,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/PersistDump",
             "installs_to_flash": false,
             "compatible": [
@@ -958,6 +978,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/RegionAudit",
             "installs_to_flash": true,
             "compatible": [
@@ -987,6 +1008,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/Splash",
             "installs_to_flash": true,
             "compatible": [
@@ -1017,6 +1039,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/SystemInfo",
             "installs_to_flash": false,
             "compatible": [
@@ -1043,6 +1066,7 @@
             "artifact": null,
             "payload_dirs": [],
             "release_zip": null,
+            "release_assets": null,
             "script_dir": "/scripts/VariantDump",
             "installs_to_flash": false,
             "compatible": [

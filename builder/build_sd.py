@@ -150,7 +150,7 @@ def validate_payload_dirs(mod_dir: str, meta: dict) -> list:
 
         source_path = os.path.join(mod_dir, os.path.normpath(source))
         if not os.path.isdir(source_path):
-            if meta.get('release_zip'):
+            if meta.get('release_zip') or meta.get('release_assets'):
                 # Payload will be downloaded at build time from release_zip
                 continue
             errors.append(

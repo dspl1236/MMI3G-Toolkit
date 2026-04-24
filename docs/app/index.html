@@ -476,7 +476,7 @@ async function buildSdBundle(selected, onProgress, overrides) {
         const innerZip = await JSZip.loadAsync(zipBytes);
         for (const [name, entry] of Object.entries(innerZip.files)) {
           if (entry.dir) continue;
-          if (!name || name.endsWith('/')) continue; // skip empty/directory names
+          if (!name || name.endsWith('/')) continue;
           const bytes = await entry.async("uint8array");
           const outPath = extractTo ? `${extractTo}/${name}` : name;
           files.push({ path: outPath, bytes });

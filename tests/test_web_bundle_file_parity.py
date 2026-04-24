@@ -92,7 +92,8 @@ class WebBundleFileParityTests(unittest.TestCase):
                 # zip contents. Check that all manifest files are present, and
                 # allow extras from release_zip extraction.
                 has_release_zip = any(
-                    self.manifest['modules'].get(m, {}).get('release_zip')
+                    self.manifest['modules'].get(m, {}).get('release_zip') or
+                    self.manifest['modules'].get(m, {}).get('release_assets')
                     for m in selected
                 )
                 if has_release_zip:

@@ -16,12 +16,6 @@
             "target": "gemmi"
         }
     ],
-    "release_zip": {
-        "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
-        "extract_to": "gemmi",
-        "size": 9823685,
-        "note": "P0824 EU VW GEMMI binaries — downloaded at build time"
-    },
     "requires_reboot": true,
     "notes": [
         "Backs up the existing /mnt/nav/gemmi tree to /mnt/nav/.mmi3g_toolkit/google-earth-p0824/",
@@ -30,5 +24,11 @@
         "Does NOT patch lsd.jxe or remove VW RANGE_ locks",
         "Tested on a US RNS-850 (HN+_US_VW_P0738) using the bundled HN+_EU_VW_P0824 donor payload."
     ],
-    "uninstall": "Use build_sd.py --uninstall to remove helper scripts only. Use google-earth-p0824-restore to revert /mnt/nav/gemmi."
+    "uninstall": "Use build_sd.py --uninstall to remove helper scripts only. Use google-earth-p0824-restore to revert /mnt/nav/gemmi.",
+    "release_zip": {
+        "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
+        "extract_to": "gemmi",
+        "size": 9823685,
+        "note": "P0824 EU VW GEMMI binaries \u2014 downloaded at build time"
+    }
 }
