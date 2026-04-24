@@ -49,12 +49,17 @@ if [ ! -d "${SOURCE_DIR}" ]; then
     exit 1
 fi
 
-for required in gemmi_final libembeddedearth.so drivers.ini run_gemmi.sh; do
+for required in gemmi_final libembeddedearth.so run_gemmi.sh; do
     if [ ! -f "${SOURCE_DIR}/${required}" ]; then
         echo "[ERROR] Missing donor file: ${SOURCE_DIR}/${required}"
         exit 1
     fi
 done
+# drivers.ini may be renamed to drivers.cfg to work around Chrome FAT32 bug
+if [ ! -f "${SOURCE_DIR}/drivers.ini" ] && [ ! -f "${SOURCE_DIR}/drivers.cfg" ]; then
+    echo "[ERROR] Missing donor file: drivers.ini (or drivers.cfg)"
+    exit 1
+fi
 
 mount -uw "${NAVDIR}" 2>/dev/null
 if [ $? -ne 0 ]; then
@@ -97,6 +102,12 @@ fi
 mkdir -p "${GEMMI_TARGET}" 2>/dev/null
 echo "[DEPLOY] Copying donor payload from ${SOURCE_DIR}"
 cp -R "${SOURCE_DIR}/." "${GEMMI_TARGET}/"
+
+# Rename drivers.cfg back to drivers.ini (Chrome FAT32 workaround)
+if [ -f "${GEMMI_TARGET}/drivers.cfg" ] && [ ! -f "${GEMMI_TARGET}/drivers.ini" ]; then
+    mv "${GEMMI_TARGET}/drivers.cfg" "${GEMMI_TARGET}/drivers.ini"
+    echo "[OK] Renamed drivers.cfg -> drivers.ini"
+fi
 
 for exe in gemmi_final libembeddedearth.so libmessaging.so libthirdparty_icu_3_5.so \
            mapStylesWrite run_gemmi.sh pg.sh debug_gemmi.sh debug_memcpu.sh; do

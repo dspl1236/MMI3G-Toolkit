@@ -158,7 +158,7 @@ class BuildSdCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
             self.assertTrue((output_dir / 'scripts' / 'ge_p0824_deploy.sh').is_file())
             for payload_file in (
-                'drivers.ini',
+                'drivers.cfg',
                 'gemmi_final',
                 'libembeddedearth.so',
                 'libmessaging.so',

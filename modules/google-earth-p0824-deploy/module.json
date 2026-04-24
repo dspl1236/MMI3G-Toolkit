@@ -40,7 +40,7 @@
             },
             {
                 "name": "drivers.ini",
-                "path": "gemmi/drivers.ini",
+                "path": "gemmi/drivers.cfg",
                 "size": 1119
             },
             {

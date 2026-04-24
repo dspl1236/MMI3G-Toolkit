@@ -528,7 +528,7 @@
                     },
                     {
                         "name": "drivers.ini",
-                        "path": "gemmi/drivers.ini",
+                        "path": "gemmi/drivers.cfg",
                         "size": 1119
                     },
                     {
@@ -977,7 +977,7 @@
                     "size": 269
                 },
                 {
-                    "path": "gemmi/drivers.ini",
+                    "path": "gemmi/drivers.cfg",
                     "size": 1119
                 },
                 {
@@ -994,7 +994,7 @@
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",
-                    "size": 5459
+                    "size": 5968
                 }
             ]
         },
