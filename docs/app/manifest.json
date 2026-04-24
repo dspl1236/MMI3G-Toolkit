@@ -512,13 +512,452 @@
                     "target": "gemmi"
                 }
             ],
-            "release_zip": {
-                "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
-                "extract_to": "gemmi",
-                "size": 9823685,
-                "note": "P0824 EU VW GEMMI binaries \u2014 downloaded at build time"
+            "release_zip": null,
+            "release_assets": {
+                "base_url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/",
+                "files": [
+                    {
+                        "name": "debug_gemmi.sh",
+                        "path": "gemmi/debug_gemmi.sh",
+                        "size": 152
+                    },
+                    {
+                        "name": "debug_memcpu.sh",
+                        "path": "gemmi/debug_memcpu.sh",
+                        "size": 269
+                    },
+                    {
+                        "name": "drivers.ini",
+                        "path": "gemmi/drivers.ini",
+                        "size": 1119
+                    },
+                    {
+                        "name": "gemmi_final",
+                        "path": "gemmi/gemmi_final",
+                        "size": 1958876
+                    },
+                    {
+                        "name": "libembeddedearth.so",
+                        "path": "gemmi/libembeddedearth.so",
+                        "size": 20563840
+                    },
+                    {
+                        "name": "libmessaging.so",
+                        "path": "gemmi/libmessaging.so",
+                        "size": 826149
+                    },
+                    {
+                        "name": "mapStylesWrite",
+                        "path": "gemmi/mapStylesWrite",
+                        "size": 507383
+                    },
+                    {
+                        "name": "models__arrowday.png",
+                        "path": "gemmi/models/arrowday.png",
+                        "size": 249
+                    },
+                    {
+                        "name": "models__audisvcursor.png",
+                        "path": "gemmi/models/audisvcursor.png",
+                        "size": 4107
+                    },
+                    {
+                        "name": "models__audisvinfocursor.png",
+                        "path": "gemmi/models/audisvinfocursor.png",
+                        "size": 5168
+                    },
+                    {
+                        "name": "models__audisvjumpcursor.png",
+                        "path": "gemmi/models/audisvjumpcursor.png",
+                        "size": 3105
+                    },
+                    {
+                        "name": "models__cpu_blue_throttle.png",
+                        "path": "gemmi/models/cpu_blue_throttle.png",
+                        "size": 2138
+                    },
+                    {
+                        "name": "models__cpu_red_throttle.png",
+                        "path": "gemmi/models/cpu_red_throttle.png",
+                        "size": 3334
+                    },
+                    {
+                        "name": "models__cpu_throttle_10.png",
+                        "path": "gemmi/models/cpu_throttle_10.png",
+                        "size": 478
+                    },
+                    {
+                        "name": "models__cpu_throttle_2.png",
+                        "path": "gemmi/models/cpu_throttle_2.png",
+                        "size": 415
+                    },
+                    {
+                        "name": "models__cpu_throttle_20.png",
+                        "path": "gemmi/models/cpu_throttle_20.png",
+                        "size": 606
+                    },
+                    {
+                        "name": "models__cpu_throttle_25.png",
+                        "path": "gemmi/models/cpu_throttle_25.png",
+                        "size": 578
+                    },
+                    {
+                        "name": "models__cpu_throttle_30.png",
+                        "path": "gemmi/models/cpu_throttle_30.png",
+                        "size": 620
+                    },
+                    {
+                        "name": "models__cpu_throttle_35.png",
+                        "path": "gemmi/models/cpu_throttle_35.png",
+                        "size": 583
+                    },
+                    {
+                        "name": "models__cpu_throttle_40.png",
+                        "path": "gemmi/models/cpu_throttle_40.png",
+                        "size": 548
+                    },
+                    {
+                        "name": "models__cpu_throttle_5.png",
+                        "path": "gemmi/models/cpu_throttle_5.png",
+                        "size": 393
+                    },
+                    {
+                        "name": "models__cpu_throttle_60.png",
+                        "path": "gemmi/models/cpu_throttle_60.png",
+                        "size": 664
+                    },
+                    {
+                        "name": "models__cpu_throttle_exclamation.png",
+                        "path": "gemmi/models/cpu_throttle_exclamation.png",
+                        "size": 244
+                    },
+                    {
+                        "name": "models__cpu_throttle_highlight.png",
+                        "path": "gemmi/models/cpu_throttle_highlight.png",
+                        "size": 389
+                    },
+                    {
+                        "name": "models__cpu_yellow_throttle.png",
+                        "path": "gemmi/models/cpu_yellow_throttle.png",
+                        "size": 3830
+                    },
+                    {
+                        "name": "models__Cursor.dae",
+                        "path": "gemmi/models/Cursor.dae",
+                        "size": 72236
+                    },
+                    {
+                        "name": "models__cursors.png",
+                        "path": "gemmi/models/cursors.png",
+                        "size": 107879
+                    },
+                    {
+                        "name": "models__dpflag.png",
+                        "path": "gemmi/models/dpflag.png",
+                        "size": 2044
+                    },
+                    {
+                        "name": "models__erl_dev_build_image.png",
+                        "path": "gemmi/models/erl_dev_build_image.png",
+                        "size": 255539
+                    },
+                    {
+                        "name": "models__GoogleEarthPOILayerIcon.png",
+                        "path": "gemmi/models/GoogleEarthPOILayerIcon.png",
+                        "size": 2180
+                    },
+                    {
+                        "name": "models__GoogleEarthPOILayerIcon_businesses.png",
+                        "path": "gemmi/models/GoogleEarthPOILayerIcon_businesses.png",
+                        "size": 559
+                    },
+                    {
+                        "name": "models__GoogleEarthPOILayerIcon_panoramio.png",
+                        "path": "gemmi/models/GoogleEarthPOILayerIcon_panoramio.png",
+                        "size": 1936
+                    },
+                    {
+                        "name": "models__GoogleEarthPOILayerIcon_places.png",
+                        "path": "gemmi/models/GoogleEarthPOILayerIcon_places.png",
+                        "size": 569
+                    },
+                    {
+                        "name": "models__GoogleEarthPOILayerIcon_wikipedia.png",
+                        "path": "gemmi/models/GoogleEarthPOILayerIcon_wikipedia.png",
+                        "size": 1297
+                    },
+                    {
+                        "name": "models__starttarget.png",
+                        "path": "gemmi/models/starttarget.png",
+                        "size": 1669
+                    },
+                    {
+                        "name": "models__streetviewguy.png",
+                        "path": "gemmi/models/streetviewguy.png",
+                        "size": 816
+                    },
+                    {
+                        "name": "models__throttle_red.png",
+                        "path": "gemmi/models/throttle_red.png",
+                        "size": 4460
+                    },
+                    {
+                        "name": "models__throttle_yellow.png",
+                        "path": "gemmi/models/throttle_yellow.png",
+                        "size": 4956
+                    },
+                    {
+                        "name": "models__trafficstatus00.png",
+                        "path": "gemmi/models/trafficstatus00.png",
+                        "size": 195
+                    },
+                    {
+                        "name": "models__trafficstatus00UK.png",
+                        "path": "gemmi/models/trafficstatus00UK.png",
+                        "size": 195
+                    },
+                    {
+                        "name": "models__trafficstatus01.png",
+                        "path": "gemmi/models/trafficstatus01.png",
+                        "size": 195
+                    },
+                    {
+                        "name": "models__trafficstatus01UK.png",
+                        "path": "gemmi/models/trafficstatus01UK.png",
+                        "size": 195
+                    },
+                    {
+                        "name": "models__trafficstatus02.png",
+                        "path": "gemmi/models/trafficstatus02.png",
+                        "size": 3053
+                    },
+                    {
+                        "name": "models__trafficstatus02UK.png",
+                        "path": "gemmi/models/trafficstatus02UK.png",
+                        "size": 2806
+                    },
+                    {
+                        "name": "models__trafficstatus03.png",
+                        "path": "gemmi/models/trafficstatus03.png",
+                        "size": 1224
+                    },
+                    {
+                        "name": "models__trafficstatus03UK.png",
+                        "path": "gemmi/models/trafficstatus03UK.png",
+                        "size": 1224
+                    },
+                    {
+                        "name": "models__trafficstatus04.png",
+                        "path": "gemmi/models/trafficstatus04.png",
+                        "size": 2807
+                    },
+                    {
+                        "name": "models__trafficstatus04UK.png",
+                        "path": "gemmi/models/trafficstatus04UK.png",
+                        "size": 2806
+                    },
+                    {
+                        "name": "models__trafficstatus05.png",
+                        "path": "gemmi/models/trafficstatus05.png",
+                        "size": 2808
+                    },
+                    {
+                        "name": "models__trafficstatus05UK.png",
+                        "path": "gemmi/models/trafficstatus05UK.png",
+                        "size": 2806
+                    },
+                    {
+                        "name": "models__trafficstatus10.png",
+                        "path": "gemmi/models/trafficstatus10.png",
+                        "size": 265
+                    },
+                    {
+                        "name": "models__trafficstatus10UK.png",
+                        "path": "gemmi/models/trafficstatus10UK.png",
+                        "size": 343
+                    },
+                    {
+                        "name": "models__trafficstatus11.png",
+                        "path": "gemmi/models/trafficstatus11.png",
+                        "size": 2971
+                    },
+                    {
+                        "name": "models__trafficstatus11UK.png",
+                        "path": "gemmi/models/trafficstatus11UK.png",
+                        "size": 2974
+                    },
+                    {
+                        "name": "models__trafficstatus12.png",
+                        "path": "gemmi/models/trafficstatus12.png",
+                        "size": 212
+                    },
+                    {
+                        "name": "models__trafficstatus12UK.png",
+                        "path": "gemmi/models/trafficstatus12UK.png",
+                        "size": 214
+                    },
+                    {
+                        "name": "models__trafficstatus13.png",
+                        "path": "gemmi/models/trafficstatus13.png",
+                        "size": 2898
+                    },
+                    {
+                        "name": "models__trafficstatus13UK.png",
+                        "path": "gemmi/models/trafficstatus13UK.png",
+                        "size": 2896
+                    },
+                    {
+                        "name": "models__trafficstatus20.png",
+                        "path": "gemmi/models/trafficstatus20.png",
+                        "size": 2856
+                    },
+                    {
+                        "name": "models__trafficstatus20UK.png",
+                        "path": "gemmi/models/trafficstatus20UK.png",
+                        "size": 2958
+                    },
+                    {
+                        "name": "models__trafficstatus21.png",
+                        "path": "gemmi/models/trafficstatus21.png",
+                        "size": 2838
+                    },
+                    {
+                        "name": "models__trafficstatus21UK.png",
+                        "path": "gemmi/models/trafficstatus21UK.png",
+                        "size": 2835
+                    },
+                    {
+                        "name": "models__trafficstatus22.png",
+                        "path": "gemmi/models/trafficstatus22.png",
+                        "size": 2856
+                    },
+                    {
+                        "name": "models__trafficstatus22UK.png",
+                        "path": "gemmi/models/trafficstatus22UK.png",
+                        "size": 2958
+                    },
+                    {
+                        "name": "models__trafficstatus23.png",
+                        "path": "gemmi/models/trafficstatus23.png",
+                        "size": 2837
+                    },
+                    {
+                        "name": "models__trafficstatus23UK.png",
+                        "path": "gemmi/models/trafficstatus23UK.png",
+                        "size": 2836
+                    },
+                    {
+                        "name": "models__trafficstatus24.png",
+                        "path": "gemmi/models/trafficstatus24.png",
+                        "size": 1837
+                    },
+                    {
+                        "name": "models__trafficstatus24UK.png",
+                        "path": "gemmi/models/trafficstatus24UK.png",
+                        "size": 1483
+                    },
+                    {
+                        "name": "models__trafficstatus25.png",
+                        "path": "gemmi/models/trafficstatus25.png",
+                        "size": 19567
+                    },
+                    {
+                        "name": "models__trafficstatus25UK.png",
+                        "path": "gemmi/models/trafficstatus25UK.png",
+                        "size": 19399
+                    },
+                    {
+                        "name": "models__trafficstatus26.png",
+                        "path": "gemmi/models/trafficstatus26.png",
+                        "size": 19559
+                    },
+                    {
+                        "name": "models__trafficstatus26UK.png",
+                        "path": "gemmi/models/trafficstatus26UK.png",
+                        "size": 19434
+                    },
+                    {
+                        "name": "models__trafficstatus27.png",
+                        "path": "gemmi/models/trafficstatus27.png",
+                        "size": 19047
+                    },
+                    {
+                        "name": "models__trafficstatus27UK.png",
+                        "path": "gemmi/models/trafficstatus27UK.png",
+                        "size": 19130
+                    },
+                    {
+                        "name": "models__trafficstatus28.png",
+                        "path": "gemmi/models/trafficstatus28.png",
+                        "size": 19026
+                    },
+                    {
+                        "name": "models__trafficstatus28UK.png",
+                        "path": "gemmi/models/trafficstatus28UK.png",
+                        "size": 19125
+                    },
+                    {
+                        "name": "models__trafficstatus29.png",
+                        "path": "gemmi/models/trafficstatus29.png",
+                        "size": 122
+                    },
+                    {
+                        "name": "models__trafficstatus29UK.png",
+                        "path": "gemmi/models/trafficstatus29UK.png",
+                        "size": 122
+                    },
+                    {
+                        "name": "models__trafficstatus2A.png",
+                        "path": "gemmi/models/trafficstatus2A.png",
+                        "size": 2971
+                    },
+                    {
+                        "name": "models__trafficstatus2AUK.png",
+                        "path": "gemmi/models/trafficstatus2AUK.png",
+                        "size": 2974
+                    },
+                    {
+                        "name": "models__trafficstatus2B.png",
+                        "path": "gemmi/models/trafficstatus2B.png",
+                        "size": 409
+                    },
+                    {
+                        "name": "models__trafficstatus2BUK.png",
+                        "path": "gemmi/models/trafficstatus2BUK.png",
+                        "size": 431
+                    },
+                    {
+                        "name": "models__UserLayerIcon.png",
+                        "path": "gemmi/models/UserLayerIcon.png",
+                        "size": 1585
+                    },
+                    {
+                        "name": "pg.sh",
+                        "path": "gemmi/pg.sh",
+                        "size": 410
+                    },
+                    {
+                        "name": "res__VWThesisSansLight.ttf",
+                        "path": "gemmi/res/VWThesisSansLight.ttf",
+                        "size": 153320
+                    },
+                    {
+                        "name": "res__VWThesisSansRegular.ttf",
+                        "path": "gemmi/res/VWThesisSansRegular.ttf",
+                        "size": 134068
+                    },
+                    {
+                        "name": "res__VWThesisSansSemibold.ttf",
+                        "path": "gemmi/res/VWThesisSansSemibold.ttf",
+                        "size": 134124
+                    },
+                    {
+                        "name": "run_gemmi.sh",
+                        "path": "gemmi/run_gemmi.sh",
+                        "size": 4155
+                    }
+                ]
             },
-            "release_assets": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
             "compatible": [
@@ -551,7 +990,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1464
+                    "size": 16533
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",

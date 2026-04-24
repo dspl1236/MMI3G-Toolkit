@@ -713,24 +713,25 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
             else:
                 print(f"  [WARN] {target}/ payload dir not found locally")
 
-        # Download release_zip if specified (binary payloads hosted on GitHub Releases)
-        rz = meta.get('release_zip')
-        if rz and rz.get('url'):
-            import urllib.request, zipfile, io
-            extract_to = rz.get('extract_to', '')
-            dest_dir = os.path.join(output_dir, extract_to) if extract_to else output_dir
-            print(f"  [DL]  Downloading release zip ({rz.get('size', 0) // 1024 // 1024}MB)...")
-            try:
-                resp = urllib.request.urlopen(rz['url'], timeout=60)
-                zip_data = resp.read()
-                print(f"  [DL]  Downloaded {len(zip_data)} bytes")
-                with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
-                    zf.extractall(dest_dir)
-                    print(f"  [OK] Extracted {len(zf.namelist())} files to {extract_to}/")
-            except Exception as e:
-                print(f"  [ERROR] Failed to download release zip: {e}")
-                print(f"  [INFO] Download manually from: {rz['url']}")
-                print(f"  [INFO] Extract to: {dest_dir}")
+        # Download release_assets if specified (individual files from GitHub Release)
+        ra = meta.get('release_assets')
+        if ra and ra.get('files'):
+            import urllib.request
+            base_url = ra.get('base_url', '')
+            print(f"  [DL]  Downloading {len(ra['files'])} release assets...")
+            downloaded = 0
+            for asset in ra['files']:
+                dest = os.path.join(output_dir, asset['path'])
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                try:
+                    url = base_url + asset['name']
+                    data = urllib.request.urlopen(url, timeout=60).read()
+                    with open(dest, 'wb') as f:
+                        f.write(data)
+                    downloaded += 1
+                except Exception as e:
+                    print(f"  [WARN] Failed: {asset['name']}: {e}")
+            print(f"  [OK] Downloaded {downloaded}/{len(ra['files'])} release assets")
 
     # Generate combined run.sh
     run_sh = generate_run_sh(selected_modules, modules)

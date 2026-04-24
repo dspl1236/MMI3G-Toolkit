@@ -465,25 +465,19 @@ async function buildSdBundle(selected, onProgress, overrides) {
     const results = await Promise.all(tasks);
     for (const r of results) if (r) files.push(r);
 
-    // --- Release ZIP: fetch and extract binary payload from GitHub Release ---
-    if (meta.release_zip && meta.release_zip.url) {
-      const rz = meta.release_zip;
-      onProgress && onProgress(`Downloading ${modName} binaries...`, Math.round(done * 95 / totalFiles));
-      try {
-        const zipBytes = await fetchBinary(rz.url);
-        step(`Downloaded ${modName} release zip (${(zipBytes.length / 1024 / 1024).toFixed(1)}MB)`);
-        const extractTo = rz.extract_to || "";
-        const innerZip = await JSZip.loadAsync(zipBytes);
-        for (const [name, entry] of Object.entries(innerZip.files)) {
-          if (entry.dir) continue;
-          if (!name || name.endsWith('/')) continue;
-          const bytes = await entry.async("uint8array");
-          const outPath = extractTo ? `${extractTo}/${name}` : name;
-          files.push({ path: outPath, bytes });
-          step(`Extracted ${name}`);
+    // --- Release assets: fetch individual binaries from GitHub Release ---
+    const ra = meta.release_assets;
+    if (ra && ra.files && ra.files.length > 0) {
+      onProgress && onProgress(`Downloading ${modName} binaries (${ra.files.length} files)...`, Math.round(done * 95 / totalFiles));
+      for (const asset of ra.files) {
+        try {
+          const url = ra.base_url + asset.name;
+          const bytes = await fetchBinary(url);
+          files.push({ path: asset.path, bytes });
+          step(`Fetched ${asset.name}`);
+        } catch (e) {
+          console.warn(`Skip asset ${asset.name}: ${e.message}`);
         }
-      } catch (e) {
-        console.warn(`Failed to fetch/extract release zip for ${modName}:`, e);
       }
     }
   }
