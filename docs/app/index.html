@@ -120,10 +120,10 @@ const MODULES_DISPLAY = [
     desc: "Install legacy /scripts/GEMMI controls expected by the OEM Google Earth screen",
     compat: ["RNS-850"], category: "system",
     prereq: null, detail: "Installs shell wrappers for activate/deactivate/start/stop/cache controls that forward to the deployed /mnt/nav/gemmi runtime." },
-  { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha",
+  { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha", cliOnly: true,
     desc: "Deploy bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi",
     compat: ["RNS-850"], category: "system",
-    prereq: null, detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware." },
+    prereq: null, detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware. CLI only — GEMMI binaries are hosted on GitHub Releases (CORS-blocked in browsers)." },
   { id: "google-earth-p0824-restore", name: "P0824 GEMMI Restore", status: "alpha",
     desc: "Restore /mnt/nav/gemmi from the backup made by P0824 GEMMI Deploy",
     compat: ["RNS-850"], category: "system",
@@ -672,14 +672,13 @@ function App() {
   // Build bundle into memory. Used by both "Write to SD" and "Download ZIP".
   const buildInMemory = async () => {
     // Check for modules that can't be web-built (CORS-blocked release assets)
-    const blocked = [...selected].filter(m => manifest?.modules?.[m]?.web_build === false);
+    const blocked = [...selected].filter(m => MODULES_DISPLAY.find(d => d.id === m && d.cliOnly));
     if (blocked.length > 0) {
-      const mod = manifest.modules[blocked[0]];
-      const zipUrl = mod.prebuilt_zip || "";
+      const mod = MODULES_DISPLAY.find(d => d.id === blocked[0]);
       setBuildError(
-        `"${blocked[0]}" requires large binaries hosted on GitHub Releases which browsers cannot download (CORS).\n\n` +
+        `"${mod.name}" requires large binaries hosted on GitHub Releases which browsers cannot download (CORS).\n\n` +
         `Use the CLI builder instead:\n  python builder/build_sd.py -m ${blocked[0]} -o F:\\\n\n` +
-        (zipUrl ? `Or download the prebuilt payload:\n  ${zipUrl}` : "")
+        `Or download the prebuilt payload ZIP from:\n  https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi-p0824`
       );
       setBuildState("error");
       throw new Error("Module requires CLI builder");
@@ -812,7 +811,7 @@ function App() {
                   React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: isSel ? "#fff" : "#bbb", display: "flex", alignItems: "center", gap: 6 } },
                     React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
                     m.name,
-                    m.status === "alpha" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#451a03", color: "#fbbf24", fontFamily: "IBM Plex Mono" } }, "alpha"), m.status === "tested" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#052e16", color: "#4ade80", fontFamily: "IBM Plex Mono" } }, "tested"), m.status === "design" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#818cf8", fontFamily: "IBM Plex Mono" } }, "design"), manifest && manifest.modules && manifest.modules[m.id] && manifest.modules[m.id].web_build === false && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#c084fc", fontFamily: "IBM Plex Mono" } }, "CLI only")
+                    m.status === "alpha" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#451a03", color: "#fbbf24", fontFamily: "IBM Plex Mono" } }, "alpha"), m.status === "tested" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#052e16", color: "#4ade80", fontFamily: "IBM Plex Mono" } }, "tested"), m.status === "design" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#818cf8", fontFamily: "IBM Plex Mono" } }, "design"), m.cliOnly && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#c084fc", fontFamily: "IBM Plex Mono" } }, "CLI only")
                   ),
                   React.createElement("div", { style: { fontSize: 11, color: "#666", marginTop: 1 } }, m.desc)
                 ),
