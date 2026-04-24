@@ -543,8 +543,13 @@ async function buildSdBundle(selected, onProgress, overrides) {
     }
   }
 
+  // Deduplicate: later entries (release_zip) override earlier ones (manifest)
+  const deduped = new Map();
+  for (const f of files) deduped.set(f.path, f);
+  const uniqueFiles = Array.from(deduped.values());
+
   onProgress && onProgress("Bundle ready", 100);
-  return { files, manifest };
+  return { files: uniqueFiles, manifest };
 }
 
 /**
