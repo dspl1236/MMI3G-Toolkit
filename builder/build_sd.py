@@ -150,6 +150,9 @@ def validate_payload_dirs(mod_dir: str, meta: dict) -> list:
 
         source_path = os.path.join(mod_dir, os.path.normpath(source))
         if not os.path.isdir(source_path):
+            if meta.get('release_zip'):
+                # Payload will be downloaded at build time from release_zip
+                continue
             errors.append(
                 f"declares payload_dir '{source}' but directory is missing at "
                 f"{source_path}"
@@ -704,8 +707,30 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
             target = os.path.normpath(payload.get('target') or source)
             payload_src = os.path.join(mod_dir, source)
             payload_dest = os.path.join(output_dir, target)
-            shutil.copytree(payload_src, payload_dest, dirs_exist_ok=True)
-            print(f"  [OK] {target}/ payload")
+            if os.path.isdir(payload_src):
+                shutil.copytree(payload_src, payload_dest, dirs_exist_ok=True)
+                print(f"  [OK] {target}/ payload (local)")
+            else:
+                print(f"  [WARN] {target}/ payload dir not found locally")
+
+        # Download release_zip if specified (binary payloads hosted on GitHub Releases)
+        rz = meta.get('release_zip')
+        if rz and rz.get('url'):
+            import urllib.request, zipfile, io
+            extract_to = rz.get('extract_to', '')
+            dest_dir = os.path.join(output_dir, extract_to) if extract_to else output_dir
+            print(f"  [DL]  Downloading release zip ({rz.get('size', 0) // 1024 // 1024}MB)...")
+            try:
+                resp = urllib.request.urlopen(rz['url'], timeout=60)
+                zip_data = resp.read()
+                print(f"  [DL]  Downloaded {len(zip_data)} bytes")
+                with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
+                    zf.extractall(dest_dir)
+                    print(f"  [OK] Extracted {len(zf.namelist())} files to {extract_to}/")
+            except Exception as e:
+                print(f"  [ERROR] Failed to download release zip: {e}")
+                print(f"  [INFO] Download manually from: {rz['url']}")
+                print(f"  [INFO] Extract to: {dest_dir}")
 
     # Generate combined run.sh
     run_sh = generate_run_sh(selected_modules, modules)
