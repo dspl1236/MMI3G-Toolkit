@@ -504,7 +504,7 @@
                 }
             ],
             "release_zip": {
-                "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi/gemmi_p0824_eu_vw.zip",
+                "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
                 "extract_to": "gemmi",
                 "size": 9823685,
                 "note": "P0824 EU VW GEMMI binaries \u2014 downloaded at build time"
@@ -517,7 +517,7 @@
             "files": [
                 {
                     "path": "BINARIES.md",
-                    "size": 932
+                    "size": 938
                 },
                 {
                     "path": "gemmi/debug_gemmi.sh",
@@ -541,7 +541,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1455
+                    "size": 1461
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",

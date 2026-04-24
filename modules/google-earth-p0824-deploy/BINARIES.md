@@ -3,7 +3,7 @@
 The large binaries (gemmi_final, libembeddedearth.so, models, fonts) are hosted
 as a GitHub Release asset to keep the repository lean.
 
-**Download:** [gemmi_p0824_eu_vw.zip](https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi/gemmi_p0824_eu_vw.zip) (9.8MB)
+**Download:** [gemmi_p0824_eu_vw.zip](https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip) (9.8MB)
 
 Extract into `modules/google-earth-p0824-deploy/gemmi/` before building an SD card
 with this module. The deploy script expects these files:

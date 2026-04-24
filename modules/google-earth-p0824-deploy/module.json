@@ -17,7 +17,7 @@
         }
     ],
     "release_zip": {
-        "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi/gemmi_p0824_eu_vw.zip",
+        "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
         "extract_to": "gemmi",
         "size": 9823685,
         "note": "P0824 EU VW GEMMI binaries — downloaded at build time"
