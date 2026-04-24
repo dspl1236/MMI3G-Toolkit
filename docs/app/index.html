@@ -567,6 +567,7 @@ async function writeBundleToDirectory(bundle, dirHandle) {
     return h;
   }
 
+  const writeErrors = [];
   for (const f of bundle.files) {
     if (f.path.endsWith("/.keep")) continue;
     const parts = f.path.split("/").filter(Boolean);
@@ -581,8 +582,13 @@ async function writeBundleToDirectory(bundle, dirHandle) {
       await writable.write(f.bytes);
       await writable.close();
     } catch (e) {
-      throw new Error(`Failed writing "${f.path}" (filename="${fname}", dir="${parentRel}"): ${e.message}`);
+      writeErrors.push(f.path);
+      console.warn(`Skip: ${f.path} (${e.message})`);
     }
+  }
+  if (writeErrors.length > 0) {
+    console.warn(`Failed to write ${writeErrors.length} files:`, writeErrors);
+    alert(`Warning: ${writeErrors.length} file(s) could not be written to the SD card.\n\nUse "Download ZIP" instead and extract manually.\n\nFailed: ${writeErrors.slice(0, 5).join(", ")}${writeErrors.length > 5 ? "..." : ""}`);
   }
 }
 
