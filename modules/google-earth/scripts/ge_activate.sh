@@ -3,13 +3,6 @@
 # MMI3G-Toolkit — Google Earth Activation
 # Deploys: patched libembeddedearth.so, custom dbRoot, auth cache,
 #          mini HTTP server, /etc/hosts entry
-#
-# Requirements:
-#   - Root shell access
-#   - LTE internet (USB ethernet + Digi WR11 or similar)
-#   - GEMMI binaries already present at /mnt/nav/gemmi/
-#
-# Revert with ge_restore.sh
 # ============================================================
 
 _SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
@@ -29,22 +22,14 @@ PAYLOAD="${SDPATH}/gemmi"
 mkdir -p "${OUTDIR}" 2>/dev/null
 mkdir -p "${BACKUP}" 2>/dev/null
 
-# Show status
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null &
-    SHOW_PID=$!
-fi
-
-log() { echo "$1" | tee -a "$LOG"; }
+# No tee on QNX — just echo to log
+log() { echo "$1" >> "$LOG" 2>/dev/null; echo "$1"; }
 
 log "=== Google Earth Activation ==="
-log "$(date 2>/dev/null || echo 'no date')"
-log ""
 
 # --- Pre-flight checks ---
 if [ ! -d "$GEMMI" ]; then
     log "ERROR: $GEMMI not found. GEMMI not installed."
-    log "This module requires GEMMI binaries to be present."
     exit 1
 fi
 
@@ -53,22 +38,20 @@ if [ ! -f "$GEMMI/libembeddedearth.so" ]; then
     exit 1
 fi
 
-# Check if payload files exist on SD card
 if [ ! -f "$PAYLOAD/dbRoot_custom.bin" ]; then
-    log "ERROR: Payload files not found at $PAYLOAD/"
-    log "Expected: dbRoot_custom.bin, auth_resp1.bin, auth_resp2.bin"
+    log "ERROR: Payload not found at $PAYLOAD/"
     exit 1
 fi
 
 # --- Backup originals ---
 if [ ! -f "$BACKUP/libembeddedearth.so.orig" ]; then
-    log "Backing up original files..."
+    log "Backing up originals..."
     cp "$GEMMI/libembeddedearth.so" "$BACKUP/libembeddedearth.so.orig"
     cp "$GEMMI/run_gemmi.sh" "$BACKUP/run_gemmi.sh.orig" 2>/dev/null
     cp /etc/hosts "$BACKUP/hosts.orig" 2>/dev/null
     log "  Backed up to $BACKUP/"
 else
-    log "Backups already exist, skipping."
+    log "Backups already exist."
 fi
 
 # --- Stop GEMMI ---
@@ -76,78 +59,70 @@ log "Stopping GEMMI..."
 slay gemmi_final 2>/dev/null
 sleep 1
 
-# --- Apply binary patches ---
-log "Applying code patches to libembeddedearth.so..."
-
-# We need the pre-patched binary from the SD card
+# --- Deploy patched binary ---
 if [ -f "$PAYLOAD/libembeddedearth.so" ]; then
-    log "  Deploying pre-patched binary from SD card..."
+    log "Deploying patched libembeddedearth.so..."
     cp "$PAYLOAD/libembeddedearth.so" "$GEMMI/libembeddedearth.so"
-    log "  libembeddedearth.so deployed ($(wc -c < $GEMMI/libembeddedearth.so) bytes)"
+    log "  Done ($(wc -c < $GEMMI/libembeddedearth.so 2>/dev/null) bytes)"
 else
-    log "  WARNING: No pre-patched binary on SD card."
-    log "  Manual patching needed — see research/BINARY_PATCH_ANALYSIS.md"
+    log "WARNING: No patched binary on SD card."
 fi
 
 # --- Deploy support files ---
-log "Deploying Google Earth files..."
+log "Deploying GE files..."
 cp "$PAYLOAD/dbRoot_custom.bin" "$GEMMI/dbRoot_custom.bin"
 cp "$PAYLOAD/auth_resp1.bin" "$GEMMI/auth_resp1.bin"
 cp "$PAYLOAD/auth_resp2.bin" "$GEMMI/auth_resp2.bin"
-log "  dbRoot: $(wc -c < $GEMMI/dbRoot_custom.bin) bytes (custom, kh.google.com)"
-log "  Auth1: $(wc -c < $GEMMI/auth_resp1.bin) bytes"
-log "  Auth2: $(wc -c < $GEMMI/auth_resp2.bin) bytes"
 
-# Deploy mini server and control scripts
 if [ -f "$PAYLOAD/gemmi_server.sh" ]; then
     cp "$PAYLOAD/gemmi_server.sh" "$GEMMI/gemmi_server.sh"
     chmod +x "$GEMMI/gemmi_server.sh"
-    log "  Mini server deployed"
 fi
 
 if [ -f "$PAYLOAD/gemmi_control.sh" ]; then
     cp "$PAYLOAD/gemmi_control.sh" "$GEMMI/gemmi_control.sh"
     chmod +x "$GEMMI/gemmi_control.sh"
-    log "  Control script deployed"
 fi
+log "  All files deployed."
 
-# --- Set up /etc/hosts ---
+# --- Set up /etc/hosts (volatile — also add to run_gemmi.sh) ---
 log "Configuring /etc/hosts..."
-if ! grep -q "127.0.0.1 kh.google.com" /etc/hosts 2>/dev/null; then
-    echo "127.0.0.1 kh.google.com" >> /etc/hosts
-    log "  Added: 127.0.0.1 kh.google.com"
+if ! grep -q "kh.google.com" /etc/hosts 2>/dev/null; then
+    echo "192.168.0.91 kh.google.com" >> /etc/hosts
+    log "  Added: 192.168.0.91 kh.google.com"
 else
     log "  Already configured"
 fi
 
-# --- Clear GEMMI cache ---
-log "Clearing GEMMI tile cache..."
+# --- Patch run_gemmi.sh to persist /etc/hosts across reboots ---
+log "Patching run_gemmi.sh for boot persistence..."
+if [ -f "$GEMMI/run_gemmi.sh" ]; then
+    if ! grep -q "kh.google.com" "$GEMMI/run_gemmi.sh" 2>/dev/null; then
+        # Add hosts entry at the TOP of run_gemmi.sh (before gemmi starts)
+        cp "$GEMMI/run_gemmi.sh" "$GEMMI/run_gemmi.sh.tmp"
+        echo '#!/bin/ksh' > "$GEMMI/run_gemmi.sh"
+        echo '# Google Earth: add hosts entry on every boot' >> "$GEMMI/run_gemmi.sh"
+        echo 'grep -q "kh.google.com" /etc/hosts 2>/dev/null || echo "192.168.0.91 kh.google.com" >> /etc/hosts' >> "$GEMMI/run_gemmi.sh"
+        # Append original content (skip first shebang line)
+        tail -n +2 "$GEMMI/run_gemmi.sh.tmp" >> "$GEMMI/run_gemmi.sh"
+        rm "$GEMMI/run_gemmi.sh.tmp"
+        chmod +x "$GEMMI/run_gemmi.sh"
+        log "  run_gemmi.sh patched for boot persistence"
+    else
+        log "  run_gemmi.sh already patched"
+    fi
+else
+    log "  WARNING: run_gemmi.sh not found"
+fi
+
+# --- Clear cache ---
+log "Clearing tile cache..."
 rm -rf /mnt/img-cache/gemmi/cache/* 2>/dev/null
 log "  Cache cleared"
 
 # --- Summary ---
 log ""
 log "=== Google Earth Activation Complete ==="
-log ""
-log "Deployed files:"
-log "  $GEMMI/libembeddedearth.so (patched)"
-log "  $GEMMI/dbRoot_custom.bin"
-log "  $GEMMI/auth_resp1.bin + auth_resp2.bin"
-log "  $GEMMI/gemmi_server.sh"
-log "  $GEMMI/gemmi_control.sh"
-log ""
-log "Next steps:"
-log "  1. Hard reboot the MMI unit"
-log "  2. Ensure LTE internet is connected"
-log "  3. Open Google Earth from map menu"
-log "  4. Satellite imagery should load!"
-log ""
-log "To revert: run ge_restore.sh from SD card"
-
-# Show done
-if [ -n "$SHOW_PID" ]; then
-    kill $SHOW_PID 2>/dev/null
-    if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/done.png" ]; then
-        "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
-    fi
-fi
+log "Deployed to $GEMMI/"
+log "Reboot MMI. Start proxy on PC (192.168.0.91)."
+log "To revert: run ge_restore.sh"
