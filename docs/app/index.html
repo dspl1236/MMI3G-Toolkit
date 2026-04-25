@@ -527,7 +527,24 @@ async function buildSdBundle(selected, onProgress, overrides) {
     for (const asset of ga.files) {
       try {
         const url = ga.base_url + asset.name;
-        const bytes = await fetchBinary(url);
+        let bytes = await fetchBinary(url);
+        // --- Apply Google Earth code patches to libembeddedearth.so ---
+        if (asset.name === "libembeddedearth.so" && bytes.length > 0x347100) {
+          const patched = new Uint8Array(bytes);
+          // PATCH 1 @ 0x343d20: image validation bypass (mov #1,r0; rts; nop)
+          const p1_orig = [0x86,0x2f,0x1f,0xc7,0x96,0x2f];
+          const p1_patch = [0x01,0xe0,0x0b,0x00,0x09,0x00];
+          const p1_ok = p1_orig.every((b,i) => patched[0x343d20+i] === b);
+          if (p1_ok) { p1_patch.forEach((b,i) => patched[0x343d20+i] = b); }
+          // PATCH 2 @ 0x3470a0: post-validation DRM skip (rts; nop)
+          const p2_orig = [0x86,0x2f,0x2d,0xc7];
+          const p2_patch = [0x0b,0x00,0x09,0x00];
+          const p2_ok = p2_orig.every((b,i) => patched[0x3470a0+i] === b);
+          if (p2_ok) { p2_patch.forEach((b,i) => patched[0x3470a0+i] = b); }
+          const patchCount = (p1_ok ? 1 : 0) + (p2_ok ? 1 : 0);
+          console.log(`GE patches applied: ${patchCount}/2`);
+          bytes = patched;
+        }
         files.push({ path: asset.path, bytes });
         step(`Fetched ${asset.name} (${(bytes.length / 1024 / 1024).toFixed(1)}MB)`);
       } catch (e) {
