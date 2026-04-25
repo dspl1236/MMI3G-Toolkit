@@ -3,7 +3,7 @@
     "version": "1.0.0-beta",
     "description": "Google Earth satellite imagery restoration. Tiles from kh.google.com (still live!). Custom dbRoot, cached auth, 2 code patches to libembeddedearth.so. Requires LTE internet.",
     "author": "dspl1236",
-    "status": "beta",
+    "status": "design",
     "compatible": ["MMI3G+", "RNS-850"],
     "standalone": true,
     "run_script": "ge_probe.sh",

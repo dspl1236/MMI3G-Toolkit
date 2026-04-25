@@ -1,5 +1,15 @@
 # EOL Flags & Google Earth Restoration Research
 
+> **UPDATE (April 2026):** Google Earth is CONFIRMED WORKING on MMI3G+.
+> The `disableAuthKey` approach documented below was superseded by binary
+> code patches + custom dbRoot. See `research/GOOGLE_EARTH_RESTORATION.md`
+> for the complete working solution. Key findings:
+> - Auth bypass comes from hostname redirects, NOT code patches
+> - Code patches bypass image validation in the rendering pipeline
+> - kh.google.com still serves live tiles (zoom levels 1-22+)
+> - xgx.ddns.net is a real GEE server (not a stub as previously thought)
+> - Custom dbRoot with geoServer→kh.google.com eliminates all external deps
+
 ## Overview
 
 The MMI3G/RNS-850 UI is implemented in `lsd.jxe`, a ~27MB J9 JXE bundle

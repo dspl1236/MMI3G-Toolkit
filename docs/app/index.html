@@ -112,7 +112,7 @@ const MODULES_DISPLAY = [
     desc: "Extract Google Earth binaries from HDD for offline analysis and patching",
     compat: ["3G+", "RNS-850"], category: "diag",
     prereq: null, detail: "Copies gemmi_final (~2MB), libembeddedearth.so (~20MB), and all GEMMI config/scripts to SD card. Needed for Ghidra RE of Google hostnames and auth bypass. Based on ruthr/congo approach." },
-  { id: "google-earth", name: "Google Earth", status: "beta",
+  { id: "google-earth", name: "Google Earth", status: "design",
     desc: "Google Earth satellite imagery restoration — WORKING! Real tiles from kh.google.com",
     compat: ["3G+", "RNS-850"], category: "system",
     prereq: "lte-setup", detail: "CONFIRMED WORKING: Restores satellite imagery on MMI3G+ via Google\'s live Earth servers (kh.google.com). Applies 2 code patches to libembeddedearth.so (image validation bypass at 0x343d20 and 0x3470a0), deploys custom dbRoot (geoServer→kh.google.com, zero xgx dependency), cached auth responses, and mini HTTP server for local dbRoot/auth. Tiles fetched directly from Google via car\'s LTE. Includes gemmi_control.sh for start/stop/restart. Zoom levels 1-22+ confirmed. Requires LTE internet (Digi WR11 or similar USB Ethernet + LTE router)." },

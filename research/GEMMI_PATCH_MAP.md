@@ -1,4 +1,8 @@
 # GEMMI Google Earth Patch Map
+
+> **UPDATE (April 2026):** The patch approaches below were superseded.
+> Working solution uses 2 code patches (image validation bypass) +
+> custom dbRoot + cached auth. See `research/GOOGLE_EARTH_RESTORATION.md`.
 # Source: gemmi_final + libembeddedearth.so from HN+R_US_AU_K0942_3
 # Date: 2026-04-20
 

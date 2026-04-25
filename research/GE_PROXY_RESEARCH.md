@@ -44,10 +44,16 @@ standard Google Earth client. It uses the GEE "flatfile" protocol, not Google Ma
 | GET /flatfile?f1-*-i.* | 404 | **No imagery tiles!** |
 | GET /flatfile?f2-*-i.* | 404 | **No terrain tiles!** |
 
-### Conclusion
-xgx.ddns.net is a **STUB SERVER** — it only provides enough to initialize
-GEMMI but does NOT serve actual satellite imagery. This explains the blank
-tiles on the car when using the XGX .so.
+### Conclusion (CORRECTED April 2026)
+xgx.ddns.net is a **REAL GEE SERVER** — it serves dbRoot, auth, quadtree,
+AND satellite imagery tiles. The blank tiles were NOT caused by xgx being
+a stub, but by the mhhauto code patches bypassing image validation in the
+rendering pipeline. Tiles from xgx were received but could not render.
+
+**Working solution:** Use xgx-format dbRoot (for GEMMI initialization) with
+tiles from kh.google.com (Google's live Earth servers, still operational).
+Custom dbRoot with geoServer→kh.google.com eliminates xgx dependency entirely.
+See research/GOOGLE_EARTH_RESTORATION.md for the complete working solution.
 
 ## Commercial Solutions
 
