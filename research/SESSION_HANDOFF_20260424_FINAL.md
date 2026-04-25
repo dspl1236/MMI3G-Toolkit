@@ -112,3 +112,71 @@ to reach the right server.
 - These might be SSL/cert checks, not auth checks
 
 ## Repo: 229 commits, 34/34 tests green
+
+---
+
+## SESSION CONTINUATION — Late April 24, 2026
+
+### Auth Response Discovery
+- xgx.ddns.net returns **136 bytes** for auth (not 16 as seen earlier)
+- First byte echoes command byte (0x03)
+- Response format may vary based on request payload
+
+### GEE Encryption SOLVED
+- Algorithm from open-source `etencoder.cc`: modified XOR with rotating key offset (16,0,8,16,0,8...)
+- Processes 8 bytes at a time, key stride of 24
+- Full 1016-byte default key extracted
+- Python implementation verified: round-trip encode/decode works
+- Packet format: `encrypt(magic[4] + size[4] + zlib(data))`
+- Magic: 0x7468dead
+
+### Tile Translation Proxy v9 Built
+- Reverse-proxies xgx.ddns.net for dbRoot, auth, quadtree initialization
+- Translates Google satellite tile requests to GEE encrypted format
+- Fetches JPEG from `mt{0-3}.google.com/vt?lyrs=s&x=X&y=Y&z=Z`
+- Wraps in GEE packet: `gee_encode(magic + size + zlib(jpeg_data))`
+- Local caching for repeat requests
+- Code at: `D:\MMI\proxy\gemmi_tile_proxy.py`
+
+### ROOT CAUSE: Missing Quadtree Packets
+The xgx.ddns.net quadtree root (`/flatfile?q2-0`) returns only 145 bytes — 
+a minimal stub that says "no imagery available." GEMMI reads this and 
+concludes there are no tiles to fetch, so it never requests `/flatfile?f1-*`.
+
+**The fix:** Build proper QuadtreePacket16 data that tells GEMMI 
+"imagery exists at all quadtree locations." This requires:
+
+1. Understanding the binary QuadtreePacket16 format:
+   - 32-byte header: magic("qtpk"), datatype_id, version, num_instances, etc.
+   - Node data: child flags (which children have imagery/terrain)
+   - Each node has 4 children (quadtree), each child has flags
+
+2. Generating quadtree packets that:
+   - At level 0 (q2-0): say all 4 root children have imagery
+   - At deeper levels (q2-0-q.N): say imagery exists down to zoom ~18
+   - Include proper version numbers matching the dbRoot epoch
+
+3. The proxy then serves:
+   - Custom quadtree packets → tells GEMMI what exists
+   - GEE-encrypted Google tiles → actual satellite imagery
+   - xgx dbRoot + auth → handles initialization
+
+### Files on Car
+- `/mnt/nav/gemmi/libembeddedearth.so` — FINAL version (code patches + 192.168.0.91)
+- `/mnt/nav/gemmi/gemmi_final` — patched v3 (our auth NOP patches, harmless extras)
+- `/mnt/nav/gemmi/run_gemmi.sh` — minimal with hosts auto-add + 999 retries
+- `/etc/hosts` — must be re-added after each reboot (run_gemmi.sh handles this)
+
+### GEE Source References
+- `etencoder.cc` — encryption algorithm (google/earthenterprise)
+- `dbroot_v2.proto` — dbRoot protobuf schema
+- `qtpacket.h` — quadtree packet format (need to find)
+- `tileservice.cpp` — tile serving logic
+- `fdbservice.cpp` — flatfile database service
+
+### Priority for Next Session
+1. Find and study QuadtreePacket16 format in GEE source
+2. Build quadtree packet generator in Python
+3. Integrate into proxy v9
+4. Test: GEMMI receives quadtree → requests tiles → proxy serves encrypted Google tiles
+5. Satellite imagery on the MMI display
