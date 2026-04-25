@@ -463,6 +463,10 @@
                     "size": 2310
                 },
                 {
+                    "path": "payload/libembeddedearth.so",
+                    "size": 20839388
+                },
+                {
                     "path": "scripts/ge_activate.sh",
                     "size": 4868
                 },
