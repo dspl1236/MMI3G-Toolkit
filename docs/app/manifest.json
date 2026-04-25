@@ -1,5 +1,5 @@
 {
-    "generated": "2026-04-24",
+    "generated": "2026-04-25",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -416,12 +416,17 @@
             ]
         },
         "google-earth": {
-            "status": "alpha",
-            "description": "Google Earth restoration \u2014 probe, enable, and deploy. Evidence suggests kh.google.com still serves dbRoot.v5 (HTTP 200) and /geauth auth has been removed (HTTP 404). Audi NAR (variant 6) has no RANGE_ block. The simplest path may be: disableAuthKey + EOL flag flip + internet. GEMMI binaries may self-provision from Google or may need deployment from EU nav update.",
+            "status": "design",
+            "description": "Google Earth satellite imagery restoration. Tiles from kh.google.com (still live!). Custom dbRoot, cached auth, 2 code patches to libembeddedearth.so. Requires LTE internet.",
             "standalone": true,
             "run_script": "ge_probe.sh",
             "artifact": null,
-            "payload_dirs": [],
+            "payload_dirs": [
+                {
+                    "source": "payload",
+                    "target": "gemmi"
+                }
+            ],
             "release_zip": null,
             "release_assets": null,
             "web_build": true,
@@ -435,11 +440,31 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2479
+                    "size": 1849
+                },
+                {
+                    "path": "payload/auth_resp1.bin",
+                    "size": 16
+                },
+                {
+                    "path": "payload/auth_resp2.bin",
+                    "size": 136
+                },
+                {
+                    "path": "payload/dbRoot_custom.bin",
+                    "size": 16949
+                },
+                {
+                    "path": "payload/gemmi_control.sh",
+                    "size": 1220
+                },
+                {
+                    "path": "payload/gemmi_server.sh",
+                    "size": 2310
                 },
                 {
                     "path": "scripts/ge_activate.sh",
-                    "size": 17175
+                    "size": 4868
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
@@ -455,7 +480,7 @@
                 },
                 {
                     "path": "scripts/ge_restore.sh",
-                    "size": 2514
+                    "size": 1260
                 }
             ]
         },
