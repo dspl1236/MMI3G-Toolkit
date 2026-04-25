@@ -16,7 +16,7 @@ the GEE packet wrapper format needs adjustment.
 [QT]    q2-0-q.1033 -> 145b UPSTREAM             ← quadtree root
 [QT]    q2-0310-q.1033 -> 1149b UPSTREAM         ← deeper quadtree (real data!)
 [TILE]  qt=0 z=1 x=0 y=0 10772b JPEG -> 10633b  ← TILE SERVED!
-[QT]    q2-03103320+q2-0313+...+f1c-0310332-t.939 -> 28827b  ← multi-query
+[QT]    q2-XXXXXXX0+q2-0313+...+f1c-XXXXXXX-t.939 -> 28827b  ← multi-query
 ```
 
 ## Key Discoveries
@@ -39,7 +39,7 @@ Previously thought xgx was a stub. WRONG! It serves:
 ### 3. Multi-Query URLs
 GEMMI bundles multiple requests in one URL using '+' separator:
 ```
-/flatfile?q2-03103320-q.1033+q2-0313-q.1033+q2-03103321-q.1033+q2-0301-q.1033+f1c-0310332-t.939&v=1
+/flatfile?q2-XXXXXXX0-q.1033+q2-0313-q.1033+q2-XXXXXXX1-q.1033+q2-0301-q.1033+f1c-XXXXXXX-t.939&v=1
 ```
 This contains 4 quadtree requests AND 1 tile request.
 Currently proxied entirely to xgx, but tile portions need our translation.
@@ -48,7 +48,7 @@ Currently proxied entirely to xgx, but tile portions need our translation.
 - `f1-XXXX-i.YYY` = imagery tile (channel 1, version YYY)
 - `f1c-XXXX-t.YYY` = terrain tile? (channel 1c, type t)
 - The 'c' might mean "compressed" or "cobrand"
-- Quadtree path "0310332" = specific map location
+- Quadtree path "XXXXXXX" = specific map location
 
 ### 5. GEE Packet Format Issue
 Our current packet wrapper:
