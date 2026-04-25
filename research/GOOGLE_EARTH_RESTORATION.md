@@ -219,3 +219,48 @@ Browser-based tool (like PCM-Forge docs/index.html) that:
 5. Copy to SD card
 6. Run install script from MMI shell
 7. Google Earth works! 🛰️
+
+## Web App Integration (docs/index.html)
+
+### Google Earth Module Features
+1. **Binary Patcher** — applies 2 code patches + hostname patches to libembeddedearth.so
+   - User uploads their original .so (or selects firmware version)
+   - App applies patches at 0x343d20 and 0x3470a0
+   - App patches hostname strings (kh.google.com → 127.0.0.1 for dbRoot)
+   - Downloads patched .so
+
+2. **dbRoot Generator** — builds custom dbRoot with user's config
+   - geoServer.host → kh.google.com (default)
+   - Embedded GEE encryption key (public, from open source)
+   - Downloads dbRoot_custom.bin
+
+3. **SD Card Package Builder** — generates complete deployment package
+   - Patched libembeddedearth.so
+   - Custom dbRoot
+   - Cached auth responses
+   - Mini server script (gemmi_server.sh)
+   - Modified run_gemmi.sh
+   - Install/uninstall scripts
+   - All in a ZIP ready to extract to SD card
+
+4. **Instructions** — step-by-step with screenshots
+   - How to access engineering shell
+   - How to deploy via SD card
+   - How to verify it's working
+   - How to revert to stock
+
+### SD Card Structure
+```
+SD:/
+├── install_ge.sh           (main installer)
+├── uninstall_ge.sh         (revert to stock)  
+├── gemmi/
+│   ├── libembeddedearth.so (patched)
+│   ├── dbRoot_custom.bin
+│   ├── auth_resp1.bin
+│   ├── auth_resp2.bin
+│   ├── gemmi_server.sh     (mini HTTP server)
+│   ├── gemmi_control.sh    (start/stop/restart)
+│   └── run_gemmi.sh        (modified startup)
+└── README.txt
+```
