@@ -415,6 +415,7 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         '    SHOWSCREEN_PID=$!',
         'fi',
         '',
+        'mkdir -p "${SDPATH}/var" 2>/dev/null',
         'LOGFILE="${SDPATH}/var/install-$(date +%Y%m%d-%H%M%S).log"',
         'EFSDIR="/mnt/efs-system"',
         'ENGDEFS="${EFSDIR}/engdefs"',
