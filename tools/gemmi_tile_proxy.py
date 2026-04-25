@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""GEMMI Proxy v18 — Fully self-contained, NO xgx dependency!
-- dbRoot: served from local file (dbRoot_xgx.bin)
-- Auth: served from cached responses (auth_resp1.bin, auth_resp2.bin)
-- Quadtree + Tiles: kh.google.com (REAL Google Earth)
-"""
+"""GEMMI Proxy v19 — 100% self-owned. Custom dbRoot. Zero xgx."""
 import http.server, os, urllib.request, urllib.error, ssl, sys, re, hashlib
 
 LISTEN_PORT = 80
@@ -14,92 +10,55 @@ CACHE_DIR = os.path.join(BASE_DIR, "tile_cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 CTX = ssl.create_default_context()
 
-# Load local files
-with open(os.path.join(BASE_DIR, "dbRoot_xgx.bin"), "rb") as f:
-    DBROOT = f.read()
-with open(os.path.join(BASE_DIR, "auth_resp1.bin"), "rb") as f:
-    AUTH1 = f.read()
-with open(os.path.join(BASE_DIR, "auth_resp2.bin"), "rb") as f:
-    AUTH2 = f.read()
-print("  dbRoot: %d bytes (local)" % len(DBROOT))
-print("  Auth1: %d bytes, Auth2: %d bytes (local)" % (len(AUTH1), len(AUTH2)))
+with open(os.path.join(BASE_DIR, "dbRoot_custom.bin"), "rb") as f: DBROOT = f.read()
+with open(os.path.join(BASE_DIR, "auth_resp1.bin"), "rb") as f: AUTH1 = f.read()
+with open(os.path.join(BASE_DIR, "auth_resp2.bin"), "rb") as f: AUTH2 = f.read()
+print("  Custom dbRoot: %d bytes | Auth: %d+%d bytes" % (len(DBROOT), len(AUTH1), len(AUTH2)))
 
-def cache_get(key):
-    p = os.path.join(CACHE_DIR, key)
-    if os.path.exists(p):
-        with open(p, "rb") as f: return f.read()
-    return None
-
-def cache_put(key, data):
-    with open(os.path.join(CACHE_DIR, key), "wb") as f: f.write(data)
-
+def cache_get(k):
+    p = os.path.join(CACHE_DIR, k)
+    return open(p,"rb").read() if os.path.exists(p) else None
+def cache_put(k, d):
+    with open(os.path.join(CACHE_DIR, k), "wb") as f: f.write(d)
 def fetch_google(path):
     ck = hashlib.md5(path.encode()).hexdigest()
-    cached = cache_get("g_" + ck)
-    if cached: return cached
+    c = cache_get("g_"+ck)
+    if c: return c
     try:
-        req = urllib.request.Request(GOOGLE + path, headers={"User-Agent": UA})
-        data = urllib.request.urlopen(req, context=CTX, timeout=15).read()
-        if len(data) > 2: cache_put("g_" + ck, data)
-        return data
-    except Exception as e:
-        print("[ERR]   %s" % e); return None
+        d = urllib.request.urlopen(urllib.request.Request(
+            GOOGLE+path, headers={"User-Agent":UA}), context=CTX, timeout=15).read()
+        if len(d)>2: cache_put("g_"+ck, d)
+        return d
+    except Exception as e: print("[ERR] %s"%e); return None
 
-class Handler(http.server.BaseHTTPRequestHandler):
-    def log_message(self, fmt, *args): pass
-
-    def do_POST(self):
-        cl = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(cl) if cl > 0 else b""
-        if '/geauth' in self.path:
-            data = AUTH2 if cl >= 49 else AUTH1
-            print("[AUTH]  (%db) -> %db LOCAL" % (cl, len(data)))
-            self.send_response(200)
-            self.send_header("Content-Type", "application/octet-stream")
-            self.send_header("Content-Length", str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
+class H(http.server.BaseHTTPRequestHandler):
+    def log_message(s,*a): pass
+    def do_POST(s):
+        cl=int(s.headers.get('Content-Length',0)); body=s.rfile.read(cl) if cl>0 else b""
+        if '/geauth' in s.path:
+            d=AUTH2 if cl>=49 else AUTH1; print("[AUTH] (%db)->%db"%(cl,len(d)))
+            s.send_response(200); s.send_header("Content-Type","application/octet-stream")
+            s.send_header("Content-Length",str(len(d))); s.end_headers(); s.wfile.write(d); return
+        s.send_response(200); s.end_headers()
+    def do_GET(s):
+        p=s.path; q=p.split("?",1)[1] if "?" in p else ""
+        if '/dbRoot' in p:
+            print("[ROOT] Custom dbRoot (%db)"%len(DBROOT)); s.send_response(200)
+            s.send_header("Content-Type","application/octet-stream")
+            s.send_header("Content-Length",str(len(DBROOT))); s.end_headers(); s.wfile.write(DBROOT); return
+        if '/flatfile' in p:
+            d=fetch_google(p)
+            if d and len(d)>2:
+                t="QT" if 'q2' in q else "TILE" if re.match(r'f\d+',q) else "FLAT"
+                print("[%-4s] %s -> %db"%(t,q[:50],len(d))); s.send_response(200)
+                s.send_header("Content-Type","application/octet-stream")
+                s.send_header("Content-Length",str(len(d))); s.end_headers(); s.wfile.write(d)
+            else: s.send_response(404); s.end_headers()
             return
-        self.send_response(200); self.end_headers()
+        s.send_response(200); s.send_header("Content-Length","0"); s.end_headers()
 
-    def do_GET(self):
-        path = self.path
-        query = path.split("?", 1)[1] if "?" in path else ""
-        if '/dbRoot' in path:
-            print("[ROOT]  dbRoot (%db) LOCAL" % len(DBROOT))
-            self.send_response(200)
-            self.send_header("Content-Type", "application/octet-stream")
-            self.send_header("Content-Length", str(len(DBROOT)))
-            self.end_headers()
-            self.wfile.write(DBROOT)
-            return
-        if '/flatfile' in path:
-            data = fetch_google(path)
-            if data and len(data) > 2:
-                tag = "QT  " if 'q2' in query else "TILE" if re.match(r'f\d+', query) else "FLAT"
-                print("[%s]  %s -> %db" % (tag, query[:50], len(data)))
-                self.send_response(200)
-                self.send_header("Content-Type", "application/octet-stream")
-                self.send_header("Content-Length", str(len(data)))
-                self.end_headers()
-                self.wfile.write(data)
-            else:
-                print("[404]  %s" % query[:50])
-                self.send_response(404); self.end_headers()
-            return
-        self.send_response(200); self.send_header("Content-Length", "0"); self.end_headers()
-
-def main():
-    port = LISTEN_PORT
-    if len(sys.argv) > 1: port = int(sys.argv[1])
-    print("=" * 55)
-    print("  GEMMI Proxy v18 — FULLY SELF-CONTAINED")
-    print("  dbRoot: LOCAL | Auth: LOCAL | Tiles: kh.google.com")
-    print("  Listening on 0.0.0.0:%d" % port)
-    print("=" * 55)
-    print()
-    server = http.server.HTTPServer(("0.0.0.0", port), Handler)
-    try: server.serve_forever()
-    except KeyboardInterrupt: print("\nStopped."); server.server_close()
-
-if __name__ == "__main__": main()
+if __name__=="__main__":
+    port=int(sys.argv[1]) if len(sys.argv)>1 else LISTEN_PORT
+    print("="*55); print("  GEMMI Proxy v19 | Custom dbRoot | kh.google.com")
+    print("  Listening on 0.0.0.0:%d"%port); print("="*55); print()
+    http.server.HTTPServer(("0.0.0.0",port),H).serve_forever()
