@@ -264,3 +264,36 @@ SD:/
 │   └── run_gemmi.sh        (modified startup)
 └── README.txt
 ```
+
+## Deployment Issues Found (April 25 session 2)
+
+### Issue 1: Only 2 of 9 hostname patches
+GE stayed greyed out because we only patched `kh.google.com` (2 instances).
+GEMMI needs ALL 9 Google/Keyhole hostnames redirected to the proxy IP.
+Critical missing patch: `geoauth.google.com` (auth server).
+See BINARY_PATCH_ANALYSIS.md for complete patch table.
+
+### Issue 2: /etc/hosts 127.0.0.1 vs 192.168.0.91
+ge_activate.sh was writing `127.0.0.1 kh.google.com` for the planned
+on-car server. But the on-car server isn't ready, so this blocked the
+PC proxy at 192.168.0.91. Fixed to use 192.168.0.91.
+
+### Issue 3: SD card .so truncated
+raw.githubusercontent.com may truncate 20MB files. The .so deployed
+from SD card was only 9.5MB. Need alternative distribution method
+(GitHub Release assets, or user-side patching via the JS patcher).
+
+### Issue 4: QNX missing `tee`
+ge_activate.sh used `tee` for logging which doesn't exist on QNX.
+Fixed to use `echo >> log`.
+
+### Issue 5: run.sh missing `mkdir -p var/`
+The log directory wasn't created before `exec > logfile`. QNX ksh
+fails on exec redirect to nonexistent path. Fixed.
+
+### Confirmed Working Combination
+- libembeddedearth.so with 2 code + 9 hostname patches (cksum 2353581119)
+- Proxy v18 (xgx dbRoot) OR v19 (custom dbRoot) — both work
+- /etc/hosts: 192.168.0.91 kh.google.com
+- PC proxy on port 80
+- Satellite imagery at zoom 1-22+
