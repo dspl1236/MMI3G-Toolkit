@@ -463,10 +463,6 @@
                     "size": 2310
                 },
                 {
-                    "path": "payload/libembeddedearth.so",
-                    "size": 20839388
-                },
-                {
                     "path": "scripts/ge_activate.sh",
                     "size": 4269
                 },
@@ -1609,11 +1605,6 @@
                 "name": "gemmi_final",
                 "path": "gemmi/gemmi_final",
                 "size": 1965004
-            },
-            {
-                "name": "libembeddedearth.so",
-                "path": "gemmi/libembeddedearth.so",
-                "size": 20563703
             },
             {
                 "name": "libmessaging.so",
