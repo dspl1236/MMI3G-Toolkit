@@ -542,8 +542,26 @@ async function buildSdBundle(selected, onProgress, overrides) {
           const p2_patch = [0x0b,0x00,0x09,0x00];
           const p2_ok = p2_orig.every((b,i) => patched[0x3470a0+i] === b);
           if (p2_ok) { p2_patch.forEach((b,i) => patched[0x3470a0+i] = b); }
-          const patchCount = (p1_ok ? 1 : 0) + (p2_ok ? 1 : 0);
-          console.log(`GE patches applied: ${patchCount}/2`);
+          // HOSTNAME PATCHES (9 total) — redirect all Google/Keyhole servers to proxy
+          const IP = [0x31,0x39,0x32,0x2e,0x31,0x36,0x38,0x2e,0x30,0x2e,0x39,0x31]; // "192.168.0.91"
+          const hostPatches = [
+            [0x01043dd3, "kh.google.com"],      [0x01044370, "maps.google.com"],
+            [0x0104a434, "geoauth.google.com"],  [0x0104a4cf, "maps.google.com"],
+            [0x0104a500, "geo.keyhole.com"],      [0x0104a5bc, "kh.google.com"],
+            [0x0104a5e0, "bbs.keyhole.com"],      [0x0104a668, "dev.keyhole.com"],
+            [0x0104a6bc, "www.google.com"],
+          ];
+          let hostCount = 0;
+          for (const [off, orig] of hostPatches) {
+            const origBytes = Array.from(orig).map(c => c.charCodeAt(0));
+            if (origBytes.every((b,i) => patched[off+i] === b)) {
+              IP.forEach((b,i) => patched[off+i] = b);
+              for (let i = IP.length; i < orig.length; i++) patched[off+i] = 0;
+              hostCount++;
+            }
+          }
+          const patchCount = (p1_ok ? 1 : 0) + (p2_ok ? 1 : 0) + hostCount;
+          console.log(`GE patches applied: ${patchCount}/11 (2 code + ${hostCount} hostname)`);
           bytes = patched;
         }
         files.push({ path: asset.path, bytes });

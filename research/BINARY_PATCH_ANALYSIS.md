@@ -1,78 +1,60 @@
 # libembeddedearth.so Binary Patch Analysis
 
 ## Overview
-Two code patches are required to restore Google Earth on MMI3G+.
-Both patches are in the **image processing/rendering pipeline**, not auth.
-Auth bypass comes from **hostname redirects** in the binary's string table.
+11 total patches required to restore Google Earth on MMI3G+:
+- 2 code patches (image validation bypass)
+- 9 hostname patches (redirect server URLs to proxy IP)
 
-## PATCH 1 — Image Validation Check (0x343d20)
-**Original:** `86 2f 1f c7 96 2f` (mov.l r8,@-r15; mova; mov.l r9,@-r15)
-**Patched:** `01 e0 0b 00 09 00` (mov #1,r0; rts; nop — force return TRUE)
+## Code Patches
 
-### Purpose
-This function is a **validation check** in the image processing pipeline.
-It returns 0 (fail) or non-zero (pass).
-
-### Call Sites
-- `0x356a5a` — Image loader (surrounded by JPEG EXIF processing code)
-- `0x364db4` — Rendering engine (surrounded by GL/shader code)
-
-### Control Flow (caller at 0x356a5a)
+### PATCH 1 — Image Validation Bypass (0x343d20)
 ```
-call PATCH1(object)        ; validate image data
-tst r0, r0                 ; test return value
-bf continue                ; if non-zero: continue (valid)
-bra error_path             ; if zero: skip to error handler
+Original: 86 2f 1f c7 96 2f
+Patched:  01 e0 0b 00 09 00  (mov #1,r0; rts; nop)
 ```
+Forces image validation to return TRUE. Called from the JPEG/EXIF
+image loader and the GL rendering engine.
 
-When validation fails (r0=0), execution jumps to 0x356d60 which
-sets error code 30 and calls cleanup routines.
-
-### Why Force Return 1
-The original function checks something about the tile data that fails
-with redirected/proxy tile sources. Forcing TRUE skips this check,
-allowing tiles from any source to be processed.
-
-## PATCH 2 — Post-Validation Processing (0x3470a0)
-**Original:** `86 2f 2d c7` (mov.l r8,@-r15; mova)
-**Patched:** `0b 00 09 00` (rts; nop — skip entirely)
-
-### Purpose
-This function is called AFTER PATCH1 succeeds. It performs processing
-that may set up DRM state or validate tile metadata. It calls:
-- Internal function with parameter 2 (mode/type flag)
-- Internal function with parameter -1 (disable/reset flag)
-- Several other processing subfunctions
-
-### Why Skip It
-The processing this function does is either unnecessary or harmful
-when tiles come from a non-Google-DRM source. Skipping it avoids
-setting invalid state that would interfere with rendering.
-
-## Hostname Redirects (~22 patches)
-The binary contains hardcoded Google server URLs:
-- `kh.google.com` → redirect to proxy IP
-- `cbk0.google.com` → redirect for Street View
-- `mw1.google.com` → redirect for weather overlays
-- `geo.keyhole.com` → redirect for legacy endpoints
-
-These hostname changes redirect ALL server communication through our proxy,
-which handles auth (returns cached responses) and forwards tile requests
-to the real kh.google.com servers.
-
-## Architecture
+### PATCH 2 — Post-Validation DRM Skip (0x3470a0)
 ```
-Original: GEMMI → libembeddedearth.so → kh.google.com (Google's servers, now reject old clients)
+Original: 86 2f 2d c7
+Patched:  0b 00 09 00  (rts; nop)
+```
+Skips post-validation DRM/metadata processing.
 
-Patched:  GEMMI → libembeddedearth.so (hostnames → proxy IP)
-                     ↓
-          Code patches bypass tile validation
-                     ↓
-          Proxy (port 80) → kh.google.com (real tiles)
+## Hostname Patches (9 total)
+
+All Google/Keyhole hostnames redirected to proxy IP (192.168.0.91).
+Each hostname is replaced with the IP + null padding to preserve
+string length.
+
+| # | Offset | Original | Length | Purpose |
+|---|--------|----------|--------|---------|
+| 1 | 0x01043dd3 | `kh.google.com` | 13 | Tile server URL |
+| 2 | 0x01044370 | `maps.google.com` | 15 | Maps API |
+| 3 | 0x0104a434 | `geoauth.google.com` | 18 | **Auth server (critical!)** |
+| 4 | 0x0104a4cf | `maps.google.com` | 15 | Maps server |
+| 5 | 0x0104a500 | `geo.keyhole.com` | 15 | Legacy Keyhole |
+| 6 | 0x0104a5bc | `kh.google.com` | 13 | Tile server hostname |
+| 7 | 0x0104a5e0 | `bbs.keyhole.com` | 15 | Keyhole BBS |
+| 8 | 0x0104a668 | `dev.keyhole.com` | 15 | Keyhole dev |
+| 9 | 0x0104a6bc | `www.google.com` | 14 | Google web |
+
+### Why All 9 Are Needed
+- Missing `geoauth.google.com` (#3) → auth fails → GE greyed out
+- Missing `geo.keyhole.com` (#5) → initialization fails
+- All 9 must point to the proxy for GEMMI to complete startup
+
+### Replacement Format
+```
+192.168.0.91\x00\x00...  (IP + null padding to match original length)
 ```
 
-## Key Insight
-The code patches are NOT auth patches. They bypass tile data
-validation in the image loader/renderer. Auth is handled entirely
-by the hostname redirects pointing to our proxy which returns
-cached auth responses.
+## Discovery Method
+Compared stock binary against the XGX variant (which replaced all 9
+hostnames with `xgx.ddns.net`), then the FINAL working binary (which
+replaced `xgx.ddns.net` with `192.168.0.91`).
+
+## Verified Working
+- v18 proxy (xgx dbRoot) + FINAL2 binary → tiles at zoom 1-22+ ✅
+- v19 proxy (custom dbRoot) + FINAL2 binary → tiles at zoom 1-22+ ✅
