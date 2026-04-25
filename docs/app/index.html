@@ -221,6 +221,7 @@ function generateRunSh(selected, manifest, overrides) {
     "    SHOWSCREEN_PID=$!",
     "fi",
     "",
+    "mkdir -p \"${SDPATH}/var\" 2>/dev/null",
     "LOGFILE=\"${SDPATH}/var/install-$(date +%Y%m%d-%H%M%S).log\"",
     "EFSDIR=\"/mnt/efs-system\"",
     "ENGDEFS=\"${EFSDIR}/engdefs\"",
