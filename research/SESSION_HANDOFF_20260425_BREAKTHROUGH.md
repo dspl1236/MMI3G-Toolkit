@@ -113,3 +113,45 @@ about to be released publicly.
 - Session duration: ~8 hours
 - Proxy versions: v1 through v10c
 - Binary patch versions: v1 through FINAL
+
+---
+
+## LATE SESSION — Tile Format Investigation
+
+### Encryption Bug FOUND and FIXED
+The remaining-bytes handler had `while off >= keylen` (never true since off < 24)
+instead of `while kp >= keylen` (correct). This corrupted the last 1-7 bytes
+of any packet whose length wasn't a multiple of 8.
+
+VERIFIED: Can now decrypt xgx quadtree packets (1728 bytes decompressed, magic 32301).
+
+### Tile Format Tests (all with FIXED encryption + full 1016-byte key)
+
+| Format | Size | Crash? | Render? |
+|--------|------|--------|---------|
+| encrypt(jpeg) | 10772b | NO | NO |
+| encrypt(magic+size+zlib(jpeg)) | 10633b | YES | - |
+| encrypt(magic+size+zlib(protobuf(jpeg))) | 10636b | YES | - |
+| encrypt(protobuf(jpeg)) | 10775b | YES | - |
+| encrypt(zlib(jpeg)) | 10625b | YES | - |
+| encrypt(magic+size+jpeg) | not tested | ? | ? |
+
+Raw JPEG = no crash, no render, requests 6+ tiles
+ANY wrapper = crash after first tile
+
+### Key Observation
+When proxy returned Python errors (NameError), GEMMI made TONS of tile
+requests without crashing! The 500 HTTP errors from Python were handled
+gracefully. But successfully served tile data CRASHES GEMMI.
+
+This suggests: GEMMI's tile parsing code crashes on our data. Raw JPEG
+is silently skipped (doesn't match expected format). Any wrapper triggers
+parsing that hits invalid data.
+
+### Remaining Investigation
+1. The exact GEE imagery tile format may differ from quadtree packets
+2. Look at GEE Portable Server code for how tiles are read/served
+3. Check PacketBundle format in GEE Fusion source
+4. Try: NO encryption (raw protobuf or raw JPEG)
+5. Try: different magic number for imagery
+6. Capture real tile from working server (audi-mib.bg €90)
