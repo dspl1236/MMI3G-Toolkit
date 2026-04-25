@@ -4,69 +4,45 @@
 # Reverts all changes made by ge_activate.sh
 # ============================================================
 
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
-if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
-    . "${_SDPATH_GUESS}/scripts/common/platform.sh"
-fi
-SDPATH="${_SDPATH_GUESS}"
+BACKUP="/mnt/nav/.mmi3g_toolkit/google-earth"
+GEMMI="/mnt/nav/gemmi"
 
-DRIVERS_INI="/mnt/efs-system/lsd/drivers.ini"
-EFSDIR="/mnt/efs-system"
-BACKUP="${SDPATH}/var/backup/google-earth"
+echo "=== Google Earth Restore ==="
 
-echo "============================================"
-echo " Google Earth Restore"
-echo "============================================"
-
-# Remount rw
-mount -uw ${EFSDIR} 2>/dev/null
-
-# --- Restore lsd.jxe ---
-LSD_LATEST=""
-for bak in ${BACKUP}/lsd.jxe.bak-*; do
-    [ -f "$bak" ] && LSD_LATEST="$bak"
-done
-
-if [ -n "$LSD_LATEST" ] && [ -f "$LSD_LATEST" ]; then
-    echo "[RESTORE] Restoring lsd.jxe from $LSD_LATEST"
-    cp "$LSD_LATEST" "${EFSDIR}/lsd/lsd.jxe"
-    echo "[OK] lsd.jxe restored (EOLFLAG_GOOGLE_EARTH reverted)"
-else
-    echo "[INFO] No lsd.jxe backup found — skipping"
+if [ ! -f "$BACKUP/libembeddedearth.so.orig" ]; then
+    echo "ERROR: No backup found at $BACKUP/"
+    echo "Cannot revert without original files."
+    exit 1
 fi
 
-# --- Restore drivers.ini ---
-DRV_LATEST=""
-for bak in ${BACKUP}/drivers.ini.bak-*; do
-    [ -f "$bak" ] && DRV_LATEST="$bak"
-done
+# Stop everything
+slay gemmi_final 2>/dev/null
+sleep 1
 
-if [ -n "$DRV_LATEST" ] && [ -f "$DRV_LATEST" ]; then
-    echo "[RESTORE] Restoring drivers.ini from $DRV_LATEST"
-    cp "$DRV_LATEST" "$DRIVERS_INI"
-    echo "[OK] drivers.ini restored (disableAuthKey reverted)"
-else
-    # Manual removal of our additions
-    if [ -f "$DRIVERS_INI" ] && grep -q "MMI3G-Toolkit" "$DRIVERS_INI"; then
-        echo "[RESTORE] Removing MMI3G-Toolkit additions from drivers.ini"
-        grep -v "Google Earth auth bypass\|Connection/disableAuthKey" "$DRIVERS_INI" > /tmp/drivers_clean.ini
-        cp /tmp/drivers_clean.ini "$DRIVERS_INI"
-        rm -f /tmp/drivers_clean.ini
-        echo "[OK] Removed disableAuthKey from drivers.ini"
-    else
-        echo "[INFO] No drivers.ini changes found to revert"
-    fi
+# Restore original binary
+echo "Restoring original libembeddedearth.so..."
+cp "$BACKUP/libembeddedearth.so.orig" "$GEMMI/libembeddedearth.so"
+
+# Restore run_gemmi.sh
+if [ -f "$BACKUP/run_gemmi.sh.orig" ]; then
+    cp "$BACKUP/run_gemmi.sh.orig" "$GEMMI/run_gemmi.sh"
 fi
 
-# Remove /etc/hosts entries if we added any
-if [ -f /etc/hosts ] && grep -q "MMI3G-Toolkit\|kh.google.com" /etc/hosts 2>/dev/null; then
-    grep -v "kh.google.com\|cbk0.google.com\|maps.googleapis.com\|mw1.google.com" /etc/hosts > /tmp/hosts_clean
-    cp /tmp/hosts_clean /etc/hosts
-    rm -f /tmp/hosts_clean
-    echo "[OK] Removed DNS redirects from /etc/hosts"
+# Restore /etc/hosts
+if [ -f "$BACKUP/hosts.orig" ]; then
+    cp "$BACKUP/hosts.orig" /etc/hosts
 fi
+
+# Remove deployed files
+rm -f "$GEMMI/dbRoot_custom.bin"
+rm -f "$GEMMI/auth_resp1.bin"
+rm -f "$GEMMI/auth_resp2.bin"
+rm -f "$GEMMI/gemmi_server.sh"
+rm -f "$GEMMI/gemmi_control.sh"
+
+# Clear cache
+rm -rf /mnt/img-cache/gemmi/cache/* 2>/dev/null
 
 echo ""
-echo "============================================"
-echo " Restore complete — reboot to apply"
-echo "============================================"
+echo "=== Restore Complete ==="
+echo "Original files restored. Hard reboot to apply."

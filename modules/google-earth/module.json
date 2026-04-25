@@ -1,47 +1,38 @@
 {
     "name": "google-earth",
-    "version": "0.2.0-alpha",
-    "description": "Google Earth restoration \u2014 probe, enable, and deploy. Evidence suggests kh.google.com still serves dbRoot.v5 (HTTP 200) and /geauth auth has been removed (HTTP 404). Audi NAR (variant 6) has no RANGE_ block. The simplest path may be: disableAuthKey + EOL flag flip + internet. GEMMI binaries may self-provision from Google or may need deployment from EU nav update.",
+    "version": "1.0.0-beta",
+    "description": "Google Earth satellite imagery restoration. Tiles from kh.google.com (still live!). Custom dbRoot, cached auth, 2 code patches to libembeddedearth.so. Requires LTE internet.",
     "author": "dspl1236",
-    "status": "alpha",
-    "compatible": [
-        "MMI3G+",
-        "RNS-850"
-    ],
+    "status": "beta",
+    "compatible": ["MMI3G+", "RNS-850"],
     "standalone": true,
     "run_script": "ge_probe.sh",
     "script_dir": "/scripts/GoogleEarth",
     "requires_reboot": true,
     "scripts": [
-        "ge_probe.sh - SAFE: Probe GEMMI state, binaries, network, EOL flags, variant (read-only)",
-        "ge_activate.sh - Enable + Deploy: deploys GEMMI binaries (if needed) AND adds disableAuthKey",
-        "ge_restore.sh - SAFE: Revert all changes made by ge_activate.sh"
+        "ge_probe.sh - SAFE: Probe GEMMI state, check binary patches, verify connectivity",
+        "ge_activate.sh - Deploy: patch binary, deploy dbRoot/auth/server, set hosts",
+        "ge_restore.sh - SAFE: Revert all changes, restore original binary"
+    ],
+    "payload_dirs": [
+        { "source": "payload", "target": "gemmi" }
     ],
     "recommended_flow": [
-        "1. Run ge_probe.sh \u2014 share report with community",
-        "2. Connect internet (USB ethernet + LTE router)",
-        "3. Run ge_activate.sh \u2014 deploys GEMMI + adds disableAuthKey",
-        "4. Reboot, check NAV > Map Settings > Google Earth",
-        "5. If something goes wrong: run ge_restore.sh"
+        "1. Run ge_probe.sh — verify GEMMI exists and check current state",
+        "2. Ensure LTE internet (USB ethernet + Digi WR11 or similar)",
+        "3. Run ge_activate.sh — patches binary, deploys all files",
+        "4. Hard reboot MMI",
+        "5. Open Google Earth from map menu — satellite imagery!",
+        "6. If issues: run ge_restore.sh to revert"
     ],
-    "research_findings": [
-        "kh.google.com/dbRoot.v5 returns HTTP 200 (16KB, server ALIVE April 2026)",
-        "kh.google.com/geauth returns HTTP 404 (auth endpoint REMOVED)",
-        "disableAuthKey parameter in libembeddedearth.so",
-        "geFreeLoginServer \u2014 free login mode exists in binary",
-        "GEMMI binaries live at /mnt/nav/gemmi/ (NAV HDD, writable)",
-        "EU nav updates include GEMMI; NAR do not",
-        "Audi NAR (HU_VARIANT=6): NO RANGE_ block on Google Earth",
-        "VW (HU_VARIANT=15): RANGE_ blocked, gemmi_final runs independently",
-        "Congo: US RNS-850 works as long as internet works",
-        "Self-provisioning: GEE protocol may download binaries automatically"
-    ],
-    "risks": [
-        "EXPERIMENTAL: binary analysis + live server testing, NOT car-tested",
-        "ge_probe.sh completely safe (read-only)",
-        "ge_enable.sh modifies drivers.ini on writable EFS (backed up)",
-        "ge_deploy.sh copies to /mnt/nav/gemmi/ on writable HDD",
-        "NO IFS, lsd.jxe, or firmware modified by any script",
-        "ge_restore.sh cleanly reverts all changes"
-    ]
+    "technical": {
+        "patches": [
+            { "offset": "0x343d20", "original": "862f1fc7962f", "patched": "01e00b000900", "purpose": "Image validation bypass (return TRUE)" },
+            { "offset": "0x3470a0", "original": "862f2dc7", "patched": "0b000900", "purpose": "Post-validation DRM skip" }
+        ],
+        "dbroot": "Custom EncryptedDbRootProto with geoServer→kh.google.com",
+        "auth": "Static cached responses (16b + 136b)",
+        "tiles": "Direct from kh.google.com via car's LTE connection",
+        "proxy": "On-car mini HTTP server (gemmi_server.sh) for dbRoot/auth"
+    }
 }
