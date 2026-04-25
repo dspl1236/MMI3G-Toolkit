@@ -186,3 +186,36 @@ Shell script using nc.shle that:
 - GEE encryption algorithm: google/earthenterprise (Apache 2.0)
 - Binary patch offsets: community research (mhhauto)
 - Proxy, analysis, and documentation: dspl1236/MMI3G-Toolkit
+
+## Web App — SD Card Payload Generator (TODO)
+
+Browser-based tool (like PCM-Forge docs/index.html) that:
+
+1. **User uploads** their `libembeddedearth.so` from `/mnt/nav/gemmi/`
+2. **Web app verifies** firmware version (K0942, etc.)
+3. **Applies patches:**
+   - CODE PATCH 1 @ 0x343d20 (image validation bypass)
+   - CODE PATCH 2 @ 0x3470a0 (post-validation skip)
+4. **Generates:**
+   - Custom dbRoot (geoServer → kh.google.com)
+   - Cached auth responses
+   - Mini HTTP server script
+   - Modified run_gemmi.sh
+   - Installation script
+5. **Downloads** complete SD card package as ZIP
+6. **Instructions** for deployment via engineering shell
+
+### Tech Stack
+- Pure HTML/JS (runs in browser, no server needed)
+- Binary patching via ArrayBuffer/DataView
+- GEE encryption for dbRoot generation
+- ZIP packaging via JSZip or similar
+
+### User Experience
+1. Open web page
+2. Upload .so file
+3. Click "Generate"
+4. Download ZIP
+5. Copy to SD card
+6. Run install script from MMI shell
+7. Google Earth works! 🛰️
