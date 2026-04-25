@@ -842,6 +842,11 @@ function App() {
                     React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
                     React.createElement("option", { value: "ge_activate.sh" }, "\u26A1 Enable + Deploy (activate Google Earth)"),
                     React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
+                  ),
+                  React.createElement("div", { style: { marginTop: 8, padding: "6px 8px", background: "#1a1206", borderRadius: 4, border: "1px solid #3d2e0a", fontSize: 11, color: "#fbbf24", lineHeight: 1.5 } },
+                    "\u26A0\uFE0F  After building, manually download ",
+                    React.createElement("a", { href: "https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi", target: "_blank", onClick: (e) => e.stopPropagation(), style: { color: "#60a5fa", textDecoration: "underline" } }, "libembeddedearth.so"),
+                    " from GitHub Releases and place in the gemmi/ folder on your SD card. The build auto-patches it if bundled, or ge_activate.sh handles unpatched binaries."
                   )
                 ),
                 m.id === "lte-setup" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
