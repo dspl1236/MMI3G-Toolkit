@@ -648,7 +648,7 @@ function App() {
   const [selected, setSelected] = useState(new Set(["system-info"]));
   const [model, setModel] = useState("a6c7");
   const [expandedMod, setExpandedMod] = useState(null);
-  const [geScript, setGeScript] = useState("ge_probe.sh");
+  const [geScript, setGeScript] = useState("ge_deploy.sh");
   const [lteMode, setLteMode] = useState("lte_setup.sh");
   const [buildState, setBuildState] = useState("idle"); // idle | building | done | error
   const [buildProgress, setBuildProgress] = useState({ label: "", pct: 0 });
@@ -859,7 +859,8 @@ function App() {
                   React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Script to run"),
                   React.createElement("select", { value: geScript, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setGeScript(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
                     React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
-                    React.createElement("option", { value: "ge_activate.sh" }, "\u26A1 Enable + Deploy (activate Google Earth)"),
+                    React.createElement("option", { value: "ge_deploy.sh" }, "\u{1F4E1} Deploy — PC Proxy Mode (requires PC running proxy)"),
+                    React.createElement("option", { value: "ge_deploy_dream.sh" }, "\u{1F680} Deploy — Dream Mode (no PC needed, LTE direct!)"),
                     React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
                   ),
                   React.createElement("div", { style: { marginTop: 8, padding: "6px 8px", background: "#1a1206", borderRadius: 4, border: "1px solid #3d2e0a", fontSize: 11, color: "#fbbf24", lineHeight: 1.5 } },

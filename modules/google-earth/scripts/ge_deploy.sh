@@ -1,274 +1,196 @@
 #!/bin/ksh
 # ============================================================
-# MMI3G-Toolkit — GEMMI Binary Deployer
-# Deploys Google Earth binaries to cars that don't have them
+# MMI3G-Toolkit — Google Earth Deploy
+# Deploys patched GEMMI binaries from SD card to car HDD
 #
-# Sources (checked in order):
-#   1. SD card /gemmi/ directory (user-provided)
-#   2. Already installed on /mnt/efs-system/gemmi/
-#   3. EU firmware lsd.jxe on EFS (extract if present)
+# Handles: remount writable, kill GEMMI, copy files, verify
+# Supports: proxy mode (PC required) and dream mode (no PC)
 #
-# Target: /mnt/efs-system/gemmi/
-#
-# Required files:
-#   gemmi_final            — 1.9MB — Native SH4 Google Earth process
-#   libembeddedearth.so    — 20MB  — Rendering library  
-#   libmessaging.so        — 807KB — IPC messaging
-#   drivers.ini            — 1.1KB — Connection/render config
-#   run_gemmi.sh           — 4.1KB — Startup script
-#   scripts/               — Control scripts (start/stop/info)
-#
-# How to get the files:
-#   Option A: Run gemmi-dump module on a car that HAS Google Earth
-#             (any EU Audi MMI3G+ or pre-2020 NAR with working GE)
-#             → copies to SD card var/gemmi_dump/
-#             → move those files to SD card /gemmi/ directory
-#
-#   Option B: Extract from EU firmware lsd.jxe
-#             (HN+R_EU_AU_K0942_4 contains full GEMMI package)
+# Usage: ksh ge_deploy.sh [mode]
+#   mode: proxy (default) — requires PC proxy at 192.168.0.91
+#         dream           — self-contained, no PC needed
 #
 # Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 # ============================================================
 
-# --- platform.sh ---
-_SDPATH_GUESS="${SDPATH:-${0%/*}}"
-if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
-    . "${_SDPATH_GUESS}/scripts/common/platform.sh"
-elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
-    . "/mnt/efs-system/scripts/common/platform.sh"
+SDPATH="${SDPATH:-${0%/*}/..}"
+if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
+    . "${SDPATH}/scripts/common/platform.sh"
 fi
 
-SDPATH="${_SDPATH_GUESS}"
-TS=$(date +%H%M%S 2>/dev/null || echo "000000")
-if command -v getTime >/dev/null 2>&1; then TS="epoch-$(getTime)"; fi
+MODE="${1:-proxy}"
+GEMMI_SRC="${SDPATH}/gemmi"
+GEMMI_DST="/mnt/nav/gemmi"
+GEDB_DIR="/mnt/nav/gedb"
 
 OUTDIR="${SDPATH}/var/google-earth"
-LOG="${OUTDIR}/ge-deploy-${TS}.log"
-BACKUP="${SDPATH}/var/backup/google-earth"
 mkdir -p "${OUTDIR}" 2>/dev/null
-mkdir -p "${BACKUP}" 2>/dev/null
-
-EFSDIR="/mnt/efs-system"
-GEMMI_TARGET="/mnt/nav/gemmi"
+LOG="${OUTDIR}/ge-deploy.log"
 
 exec > "${LOG}" 2>&1
 
 echo "============================================"
-echo " GEMMI Binary Deployer"
-echo " $(date)"
-echo " Train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+echo " Google Earth Deploy — Mode: ${MODE}"
 echo "============================================"
 echo ""
 
-# ============================================================
-# Step 1: Check if GEMMI is already installed
-# ============================================================
-echo "[STEP 1] Checking existing GEMMI installation..."
-
-if [ -f "${GEMMI_TARGET}/gemmi_final" ]; then
-    EXISTING_SIZE=$(ls -la "${GEMMI_TARGET}/gemmi_final" | awk '{print $5}')
-    echo "  [OK] GEMMI already installed at ${GEMMI_TARGET}"
-    echo "  gemmi_final: ${EXISTING_SIZE} bytes"
-    echo "  No deployment needed — run ge_enable.sh instead"
-    echo ""
-    echo "  To force redeploy, remove ${GEMMI_TARGET} first"
-    exit 0
-fi
-
-echo "  [INFO] GEMMI not installed — looking for source files..."
-echo ""
-
-# ============================================================
-# Step 2: Find GEMMI source files
-# ============================================================
-echo "[STEP 2] Searching for GEMMI source files..."
-
-SOURCE=""
-
-# Check SD card /gemmi/ directory first
-if [ -f "${SDPATH}/gemmi/gemmi_final" ] && \
-   [ -f "${SDPATH}/gemmi/libembeddedearth.so" ]; then
-    SOURCE="${SDPATH}/gemmi"
-    echo "  [FOUND] SD card: ${SOURCE}"
-fi
-
-# Check gemmi-dump output on SD card
-if [ -z "$SOURCE" ]; then
-    for dump in ${SDPATH}/var/gemmi_dump; do
-        if [ -f "${dump}/gemmi_final" ] && \
-           [ -f "${dump}/libembeddedearth.so" ]; then
-            SOURCE="${dump}"
-            echo "  [FOUND] gemmi-dump output: ${SOURCE}"
-        fi
-    done
-fi
-
-# Check other common locations
-if [ -z "$SOURCE" ]; then
-    for dir in /mnt/nav/gemmi /HBpersistence/gemmi \
-               /mnt/persistence/gemmi; do
-        if [ -f "${dir}/gemmi_final" ]; then
-            SOURCE="${dir}"
-            echo "  [FOUND] System path: ${SOURCE}"
-        fi
-    done
-fi
-
-if [ -z "$SOURCE" ]; then
-    echo "  [ERROR] No GEMMI source files found!"
-    echo ""
-    echo "  To deploy GEMMI, you need the binary files."
-    echo "  Get them by:"
-    echo "    1. Run gemmi-dump on a car that HAS Google Earth"
-    echo "    2. Copy the output from var/gemmi_dump/ to SD card /gemmi/"
-    echo "    3. Re-run this script"
-    echo ""
-    echo "  Required files in /gemmi/ on SD card:"
-    echo "    gemmi_final"
-    echo "    libembeddedearth.so"
-    echo "    libmessaging.so (optional)"
-    echo "    drivers.ini"
-    echo "    run_gemmi.sh"
+# --- Step 1: Verify source files ---
+echo "=== Step 1: Verify SD card files ==="
+if [ ! -d "${GEMMI_SRC}" ]; then
+    echo "[ERROR] No gemmi/ directory on SD card!"
     exit 1
 fi
 
-echo ""
-echo "  Source files:"
-ls -lh "${SOURCE}"/gemmi_final "${SOURCE}"/libembeddedearth.so \
-       "${SOURCE}"/drivers.ini 2>/dev/null
-echo ""
+SO_FILE="${GEMMI_SRC}/libembeddedearth.so"
+if [ "${MODE}" = "dream" ] && [ -f "${GEMMI_SRC}/libembeddedearth_dream.so" ]; then
+    SO_FILE="${GEMMI_SRC}/libembeddedearth_dream.so"
+    echo "[INFO] Using dream binary (file:///mnt/nav/gedb/)"
+fi
 
-# ============================================================
-# Step 3: Remount EFS and create target directory
-# ============================================================
-echo "[STEP 3] Preparing target directory..."
-
-mount -uw ${EFSDIR} 2>/dev/null
-mkdir -p "${GEMMI_TARGET}" 2>/dev/null
-mkdir -p "${GEMMI_TARGET}/scripts" 2>/dev/null
-mkdir -p "${GEMMI_TARGET}/models" 2>/dev/null
-mkdir -p "${GEMMI_TARGET}/res" 2>/dev/null
-
-if [ ! -d "${GEMMI_TARGET}" ]; then
-    echo "  [ERROR] Could not create ${GEMMI_TARGET}"
+if [ ! -f "${SO_FILE}" ]; then
+    echo "[ERROR] libembeddedearth.so not found on SD card!"
+    echo "Download from: github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.1-ge-patched"
     exit 1
 fi
-echo "  [OK] Target directory ready: ${GEMMI_TARGET}"
-echo ""
 
-# ============================================================
-# Step 4: Deploy GEMMI binaries
-# ============================================================
-echo "[STEP 4] Deploying GEMMI binaries..."
+SO_SIZE=$(ls -la "${SO_FILE}" | awk '{print $5}')
+echo "[OK] Source .so: ${SO_SIZE} bytes"
 
-DEPLOYED=0
-
-# Core binaries
-for file in gemmi_final libembeddedearth.so libmessaging.so \
-            libthirdparty_icu_3_5.so mapStylesWrite; do
-    if [ -f "${SOURCE}/${file}" ]; then
-        cp "${SOURCE}/${file}" "${GEMMI_TARGET}/${file}"
-        chmod +x "${GEMMI_TARGET}/${file}"
-        SIZE=$(ls -la "${GEMMI_TARGET}/${file}" | awk '{print $5}')
-        echo "  [COPY] ${file} (${SIZE} bytes)"
-        DEPLOYED=$((DEPLOYED + 1))
-    fi
-done
-
-# Config files
-for file in drivers.ini run_gemmi.sh pg.sh \
-            debug_gemmi.sh debug_memcpu.sh; do
-    if [ -f "${SOURCE}/${file}" ]; then
-        cp "${SOURCE}/${file}" "${GEMMI_TARGET}/${file}"
-        chmod +x "${GEMMI_TARGET}/${file}" 2>/dev/null
-        echo "  [COPY] ${file}"
-        DEPLOYED=$((DEPLOYED + 1))
-    fi
-done
-
-# Control scripts
-if [ -d "${SOURCE}/scripts" ]; then
-    for script in ${SOURCE}/scripts/*.sh; do
-        if [ -f "$script" ]; then
-            name=$(basename "$script")
-            cp "$script" "${GEMMI_TARGET}/scripts/${name}"
-            chmod +x "${GEMMI_TARGET}/scripts/${name}"
-            echo "  [COPY] scripts/${name}"
-            DEPLOYED=$((DEPLOYED + 1))
-        fi
-    done
-fi
-
-# Models and resources
-for subdir in models res; do
-    if [ -d "${SOURCE}/${subdir}" ]; then
-        cp -r "${SOURCE}/${subdir}" "${GEMMI_TARGET}/"
-        echo "  [COPY] ${subdir}/ directory"
-        DEPLOYED=$((DEPLOYED + 1))
-    fi
-done
-
-echo ""
-echo "  Deployed ${DEPLOYED} files to ${GEMMI_TARGET}"
-echo ""
-
-# ============================================================
-# Step 5: Verify deployment
-# ============================================================
-echo "[STEP 5] Verifying deployment..."
-
-VERIFIED=1
-for required in gemmi_final libembeddedearth.so drivers.ini; do
-    if [ -f "${GEMMI_TARGET}/${required}" ]; then
-        echo "  [OK] ${required}"
+for f in gemmi_final libmessaging.so drivers.ini run_gemmi.sh dbRoot_custom.bin auth_resp1.bin auth_resp2.bin; do
+    if [ -f "${GEMMI_SRC}/${f}" ]; then
+        echo "[OK] ${f}"
     else
-        echo "  [FAIL] ${required} MISSING"
-        VERIFIED=0
+        echo "[WARN] Missing: ${f}"
     fi
 done
 
+# --- Step 2: Kill GEMMI ---
 echo ""
+echo "=== Step 2: Kill GEMMI ==="
+slay -f gemmi_final 2>/dev/null
+sleep 2
+slay -f run_gemmi.sh 2>/dev/null
+sleep 1
+echo "[OK] GEMMI processes killed"
 
-# ============================================================
-# Summary
-# ============================================================
-echo "============================================"
-echo " Deployment Summary"
-echo "============================================"
+# --- Step 3: Remount /mnt/nav writable ---
 echo ""
-echo " Source:     ${SOURCE}"
-echo " Target:     ${GEMMI_TARGET}"
-echo " Files:      ${DEPLOYED} deployed"
-echo " Verified:   $([ $VERIFIED -eq 1 ] && echo 'OK' || echo 'INCOMPLETE')"
-echo ""
-
-if [ $VERIFIED -eq 1 ]; then
-    echo " ✅ GEMMI binaries deployed successfully"
-    echo ""
-    echo " NEXT STEPS:"
-    echo "   1. Run ge_enable.sh to add disableAuthKey"
-    echo "   2. Connect internet (USB ethernet + LTE router)"
-    echo "   3. Reboot MMI"
-    echo "   4. Check NAV → Map Settings for Google Earth option"
+echo "=== Step 3: Remount /mnt/nav writable ==="
+mount -u -o rw /dev/hd0t77 /mnt/nav 2>/dev/null
+# Verify writable
+touch /mnt/nav/.write_test 2>/dev/null
+if [ $? -eq 0 ]; then
+    rm /mnt/nav/.write_test 2>/dev/null
+    echo "[OK] /mnt/nav is writable"
 else
-    echo " ⚠️ Deployment incomplete — check missing files"
+    echo "[ERROR] Cannot make /mnt/nav writable!"
+    exit 1
 fi
+
+# --- Step 4: Backup originals ---
 echo ""
-echo " Log: ${LOG}"
-echo "============================================"
+echo "=== Step 4: Backup originals ==="
+if [ -f "${GEMMI_DST}/libembeddedearth.so" ] && [ ! -f "${GEMMI_DST}/libembeddedearth.so.orig" ]; then
+    cp "${GEMMI_DST}/libembeddedearth.so" "${GEMMI_DST}/libembeddedearth.so.orig"
+    echo "[OK] Backed up original .so"
+fi
 
-# ============================================================
-# Step 6: Set up GEMMI cache directory
-# ============================================================
-echo "[STEP 6] Setting up GEMMI cache..."
+# --- Step 5: Deploy files ---
+echo ""
+echo "=== Step 5: Deploy files ==="
+mkdir -p "${GEMMI_DST}" 2>/dev/null
 
-for cachedir in /mnt/img-cache/gemmi /mnt/img-cache/gemmi/.config \
-                /mnt/img-cache/gemmi/cache /mnt/img-cache/gemmi/scache \
-                /mnt/img-cache/gemmi/temp; do
-    if [ ! -d "$cachedir" ]; then
-        mkdir -p "$cachedir" 2>/dev/null
-        echo "  [MKDIR] $cachedir"
+# Copy the .so (proxy or dream version)
+cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so"
+echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
+
+# Copy other GEMMI files (only if present on SD)
+for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite drivers.ini gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh; do
+    if [ -f "${GEMMI_SRC}/${f}" ]; then
+        cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}"
+        echo "[OK] ${f}"
     fi
 done
-echo "  [OK] Cache directories ready"
+
+chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
+chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
+
+# --- Step 6: Mode-specific setup ---
 echo ""
+echo "=== Step 6: Mode setup (${MODE}) ==="
+
+if [ "${MODE}" = "dream" ]; then
+    # Dream mode: dbRoot on HDD, no proxy needed
+    mkdir -p "${GEDB_DIR}" 2>/dev/null
+    cp "${GEMMI_DST}/dbRoot_custom.bin" "${GEDB_DIR}/dbRoot.v5"
+    echo "[OK] dbRoot deployed to ${GEDB_DIR}/dbRoot.v5"
+
+    # Remove proxy hosts entry from run_gemmi.sh if present
+    if grep -q "192.168.0.91" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
+        # Rewrite run_gemmi.sh without the hosts line
+        grep -v "192.168.0.91\|kh.google.com.*hosts\|hosts.*kh.google.com" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.tmp"
+        mv "${GEMMI_DST}/run_gemmi.sh.tmp" "${GEMMI_DST}/run_gemmi.sh"
+        chmod +x "${GEMMI_DST}/run_gemmi.sh"
+        echo "[OK] Removed proxy hosts entry from run_gemmi.sh"
+    fi
+
+    # Clean /etc/hosts (remove proxy redirect)
+    if grep -q "192.168.0.91" /etc/hosts 2>/dev/null; then
+        grep -v "192.168.0.91" /etc/hosts > /etc/hosts.tmp
+        cp /etc/hosts.tmp /etc/hosts
+        rm /etc/hosts.tmp 2>/dev/null
+        echo "[OK] Cleaned /etc/hosts"
+    fi
+
+    echo "[OK] Dream mode: no proxy needed, tiles go direct to Google"
+
+elif [ "${MODE}" = "proxy" ]; then
+    # Proxy mode: add hosts entry for PC proxy
+    # Add to /etc/hosts
+    grep -q "192.168.0.91 kh.google.com" /etc/hosts 2>/dev/null || \
+        echo "192.168.0.91 kh.google.com geoauth.google.com maps.google.com" >> /etc/hosts
+    echo "[OK] Proxy hosts entry added (192.168.0.91)"
+
+    # Ensure run_gemmi.sh adds hosts on reboot
+    if ! grep -q "192.168.0.91" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
+        # Prepend hosts line to run_gemmi.sh
+        echo 'grep -q "192.168.0.91 kh.google.com" /etc/hosts || echo "192.168.0.91 kh.google.com geoauth.google.com maps.google.com" >> /etc/hosts' > "${GEMMI_DST}/run_gemmi.sh.tmp"
+        cat "${GEMMI_DST}/run_gemmi.sh" >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+        mv "${GEMMI_DST}/run_gemmi.sh.tmp" "${GEMMI_DST}/run_gemmi.sh"
+        chmod +x "${GEMMI_DST}/run_gemmi.sh"
+        echo "[OK] Added proxy hosts entry to run_gemmi.sh"
+    fi
+
+    echo "[OK] Proxy mode: start proxy on PC before rebooting"
+fi
+
+# --- Step 7: Wipe tile cache ---
+echo ""
+echo "=== Step 7: Wipe tile cache ==="
+rm -rf /mnt/img-cache/gemmi/cache/* 2>/dev/null
+rm -rf /mnt/img-cache/gemmi/scache/* 2>/dev/null
+rm -rf /mnt/img-cache/gemmi/temp/* 2>/dev/null
+echo "[OK] Tile cache wiped"
+
+# --- Step 8: Verify ---
+echo ""
+echo "=== Step 8: Verify deployment ==="
+echo "Deployed .so: $(cksum "${GEMMI_DST}/libembeddedearth.so" 2>/dev/null)"
+echo "Hosts: $(cat /etc/hosts)"
+if [ "${MODE}" = "dream" ]; then
+    echo "dbRoot: $(ls -la "${GEDB_DIR}/dbRoot.v5" 2>/dev/null)"
+fi
+ls -la "${GEMMI_DST}/" 2>/dev/null
+
+echo ""
+echo "============================================"
+echo " Deploy Complete!"
+echo ""
+echo " IMPORTANT: Eject SD card, then hard reboot"
+echo " the MMI to activate Google Earth."
+if [ "${MODE}" = "proxy" ]; then
+    echo " Start PC proxy BEFORE rebooting:"
+    echo "   cd D:\\MMI\\proxy"
+    echo "   python gemmi_tile_proxy.py"
+fi
+echo "============================================"
