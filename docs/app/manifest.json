@@ -516,6 +516,10 @@
                     "size": 1220
                 },
                 {
+                    "path": "payload/gemmi_proxy",
+                    "size": 66292
+                },
+                {
                     "path": "payload/gemmi_server.sh",
                     "size": 2310
                 },
