@@ -537,11 +537,11 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 7411
+                    "size": 7556
                 },
                 {
                     "path": "scripts/ge_deploy_dream.sh",
-                    "size": 187
+                    "size": 238
                 },
                 {
                     "path": "scripts/ge_enable.sh",

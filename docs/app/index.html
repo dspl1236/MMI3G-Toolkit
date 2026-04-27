@@ -580,8 +580,7 @@ async function buildSdBundle(selected, onProgress, overrides) {
           console.log(`GE patches applied: ${patchCount}/11 (2 code + ${hostCount} hostname)`);
           bytes = patched;
         }
-        const sdPath = (isDream && asset.name === "libembeddedearth_dream.so") ? "gemmi/libembeddedearth.so" : asset.path;
-        files.push({ path: sdPath, bytes });
+        files.push({ path: asset.path, bytes });
         step(`Fetched ${asset.name} (${(bytes.length / 1024 / 1024).toFixed(1)}MB)`);
       } catch (e) {
         console.warn(`GEMMI asset ${asset.name} not available:`, e);

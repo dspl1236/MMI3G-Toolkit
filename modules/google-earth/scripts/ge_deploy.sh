@@ -13,12 +13,17 @@
 # Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 # ============================================================
 
-SDPATH="${SDPATH:-${0%/*}/..}"
+SDPATH="${1:-${0%/*}/..}"
 if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
     . "${SDPATH}/scripts/common/platform.sh"
 fi
 
-MODE="${1:-proxy}"
+# Auto-detect mode: if dream .so exists on SD card, use dream mode
+if [ -f "${SDPATH}/gemmi/libembeddedearth_dream.so" ]; then
+    MODE="dream"
+else
+    MODE="proxy"
+fi
 GEMMI_SRC="${SDPATH}/gemmi"
 GEMMI_DST="/mnt/nav/gemmi"
 GEDB_DIR="/mnt/nav/gedb"
