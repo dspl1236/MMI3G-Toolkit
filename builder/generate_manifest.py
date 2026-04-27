@@ -95,9 +95,8 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
         'base_url': 'https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi/',
         'files': [
             {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1965004},
-            # libembeddedearth.so: NOT in release assets — pre-patched version
-            # must be downloaded manually from Release page and placed on SD card.
-            # See research/BINARY_PATCH_ANALYSIS.md for patch details.
+            {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20839388,
+             'url': 'https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.1-ge-patched/libembeddedearth.so'},
             {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826149},
             {'name': 'libthirdparty_icu_3_5.so', 'path': 'gemmi/libthirdparty_icu_3_5.so', 'size': 1524205},
             {'name': 'mapStylesWrite', 'path': 'gemmi/mapStylesWrite', 'size': 507383},

@@ -1668,6 +1668,12 @@
                 "size": 1965004
             },
             {
+                "name": "libembeddedearth.so",
+                "path": "gemmi/libembeddedearth.so",
+                "size": 20839388,
+                "url": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.1-ge-patched/libembeddedearth.so"
+            },
+            {
                 "name": "libmessaging.so",
                 "path": "gemmi/libmessaging.so",
                 "size": 826149
