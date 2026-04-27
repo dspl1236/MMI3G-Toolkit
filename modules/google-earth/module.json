@@ -1,12 +1,15 @@
 {
     "name": "google-earth",
     "version": "1.0.0-beta",
-    "description": "Google Earth satellite imagery restoration. Tiles from kh.google.com (still live!). Custom dbRoot, cached auth, 2 code patches to libembeddedearth.so. Requires LTE internet.",
+    "description": "Google Earth satellite imagery restoration \u2014 CONFIRMED WORKING. Deploys pre-patched libembeddedearth.so (11 patches: 2 code + 9 hostname), custom dbRoot, cached auth. Tiles from kh.google.com (still live!). Requires LTE internet + proxy on PC.",
     "author": "dspl1236",
-    "status": "design",
-    "compatible": ["MMI3G+", "RNS-850"],
+    "status": "alpha",
+    "compatible": [
+        "MMI3G+",
+        "RNS-850"
+    ],
     "standalone": true,
-    "run_script": "ge_probe.sh",
+    "run_script": "ge_activate.sh",
     "script_dir": "/scripts/GoogleEarth",
     "requires_reboot": true,
     "scripts": [
@@ -15,22 +18,35 @@
         "ge_restore.sh - SAFE: Revert all changes, restore original binary"
     ],
     "payload_dirs": [
-        { "source": "payload", "target": "gemmi" }
+        {
+            "source": "payload",
+            "target": "gemmi"
+        }
     ],
     "recommended_flow": [
-        "1. Run ge_probe.sh — verify GEMMI exists and check current state",
+        "1. Run ge_probe.sh \u2014 verify GEMMI exists and check current state",
         "2. Ensure LTE internet (USB ethernet + Digi WR11 or similar)",
-        "3. Run ge_activate.sh — patches binary, deploys all files",
+        "3. Run ge_activate.sh \u2014 patches binary, deploys all files",
         "4. Hard reboot MMI",
-        "5. Open Google Earth from map menu — satellite imagery!",
+        "5. Open Google Earth from map menu \u2014 satellite imagery!",
         "6. If issues: run ge_restore.sh to revert"
     ],
     "technical": {
         "patches": [
-            { "offset": "0x343d20", "original": "862f1fc7962f", "patched": "01e00b000900", "purpose": "Image validation bypass (return TRUE)" },
-            { "offset": "0x3470a0", "original": "862f2dc7", "patched": "0b000900", "purpose": "Post-validation DRM skip" }
+            {
+                "offset": "0x343d20",
+                "original": "862f1fc7962f",
+                "patched": "01e00b000900",
+                "purpose": "Image validation bypass (return TRUE)"
+            },
+            {
+                "offset": "0x3470a0",
+                "original": "862f2dc7",
+                "patched": "0b000900",
+                "purpose": "Post-validation DRM skip"
+            }
         ],
-        "dbroot": "Custom EncryptedDbRootProto with geoServer→kh.google.com",
+        "dbroot": "Custom EncryptedDbRootProto with geoServer\u2192kh.google.com",
         "auth": "Static cached responses (16b + 136b)",
         "tiles": "Direct from kh.google.com via car's LTE connection",
         "proxy": "On-car mini HTTP server (gemmi_server.sh) for dbRoot/auth"

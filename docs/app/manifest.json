@@ -473,10 +473,10 @@
             ]
         },
         "google-earth": {
-            "status": "design",
-            "description": "Google Earth satellite imagery restoration. Tiles from kh.google.com (still live!). Custom dbRoot, cached auth, 2 code patches to libembeddedearth.so. Requires LTE internet.",
+            "status": "alpha",
+            "description": "Google Earth satellite imagery restoration \u2014 CONFIRMED WORKING. Deploys pre-patched libembeddedearth.so (11 patches: 2 code + 9 hostname), custom dbRoot, cached auth. Tiles from kh.google.com (still live!). Requires LTE internet + proxy on PC.",
             "standalone": true,
-            "run_script": "ge_probe.sh",
+            "run_script": "ge_activate.sh",
             "artifact": null,
             "payload_dirs": [
                 {
@@ -497,7 +497,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1849
+                    "size": 2143
                 },
                 {
                     "path": "payload/auth_resp1.bin",

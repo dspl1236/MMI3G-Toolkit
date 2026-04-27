@@ -527,7 +527,7 @@ async function buildSdBundle(selected, onProgress, overrides) {
     onProgress && onProgress("Fetching GEMMI binaries (~22MB)...", 96);
     for (const asset of ga.files) {
       try {
-        const url = ga.base_url + asset.name;
+        const url = asset.url || (ga.base_url + asset.name);
         let bytes = await fetchBinary(url);
         // --- Apply Google Earth code patches to libembeddedearth.so ---
         if (asset.name === "libembeddedearth.so" && bytes.length > 0x347100) {
