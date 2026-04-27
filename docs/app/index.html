@@ -524,8 +524,13 @@ async function buildSdBundle(selected, onProgress, overrides) {
   // P0824 deploy already bundles a /gemmi payload, so avoid overwriting it.
   if (selected.includes("google-earth") && !selected.includes("google-earth-p0824-deploy") && manifest.gemmi_assets) {
     const ga = manifest.gemmi_assets;
-    onProgress && onProgress("Fetching GEMMI binaries (~22MB)...", 96);
+    const isDream = overrides && overrides["google-earth"] === "ge_deploy_dream.sh";
+    onProgress && onProgress(`Fetching GEMMI binaries (~${isDream ? '45' : '25'}MB)...`, 96);
     for (const asset of ga.files) {
+      // Skip dream .so unless dream mode selected
+      if (asset.name === "libembeddedearth_dream.so" && !isDream) continue;
+      // Skip proxy .so if dream mode (use dream .so instead)
+      if (asset.name === "libembeddedearth.so" && isDream) continue;
       try {
         const url = asset.url || (ga.base_url + asset.name);
         let bytes = await fetchBinary(url);
@@ -564,7 +569,8 @@ async function buildSdBundle(selected, onProgress, overrides) {
           console.log(`GE patches applied: ${patchCount}/11 (2 code + ${hostCount} hostname)`);
           bytes = patched;
         }
-        files.push({ path: asset.path, bytes });
+        const sdPath = (isDream && asset.name === "libembeddedearth_dream.so") ? "gemmi/libembeddedearth.so" : asset.path;
+        files.push({ path: sdPath, bytes });
         step(`Fetched ${asset.name} (${(bytes.length / 1024 / 1024).toFixed(1)}MB)`);
       } catch (e) {
         console.warn(`GEMMI asset ${asset.name} not available:`, e);
