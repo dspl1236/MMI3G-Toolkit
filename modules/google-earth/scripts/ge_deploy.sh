@@ -56,7 +56,7 @@ fi
 SO_SIZE=$(ls -la "${SO_FILE}" | awk '{print $5}')
 echo "[OK] Source .so: ${SO_SIZE} bytes"
 
-for f in gemmi_final libmessaging.so drivers.cfg run_gemmi.sh dbRoot_custom.bin auth_resp1.bin auth_resp2.bin; do
+for f in gemmi_final libmessaging.so ge_settings.dat run_gemmi.sh dbRoot_custom.bin auth_resp1.bin auth_resp2.bin; do
     if [ -f "${GEMMI_SRC}/${f}" ]; then
         echo "[OK] ${f}"
     else
@@ -105,26 +105,26 @@ cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so"
 echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
 
 # Copy other GEMMI files (only if present on SD)
-for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite drivers.cfg gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh; do
+for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite ge_settings.dat gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh; do
     if [ -f "${GEMMI_SRC}/${f}" ]; then
         cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}"
         echo "[OK] ${f}"
     fi
 done
 
-# Rename drivers.cfg back to drivers.ini (Chrome blocks .ini on SD cards)
-if [ -f "${GEMMI_DST}/drivers.cfg" ] && [ ! -f "${GEMMI_DST}/drivers.ini" ]; then
-    mv "${GEMMI_DST}/drivers.cfg" "${GEMMI_DST}/drivers.ini"
-    echo "[OK] Renamed drivers.cfg → drivers.ini"
+# Rename ge_settings.dat back to drivers.ini (Chrome blocks .ini on SD cards)
+if [ -f "${GEMMI_DST}/ge_settings.dat" ] && [ ! -f "${GEMMI_DST}/drivers.ini" ]; then
+    mv "${GEMMI_DST}/ge_settings.dat" "${GEMMI_DST}/drivers.ini"
+    echo "[OK] Renamed ge_settings.dat → drivers.ini"
 fi
 
 chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
 chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
 
 # Rename .cfg to .ini (Chrome blocks .ini in File System Access API)
-if [ -f "${GEMMI_DST}/drivers.cfg" ]; then
-    mv "${GEMMI_DST}/drivers.cfg" "${GEMMI_DST}/drivers.ini"
-    echo "[OK] drivers.cfg → drivers.ini"
+if [ -f "${GEMMI_DST}/ge_settings.dat" ]; then
+    mv "${GEMMI_DST}/ge_settings.dat" "${GEMMI_DST}/drivers.ini"
+    echo "[OK] ge_settings.dat → drivers.ini"
 fi
 
 # --- Step 6: Mode-specific setup ---

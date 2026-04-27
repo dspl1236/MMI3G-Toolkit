@@ -512,7 +512,7 @@
                     "size": 16892
                 },
                 {
-                    "path": "payload/drivers.cfg",
+                    "path": "payload/ge_settings.dat",
                     "size": 1119
                 },
                 {
@@ -537,7 +537,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 7375
+                    "size": 7411
                 },
                 {
                     "path": "scripts/ge_deploy_dream.sh",
@@ -1710,10 +1710,10 @@
                 "size": 801183
             },
             {
-                "name": "drivers.cfg",
-                "path": "gemmi/drivers.cfg",
+                "name": "ge_settings.dat",
+                "path": "gemmi/ge_settings.dat",
                 "size": 1119,
-                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/drivers.cfg"
+                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/ge_settings.dat"
             },
             {
                 "name": "dbRoot_custom.bin",

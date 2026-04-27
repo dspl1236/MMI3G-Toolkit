@@ -104,8 +104,8 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
             {'name': 'mapStylesWrite', 'path': 'gemmi/mapStylesWrite', 'size': 507383},
             {'name': 'gemmi_models_res.zip', 'path': 'gemmi/gemmi_models_res.zip', 'size': 801183},
             # Small files — fetched from GitHub raw (editable in repo)
-            {'name': 'drivers.cfg', 'path': 'gemmi/drivers.cfg', 'size': 1119,
-             'url': 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/drivers.cfg'},
+            {'name': 'ge_settings.dat', 'path': 'gemmi/ge_settings.dat', 'size': 1119,
+             'url': 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/ge_settings.dat'},
             {'name': 'dbRoot_custom.bin', 'path': 'gemmi/dbRoot_custom.bin', 'size': 16892,
              'url': 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/dbRoot_custom.bin'},
             {'name': 'auth_resp1.bin', 'path': 'gemmi/auth_resp1.bin', 'size': 16,
