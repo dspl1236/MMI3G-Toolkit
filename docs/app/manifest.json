@@ -500,6 +500,22 @@
                     "size": 2143
                 },
                 {
+                    "path": "payload/auth_resp1.bin",
+                    "size": 16
+                },
+                {
+                    "path": "payload/auth_resp2.bin",
+                    "size": 136
+                },
+                {
+                    "path": "payload/dbRoot_custom.bin",
+                    "size": 16892
+                },
+                {
+                    "path": "payload/drivers.cfg",
+                    "size": 1119
+                },
+                {
                     "path": "payload/gemmi_control.sh",
                     "size": 1220
                 },
@@ -510,6 +526,10 @@
                 {
                     "path": "payload/gemmi_server.sh",
                     "size": 2310
+                },
+                {
+                    "path": "payload/run_gemmi.sh",
+                    "size": 4140
                 },
                 {
                     "path": "scripts/ge_activate.sh",
@@ -1688,31 +1708,6 @@
                 "name": "gemmi_models_res.zip",
                 "path": "gemmi/gemmi_models_res.zip",
                 "size": 801183
-            },
-            {
-                "name": "drivers.cfg",
-                "path": "gemmi/drivers.cfg",
-                "size": 1119
-            },
-            {
-                "name": "dbRoot_custom.bin",
-                "path": "gemmi/dbRoot_custom.bin",
-                "size": 16892
-            },
-            {
-                "name": "auth_resp1.bin",
-                "path": "gemmi/auth_resp1.bin",
-                "size": 16
-            },
-            {
-                "name": "auth_resp2.bin",
-                "path": "gemmi/auth_resp2.bin",
-                "size": 136
-            },
-            {
-                "name": "run_gemmi.sh",
-                "path": "gemmi/run_gemmi.sh",
-                "size": 4140
             }
         ],
         "total_size_mb": 24.8,
