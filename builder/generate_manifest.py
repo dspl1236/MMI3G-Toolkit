@@ -94,18 +94,15 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
     manifest['gemmi_assets'] = {
         'base_url': 'https://hausofdub.com/gemmi/',
         'files': [
+            # Large binaries hosted on hausofdub.com (too big for git)
+            # Small files (drivers.ini, dbRoot, auth, scripts) stay in repo payload/
             {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1965004},
             {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20839388},
             {'name': 'libembeddedearth_dream.so', 'path': 'gemmi/libembeddedearth_dream.so', 'size': 20839388},
             {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826149},
             {'name': 'libthirdparty_icu_3_5.so', 'path': 'gemmi/libthirdparty_icu_3_5.so', 'size': 1524205},
             {'name': 'mapStylesWrite', 'path': 'gemmi/mapStylesWrite', 'size': 507383},
-            {'name': 'drivers.ini', 'path': 'gemmi/drivers.ini', 'size': 1119},
-            {'name': 'run_gemmi.sh', 'path': 'gemmi/run_gemmi.sh', 'size': 4140},
             {'name': 'gemmi_models_res.zip', 'path': 'gemmi/gemmi_models_res.zip', 'size': 801183},
-            {'name': 'dbRoot_custom.bin', 'path': 'gemmi/dbRoot_custom.bin', 'size': 16892},
-            {'name': 'auth_resp1.bin', 'path': 'gemmi/auth_resp1.bin', 'size': 16},
-            {'name': 'auth_resp2.bin', 'path': 'gemmi/auth_resp2.bin', 'size': 136},
         ],
         'total_size_mb': 24.8,
         'note': 'Downloaded from GitHub Release assets (not in git repo). Only fetched when google-earth module is selected.',
