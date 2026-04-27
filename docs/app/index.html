@@ -453,10 +453,21 @@ async function buildSdBundle(selected, onProgress, overrides) {
     files.push({ path: "scripts/common/platform.sh", bytes: platformSh });
   }
 
+  // Track paths provided by gemmi_assets to skip payload duplicates
+  const gemmiAssetPaths = new Set();
+  if (manifest.gemmi_assets && selected.includes("google-earth")) {
+    for (const a of manifest.gemmi_assets.files) gemmiAssetPaths.add(a.path);
+  }
+
   for (const modName of selected) {
     const meta = manifest.modules[modName];
     if (!meta) continue;
-    const bundleFiles = (meta.files || []).filter((f) => moduleOutputPath(modName, meta, f));
+    const bundleFiles = (meta.files || []).filter((f) => {
+      const outPath = moduleOutputPath(modName, meta, f);
+      if (!outPath) return false;
+      if (gemmiAssetPaths.has(outPath)) return false; // skip — provided by gemmi_assets
+      return true;
+    });
     const tasks = bundleFiles.map(async (f) => {
       const url = rawBase + `modules/${modName}/${f.path}`;
       const bytes = await fetchBinary(url);

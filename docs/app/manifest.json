@@ -1708,6 +1708,36 @@
                 "name": "gemmi_models_res.zip",
                 "path": "gemmi/gemmi_models_res.zip",
                 "size": 801183
+            },
+            {
+                "name": "drivers.cfg",
+                "path": "gemmi/drivers.cfg",
+                "size": 1119,
+                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/drivers.cfg"
+            },
+            {
+                "name": "dbRoot_custom.bin",
+                "path": "gemmi/dbRoot_custom.bin",
+                "size": 16892,
+                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/dbRoot_custom.bin"
+            },
+            {
+                "name": "auth_resp1.bin",
+                "path": "gemmi/auth_resp1.bin",
+                "size": 16,
+                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/auth_resp1.bin"
+            },
+            {
+                "name": "auth_resp2.bin",
+                "path": "gemmi/auth_resp2.bin",
+                "size": 136,
+                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/auth_resp2.bin"
+            },
+            {
+                "name": "run_gemmi.sh",
+                "path": "gemmi/run_gemmi.sh",
+                "size": 4140,
+                "url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/run_gemmi.sh"
             }
         ],
         "total_size_mb": 24.8,
