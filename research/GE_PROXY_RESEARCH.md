@@ -142,3 +142,61 @@ Option C: Cached Tile Database
 - `/home/claude/gemmi_release/GEMMI/` — mhhauto release files
 - `D:\MMI\proxy\dbRoot_xgx.bin` — xgx.ddns.net dbRoot (16959b)
 - GEE encryption source: `etencoder.cc` in google/earthenterprise repo
+
+---
+
+## Ghidra/Binary Analysis: The Dream Patch (April 2026)
+
+### Key Strings Discovered in libembeddedearth.so
+
+| Offset | String | Purpose |
+|--------|--------|---------|
+| 0x01043dbc | `DefaultServer` | Initial server URL field |
+| 0x01043dcc | `http://kh.google.com/` | Bootstrap URL for dbRoot fetch |
+| 0x01045240 | `dbRoot.v%1` | URL pattern (appended to DefaultServer) |
+| 0x01045270 | `dbroot.v5.embedded` | Compiled-in dbRoot resource |
+| 0x01046bc4 | `/localdbroot` | Local database path |
+| 0x0104a478 | `disableAuthKey` | dbRoot field to disable auth |
+| 0x0104a5a8 | `geFreeLoginServer` | Free login server |
+| 0x0104a5bc | `kh.google.com` + `/geauth` | Auth endpoint |
+| 0x01054108 | `disableEmbeddedBrowserDBRoot` | Settings flag |
+| 0x01022338 | `drivers.ini.backdoor` | Harman backdoor config! |
+| 0x01022378 | `forceDisableNetwork` | Network kill switch |
+| 0x010733b0 | `file:///` | File protocol SUPPORTED! |
+
+### The Dream Patch
+
+Replace the DefaultServer URL:
+```
+Offset:   0x01043dcc
+Original: http://kh.google.com/  (21 bytes)
+Patched:  file:///tmp/gedbroot/  (21 bytes — EXACT FIT!)
+```
+
+GEMMI constructs: `file:///tmp/gedbroot/dbRoot.v5`
+→ Reads dbRoot from local disk (no HTTP request!)
+→ Custom dbRoot says tiles are at kh.google.com
+→ Tiles go DIRECTLY to Google via car's LTE
+→ **NO PROXY, NO SERVER, NO PC!**
+
+### Deployment
+```bash
+# One-time setup (run from toolkit or telnet):
+mkdir -p /tmp/gedbroot
+cp /mnt/nav/gemmi/dbRoot_custom.bin /tmp/gedbroot/dbRoot.v5
+# Done! GEMMI reads from disk on next launch.
+```
+
+### Testing Plan (A6 this week)
+1. Deploy dream binary to /mnt/nav/gemmi/libembeddedearth.so
+2. Create /tmp/gedbroot/dbRoot.v5 (copy of dbRoot_custom.bin)
+3. Kill gemmi_final, let it restart
+4. Open Navigation → Google Earth
+5. If tiles load WITHOUT proxy = DREAM ACHIEVED!
+6. If not: check if GEMMI supports file:// protocol internally
+
+### Fallback: On-Car HTTP Proxy
+If file:// doesn't work, use the cross-compiled gemmi_proxy (66KB):
+- Serves dbRoot + auth locally on port 80
+- Forwards tile requests to kh.google.com:80
+- Self-contained with LTE — no PC needed
