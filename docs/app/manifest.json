@@ -512,7 +512,7 @@
                     "size": 16949
                 },
                 {
-                    "path": "payload/drivers.ini",
+                    "path": "payload/drivers.cfg",
                     "size": 1119
                 },
                 {
@@ -537,7 +537,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 7154
+                    "size": 7375
                 },
                 {
                     "path": "scripts/ge_deploy_dream.sh",

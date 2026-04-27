@@ -121,6 +121,12 @@ fi
 chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
 chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
 
+# Rename .cfg to .ini (Chrome blocks .ini in File System Access API)
+if [ -f "${GEMMI_DST}/drivers.cfg" ]; then
+    mv "${GEMMI_DST}/drivers.cfg" "${GEMMI_DST}/drivers.ini"
+    echo "[OK] drivers.cfg → drivers.ini"
+fi
+
 # --- Step 6: Mode-specific setup ---
 echo ""
 echo "=== Step 6: Mode setup (${MODE}) ==="
