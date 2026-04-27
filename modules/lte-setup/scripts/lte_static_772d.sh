@@ -6,7 +6,7 @@
 # NO REBOOT NEEDED — works immediately
 # ============================================================
 
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
+_SDPATH_GUESS="${SDPATH:-${0%/*}}"
 if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
     . "${_SDPATH_GUESS}/scripts/common/platform.sh"
 fi

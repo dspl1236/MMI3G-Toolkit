@@ -17,7 +17,7 @@
 # ============================================================
 set -e
 
-HERE="$(cd "$(dirname "$0")" && pwd)"
+HERE="$(cd "${0%/*}" && pwd)"
 cd "$HERE"
 
 SRC_MAIN=src/de/dspl/per3reader

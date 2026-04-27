@@ -20,7 +20,7 @@
 # long-coding module's GEM screens for those, or VCDS/ODIS.
 # ============================================================
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 
 # Source the shared platform helper
 if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then

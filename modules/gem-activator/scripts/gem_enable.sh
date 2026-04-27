@@ -15,7 +15,7 @@
 # Part of MMI-Toolkit: github.com/dspl1236/MMI-Toolkit
 # ============================================================
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 
 # Source platform.sh for QNX compatibility shims
 if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then

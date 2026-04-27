@@ -6,7 +6,7 @@
 # restores any original DSITracer.jar we backed up.
 # ============================================================
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 EFSDIR="/mnt/efs-system"
 LSDDIR="${EFSDIR}/lsd"
 TARGET="${LSDDIR}/DSITracer.jar"

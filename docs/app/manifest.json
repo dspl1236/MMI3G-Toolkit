@@ -135,15 +135,15 @@
                 },
                 {
                     "path": "scripts/scan_log.sh",
-                    "size": 3643
+                    "size": 3637
                 },
                 {
                     "path": "scripts/scan_shmem.sh",
-                    "size": 2709
+                    "size": 2703
                 },
                 {
                     "path": "scripts/scanner_install.sh",
-                    "size": 5987
+                    "size": 5975
                 }
             ]
         },
@@ -236,7 +236,7 @@
                 },
                 {
                     "path": "scripts/dns_refresh_probe.sh",
-                    "size": 3972
+                    "size": 3966
                 }
             ]
         },
@@ -309,11 +309,11 @@
                 },
                 {
                     "path": "scripts/game_install.sh",
-                    "size": 4532
+                    "size": 4520
                 },
                 {
                     "path": "scripts/game_loader.sh",
-                    "size": 5462
+                    "size": 5450
                 },
                 {
                     "path": "scripts/launch_game.sh",
@@ -358,7 +358,7 @@
                 },
                 {
                     "path": "scripts/diskinfo.sh",
-                    "size": 2324
+                    "size": 2318
                 },
                 {
                     "path": "scripts/dnscheck.sh",
@@ -366,7 +366,7 @@
                 },
                 {
                     "path": "scripts/fullreport.sh",
-                    "size": 3314
+                    "size": 3308
                 },
                 {
                     "path": "scripts/ifconfig.sh",
@@ -374,11 +374,11 @@
                 },
                 {
                     "path": "scripts/netstatus.sh",
-                    "size": 2423
+                    "size": 2417
                 },
                 {
                     "path": "scripts/proclist.sh",
-                    "size": 2105
+                    "size": 2099
                 },
                 {
                     "path": "scripts/routetable.sh",
@@ -386,11 +386,11 @@
                 },
                 {
                     "path": "scripts/snapshot.sh",
-                    "size": 3435
+                    "size": 3429
                 },
                 {
                     "path": "scripts/syslog.sh",
-                    "size": 2084
+                    "size": 2078
                 }
             ]
         },
@@ -431,15 +431,15 @@
                 },
                 {
                     "path": "scripts/gem_disable.sh",
-                    "size": 899
+                    "size": 893
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 3101
+                    "size": 3095
                 },
                 {
                     "path": "scripts/gem_status.sh",
-                    "size": 1384
+                    "size": 1378
                 }
             ]
         },
@@ -468,7 +468,7 @@
                 },
                 {
                     "path": "scripts/gemmi_dump.sh",
-                    "size": 3379
+                    "size": 3373
                 }
             ]
         },
@@ -525,19 +525,19 @@
                 },
                 {
                     "path": "scripts/ge_activate.sh",
-                    "size": 4269
+                    "size": 4263
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 8967
+                    "size": 8961
                 },
                 {
                     "path": "scripts/ge_enable.sh",
-                    "size": 8410
+                    "size": 8404
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 12870
+                    "size": 12864
                 },
                 {
                     "path": "scripts/ge_restore.sh",
@@ -580,7 +580,7 @@
                 },
                 {
                     "path": "scripts/gemmi_wrapper_install.sh",
-                    "size": 1360
+                    "size": 1354
                 },
                 {
                     "path": "scripts/getCacheStatus.sh",
@@ -1100,7 +1100,7 @@
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",
-                    "size": 5968
+                    "size": 5962
                 }
             ]
         },
@@ -1127,7 +1127,7 @@
                 },
                 {
                     "path": "scripts/ge_p0824_restore.sh",
-                    "size": 2308
+                    "size": 2302
                 }
             ]
         },
@@ -1156,7 +1156,7 @@
                 },
                 {
                     "path": "scripts/jvm_extract.sh",
-                    "size": 15311
+                    "size": 15299
                 }
             ]
         },
@@ -1197,15 +1197,15 @@
                 },
                 {
                     "path": "scripts/coding_changelog.sh",
-                    "size": 3218
+                    "size": 3212
                 },
                 {
                     "path": "scripts/coding_dump.sh",
-                    "size": 7833
+                    "size": 7827
                 },
                 {
                     "path": "scripts/coding_install.sh",
-                    "size": 4622
+                    "size": 4602
                 }
             ]
         },
@@ -1233,27 +1233,27 @@
                 },
                 {
                     "path": "scripts/lte_restore.sh",
-                    "size": 4611
+                    "size": 4599
                 },
                 {
                     "path": "scripts/lte_setup.sh",
-                    "size": 12305
+                    "size": 12293
                 },
                 {
                     "path": "scripts/lte_setup_772d.sh",
-                    "size": 12305
+                    "size": 12293
                 },
                 {
                     "path": "scripts/lte_static.sh",
-                    "size": 1541
+                    "size": 1535
                 },
                 {
                     "path": "scripts/lte_static_772d.sh",
-                    "size": 1532
+                    "size": 1526
                 },
                 {
                     "path": "scripts/lte_status.sh",
-                    "size": 4455
+                    "size": 4443
                 }
             ]
         },
@@ -1282,7 +1282,7 @@
                 },
                 {
                     "path": "scripts/map_parse.sh",
-                    "size": 7860
+                    "size": 7848
                 }
             ]
         },
@@ -1311,15 +1311,15 @@
                 },
                 {
                     "path": "scripts/nav_restore.sh",
-                    "size": 4680
+                    "size": 4668
                 },
                 {
                     "path": "scripts/nav_status.sh",
-                    "size": 4790
+                    "size": 4778
                 },
                 {
                     "path": "scripts/nav_unblocker.sh",
-                    "size": 8030
+                    "size": 8024
                 }
             ]
         },
@@ -1348,7 +1348,7 @@
                 },
                 {
                     "path": "scripts/password_dump.sh",
-                    "size": 8564
+                    "size": 8552
                 }
             ]
         },
@@ -1377,7 +1377,7 @@
                 },
                 {
                     "path": "build.sh",
-                    "size": 3178
+                    "size": 3170
                 },
                 {
                     "path": "module.json",
@@ -1389,7 +1389,7 @@
                 },
                 {
                     "path": "scripts/per3_install.sh",
-                    "size": 6106
+                    "size": 6086
                 },
                 {
                     "path": "scripts/per3_read.sh",
@@ -1397,7 +1397,7 @@
                 },
                 {
                     "path": "scripts/per3_restore.sh",
-                    "size": 1525
+                    "size": 1519
                 },
                 {
                     "path": "src/de/dspl/per3reader/Activator.java",
@@ -1531,7 +1531,7 @@
                 },
                 {
                     "path": "scripts/persist_dump.sh",
-                    "size": 3899
+                    "size": 3893
                 }
             ]
         },
@@ -1563,7 +1563,7 @@
                 },
                 {
                     "path": "scripts/region_audit.sh",
-                    "size": 9719
+                    "size": 9713
                 }
             ]
         },
@@ -1592,11 +1592,11 @@
                 },
                 {
                     "path": "scripts/splash_install.sh",
-                    "size": 5011
+                    "size": 4999
                 },
                 {
                     "path": "scripts/splash_restore.sh",
-                    "size": 3111
+                    "size": 3099
                 }
             ]
         },
@@ -1625,7 +1625,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 17135
+                    "size": 17129
                 }
             ]
         },
@@ -1654,7 +1654,7 @@
                 },
                 {
                     "path": "scripts/variant_dump.sh",
-                    "size": 9769
+                    "size": 9763
                 }
             ]
         }

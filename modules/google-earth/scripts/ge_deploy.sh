@@ -31,7 +31,7 @@
 # ============================================================
 
 # --- platform.sh ---
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
+_SDPATH_GUESS="${SDPATH:-${0%/*}}"
 if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
     . "${_SDPATH_GUESS}/scripts/common/platform.sh"
 elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then

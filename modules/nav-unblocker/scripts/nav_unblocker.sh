@@ -38,7 +38,7 @@
 #
 # ============================================================
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 EFSDIR="/mnt/efs-system"
 
 # Source shared platform helper (with inline fallback)

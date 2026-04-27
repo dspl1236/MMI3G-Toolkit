@@ -3,7 +3,7 @@
 # Use before/after VCDS changes to find what bytes changed
 # Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 TS=$(date +%H%M%S 2>/dev/null || echo "000000")
 DUMP="${SDPATH}/dump_${TS}"
 LOG="${SDPATH}/var/persist_dump_${TS}.log"

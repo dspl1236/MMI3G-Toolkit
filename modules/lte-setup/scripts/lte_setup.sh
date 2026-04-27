@@ -44,7 +44,7 @@
 # --- platform.sh (shared variant detection + getTime helper) ---
 # Defines MMI_VARIANT / MMI_VARIANT_ID / MMI_TRAIN and mmi_logstamp().
 # Must be sourced before any code that calls mmi_logstamp.
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
+_SDPATH_GUESS="${SDPATH:-${0%/*}}"
 if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
     . "${_SDPATH_GUESS}/scripts/common/platform.sh"
 elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
@@ -81,7 +81,7 @@ else
 fi
 # --- end platform.sh source ---
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 LOGFILE="${SDPATH}/var/lte-setup-$(mmi_logstamp).log"
 EFSDIR="/mnt/efs-system"
 EFSPERSIST="/mnt/efs-persist"

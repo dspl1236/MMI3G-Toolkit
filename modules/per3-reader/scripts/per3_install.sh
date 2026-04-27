@@ -18,7 +18,7 @@
 # ============================================================
 
 # --- platform.sh (shared variant detection + getTime helper) ---
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
+_SDPATH_GUESS="${SDPATH:-${0%/*}}"
 if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
     . "${_SDPATH_GUESS}/scripts/common/platform.sh"
 elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then
@@ -51,7 +51,7 @@ else
 fi
 # --- end platform.sh source ---
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 EFSDIR="/mnt/efs-system"
 LSDDIR="${EFSDIR}/lsd"
 TARGET_NAME="DSITracer.jar"
@@ -59,7 +59,7 @@ TARGET="${LSDDIR}/${TARGET_NAME}"
 SOURCE_JAR=""
 
 LOGFILE="${SDPATH}/var/per3-install-$(mmi_logstamp).log"
-mkdir -p "$(dirname ${LOGFILE})" 2>/dev/null
+mkdir -p "${LOGFILE%/*}" 2>/dev/null
 exec > ${LOGFILE} 2>&1
 
 echo "============================================"

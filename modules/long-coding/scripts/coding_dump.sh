@@ -29,7 +29,7 @@
 # --- platform.sh (shared variant detection + getTime helper) ---
 # Defines MMI_VARIANT / MMI_VARIANT_ID / MMI_TRAIN and mmi_logstamp().
 # Must be sourced before any code that calls mmi_logstamp.
-_SDPATH_GUESS="${SDPATH:-$(dirname $0)}"
+_SDPATH_GUESS="${SDPATH:-${0%/*}}"
 if [ -f "${_SDPATH_GUESS}/scripts/common/platform.sh" ]; then
     . "${_SDPATH_GUESS}/scripts/common/platform.sh"
 elif [ -f "/mnt/efs-system/scripts/common/platform.sh" ]; then

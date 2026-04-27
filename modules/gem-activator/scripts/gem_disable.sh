@@ -2,7 +2,7 @@
 # GEM Deactivator — Remove DBGModeActive to disable engineering menu
 # Part of MMI-Toolkit: github.com/dspl1236/MMI-Toolkit
 
-SDPATH="${1:-$(dirname $0)}"
+SDPATH="${1:-${0%/*}}"
 LOG="${SDPATH}/var/gem_disable.log"
 mkdir -p "${SDPATH}/var" 2>/dev/null
 
