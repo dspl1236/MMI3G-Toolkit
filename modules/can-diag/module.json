@@ -1,13 +1,26 @@
 {
     "name": "can-diag",
-    "version": "1.0.0",
-    "description": "CAN bus diagnostics via NDR. Probes devctl format, scans for responding ECU modules, reads fault codes and module info. Read-only — no writes to vehicle systems.",
+    "version": "3.0.0",
+    "description": "CAN bus diagnostics via NDR — v3 with correct devctl codes (class=5, cmd=7/8 from NavigationNdrInfo disassembly). Probes devctl format, scans ~25 ECU module addresses, reads fault codes, module info, and live sensor data. Grabs NDR/taco/HFS binaries for analysis. READ-ONLY — no writes to vehicle systems.",
     "author": "dspl1236",
     "status": "alpha",
-    "compatible": ["HN+R_K0942", "HN+R_K0821"],
+    "compatible": ["HN+R_K0942", "HN+R_K0821", "PCM3.1"],
     "standalone": true,
     "run_script": "can_diag.sh",
     "script_dir": "/scripts/CanDiag",
     "installs_to_flash": false,
-    "bin_files": ["bin/uds_send", "bin/ndr_probe"]
+    "bin_files": ["bin/uds_send", "bin/ndr_probe"],
+    "scripts": {
+        "can_diag.sh": "Full 5-phase diagnostic: probe, scan, identify, DTC, summary",
+        "scan_modules.sh": "Quick module scanner — run from telnet interactively",
+        "read_dtc.sh": "Read fault codes from a specific module",
+        "read_module_info.sh": "Read part numbers, SW/HW versions from a module",
+        "read_live_data.sh": "Read live sensor data (RPM, temp, speed, oil) from DME or cluster",
+        "grab_binaries.sh": "Extract key binaries from car for offline analysis"
+    },
+    "devctl_codes": {
+        "write": "0xC0040507 (DIOTF, class=0x05, cmd=0x07)",
+        "read": "0xC0040508 (DIOTF, class=0x05, cmd=0x08)",
+        "source": "Disassembled from NavigationNdrInfo on PCM 3.1"
+    }
 }

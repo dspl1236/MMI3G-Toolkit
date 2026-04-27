@@ -15,7 +15,7 @@
     "modules": {
         "can-diag": {
             "status": "alpha",
-            "description": "CAN bus diagnostics via NDR. Probes devctl format, scans for responding ECU modules, reads fault codes and module info. Read-only \u2014 no writes to vehicle systems.",
+            "description": "CAN bus diagnostics via NDR \u2014 v3 with correct devctl codes (class=5, cmd=7/8 from NavigationNdrInfo disassembly). Probes devctl format, scans ~25 ECU module addresses, reads fault codes, module info, and live sensor data. Grabs NDR/taco/HFS binaries for analysis. READ-ONLY \u2014 no writes to vehicle systems.",
             "standalone": true,
             "run_script": "can_diag.sh",
             "artifact": null,
@@ -28,7 +28,8 @@
             "installs_to_flash": false,
             "compatible": [
                 "HN+R_K0942",
-                "HN+R_K0821"
+                "HN+R_K0821",
+                "PCM3.1"
             ],
             "files": [
                 {
@@ -41,15 +42,23 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 513
+                    "size": 1409
                 },
                 {
                     "path": "scripts/can_diag.sh",
                     "size": 5568
                 },
                 {
+                    "path": "scripts/grab_binaries.sh",
+                    "size": 2625
+                },
+                {
                     "path": "scripts/read_dtc.sh",
                     "size": 1031
+                },
+                {
+                    "path": "scripts/read_live_data.sh",
+                    "size": 4043
                 },
                 {
                     "path": "scripts/read_module_info.sh",
