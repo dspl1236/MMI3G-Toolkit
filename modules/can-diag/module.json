@@ -1,0 +1,13 @@
+{
+    "name": "can-diag",
+    "version": "1.0.0",
+    "description": "CAN bus diagnostics via NDR. Probes devctl format, scans for responding ECU modules, reads fault codes and module info. Read-only — no writes to vehicle systems.",
+    "author": "dspl1236",
+    "status": "alpha",
+    "compatible": ["HN+R_K0942", "HN+R_K0821"],
+    "standalone": true,
+    "run_script": "can_diag.sh",
+    "script_dir": "/scripts/CanDiag",
+    "installs_to_flash": false,
+    "bin_files": ["bin/uds_send", "bin/ndr_probe"]
+}
