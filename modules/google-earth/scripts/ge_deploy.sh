@@ -4,11 +4,11 @@
 # Deploys patched GEMMI binaries from SD card to car HDD
 #
 # Handles: remount writable, kill GEMMI, copy files, verify
-# Supports: proxy mode (PC required) and dream mode (no PC)
+# Supports: proxy mode (PC required) and oncar mode (no PC)
 #
 # Usage: ksh ge_deploy.sh [mode]
 #   mode: proxy (default) — requires PC proxy at 192.168.0.91
-#         dream           — self-contained, no PC needed
+#         oncar           — self-contained, no PC needed
 #
 # Part of MMI3G-Toolkit: github.com/dspl1236/MMI3G-Toolkit
 # ============================================================
@@ -18,9 +18,9 @@ if [ -f "${SDPATH}/scripts/common/platform.sh" ]; then
     . "${SDPATH}/scripts/common/platform.sh"
 fi
 
-# Auto-detect mode: if dream .so exists on SD card, use dream mode
-if [ -f "${SDPATH}/gemmi/libembeddedearth_dream.so" ]; then
-    MODE="dream"
+# Auto-detect mode: if oncar .so exists on SD card, use oncar mode
+if [ -f "${SDPATH}/gemmi/libembeddedearth_oncar.so" ]; then
+    MODE="oncar"
 else
     MODE="proxy"
 fi
@@ -47,9 +47,9 @@ if [ ! -d "${GEMMI_SRC}" ]; then
 fi
 
 SO_FILE="${GEMMI_SRC}/libembeddedearth.so"
-if [ "${MODE}" = "dream" ] && [ -f "${GEMMI_SRC}/libembeddedearth_dream.so" ]; then
-    SO_FILE="${GEMMI_SRC}/libembeddedearth_dream.so"
-    echo "[INFO] Using dream binary (file:///mnt/nav/gedb/)"
+if [ "${MODE}" = "oncar" ] && [ -f "${GEMMI_SRC}/libembeddedearth_oncar.so" ]; then
+    SO_FILE="${GEMMI_SRC}/libembeddedearth_oncar.so"
+    echo "[INFO] Using oncar binary (hostnames → 127.0.0.1 for on-car proxy)"
 fi
 
 if [ ! -f "${SO_FILE}" ]; then
@@ -105,7 +105,7 @@ echo ""
 echo "=== Step 5: Deploy files ==="
 mkdir -p "${GEMMI_DST}" 2>/dev/null
 
-# Copy the .so (proxy or dream version)
+# Copy the .so (proxy or oncar version)
 cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so"
 echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
 
@@ -136,22 +136,41 @@ fi
 echo ""
 echo "=== Step 6: Mode setup (${MODE}) ==="
 
-if [ "${MODE}" = "dream" ]; then
-    # Dream mode: dbRoot on HDD, no proxy needed
-    mkdir -p "${GEDB_DIR}" 2>/dev/null
-    cp "${GEMMI_DST}/dbRoot_custom.bin" "${GEDB_DIR}/dbRoot.v5"
-    echo "[OK] dbRoot deployed to ${GEDB_DIR}/dbRoot.v5"
+if [ "${MODE}" = "oncar" ]; then
+    # On-car proxy mode: gemmi_proxy serves dbRoot + auth locally
+    # All hostnames in .so → 127.0.0.1, proxy forwards tiles to Google
+
+    # Deploy gemmi_proxy
+    if [ -f "${GEMMI_SRC}/gemmi_proxy" ]; then
+        cp "${GEMMI_SRC}/gemmi_proxy" "${GEMMI_DST}/gemmi_proxy"
+        chmod +x "${GEMMI_DST}/gemmi_proxy"
+        echo "[OK] gemmi_proxy deployed"
+    else
+        echo "[ERROR] gemmi_proxy not found on SD card!"
+    fi
 
     # Remove proxy hosts entry from run_gemmi.sh if present
     if grep -q "192.168.0.91" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
-        # Rewrite run_gemmi.sh without the hosts line
         grep -v "192.168.0.91\|kh.google.com.*hosts\|hosts.*kh.google.com" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.tmp"
         mv "${GEMMI_DST}/run_gemmi.sh.tmp" "${GEMMI_DST}/run_gemmi.sh"
         chmod +x "${GEMMI_DST}/run_gemmi.sh"
-        echo "[OK] Removed proxy hosts entry from run_gemmi.sh"
+        echo "[OK] Removed PC proxy hosts entry from run_gemmi.sh"
     fi
 
-    # Clean /etc/hosts (remove proxy redirect)
+    # Add gemmi_proxy startup to run_gemmi.sh (before GEMMI starts)
+    if ! grep -q "gemmi_proxy" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
+        echo '# Start on-car proxy (serves dbRoot + auth, forwards tiles to Google)' > "${GEMMI_DST}/run_gemmi.sh.tmp"
+        echo 'if [ -x /mnt/nav/gemmi/gemmi_proxy ]; then' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+        echo '    /mnt/nav/gemmi/gemmi_proxy &' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+        echo '    sleep 1' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+        echo 'fi' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+        cat "${GEMMI_DST}/run_gemmi.sh" >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+        mv "${GEMMI_DST}/run_gemmi.sh.tmp" "${GEMMI_DST}/run_gemmi.sh"
+        chmod +x "${GEMMI_DST}/run_gemmi.sh"
+        echo "[OK] Added gemmi_proxy startup to run_gemmi.sh"
+    fi
+
+    # Clean /etc/hosts (no PC proxy redirect needed)
     if grep -q "192.168.0.91" /etc/hosts 2>/dev/null; then
         grep -v "192.168.0.91" /etc/hosts > /etc/hosts.tmp
         cp /etc/hosts.tmp /etc/hosts
@@ -159,7 +178,7 @@ if [ "${MODE}" = "dream" ]; then
         echo "[OK] Cleaned /etc/hosts"
     fi
 
-    echo "[OK] Dream mode: no proxy needed, tiles go direct to Google"
+    echo "[OK] On-car proxy mode: gemmi_proxy on 127.0.0.1:80, tiles via LTE"
 
 elif [ "${MODE}" = "proxy" ]; then
     # Proxy mode: add hosts entry for PC proxy
@@ -194,7 +213,7 @@ echo ""
 echo "=== Step 8: Verify deployment ==="
 echo "Deployed .so: $(cksum "${GEMMI_DST}/libembeddedearth.so" 2>/dev/null)"
 echo "Hosts: $(cat /etc/hosts)"
-if [ "${MODE}" = "dream" ]; then
+if [ "${MODE}" = "oncar" ]; then
     echo "dbRoot: $(ls -la "${GEDB_DIR}/dbRoot.v5" 2>/dev/null)"
 fi
 ls -la "${GEMMI_DST}/" 2>/dev/null

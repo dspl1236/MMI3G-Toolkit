@@ -535,13 +535,13 @@ async function buildSdBundle(selected, onProgress, overrides) {
   // P0824 deploy already bundles a /gemmi payload, so avoid overwriting it.
   if (selected.includes("google-earth") && !selected.includes("google-earth-p0824-deploy") && manifest.gemmi_assets) {
     const ga = manifest.gemmi_assets;
-    const isDream = overrides && overrides["google-earth"] === "ge_deploy_dream.sh";
-    onProgress && onProgress(`Fetching GEMMI binaries (~${isDream ? '45' : '25'}MB)...`, 96);
+    const isOncar = overrides && overrides["google-earth"] === "ge_deploy_oncar.sh";
+    onProgress && onProgress(`Fetching GEMMI binaries (~${isOncar ? '45' : '25'}MB)...`, 96);
     for (const asset of ga.files) {
       // Skip dream .so unless dream mode selected
-      if (asset.name === "libembeddedearth_dream.so" && !isDream) continue;
+      if (asset.name === "libembeddedearth_dream.so" && !isOncar) continue;
       // Skip proxy .so if dream mode (use dream .so instead)
-      if (asset.name === "libembeddedearth.so" && isDream) continue;
+      if (asset.name === "libembeddedearth.so" && isOncar) continue;
       try {
         const url = asset.url || (ga.base_url + asset.name);
         let bytes = await fetchBinary(url);
@@ -876,7 +876,7 @@ function App() {
                   React.createElement("select", { value: geScript, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setGeScript(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
                     React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
                     React.createElement("option", { value: "ge_deploy.sh" }, "\u{1F4E1} Deploy — PC Proxy Mode (requires PC running proxy)"),
-                    React.createElement("option", { value: "ge_deploy_dream.sh" }, "\u{1F680} Deploy — Dream Mode (no PC needed, LTE direct!)"),
+                    React.createElement("option", { value: "ge_deploy_oncar.sh" }, "\u{1F680} Deploy — On-Car Proxy (no PC needed!)"),
                     React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
                   ),
                   React.createElement("div", { style: { marginTop: 8, padding: "6px 8px", background: "#1a1206", borderRadius: 4, border: "1px solid #3d2e0a", fontSize: 11, color: "#fbbf24", lineHeight: 1.5 } },

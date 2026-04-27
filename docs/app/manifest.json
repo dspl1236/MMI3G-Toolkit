@@ -537,10 +537,10 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 7556
+                    "size": 8579
                 },
                 {
-                    "path": "scripts/ge_deploy_dream.sh",
+                    "path": "scripts/ge_deploy_oncar.sh",
                     "size": 238
                 },
                 {
@@ -1685,8 +1685,8 @@
                 "size": 20839388
             },
             {
-                "name": "libembeddedearth_dream.so",
-                "path": "gemmi/libembeddedearth_dream.so",
+                "name": "libembeddedearth_oncar.so",
+                "path": "gemmi/libembeddedearth_oncar.so",
                 "size": 20839388
             },
             {

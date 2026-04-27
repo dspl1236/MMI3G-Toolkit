@@ -98,7 +98,7 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
             # Small files (drivers.ini, dbRoot, auth, scripts) stay in repo payload/
             {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1965004},
             {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20839388},
-            {'name': 'libembeddedearth_dream.so', 'path': 'gemmi/libembeddedearth_dream.so', 'size': 20839388},
+            {'name': 'libembeddedearth_oncar.so', 'path': 'gemmi/libembeddedearth_oncar.so', 'size': 20839388},
             {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826149},
             {'name': 'libthirdparty_icu_3_5.so', 'path': 'gemmi/libthirdparty_icu_3_5.so', 'size': 1524205},
             {'name': 'mapStylesWrite', 'path': 'gemmi/mapStylesWrite', 'size': 507383},
