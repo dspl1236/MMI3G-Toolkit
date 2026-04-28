@@ -1,5 +1,5 @@
 {
-    "generated": "2026-04-27",
+    "generated": "2026-04-28",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -521,7 +521,7 @@
                 },
                 {
                     "path": "payload/gemmi_proxy",
-                    "size": 66292
+                    "size": 66320
                 },
                 {
                     "path": "payload/gemmi_server.sh",
