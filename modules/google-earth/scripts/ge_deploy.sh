@@ -69,29 +69,10 @@ for f in gemmi_final libmessaging.so ge_settings.dat run_gemmi.sh dbRoot_custom.
     fi
 done
 
-# --- Step 2: Kill GEMMI ---
+# --- Step 2: Remount /mnt/nav writable ---
 echo ""
-echo "=== Step 2: Kill GEMMI ==="
-# Kill run_gemmi.sh FIRST to prevent it from restarting gemmi_final
-slay -f run_gemmi.sh 2>/dev/null
-sleep 1
-# Now kill gemmi_final and gemmi_proxy (nothing will restart them)
-slay -f gemmi_final 2>/dev/null
-slay -f gemmi_proxy 2>/dev/null
-sleep 3
-# Verify everything is dead
-if pidin ar 2>/dev/null | grep -q "gemmi_final"; then
-    echo "[WARN] gemmi_final still running — trying SIGKILL"
-    slay -s KILL gemmi_final 2>/dev/null
-    sleep 2
-fi
-echo "[OK] GEMMI processes killed"
-
-# --- Step 3: Remount /mnt/nav writable ---
-echo ""
-echo "=== Step 3: Remount /mnt/nav writable ==="
+echo "=== Step 2: Remount /mnt/nav writable ==="
 mount -u -o rw /dev/hd0t77 /mnt/nav 2>/dev/null
-# Verify writable
 touch /mnt/nav/.write_test 2>/dev/null
 if [ $? -eq 0 ]; then
     rm /mnt/nav/.write_test 2>/dev/null
@@ -100,6 +81,35 @@ else
     echo "[ERROR] Cannot make /mnt/nav writable!"
     exit 1
 fi
+
+# --- Step 3: Kill GEMMI completely ---
+echo ""
+echo "=== Step 3: Kill GEMMI ==="
+# FIRST: rename run_gemmi.sh so nothing can restart GEMMI
+if [ -f "${GEMMI_DST}/run_gemmi.sh" ]; then
+    mv "${GEMMI_DST}/run_gemmi.sh" "${GEMMI_DST}/run_gemmi.sh.STOP"
+    echo "[OK] Renamed run_gemmi.sh → .STOP (prevents restart)"
+fi
+sleep 1
+# Kill ALL gemmi processes
+slay -f gemmi_final 2>/dev/null
+slay -f gemmi_proxy 2>/dev/null
+slay -f run_gemmi.sh 2>/dev/null
+sleep 3
+# Force kill if still running
+if pidin ar 2>/dev/null | grep -q "gemmi_final"; then
+    echo "[WARN] gemmi_final still alive — SIGKILL"
+    slay -s KILL gemmi_final 2>/dev/null
+    sleep 3
+fi
+# Final check
+if pidin ar 2>/dev/null | grep -q "gemmi_final"; then
+    echo "[ERROR] gemmi_final STILL running — cannot deploy!"
+    # Restore run_gemmi.sh name
+    mv "${GEMMI_DST}/run_gemmi.sh.STOP" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
+    exit 1
+fi
+echo "[OK] All GEMMI processes killed"
 
 # --- Step 4: Backup originals ---
 echo ""
@@ -153,6 +163,9 @@ fi
 
 chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
 chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
+
+# Clean up the .STOP file (old run_gemmi.sh we renamed to prevent restart)
+rm -f "${GEMMI_DST}/run_gemmi.sh.STOP" 2>/dev/null
 
 # Rename .cfg to .ini (Chrome blocks .ini in File System Access API)
 if [ -f "${GEMMI_DST}/ge_settings.dat" ]; then
