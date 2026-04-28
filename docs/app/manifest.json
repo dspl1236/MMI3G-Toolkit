@@ -1672,7 +1672,7 @@
         }
     },
     "gemmi_assets": {
-        "base_url": "https://hausofdub.com/gemmi/",
+        "base_url": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/binaries/gemmi/",
         "files": [
             {
                 "name": "gemmi_final",

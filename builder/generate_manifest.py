@@ -92,7 +92,7 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
 
     # GEMMI release assets (hosted as GitHub Release, not in git repo)
     manifest['gemmi_assets'] = {
-        'base_url': 'https://hausofdub.com/gemmi/',
+        'base_url': 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/binaries/gemmi/',
         'files': [
             # Large binaries hosted on hausofdub.com (too big for git)
             # Small files (drivers.ini, dbRoot, auth, scripts) stay in repo payload/
