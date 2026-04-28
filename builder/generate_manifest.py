@@ -94,16 +94,14 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
     manifest['gemmi_assets'] = {
         'base_url': 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/binaries/gemmi/',
         'files': [
-            # Large binaries hosted on hausofdub.com (too big for git)
+            # Large GEMMI binaries (in repo at binaries/gemmi/)
             # Small files (drivers.ini, dbRoot, auth, scripts) stay in repo payload/
             {'name': 'gemmi_final', 'path': 'gemmi/gemmi_final', 'size': 1965004},
-            {'name': 'libembeddedearth.so', 'path': 'gemmi/libembeddedearth.so', 'size': 20839388},
             {'name': 'libembeddedearth_oncar.so', 'path': 'gemmi/libembeddedearth_oncar.so', 'size': 20839388},
             {'name': 'libmessaging.so', 'path': 'gemmi/libmessaging.so', 'size': 826149},
             {'name': 'libthirdparty_icu_3_5.so', 'path': 'gemmi/libthirdparty_icu_3_5.so', 'size': 1524205},
             {'name': 'mapStylesWrite', 'path': 'gemmi/mapStylesWrite', 'size': 507383},
             {'name': 'gemmi_models_res.zip', 'path': 'gemmi/gemmi_models_res.zip', 'size': 801183},
-            # Small files — fetched from GitHub raw (editable in repo)
             {'name': 'ge_settings.dat', 'path': 'gemmi/ge_settings.dat', 'size': 1119,
              'url': 'https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/modules/google-earth/payload/ge_settings.dat'},
             {'name': 'dbRoot_custom.bin', 'path': 'gemmi/dbRoot_custom.bin', 'size': 16892,

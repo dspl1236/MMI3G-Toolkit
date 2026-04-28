@@ -473,10 +473,10 @@
             ]
         },
         "google-earth": {
-            "status": "alpha",
-            "description": "Google Earth satellite imagery restoration \u2014 CONFIRMED WORKING. Deploys pre-patched libembeddedearth.so (11 patches: 2 code + 9 hostname), custom dbRoot, cached auth. Tiles from kh.google.com (still live!). Requires LTE internet + proxy on PC.",
+            "status": "tested",
+            "description": "Google Earth satellite imagery restoration \u2014 CONFIRMED WORKING. On-car proxy serves dbRoot + auth locally, forwards tiles to kh.google.com via plain HTTP. No PC required.",
             "standalone": true,
-            "run_script": "ge_activate.sh",
+            "run_script": "ge_deploy.sh",
             "artifact": null,
             "payload_dirs": [
                 {
@@ -497,7 +497,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2143
+                    "size": 2124
                 },
                 {
                     "path": "payload/auth_resp1.bin",
@@ -532,20 +532,12 @@
                     "size": 4140
                 },
                 {
-                    "path": "scripts/ge_activate.sh",
-                    "size": 4263
-                },
-                {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 8852
+                    "size": 6194
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
-                    "size": 238
-                },
-                {
-                    "path": "scripts/ge_enable.sh",
-                    "size": 8404
+                    "size": 116
                 },
                 {
                     "path": "scripts/ge_probe.sh",
@@ -553,7 +545,7 @@
                 },
                 {
                     "path": "scripts/ge_restore.sh",
-                    "size": 1260
+                    "size": 1258
                 }
             ]
         },
@@ -1678,11 +1670,6 @@
                 "name": "gemmi_final",
                 "path": "gemmi/gemmi_final",
                 "size": 1965004
-            },
-            {
-                "name": "libembeddedearth.so",
-                "path": "gemmi/libembeddedearth.so",
-                "size": 20839388
             },
             {
                 "name": "libembeddedearth_oncar.so",

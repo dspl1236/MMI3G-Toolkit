@@ -1,7 +1,7 @@
 #!/bin/ksh
 # ============================================================
 # MMI3G-Toolkit — Google Earth Restore
-# Reverts all changes made by ge_activate.sh
+# Reverts all changes made by ge_deploy.sh
 # ============================================================
 
 BACKUP="/mnt/nav/.mmi3g_toolkit/google-earth"
