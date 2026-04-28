@@ -115,21 +115,32 @@ echo "=== Step 5: Deploy files ==="
 mkdir -p "${GEMMI_DST}" 2>/dev/null
 
 # Copy the .so (proxy or oncar version)
-cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so" 2>&1
+# Use copy-then-rename trick for locked files (QNX allows mv on open files)
+cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so.NEW" 2>&1
 if [ $? -eq 0 ]; then
+    mv "${GEMMI_DST}/libembeddedearth.so" "${GEMMI_DST}/libembeddedearth.so.OLD" 2>/dev/null
+    mv "${GEMMI_DST}/libembeddedearth.so.NEW" "${GEMMI_DST}/libembeddedearth.so"
     echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
 else
-    echo "[ERROR] Failed to copy libembeddedearth.so — file may be locked!"
+    echo "[ERROR] Failed to copy libembeddedearth.so!"
 fi
 
 # Copy other GEMMI files (only if present on SD)
 for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite ge_settings.dat gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh gemmi_proxy; do
     if [ -f "${GEMMI_SRC}/${f}" ]; then
         cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}" 2>&1
-        if [ $? -eq 0 ]; then
-            echo "[OK] ${f}"
+        if [ $? -ne 0 ]; then
+            # File locked — use copy+rename trick
+            cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}.NEW" 2>&1
+            if [ $? -eq 0 ]; then
+                mv "${GEMMI_DST}/${f}" "${GEMMI_DST}/${f}.OLD" 2>/dev/null
+                mv "${GEMMI_DST}/${f}.NEW" "${GEMMI_DST}/${f}"
+                echo "[OK] ${f} (via rename)"
+            else
+                echo "[ERROR] ${f} — copy failed!"
+            fi
         else
-            echo "[ERROR] ${f} — copy failed (Resource busy?)"
+            echo "[OK] ${f}"
         fi
     fi
 done
