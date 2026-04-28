@@ -82,34 +82,13 @@ else
     exit 1
 fi
 
-# --- Step 3: Kill GEMMI completely ---
+# --- Step 3: Kill GEMMI (best effort — rm -f handles locked files anyway) ---
 echo ""
 echo "=== Step 3: Kill GEMMI ==="
-# FIRST: rename run_gemmi.sh so nothing can restart GEMMI
-if [ -f "${GEMMI_DST}/run_gemmi.sh" ]; then
-    mv "${GEMMI_DST}/run_gemmi.sh" "${GEMMI_DST}/run_gemmi.sh.STOP"
-    echo "[OK] Renamed run_gemmi.sh → .STOP (prevents restart)"
-fi
-sleep 1
-# Kill ALL gemmi processes
-slay -f gemmi_final 2>/dev/null
 slay -f gemmi_proxy 2>/dev/null
-slay -f run_gemmi.sh 2>/dev/null
-sleep 3
-# Force kill if still running
-if pidin ar 2>/dev/null | grep "gemmi_final" | grep -v grep | grep -q "."; then
-    echo "[WARN] gemmi_final still alive — SIGKILL"
-    slay -s KILL gemmi_final 2>/dev/null
-    sleep 3
-fi
-# Final check
-if pidin ar 2>/dev/null | grep "gemmi_final" | grep -v grep | grep -q "."; then
-    echo "[ERROR] gemmi_final STILL running — cannot deploy!"
-    # Restore run_gemmi.sh name
-    mv "${GEMMI_DST}/run_gemmi.sh.STOP" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
-    exit 1
-fi
-echo "[OK] All GEMMI processes killed"
+slay -f gemmi_final 2>/dev/null
+sleep 2
+echo "[OK] GEMMI kill signal sent (rm -f will handle any remaining locks)"
 
 # --- Step 4: Backup originals ---
 echo ""
@@ -124,54 +103,35 @@ echo ""
 echo "=== Step 5: Deploy files ==="
 mkdir -p "${GEMMI_DST}" 2>/dev/null
 
-# Copy the .so (proxy or oncar version)
-# Use copy-then-rename trick for locked files (QNX allows mv on open files)
-cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so.NEW" 2>&1
-if [ $? -eq 0 ]; then
-    mv "${GEMMI_DST}/libembeddedearth.so" "${GEMMI_DST}/libembeddedearth.so.OLD" 2>/dev/null
-    mv "${GEMMI_DST}/libembeddedearth.so.NEW" "${GEMMI_DST}/libembeddedearth.so"
-    echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
-else
-    echo "[ERROR] Failed to copy libembeddedearth.so!"
-fi
+# Deploy the .so — rm first so cp creates a NEW file (mhhauto technique)
+# Running process keeps old fd, new file loads on restart
+rm -f "${GEMMI_DST}/libembeddedearth.so" 2>/dev/null
+cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so"
+echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
 
-# Copy other GEMMI files (only if present on SD)
-for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite ge_settings.dat gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh gemmi_proxy; do
+# Deploy all other GEMMI files — rm -f before each cp
+for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite ge_settings.dat gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh gemmi_proxy run_gemmi.sh; do
     if [ -f "${GEMMI_SRC}/${f}" ]; then
-        cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}" 2>&1
-        if [ $? -ne 0 ]; then
-            # File locked — use copy+rename trick
-            cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}.NEW" 2>&1
-            if [ $? -eq 0 ]; then
-                mv "${GEMMI_DST}/${f}" "${GEMMI_DST}/${f}.OLD" 2>/dev/null
-                mv "${GEMMI_DST}/${f}.NEW" "${GEMMI_DST}/${f}"
-                echo "[OK] ${f} (via rename)"
-            else
-                echo "[ERROR] ${f} — copy failed!"
-            fi
-        else
-            echo "[OK] ${f}"
-        fi
+        rm -f "${GEMMI_DST}/${f}" 2>/dev/null
+        cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}"
+        echo "[OK] ${f}"
     fi
 done
 
-# Rename ge_settings.dat back to drivers.ini (Chrome blocks .ini on SD cards)
-if [ -f "${GEMMI_DST}/ge_settings.dat" ] && [ ! -f "${GEMMI_DST}/drivers.ini" ]; then
-    mv "${GEMMI_DST}/ge_settings.dat" "${GEMMI_DST}/drivers.ini"
-    echo "[OK] Renamed ge_settings.dat → drivers.ini"
-fi
-
-chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
-chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
-
-# Clean up the .STOP file (old run_gemmi.sh we renamed to prevent restart)
-rm -f "${GEMMI_DST}/run_gemmi.sh.STOP" 2>/dev/null
-
-# Rename .cfg to .ini (Chrome blocks .ini in File System Access API)
+# Rename ge_settings.dat → drivers.ini (Chrome blocks .ini on SD cards)
 if [ -f "${GEMMI_DST}/ge_settings.dat" ]; then
     mv "${GEMMI_DST}/ge_settings.dat" "${GEMMI_DST}/drivers.ini"
     echo "[OK] ge_settings.dat → drivers.ini"
 fi
+
+chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
+chmod +x "${GEMMI_DST}/gemmi_proxy" 2>/dev/null
+chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
+
+# Clean up .STOP and .OLD files from previous deploys
+rm -f "${GEMMI_DST}/run_gemmi.sh.STOP" 2>/dev/null
+rm -f "${GEMMI_DST}/libembeddedearth.so.OLD" 2>/dev/null
+rm -f "${GEMMI_DST}/libembeddedearth.so.NEW" 2>/dev/null
 
 # --- Step 6: Mode-specific setup ---
 echo ""

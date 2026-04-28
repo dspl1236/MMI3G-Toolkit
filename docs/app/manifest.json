@@ -537,7 +537,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 10347
+                    "size": 8852
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
