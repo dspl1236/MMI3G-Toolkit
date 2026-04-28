@@ -115,7 +115,7 @@ const MODULES_DISPLAY = [
   { id: "google-earth", name: "Google Earth", status: "design",
     desc: "Google Earth satellite imagery restoration — WORKING! Real tiles from kh.google.com",
     compat: ["3G+", "RNS-850"], category: "system",
-    prereq: "lte-setup", detail: "CONFIRMED WORKING: Restores satellite imagery on MMI3G+ via Google\'s live Earth servers (kh.google.com). Applies 2 code patches to libembeddedearth.so (image validation bypass at 0x343d20 and 0x3470a0), deploys custom dbRoot (geoServer→kh.google.com, zero xgx dependency), cached auth responses, and mini HTTP server for local dbRoot/auth. Tiles fetched directly from Google via car\'s LTE. Includes gemmi_control.sh for start/stop/restart. Zoom levels 1-22+ confirmed. Requires LTE internet (Digi WR11 or similar USB Ethernet + LTE router)." },
+    prereq: null, detail: "CONFIRMED WORKING: Restores satellite imagery on MMI3G+ via Google\'s live Earth servers (kh.google.com). Applies 2 code patches to libembeddedearth.so (image validation bypass at 0x343d20 and 0x3470a0), deploys custom dbRoot (geoServer→kh.google.com, zero xgx dependency), cached auth responses, and on-car HTTP proxy for local dbRoot/auth + tile forwarding. Tiles fetched directly from Google. Includes gemmi_control.sh for start/stop/restart. Zoom levels 1-22+ confirmed. Requires working internet connectivity (LTE, WiFi tethering, or any USB Ethernet setup)." },
   { id: "google-earth-gemmi-wrappers", name: "GEMMI Wrappers", status: "alpha",
     desc: "Install legacy /scripts/GEMMI controls expected by the OEM Google Earth screen",
     compat: ["RNS-850"], category: "system",
