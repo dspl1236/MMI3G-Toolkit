@@ -97,13 +97,13 @@ slay -f gemmi_proxy 2>/dev/null
 slay -f run_gemmi.sh 2>/dev/null
 sleep 3
 # Force kill if still running
-if pidin ar 2>/dev/null | grep -q "gemmi_final"; then
+if pidin ar 2>/dev/null | grep "gemmi_final" | grep -v grep | grep -q "."; then
     echo "[WARN] gemmi_final still alive — SIGKILL"
     slay -s KILL gemmi_final 2>/dev/null
     sleep 3
 fi
 # Final check
-if pidin ar 2>/dev/null | grep -q "gemmi_final"; then
+if pidin ar 2>/dev/null | grep "gemmi_final" | grep -v grep | grep -q "."; then
     echo "[ERROR] gemmi_final STILL running — cannot deploy!"
     # Restore run_gemmi.sh name
     mv "${GEMMI_DST}/run_gemmi.sh.STOP" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
