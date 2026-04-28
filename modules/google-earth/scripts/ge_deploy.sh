@@ -72,10 +72,19 @@ done
 # --- Step 2: Kill GEMMI ---
 echo ""
 echo "=== Step 2: Kill GEMMI ==="
-slay -f gemmi_final 2>/dev/null
-sleep 2
+# Kill run_gemmi.sh FIRST to prevent it from restarting gemmi_final
 slay -f run_gemmi.sh 2>/dev/null
 sleep 1
+# Now kill gemmi_final and gemmi_proxy (nothing will restart them)
+slay -f gemmi_final 2>/dev/null
+slay -f gemmi_proxy 2>/dev/null
+sleep 3
+# Verify everything is dead
+if pidin ar 2>/dev/null | grep -q "gemmi_final"; then
+    echo "[WARN] gemmi_final still running — trying SIGKILL"
+    slay -s KILL gemmi_final 2>/dev/null
+    sleep 2
+fi
 echo "[OK] GEMMI processes killed"
 
 # --- Step 3: Remount /mnt/nav writable ---
@@ -106,14 +115,22 @@ echo "=== Step 5: Deploy files ==="
 mkdir -p "${GEMMI_DST}" 2>/dev/null
 
 # Copy the .so (proxy or oncar version)
-cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so"
-echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
+cp "${SO_FILE}" "${GEMMI_DST}/libembeddedearth.so" 2>&1
+if [ $? -eq 0 ]; then
+    echo "[OK] libembeddedearth.so deployed ($(ls -la "${GEMMI_DST}/libembeddedearth.so" | awk '{print $5}') bytes)"
+else
+    echo "[ERROR] Failed to copy libembeddedearth.so — file may be locked!"
+fi
 
 # Copy other GEMMI files (only if present on SD)
-for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite ge_settings.dat gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh; do
+for f in gemmi_final libmessaging.so libthirdparty_icu_3_5.so mapStylesWrite ge_settings.dat gemmi_models_res.zip dbRoot_custom.bin auth_resp1.bin auth_resp2.bin gemmi_control.sh gemmi_server.sh gemmi_proxy; do
     if [ -f "${GEMMI_SRC}/${f}" ]; then
-        cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}"
-        echo "[OK] ${f}"
+        cp "${GEMMI_SRC}/${f}" "${GEMMI_DST}/${f}" 2>&1
+        if [ $? -eq 0 ]; then
+            echo "[OK] ${f}"
+        else
+            echo "[ERROR] ${f} — copy failed (Resource busy?)"
+        fi
     fi
 done
 
