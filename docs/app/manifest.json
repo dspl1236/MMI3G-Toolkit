@@ -521,7 +521,7 @@
                 },
                 {
                     "path": "payload/gemmi_proxy",
-                    "size": 66328
+                    "size": 131900
                 },
                 {
                     "path": "payload/gemmi_server.sh",
@@ -549,7 +549,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 6304
+                    "size": 6627
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",

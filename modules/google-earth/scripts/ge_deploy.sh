@@ -112,6 +112,15 @@ fi
 
 chmod +x "${GEMMI_DST}/gemmi_final" 2>/dev/null
 chmod +x "${GEMMI_DST}/gemmi_proxy" 2>/dev/null
+
+# Deploy StreetView assets (models/ subdirectory)
+if [ -d "${GEMMI_SRC}/models" ]; then
+    mkdir -p "${GEMMI_DST}/models" 2>/dev/null
+    for f in $(ls "${GEMMI_SRC}/models/" 2>/dev/null); do
+        cp "${GEMMI_SRC}/models/${f}" "${GEMMI_DST}/models/${f}" 2>/dev/null
+    done
+    echo "[OK] models/ assets deployed"
+fi
 chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
 
 # --- Step 6: Configure on-car proxy ---
