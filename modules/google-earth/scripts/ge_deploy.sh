@@ -135,8 +135,11 @@ if grep -q "kh.google.com" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
     echo "[OK] Cleaned old hosts entries from run_gemmi.sh"
 fi
 
-# Add gemmi_proxy startup to run_gemmi.sh (before GEMMI starts)
-if ! grep -q "gemmi_proxy" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
+# Add/update gemmi_proxy startup in run_gemmi.sh (before GEMMI starts)
+# Remove any existing proxy startup lines first
+grep -v "gemmi_proxy\|Start on-car proxy" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.clean" 2>/dev/null
+mv "${GEMMI_DST}/run_gemmi.sh.clean" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
+if true; then
     echo '# Start on-car proxy (serves dbRoot + auth, forwards tiles to Google)' > "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo 'if [ -x /mnt/nav/gemmi/gemmi_proxy ]; then' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo '    /mnt/nav/gemmi/gemmi_proxy > /mnt/img-cache/gemmi/proxy.log 2>&1 &' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
