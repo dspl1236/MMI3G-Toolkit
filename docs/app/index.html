@@ -835,6 +835,7 @@ function App() {
                   React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Script to run"),
                   React.createElement("select", { value: geScript, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setGeScript(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
                     React.createElement("option", { value: "ge_deploy_oncar.sh" }, "\u{1F4E1} Deploy (install Google Earth)"),
+                    React.createElement("option", { value: "ge_deploy_v6.sh" }, "\u{1F6F0}\uFE0F Deploy (v6 StreetView Test)"),
                     React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
                     React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
                   )
