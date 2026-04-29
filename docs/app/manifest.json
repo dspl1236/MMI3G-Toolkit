@@ -568,10 +568,6 @@
                     "size": 7312
                 },
                 {
-                    "path": "scripts/ge_deploy_v7.sh",
-                    "size": 7127
-                },
-                {
                     "path": "scripts/ge_probe.sh",
                     "size": 13151
                 },
