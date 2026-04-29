@@ -528,6 +528,10 @@
                     "size": 131904
                 },
                 {
+                    "path": "payload/gemmi_proxy_v7",
+                    "size": 131916
+                },
+                {
                     "path": "payload/gemmi_server.sh",
                     "size": 2310
                 },
@@ -562,6 +566,10 @@
                 {
                     "path": "scripts/ge_deploy_v6.sh",
                     "size": 7083
+                },
+                {
+                    "path": "scripts/ge_deploy_v7.sh",
+                    "size": 7127
                 },
                 {
                     "path": "scripts/ge_probe.sh",
