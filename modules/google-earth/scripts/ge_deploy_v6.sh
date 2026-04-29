@@ -149,7 +149,7 @@ fi
 if ! grep -q "gemmi_proxy" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
     echo '# Start on-car proxy (serves dbRoot + auth, forwards tiles to Google)' > "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo 'if [ -x /mnt/nav/gemmi/gemmi_proxy ]; then' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
-    echo '    /mnt/nav/gemmi/gemmi_proxy &' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+    echo '    /mnt/nav/gemmi/gemmi_proxy > /mnt/img-cache/gemmi/proxy.log 2>&1 &' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo '    sleep 1' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo 'fi' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     cat "${GEMMI_DST}/run_gemmi.sh" >> "${GEMMI_DST}/run_gemmi.sh.tmp"

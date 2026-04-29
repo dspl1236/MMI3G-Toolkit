@@ -364,3 +364,13 @@ if [ -n "$SHOW_PID" ]; then
         "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
     fi
 fi
+
+# --- Proxy Log ---
+echo ""
+echo "=== Proxy Log ==="
+if [ -f /mnt/img-cache/gemmi/proxy.log ]; then
+    echo "[OK] Proxy log found: $(ls -la /mnt/img-cache/gemmi/proxy.log)"
+    cat /mnt/img-cache/gemmi/proxy.log
+else
+    echo "[WARN] No proxy log at /mnt/img-cache/gemmi/proxy.log"
+fi
