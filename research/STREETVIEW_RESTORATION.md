@@ -224,3 +224,88 @@ May contain insights useful for binary analysis and IFS work.
 5. [ ] Solve metadata (panoid lookup) — likely needs hausofdub relay for this part only
 6. [ ] Test StreetView end-to-end on the car
 7. [ ] Add StreetView module to web app (separate from GE or combined?)
+
+## BREAKTHROUGH: dbRoot coverageOverlayUrl (April 29, 2026)
+
+### Root Cause Found
+
+The `coverageOverlayUrl` field in the dbRoot protobuf defaults to EMPTY STRING.
+Without this field set, GEMMI never shows StreetView coverage overlays (blue lines
+on roads) and never triggers the pegman icon or metadata lookups.
+
+### Protobuf Schema (from Google Earth Enterprise open source)
+
+Source: github.com/google/earthenterprise/blob/master/earth_enterprise/src/keyhole/proto/dbroot/dbroot_v2.proto
+
+```protobuf
+message DbRootProto {
+  // ... many other fields ...
+  optional AutopiaOptionsProto autopia_options = 44;
+}
+
+message AutopiaOptionsProto {
+  // Url of panorama metadata server
+  optional string metadata_server_url = 1
+    [default = "http://cbk0.google.com/cbk"];
+
+  // Url of depthmap server
+  optional string depthmap_server_url = 2
+    [default = "http://cbk0.google.com/cbk"];
+
+  // Url of the coverage overlay KML.
+  // NOT SPECIFYING THIS VALUE WILL RESULT IN NO COVERAGE
+  // OVERLAYS BEING SHOWN while dragging the pegman in autopia.
+  optional string coverage_overlay_url = 3 [default = ""];
+
+  // QPS throttle for imagery requests
+  optional float max_imagery_qps = 4;
+
+  // QPS throttle for metadata/depthmap requests  
+  optional float max_metadata_depthmap_qps = 5;
+}
+```
+
+### Current State
+
+Our custom dbRoot raw protobuf is only 5 bytes:
+```
+field 17.3 = 1  (a single disable flag)
+```
+
+We need to add field 44 (AutopiaOptionsProto) with:
+```
+field 44.3 = "http://127.0.0.1/sv_coverage.kml"  (coverage overlay URL)
+```
+
+The metadata and depthmap URLs default to http://cbk0.google.com/cbk,
+which our .so patches redirect to 127.0.0.1 (our proxy). So those
+are already handled.
+
+### What Needs to Happen
+
+1. **Rebuild dbRoot protobuf** — add field 44 with coverage_overlay_url
+2. **Re-encrypt** using same XGX/wrapper format as current dbRoot_custom.bin
+3. **Add coverage handler to proxy** — serve sv_coverage.kml (a KML file
+   that tells GEMMI where StreetView is available)
+4. **Test** — GEMMI should show blue SV lines → metadata lookup → tiles
+
+### The StreetView Activation Chain
+
+```
+1. dbRoot.autopia_options.coverage_overlay_url → proxy serves KML
+2. GEMMI loads coverage KML → shows blue lines on roads where SV exists
+3. User zooms to street level → GEMMI queries cbk0 for metadata at lat/lng
+4. Proxy forwards metadata → gets panoid + heading
+5. GEMMI shows pegman icon
+6. User clicks pegman → tile requests via /cbk?output=tile
+7. Proxy rewrites cb_client + HTTPS via BearSSL → JPEG tiles returned
+8. StreetView renders!
+```
+
+### Next Steps
+
+- [ ] Reverse-engineer dbRoot encryption format (XGX wrapper)
+- [ ] Rebuild dbRoot with coverage_overlay_url
+- [ ] Create sv_coverage.kml handler in proxy
+- [ ] Solve metadata endpoint (still dead on Google's side)
+- [ ] Test end-to-end
