@@ -533,7 +533,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 6194
+                    "size": 6304
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
@@ -545,7 +545,7 @@
                 },
                 {
                     "path": "scripts/ge_restore.sh",
-                    "size": 1258
+                    "size": 2437
                 }
             ]
         },

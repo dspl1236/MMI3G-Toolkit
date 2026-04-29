@@ -118,12 +118,12 @@ chmod +x "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
 echo ""
 echo "=== Step 6: Configure on-car proxy ==="
 
-# Remove any old PC proxy hosts entries from run_gemmi.sh
-if grep -q "192.168.0.91" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
-    grep -v "192.168.0.91\|kh.google.com.*hosts\|hosts.*kh.google.com" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.tmp"
+# Remove any old hosts-file entries from run_gemmi.sh (from previous installs)
+if grep -q "kh.google.com" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
+    grep -v "kh.google.com\|geoauth.google.com\|maps.google.com" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.tmp"
     mv "${GEMMI_DST}/run_gemmi.sh.tmp" "${GEMMI_DST}/run_gemmi.sh"
     chmod +x "${GEMMI_DST}/run_gemmi.sh"
-    echo "[OK] Removed old PC proxy hosts entry from run_gemmi.sh"
+    echo "[OK] Cleaned old hosts entries from run_gemmi.sh"
 fi
 
 # Add gemmi_proxy startup to run_gemmi.sh (before GEMMI starts)
@@ -139,12 +139,12 @@ if ! grep -q "gemmi_proxy" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
     echo "[OK] Added gemmi_proxy startup to run_gemmi.sh"
 fi
 
-# Clean /etc/hosts (remove any old PC proxy redirects)
-if grep -q "192.168.0.91" /etc/hosts 2>/dev/null; then
-    grep -v "192.168.0.91" /etc/hosts > /etc/hosts.tmp
+# Clean /etc/hosts (remove any old proxy redirects for Google Earth servers)
+if grep -q "kh.google.com" /etc/hosts 2>/dev/null; then
+    grep -v "kh.google.com\|geoauth.google.com\|maps.google.com\|cbk0.google.com" /etc/hosts > /etc/hosts.tmp
     cp /etc/hosts.tmp /etc/hosts
     rm /etc/hosts.tmp 2>/dev/null
-    echo "[OK] Cleaned /etc/hosts"
+    echo "[OK] Cleaned old proxy entries from /etc/hosts"
 fi
 
 echo "[OK] On-car proxy configured: gemmi_proxy on 127.0.0.1:80"
