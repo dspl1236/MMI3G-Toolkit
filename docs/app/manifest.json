@@ -509,7 +509,7 @@
                 },
                 {
                     "path": "payload/dbRoot_custom.bin",
-                    "size": 16954
+                    "size": 17021
                 },
                 {
                     "path": "payload/ge_settings.dat",
@@ -557,7 +557,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 6627
+                    "size": 6856
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
@@ -565,7 +565,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy_v6.sh",
-                    "size": 7083
+                    "size": 7312
                 },
                 {
                     "path": "scripts/ge_deploy_v7.sh",
@@ -573,7 +573,7 @@
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 12864
+                    "size": 13151
                 },
                 {
                     "path": "scripts/ge_restore.sh",
