@@ -528,6 +528,22 @@
                     "size": 2310
                 },
                 {
+                    "path": "payload/models/audisvcursor.png",
+                    "size": 4107
+                },
+                {
+                    "path": "payload/models/audisvinfocursor.png",
+                    "size": 5168
+                },
+                {
+                    "path": "payload/models/audisvjumpcursor.png",
+                    "size": 3105
+                },
+                {
+                    "path": "payload/models/streetviewguy.png",
+                    "size": 816
+                },
+                {
                     "path": "payload/run_gemmi.sh",
                     "size": 4140
                 },
