@@ -128,25 +128,46 @@ Note: URL at 0x010697a0 contains the full tile request template with cb_client=e
 The proxy handles the cb_client rewrite, so we only need to redirect the hostname.
 But the string lengths differ — need to verify null-padding works here.
 
-## Metadata Problem — Open Research
+## Metadata — SOLVED! (SingleImageSearch, FREE, no API key!)
 
-Panoid lookup from coordinates is dead on all free endpoints. Options:
+**BREAKTHROUGH**: The `streetlevel` Python library revealed Google's internal
+metadata endpoint still works without an API key:
 
-1. **Google Maps Tiles API** — requires API key ($0.007/request)
-   Endpoint: `tile.googleapis.com/v1/streetview/panoIds`
-   Could run on hausofdub.com as a lightweight relay for metadata only.
+```
+Endpoint: maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch
+Client:   apiv3 (free, no API key required!)
+Method:   GET with protobuf-encoded URL parameters
 
-2. **Coverage tiles** — `mts0.google.com/vt?lyrs=svv` works over HTTP, free
-   Shows WHERE StreetView exists but doesn't provide panoid values.
+Template URL (just insert lat/lng):
+  ?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{LAT}!4d{LNG}!2d50.0
+  !3m10!2m2!1sen!2sen!9m1!1e2!11m4!1m3!1e2!2b1!3e2
+  !4m9!1e1!1e2!1e3!1e4!1e6!1e8!1e12!5m0!6m0
+```
 
-3. **Custom dbRoot** — The dbRoot protobuf may have StreetView provider
-   configuration fields. Could include metadata endpoint URLs.
+Response: JSON array (~12KB), extract with simple string matching:
+- panoid: first 22-char string after `[2,"`
+- lat/lng: floats after `null,null,`
+- yaw: float after `],[` following coords
 
-4. **Protobuf scraping** — Google Maps web uses internal protobuf endpoints
-   for panoid lookup. These could potentially be reverse-engineered.
+Proxy builds old XML format GEMMI expects (183 bytes):
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<panorama>
+<data_properties pano_id="ayBC-ygonQ1soy18NI7sLw" lat="41.081251"
+                 lng="-81.518998" pano_yaw_deg="294.5"/>
+</panorama>
+```
 
-5. **GEMMI internal** — GEMMI may have alternative metadata paths beyond
-   the cbk?output=xml endpoint. Need to trace the PanoramaFetcher code.
+### Complete Pipeline — ALL FREE, ALL ON-CAR:
+```
+GEMMI → /cbk?output=xml&ll=lat,lng → proxy
+  → HTTPS SingleImageSearch (BearSSL) → extract panoid
+  → build XML response → return to GEMMI
+
+GEMMI → /cbk?output=tile&panoid=X → proxy  
+  → HTTPS cbk0.google.com (BearSSL, cb_client=maps_sv.tactile)
+  → return JPEG tile → StreetView!
+```
 
 ## StreetView Assets (Ready to Deploy)
 
