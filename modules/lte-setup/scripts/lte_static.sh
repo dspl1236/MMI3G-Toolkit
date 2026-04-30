@@ -26,7 +26,7 @@ echo "============================================"
 echo ""
 
 echo "[STEP 1] Starting USB ethernet driver..."
-io-pkt-v4-hc -d asix verbose &
+io-pkt-v4-hc -d asix speed=100,duplex=1,verbose &
 sleep 3
 
 echo "[STEP 2] Configuring static IP..."
