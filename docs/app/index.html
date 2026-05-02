@@ -120,10 +120,10 @@ const MODULES_DISPLAY = [
     desc: "Install legacy /scripts/GEMMI controls expected by the OEM Google Earth screen",
     compat: ["RNS-850"], category: "system",
     prereq: null, detail: "Installs shell wrappers for activate/deactivate/start/stop/cache controls that forward to the deployed /mnt/nav/gemmi runtime." },
-  { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha", cliOnly: true,
+  { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha",
     desc: "Deploy bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi",
     compat: ["RNS-850"], category: "system",
-    prereq: null, detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware. CLI only — GEMMI binaries are hosted on GitHub Releases (CORS-blocked in browsers)." },
+    prereq: null, payloadUrl: "https://dspl1236.github.io/MMI3G-Toolkit/payloads/gemmi_p0824_eu_vw.zip", detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware. The web app fetches the payload from the same GitHub Pages origin to avoid browser CORS limits." },
   { id: "google-earth-p0824-restore", name: "P0824 GEMMI Restore", status: "alpha",
     desc: "Restore /mnt/nav/gemmi from the backup made by P0824 GEMMI Deploy",
     compat: ["RNS-850"], category: "system",
@@ -185,6 +185,42 @@ async function fetchJson(url) {
   const r = await fetch(url);
   if (!r.ok) throw new Error(`HTTP ${r.status}: ${url}`);
   return await r.json();
+}
+function safeZipPath(name, stripComponents = 0, target = "") {
+  const parts = String(name || "").replaceAll("\\", "/").split("/").filter(Boolean);
+  const stripped = parts.slice(stripComponents);
+  if (stripped.length === 0) return null;
+  if (stripped.some((p) => p === "." || p === "..")) return null;
+  const targetParts = String(target || "").replaceAll("\\", "/").split("/").filter(Boolean);
+  if (targetParts.some((p) => p === "." || p === "..")) return null;
+  return [...targetParts, ...stripped].join("/");
+}
+function releaseZipUrl(rz) {
+  if (typeof rz === "string") return rz;
+  if (rz && rz.web_url) return rz.web_url;
+  if (rz && rz.url) return rz.url;
+  if (rz && rz.base_url && rz.name) return rz.base_url + rz.name;
+  throw new Error("Invalid release_zip declaration");
+}
+async function fetchReleaseZipFiles(rz, onEntry) {
+  const url = releaseZipUrl(rz);
+  const bytes = await fetchBinary(url);
+  if (rz && rz.size && bytes.length !== rz.size) {
+    throw new Error(`release ZIP size mismatch: got ${bytes.length}, expected ${rz.size}`);
+  }
+  const zip = await JSZip.loadAsync(bytes);
+  const strip = Math.max(0, Number(rz?.strip_components || 0));
+  const target = rz?.target || "";
+  const files = [];
+  for (const entry of Object.values(zip.files)) {
+    if (entry.dir) continue;
+    const outPath = safeZipPath(entry.name, strip, target);
+    if (!outPath) continue;
+    const entryBytes = await entry.async("uint8array");
+    files.push({ path: outPath, bytes: entryBytes });
+    onEntry && onEntry(outPath);
+  }
+  return files;
 }
 
 /**
@@ -408,6 +444,7 @@ async function buildSdBundle(selected, onProgress, overrides) {
     const meta = manifest.modules[mod];
     if (!meta) continue;
     totalFiles += (meta.files || []).filter((f) => moduleOutputPath(mod, meta, f)).length;
+    if (meta.release_zip) totalFiles += 1;
   }
   let done = 0;
   const step = (label) => {
@@ -491,6 +528,14 @@ async function buildSdBundle(selected, onProgress, overrides) {
           console.warn(`Skip asset ${asset.name}: ${e.message}`);
         }
       }
+    }
+
+    const rz = meta.release_zip;
+    if (rz) {
+      onProgress && onProgress(`Downloading ${modName} payload ZIP...`, Math.round(done * 95 / totalFiles));
+      const zipFiles = await fetchReleaseZipFiles(rz);
+      files.push(...zipFiles);
+      step(`Extracted ${modName} payload ZIP (${zipFiles.length} files)`);
     }
   }
 
@@ -687,13 +732,16 @@ function App() {
     const blocked = [...selected].filter(m => MODULES_DISPLAY.find(d => d.id === m && d.cliOnly));
     if (blocked.length > 0) {
       const mod = MODULES_DISPLAY.find(d => d.id === blocked[0]);
-      setBuildError(
-        `"${mod.name}" requires large binaries hosted on GitHub Releases which browsers cannot download (CORS).\n\n` +
+      const payloadLine = mod.payloadUrl ? `\n\nPayload ZIP:\n  ${mod.payloadUrl}` : "";
+      const message =
+        `"${mod.name}" requires a payload ZIP hosted on GitHub Releases which browsers cannot download (CORS).\n\n` +
         `Use the CLI builder instead:\n  python builder/build_sd.py -m ${blocked[0]} -o F:\\\n\n` +
-        `Or download the prebuilt payload ZIP from:\n  https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi-p0824`
-      );
+        `Or download the payload ZIP separately and build from the CLI.${payloadLine}`;
+      setBuildError(message);
       setBuildState("error");
-      throw new Error("Module requires CLI builder");
+      const err = new Error(message);
+      err.userFacing = true;
+      throw err;
     }
     setBuildState("building");
     setBuildError(null);
@@ -707,7 +755,7 @@ function App() {
       setBuildStats({ fileCount: bundle.files.filter(f => !f.path.endsWith("/.keep")).length, totalBytes });
       return bundle;
     } catch (e) {
-      console.error(e);
+      if (!e.userFacing) console.error(e);
       setBuildError(String(e.message || e));
       setBuildState("error");
       throw e;
@@ -735,7 +783,7 @@ function App() {
       setBuildProgress({ label: "Written to SD", pct: 100 });
       setBuildState("done-sd");
     } catch (e) {
-      console.error(e);
+      if (!e.userFacing) console.error(e);
       setBuildError(String(e.message || e));
       setBuildState("error");
     }
@@ -750,7 +798,7 @@ function App() {
       setBuildProgress({ label: "ZIP downloaded", pct: 100 });
       setBuildState("done-zip");
     } catch (e) {
-      console.error(e);
+      if (!e.userFacing) console.error(e);
       setBuildError(String(e.message || e));
       setBuildState("error");
     }
@@ -831,6 +879,9 @@ function App() {
               ),
               isExp && React.createElement("div", { style: { fontSize: 11, color: "#888", padding: "6px 0 0 22px", borderTop: "1px solid #1a1a1e", paddingTop: 8, marginTop: 6, lineHeight: 1.5 } },
                 m.detail,
+                m.payloadUrl && React.createElement("div", { style: { marginTop: 8 } },
+                  React.createElement("a", { href: m.payloadUrl, target: "_blank", rel: "noopener", onClick: (e) => e.stopPropagation(), style: { color: "#e84a6a", fontFamily: "IBM Plex Mono", fontSize: 10 } }, "Download payload ZIP")
+                ),
                 m.id === "google-earth" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
                   React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Script to run"),
                   React.createElement("select", { value: geScript, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setGeScript(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
