@@ -1,5 +1,5 @@
 {
-    "generated": "2026-04-30",
+    "generated": "2026-05-02",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -1277,11 +1277,11 @@
                 },
                 {
                     "path": "scripts/lte_static.sh",
-                    "size": 1554
+                    "size": 2590
                 },
                 {
                     "path": "scripts/lte_static_772d.sh",
-                    "size": 1545
+                    "size": 2346
                 },
                 {
                     "path": "scripts/lte_status.sh",

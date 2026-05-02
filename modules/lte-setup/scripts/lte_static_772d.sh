@@ -22,21 +22,48 @@ echo " $(date 2>/dev/null)"
 echo "============================================"
 echo ""
 
-echo "[STEP 1] Starting USB ethernet driver (772D override)..."
-echo "  Using: did=0x772D,vid=0x0B95"
-io-pkt-v4-hc -d asix did=0x772D,vid=0x0B95,speed=100,duplex=1,verbose &
-sleep 3
+echo "[STEP 1] Checking USB ethernet state..."
+EXISTING=$(ifconfig en5 2>/dev/null)
+if [ -n "$EXISTING" ]; then
+    echo "  [OK] en5 already exists (vdev-medialauncher)"
+    echo "  Upgrading speed: 10baseT → 100baseTX"
+    ifconfig en5 media 100baseTX mediaopt full-duplex 2>&1
+    if [ $? -eq 0 ]; then
+        echo "  [OK] Speed upgraded to 100baseTX full-duplex"
+    else
+        echo "  [WARN] ifconfig media change failed — killing and restarting"
+        slay -f io-pkt-v4-hc 2>/dev/null
+        sleep 2
+        io-pkt-v4-hc -d asix did=0x772D,vid=0x0B95,speed=100,duplex=1,verbose &
+        sleep 3
+    fi
+else
+    echo "  en5 not found — starting fresh (772D override)"
+    io-pkt-v4-hc -d asix did=0x772D,vid=0x0B95,speed=100,duplex=1,verbose &
+    sleep 3
+fi
 
+echo ""
 echo "[STEP 2] Configuring static IP..."
 ifconfig en5 172.16.42.1 netmask 255.255.255.0 up
 sleep 1
 
+echo ""
 echo "[STEP 3] Starting telnet/ftp services..."
-inetd &
-sleep 1
+pidin -p inetd -f a 2>/dev/null | grep -q inetd
+if [ $? -eq 0 ]; then
+    echo "  [OK] inetd already running"
+else
+    inetd &
+    sleep 1
+    echo "  [OK] inetd started"
+fi
 
+echo ""
 echo "[STEP 4] Network state:"
 ifconfig en5 2>&1
+echo ""
+nicinfo en5 2>&1
 
 echo ""
 echo "============================================"
