@@ -94,6 +94,22 @@ class GenerateManifestTests(unittest.TestCase):
             [{'source': 'payload', 'target': 'payload'}],
         )
 
+    def test_manifest_preserves_p0824_release_zip_web_metadata(self):
+        module = load_generator_module()
+        manifest = module.build_manifest()
+        p0824 = manifest['modules']['google-earth-p0824-deploy']
+
+        self.assertTrue(p0824['web_build'])
+        self.assertEqual(
+            p0824['release_zip'],
+            {
+                'url': 'https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip',
+                'web_url': 'https://dspl1236.github.io/MMI3G-Toolkit/payloads/gemmi_p0824_eu_vw.zip',
+                'target': 'gemmi',
+                'size': 9823685,
+            },
+        )
+
     def test_checked_in_manifest_matches_generated_output(self):
         module = load_generator_module()
         generated = module.build_manifest()

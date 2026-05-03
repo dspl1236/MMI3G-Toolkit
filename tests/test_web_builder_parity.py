@@ -46,6 +46,21 @@ class WebBuilderParityTests(unittest.TestCase):
             self.source,
         )
 
+    def test_web_release_zip_prefers_pages_url(self):
+        self.assertIn('if (rz && rz.web_url) return rz.web_url;', self.source)
+        self.assertIn('const zipFiles = await fetchReleaseZipFiles(rz);', self.source)
+
+    def test_p0824_card_is_web_buildable_with_pages_payload_link(self):
+        p0824_start = self.source.index('{ id: "google-earth-p0824-deploy"')
+        p0824_end = self.source.index('{ id: "google-earth-p0824-restore"', p0824_start)
+        p0824_card = self.source[p0824_start:p0824_end]
+
+        self.assertNotIn('cliOnly: true', p0824_card)
+        self.assertIn(
+            'payloadUrl: "https://dspl1236.github.io/MMI3G-Toolkit/payloads/gemmi_p0824_eu_vw.zip"',
+            p0824_card,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
