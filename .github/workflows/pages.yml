@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Ensure Pages uses workflow deployments
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
