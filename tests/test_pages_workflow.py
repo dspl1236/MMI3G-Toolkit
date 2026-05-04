@@ -12,6 +12,7 @@ class PagesWorkflowTests(unittest.TestCase):
         cls.source = PAGES_WORKFLOW.read_text(encoding='utf-8')
 
     def test_pages_workflow_mirrors_p0824_payload_without_committing_zip(self):
+        self.assertIn('build_type=workflow', self.source)
         self.assertIn('actions/deploy-pages@v4', self.source)
         self.assertIn('actions/upload-pages-artifact@v3', self.source)
         self.assertIn('gh release download v1.0-gemmi-p0824', self.source)
