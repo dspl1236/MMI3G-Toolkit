@@ -1,0 +1,50 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Stage site
+        run: |
+          mkdir -p _site/payloads
+          cp -R docs/. _site/
+
+      - name: Download GEMMI P0824 payload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v1.0-gemmi-p0824 \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern gemmi_p0824_eu_vw.zip \
+            --dir _site/payloads
+          test "$(wc -c < _site/payloads/gemmi_p0824_eu_vw.zip)" -eq 9823685
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,10 +1,12 @@
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest import mock
 
 
@@ -64,6 +66,166 @@ class BuildSdCliTests(unittest.TestCase):
             decoded = builder.MMI3GCipher().process(encoded)
             expected = (REPO_ROOT / 'core' / 'copie_scr_plain.sh').read_bytes()
             self.assertEqual(decoded, expected)
+
+    def test_release_asset_download_skips_complete_existing_file(self):
+        builder = load_builder_module()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            dest = output_dir / 'gemmi' / 'existing.bin'
+            dest.parent.mkdir(parents=True)
+            dest.write_bytes(b'abc')
+
+            with mock.patch.object(builder.urllib.request, 'urlopen') as urlopen:
+                downloaded, skipped, failed = builder.download_release_assets(
+                    {
+                        'base_url': 'https://example.invalid/',
+                        'files': [
+                            {
+                                'name': 'existing.bin',
+                                'path': 'gemmi/existing.bin',
+                                'size': 3,
+                            },
+                        ],
+                    },
+                    str(output_dir),
+                )
+
+            self.assertEqual((downloaded, skipped, failed), (0, 1, []))
+            urlopen.assert_not_called()
+
+    def test_release_asset_download_retries_and_writes_part_file_atomically(self):
+        builder = load_builder_module()
+        response = mock.Mock()
+        response.read.return_value = b'payload'
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            with mock.patch.dict('os.environ', {'MMI3G_ASSET_RETRIES': '2'}), \
+                    mock.patch.object(builder.time, 'sleep'), \
+                    mock.patch.object(
+                        builder.urllib.request,
+                        'urlopen',
+                        side_effect=[TimeoutError('timed out'), response],
+                    ):
+                downloaded, skipped, failed = builder.download_release_assets(
+                    {
+                        'base_url': 'https://example.invalid/',
+                        'files': [
+                            {
+                                'name': 'payload.bin',
+                                'path': 'gemmi/payload.bin',
+                                'size': 7,
+                            },
+                        ],
+                    },
+                    str(output_dir),
+                )
+
+            self.assertEqual((downloaded, skipped, failed), (1, 0, []))
+            self.assertEqual((output_dir / 'gemmi' / 'payload.bin').read_bytes(), b'payload')
+            self.assertFalse((output_dir / 'gemmi' / 'payload.bin.part').exists())
+
+    def test_release_zip_extracts_into_target_directory(self):
+        builder = load_builder_module()
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, 'w') as zf:
+            zf.writestr('drivers.ini', 'driver-config')
+            zf.writestr('models/cursor.png', b'png')
+
+        response = mock.Mock()
+        response.read.return_value = archive.getvalue()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            with mock.patch.object(builder.urllib.request, 'urlopen', return_value=response):
+                count = builder.extract_release_zip(
+                    {
+                        'url': 'https://example.invalid/payload.zip',
+                        'target': 'gemmi',
+                        'size': len(archive.getvalue()),
+                    },
+                    str(output_dir),
+                )
+
+            self.assertEqual(count, 2)
+            self.assertEqual((output_dir / 'gemmi' / 'drivers.ini').read_text(), 'driver-config')
+            self.assertEqual((output_dir / 'gemmi' / 'models' / 'cursor.png').read_bytes(), b'png')
+
+    def test_release_zip_url_uses_cli_url_not_web_url(self):
+        builder = load_builder_module()
+
+        self.assertEqual(
+            builder.release_zip_url(
+                {
+                    'url': 'https://example.invalid/release.zip',
+                    'web_url': 'https://pages.example.invalid/payload.zip',
+                },
+            ),
+            'https://example.invalid/release.zip',
+        )
+
+    def test_release_zip_rejects_unsafe_target(self):
+        builder = load_builder_module()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(builder.ModuleConfigError):
+                builder.extract_release_zip(
+                    {
+                        'url': 'https://example.invalid/payload.zip',
+                        'target': '../gemmi',
+                    },
+                    tmpdir,
+                )
+
+    def test_release_zip_rejects_unsafe_archive_path(self):
+        builder = load_builder_module()
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, 'w') as zf:
+            zf.writestr('../evil.sh', 'bad')
+
+        response = mock.Mock()
+        response.read.return_value = archive.getvalue()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            with mock.patch.object(builder.urllib.request, 'urlopen', return_value=response):
+                with self.assertRaises(builder.ModuleConfigError):
+                    builder.extract_release_zip(
+                        {
+                            'url': 'https://example.invalid/payload.zip',
+                            'size': len(archive.getvalue()),
+                        },
+                        str(output_dir),
+                    )
+
+            self.assertFalse((output_dir / 'evil.sh').exists())
+
+    def test_release_zip_strip_components(self):
+        builder = load_builder_module()
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, 'w') as zf:
+            zf.writestr('payload/drivers.ini', 'driver-config')
+            zf.writestr('payload/models/cursor.png', b'png')
+
+        response = mock.Mock()
+        response.read.return_value = archive.getvalue()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            with mock.patch.object(builder.urllib.request, 'urlopen', return_value=response):
+                count = builder.extract_release_zip(
+                    {
+                        'url': 'https://example.invalid/payload.zip',
+                        'target': 'gemmi',
+                        'strip_components': 1,
+                        'size': len(archive.getvalue()),
+                    },
+                    str(output_dir),
+                )
+
+            self.assertEqual(count, 2)
+            self.assertEqual((output_dir / 'gemmi' / 'drivers.ini').read_text(), 'driver-config')
+            self.assertFalse((output_dir / 'gemmi' / 'payload' / 'drivers.ini').exists())
 
     def test_prerequisite_module_is_auto_included(self):
         with tempfile.TemporaryDirectory() as tmpdir:

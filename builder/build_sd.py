@@ -21,10 +21,14 @@ The builder:
 
 import argparse
 from collections import OrderedDict
+import io
 import json
 import os
 import shutil
 import sys
+import time
+import urllib.request
+import zipfile
 
 # Resolve paths relative to this script
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +55,174 @@ REQUIRED_MANIFEST_FIELDS = (
 
 class ModuleConfigError(Exception):
     """Raised when module metadata is invalid."""
+
+
+def env_int(name: str, default: int) -> int:
+    """Read a positive integer from the environment."""
+    try:
+        value = int(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+    return value if value > 0 else default
+
+
+def release_asset_is_complete(path: str, expected_size=None) -> bool:
+    """Return True when a release asset already exists at the expected size."""
+    if not os.path.isfile(path):
+        return False
+    if expected_size is None:
+        return True
+    try:
+        return os.path.getsize(path) == int(expected_size)
+    except (TypeError, ValueError):
+        return True
+
+
+def download_release_assets(release_assets: dict, output_dir: str) -> tuple:
+    """Download manifest-declared release assets with resume-friendly behavior."""
+    files = release_assets.get('files') or []
+    base_url = release_assets.get('base_url', '')
+    timeout = env_int('MMI3G_ASSET_TIMEOUT', 60)
+    retries = env_int('MMI3G_ASSET_RETRIES', 2)
+    skipped = 0
+    downloaded = 0
+    failed = []
+
+    pending = []
+    for asset in files:
+        dest = os.path.join(output_dir, asset['path'])
+        if release_asset_is_complete(dest, asset.get('size')):
+            skipped += 1
+        else:
+            pending.append((asset, dest))
+
+    print(
+        f"  [DL]  Downloading {len(files)} release assets "
+        f"({skipped} already complete)...",
+        flush=True,
+    )
+
+    for index, (asset, dest) in enumerate(pending, 1):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        url = base_url + asset['name']
+        part = dest + '.part'
+        label = f"{index}/{len(pending)} {asset['name']}"
+
+        for attempt in range(1, retries + 1):
+            try:
+                print(f"  [DL]  {label}", flush=True)
+                request = urllib.request.Request(
+                    url,
+                    headers={'User-Agent': 'MMI3G-Toolkit-SD-Builder'},
+                )
+                data = urllib.request.urlopen(request, timeout=timeout).read()
+                expected_size = asset.get('size')
+                if expected_size is not None and len(data) != int(expected_size):
+                    raise IOError(
+                        f"size mismatch: got {len(data)} bytes, expected {expected_size}"
+                    )
+                with open(part, 'wb') as f:
+                    f.write(data)
+                os.replace(part, dest)
+                downloaded += 1
+                break
+            except Exception as e:
+                try:
+                    if os.path.exists(part):
+                        os.unlink(part)
+                except OSError:
+                    pass
+                if attempt == retries:
+                    failed.append((asset['name'], e))
+                    print(f"  [WARN] Failed: {asset['name']}: {e}", flush=True)
+                else:
+                    print(
+                        f"  [WARN] Retry {attempt}/{retries}: {asset['name']}: {e}",
+                        flush=True,
+                    )
+                    time.sleep(min(2 * attempt, 5))
+
+    return downloaded, skipped, failed
+
+
+def download_url(url: str, expected_size=None) -> bytes:
+    """Download a URL with retries and optional size validation."""
+    timeout = env_int('MMI3G_ASSET_TIMEOUT', 60)
+    retries = env_int('MMI3G_ASSET_RETRIES', 2)
+
+    for attempt in range(1, retries + 1):
+        try:
+            request = urllib.request.Request(
+                url,
+                headers={'User-Agent': 'MMI3G-Toolkit-SD-Builder'},
+            )
+            data = urllib.request.urlopen(request, timeout=timeout).read()
+            if expected_size is not None and len(data) != int(expected_size):
+                raise IOError(
+                    f"size mismatch: got {len(data)} bytes, expected {expected_size}"
+                )
+            return data
+        except Exception:
+            if attempt == retries:
+                raise
+            time.sleep(min(2 * attempt, 5))
+
+    raise RuntimeError(f"failed to download {url}")
+
+
+def release_zip_url(release_zip) -> str:
+    """Return the URL from a release_zip declaration."""
+    if isinstance(release_zip, str):
+        return release_zip
+    if isinstance(release_zip, dict):
+        if release_zip.get('url'):
+            return release_zip['url']
+        if release_zip.get('base_url') and release_zip.get('name'):
+            return release_zip['base_url'] + release_zip['name']
+    raise ModuleConfigError(f"Invalid release_zip declaration: {release_zip!r}")
+
+
+def extract_release_zip(release_zip, output_dir: str) -> int:
+    """Download and extract a release ZIP into the SD card output directory."""
+    url = release_zip_url(release_zip)
+    expected_size = release_zip.get('size') if isinstance(release_zip, dict) else None
+    target = release_zip.get('target', '') if isinstance(release_zip, dict) else ''
+    strip_components = release_zip.get('strip_components', 0) if isinstance(release_zip, dict) else 0
+
+    if target and not is_safe_relative_path(target):
+        raise ModuleConfigError(f"release_zip target must be a safe relative path: {target!r}")
+    try:
+        strip_components = int(strip_components)
+    except (TypeError, ValueError):
+        raise ModuleConfigError("release_zip strip_components must be an integer")
+    if strip_components < 0:
+        raise ModuleConfigError("release_zip strip_components must be >= 0")
+
+    print(f"  [DL]  Downloading release ZIP: {url}", flush=True)
+    data = download_url(url, expected_size)
+    extracted = 0
+
+    with zipfile.ZipFile(io.BytesIO(data)) as zf:
+        for info in zf.infolist():
+            if info.is_dir():
+                continue
+            parts = [p for p in info.filename.replace('\\', '/').split('/') if p]
+            if len(parts) <= strip_components:
+                continue
+            rel = '/'.join(parts[strip_components:])
+            if not is_safe_relative_path(rel):
+                raise ModuleConfigError(f"release_zip contains unsafe path: {info.filename!r}")
+            dest_rel = '/'.join(p for p in [target.strip('/'), rel] if p)
+            if not is_safe_relative_path(dest_rel):
+                raise ModuleConfigError(f"release_zip target path is unsafe: {dest_rel!r}")
+            dest = os.path.join(output_dir, os.path.normpath(dest_rel))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with zf.open(info) as src, open(dest, 'wb') as out:
+                shutil.copyfileobj(src, out)
+            extracted += 1
+
+    print(f"  [OK] Release ZIP extracted ({extracted} files)", flush=True)
+    return extracted
 
 
 def module_is_compatible(meta: dict, target_platform: str = None) -> bool:
@@ -717,22 +889,24 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
         # Download release_assets if specified (individual files from GitHub Release)
         ra = meta.get('release_assets')
         if ra and ra.get('files'):
-            import urllib.request
-            base_url = ra.get('base_url', '')
-            print(f"  [DL]  Downloading {len(ra['files'])} release assets...")
-            downloaded = 0
-            for asset in ra['files']:
-                dest = os.path.join(output_dir, asset['path'])
-                os.makedirs(os.path.dirname(dest), exist_ok=True)
-                try:
-                    url = base_url + asset['name']
-                    data = urllib.request.urlopen(url, timeout=60).read()
-                    with open(dest, 'wb') as f:
-                        f.write(data)
-                    downloaded += 1
-                except Exception as e:
-                    print(f"  [WARN] Failed: {asset['name']}: {e}")
-            print(f"  [OK] Downloaded {downloaded}/{len(ra['files'])} release assets")
+            downloaded, skipped, failed = download_release_assets(ra, output_dir)
+            complete = downloaded + skipped
+            if failed:
+                print(
+                    f"  [WARN] Release assets complete: "
+                    f"{complete}/{len(ra['files'])} "
+                    f"({skipped} skipped, {downloaded} downloaded, {len(failed)} failed)"
+                )
+            else:
+                print(
+                    f"  [OK] Release assets complete: "
+                    f"{complete}/{len(ra['files'])} "
+                    f"({skipped} skipped, {downloaded} downloaded)"
+                )
+
+        rz = meta.get('release_zip')
+        if rz:
+            extract_release_zip(rz, output_dir)
 
     # Generate combined run.sh
     run_sh = generate_run_sh(selected_modules, modules)
