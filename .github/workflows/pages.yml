@@ -25,6 +25,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure Pages uses workflow deployments
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+            --method PUT \
+            "repos/${GITHUB_REPOSITORY}/pages" \
+            -f build_type=workflow \
+            --silent
+
       - uses: actions/configure-pages@v5
 
       - name: Stage site
