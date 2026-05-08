@@ -128,18 +128,23 @@ def translate_host_path(host_path, repo_root, extra_roots):
     repo_root = os.path.abspath(repo_root)
     host_path = os.path.abspath(host_path)
 
-    if host_path == repo_root:
+    # Normalize to forward slashes for container (Linux) paths
+    norm_host = host_path.replace(os.sep, '/')
+    norm_repo = repo_root.replace(os.sep, '/').rstrip('/')
+
+    if norm_host.rstrip('/') == norm_repo:
         return '/workspace'
-    if host_path.startswith(repo_root + os.sep):
-        return '/workspace' + host_path[len(repo_root):]
+    if norm_host.startswith(norm_repo + '/'):
+        return '/workspace' + norm_host[len(norm_repo):]
 
     for root, target in extra_roots:
-        if host_path == root:
+        norm_root = root.replace(os.sep, '/').rstrip('/')
+        if norm_host.rstrip('/') == norm_root:
             return target
-        if root == '/':
-            return target + host_path
-        if host_path.startswith(root + os.sep):
-            return target + host_path[len(root):]
+        if norm_root == '':
+            return target + norm_host
+        if norm_host.startswith(norm_root + '/'):
+            return target + norm_host[len(norm_root):]
 
     raise ValueError('path {} was not covered by container mounts'.format(host_path))
 
@@ -159,7 +164,9 @@ def build_container_command(container_tool, image, ifs_path, output_path=None, e
         relevant_paths.append(os.path.abspath(extract_path))
 
     for path in relevant_paths:
-        if path == repo_root or path.startswith(repo_root + os.sep):
+        norm_p = os.path.normpath(path)
+        norm_r = os.path.normpath(repo_root)
+        if norm_p == norm_r or norm_p.startswith(norm_r + os.sep):
             continue
         root = existing_mount_root(path)
         if root in seen_roots:
