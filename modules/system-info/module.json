@@ -1,7 +1,7 @@
 {
     "name": "system-info",
-    "version": "2.0.0",
-    "description": "Comprehensive system diagnostic — gathers identity, activations, credentials, storage, network, persistence state, and backs up key files to SD card. Single pass, no flash writes.",
+    "version": "3.0.0",
+    "description": "Deep system forensic — gathers identity, activations, credentials, storage, network, persistence state, RSA keys, DataPST database, IPC channel captures (CAN/BAP data), QDB dumps, full process maps, syslog, and system configs. Single pass, no flash writes.",
     "author": "dspl1236",
     "status": "ready",
     "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
@@ -10,7 +10,7 @@
     "script_dir": "/scripts/SystemInfo",
     "installs_to_flash": false,
     "scripts": [
-        "sysinfo_dump.sh - Full diagnostic + backup to SD card"
+        "sysinfo_dump.sh - Full diagnostic + deep backup to SD card"
     ],
-    "notes": "v2.0: Consolidated system-info + password-finder + variant-dump + persistence-dump into single comprehensive diagnostic. Uses sed instead of head/tail (not available on QNX). Runs entirely from SD card."
+    "notes": "v3.0: Added deep binary backup (DataPST.db, RSA keys, FSC certs, oadb), IPC channel capture (ch2-ch11 with 3s windows), QDB database dump, extended pidin (priorities, memory, file descriptors), full syslog, and /etc/ config file backup. 20 sections total."
 }

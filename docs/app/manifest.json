@@ -1,5 +1,5 @@
 {
-    "generated": "2026-05-02",
+    "generated": "2026-05-08",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -15,7 +15,7 @@
     "modules": {
         "can-diag": {
             "status": "alpha",
-            "description": "CAN bus diagnostics via NDR \u2014 v3 with correct devctl codes (class=5, cmd=7/8 from NavigationNdrInfo disassembly). Probes devctl format, scans ~25 ECU module addresses, reads fault codes, module info, and live sensor data. READ-ONLY \u2014 no writes to vehicle systems.",
+            "description": "CAN bus diagnostics via NDR \u00e2\u20ac\u201d v3 with correct devctl codes (class=5, cmd=7/8 from NavigationNdrInfo disassembly). Probes devctl format, scans ~25 ECU module addresses, reads fault codes, module info, and live sensor data. READ-ONLY \u00e2\u20ac\u201d no writes to vehicle systems.",
             "standalone": true,
             "run_script": "can_diag.sh",
             "artifact": null,
@@ -42,31 +42,31 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1311
+                    "size": 1333
                 },
                 {
                     "path": "scripts/can_diag.sh",
-                    "size": 5568
+                    "size": 5759
                 },
                 {
                     "path": "scripts/grab_binaries.sh",
-                    "size": 2625
+                    "size": 2724
                 },
                 {
                     "path": "scripts/read_dtc.sh",
-                    "size": 1031
+                    "size": 1076
                 },
                 {
                     "path": "scripts/read_live_data.sh",
-                    "size": 4043
+                    "size": 4172
                 },
                 {
                     "path": "scripts/read_module_info.sh",
-                    "size": 956
+                    "size": 994
                 },
                 {
                     "path": "scripts/scan_modules.sh",
-                    "size": 1688
+                    "size": 1756
                 }
             ]
         },
@@ -91,65 +91,65 @@
             "files": [
                 {
                     "path": "engdefs/ScannerEngine1.esd",
-                    "size": 1309
+                    "size": 1372
                 },
                 {
                     "path": "engdefs/ScannerEngine2.esd",
-                    "size": 1284
+                    "size": 1344
                 },
                 {
                     "path": "engdefs/ScannerGPS.esd",
-                    "size": 1162
+                    "size": 1218
                 },
                 {
                     "path": "engdefs/ScannerGaps1.esd",
-                    "size": 2294
+                    "size": 2377
                 },
                 {
                     "path": "engdefs/ScannerGaps2.esd",
-                    "size": 1194
+                    "size": 1254
                 },
                 {
                     "path": "engdefs/ScannerMixed.esd",
-                    "size": 1272
+                    "size": 1332
                 },
                 {
                     "path": "engdefs/ScannerPer3Engine.esd",
-                    "size": 1264
+                    "size": 1324
                 },
                 {
                     "path": "engdefs/ScannerPer3Low.esd",
-                    "size": 1289
+                    "size": 1350
                 },
                 {
                     "path": "engdefs/ScannerPer3Mid1.esd",
-                    "size": 1245
+                    "size": 1305
                 },
                 {
                     "path": "engdefs/ScannerStrings.esd",
-                    "size": 1168
+                    "size": 1218
                 },
                 {
                     "path": "module.json",
-                    "size": 1449
+                    "size": 1473
                 },
                 {
                     "path": "scripts/scan_log.sh",
-                    "size": 3637
+                    "size": 3746
                 },
                 {
                     "path": "scripts/scan_shmem.sh",
-                    "size": 2703
+                    "size": 2779
                 },
                 {
                     "path": "scripts/scanner_install.sh",
-                    "size": 5975
+                    "size": 6141
                 }
             ]
         },
         "diag-tool": {
             "status": "alpha",
-            "description": "UDS diagnostic scanner for VAG modules \u2014 simulated transport + full UDS client (alpha). Live mode requires external VAG-COM interface (VCDS HEX, VNCI 6154a). Installed as a Java JAR artifact; no GEM screens.",
+            "description": "UDS diagnostic scanner for VAG modules \u00e2\u20ac\u201d simulated transport + full UDS client (alpha). Live mode requires external VAG-COM interface (VCDS HEX, VNCI 6154a). Installed as a Java JAR artifact; no GEM screens.",
             "standalone": false,
             "run_script": null,
             "artifact": "diag-tool.jar",
@@ -172,43 +172,43 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1021
+                    "size": 1038
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/DiagApp.java",
-                    "size": 9148
+                    "size": 9417
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/scanner/ModuleScanner.java",
-                    "size": 6786
+                    "size": 7021
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/scanner/VAGModules.java",
-                    "size": 4714
+                    "size": 4838
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/transport/SimulatedTransport.java",
-                    "size": 8742
+                    "size": 8986
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/transport/TransportLayer.java",
-                    "size": 1979
+                    "size": 2052
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/DiagException.java",
-                    "size": 874
+                    "size": 907
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/UDSClient.java",
-                    "size": 13095
+                    "size": 13482
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/UDSConstants.java",
-                    "size": 10165
+                    "size": 10393
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/UDSMessage.java",
-                    "size": 4859
+                    "size": 5024
                 }
             ]
         },
@@ -232,17 +232,17 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1006
+                    "size": 1027
                 },
                 {
                     "path": "scripts/dns_refresh_probe.sh",
-                    "size": 3966
+                    "size": 4115
                 }
             ]
         },
         "game-loader": {
             "status": "ready",
-            "description": "Java game launcher for MMI3G \u2014 run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
+            "description": "Java game launcher for MMI3G \u00e2\u20ac\u201d run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
             "standalone": false,
             "run_script": null,
             "artifact": null,
@@ -261,11 +261,11 @@
             "files": [
                 {
                     "path": "engdefs/GamesMenu.esd",
-                    "size": 525
+                    "size": 545
                 },
                 {
                     "path": "games/adventure/QuattroQuest.java",
-                    "size": 7641
+                    "size": 7867
                 },
                 {
                     "path": "games/adventure/game.jar",
@@ -273,7 +273,7 @@
                 },
                 {
                     "path": "games/adventure/game.manifest",
-                    "size": 64
+                    "size": 68
                 },
                 {
                     "path": "games/benchmark/game.jar",
@@ -281,7 +281,7 @@
                 },
                 {
                     "path": "games/benchmark/game.manifest",
-                    "size": 89
+                    "size": 92
                 },
                 {
                     "path": "games/fortune/game.jar",
@@ -289,11 +289,11 @@
                 },
                 {
                     "path": "games/fortune/game.manifest",
-                    "size": 80
+                    "size": 83
                 },
                 {
                     "path": "games/snake/Snake.java",
-                    "size": 6006
+                    "size": 6195
                 },
                 {
                     "path": "games/snake/game.jar",
@@ -301,23 +301,23 @@
                 },
                 {
                     "path": "games/snake/game.manifest",
-                    "size": 45
+                    "size": 49
                 },
                 {
                     "path": "module.json",
-                    "size": 1374
+                    "size": 1395
                 },
                 {
                     "path": "scripts/game_install.sh",
-                    "size": 4520
+                    "size": 4654
                 },
                 {
                     "path": "scripts/game_loader.sh",
-                    "size": 5450
+                    "size": 5619
                 },
                 {
                     "path": "scripts/launch_game.sh",
-                    "size": 2541
+                    "size": 2634
                 }
             ]
         },
@@ -342,61 +342,61 @@
             "files": [
                 {
                     "path": "engdefs/GaugesDashboard.esd",
-                    "size": 1074
+                    "size": 1123
                 },
                 {
                     "path": "engdefs/GaugesNetwork.esd",
-                    "size": 832
+                    "size": 866
                 },
                 {
                     "path": "engdefs/GaugesSystem.esd",
-                    "size": 969
+                    "size": 1011
                 },
                 {
                     "path": "module.json",
-                    "size": 1029
+                    "size": 1055
                 },
                 {
                     "path": "scripts/diskinfo.sh",
-                    "size": 2318
+                    "size": 2382
                 },
                 {
                     "path": "scripts/dnscheck.sh",
-                    "size": 304
+                    "size": 314
                 },
                 {
                     "path": "scripts/fullreport.sh",
-                    "size": 3308
+                    "size": 3414
                 },
                 {
                     "path": "scripts/ifconfig.sh",
-                    "size": 96
+                    "size": 99
                 },
                 {
                     "path": "scripts/netstatus.sh",
-                    "size": 2417
+                    "size": 2487
                 },
                 {
                     "path": "scripts/proclist.sh",
-                    "size": 2099
+                    "size": 2151
                 },
                 {
                     "path": "scripts/routetable.sh",
-                    "size": 95
+                    "size": 98
                 },
                 {
                     "path": "scripts/snapshot.sh",
-                    "size": 3429
+                    "size": 3537
                 },
                 {
                     "path": "scripts/syslog.sh",
-                    "size": 2078
+                    "size": 2130
                 }
             ]
         },
         "gem-activator": {
             "status": "ready",
-            "description": "Enable/disable the Green Engineering Menu from SD card \u2014 creates /HBpersistence/DBGModeActive. No VCDS needed!",
+            "description": "Enable/disable the Green Engineering Menu from SD card \u00e2\u20ac\u201d creates /HBpersistence/DBGModeActive. No VCDS needed!",
             "standalone": true,
             "run_script": "gem_enable.sh",
             "artifact": null,
@@ -415,37 +415,37 @@
             "files": [
                 {
                     "path": "engdefs/ToolkitDiag.esd",
-                    "size": 1046
+                    "size": 1088
                 },
                 {
                     "path": "engdefs/ToolkitMain.esd",
-                    "size": 1425
+                    "size": 1490
                 },
                 {
                     "path": "engdefs/ToolkitSWDL.esd",
-                    "size": 1052
+                    "size": 1098
                 },
                 {
                     "path": "module.json",
-                    "size": 986
+                    "size": 1005
                 },
                 {
                     "path": "scripts/gem_disable.sh",
-                    "size": 893
+                    "size": 924
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 3095
+                    "size": 3194
                 },
                 {
                     "path": "scripts/gem_status.sh",
-                    "size": 1378
+                    "size": 1423
                 }
             ]
         },
         "gemmi-dump": {
             "status": "ready",
-            "description": "Extract GEMMI (Google Earth) binaries and config from HDD for offline analysis \u2014 needed for auth bypass patching",
+            "description": "Extract GEMMI (Google Earth) binaries and config from HDD for offline analysis \u00e2\u20ac\u201d needed for auth bypass patching",
             "standalone": true,
             "run_script": "gemmi_dump.sh",
             "artifact": null,
@@ -464,17 +464,17 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 624
+                    "size": 637
                 },
                 {
                     "path": "scripts/gemmi_dump.sh",
-                    "size": 3373
+                    "size": 3487
                 }
             ]
         },
         "google-earth": {
             "status": "tested",
-            "description": "Google Earth satellite imagery restoration \u2014 CONFIRMED WORKING. On-car proxy serves dbRoot + auth locally, forwards tiles to kh.google.com via plain HTTP. No PC required.",
+            "description": "Google Earth satellite imagery restoration \u00e2\u20ac\u201d CONFIRMED WORKING. On-car proxy serves dbRoot + auth locally, forwards tiles to kh.google.com via plain HTTP. No PC required.",
             "standalone": true,
             "run_script": "ge_deploy.sh",
             "artifact": null,
@@ -497,7 +497,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2124
+                    "size": 2178
                 },
                 {
                     "path": "payload/auth_resp1.bin",
@@ -513,11 +513,11 @@
                 },
                 {
                     "path": "payload/ge_settings.dat",
-                    "size": 1119
+                    "size": 1161
                 },
                 {
                     "path": "payload/gemmi_control.sh",
-                    "size": 1220
+                    "size": 1269
                 },
                 {
                     "path": "payload/gemmi_proxy",
@@ -533,7 +533,7 @@
                 },
                 {
                     "path": "payload/gemmi_server.sh",
-                    "size": 2310
+                    "size": 2381
                 },
                 {
                     "path": "payload/models/audisvcursor.png",
@@ -553,27 +553,27 @@
                 },
                 {
                     "path": "payload/run_gemmi.sh",
-                    "size": 4140
+                    "size": 4307
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 6856
+                    "size": 7042
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
-                    "size": 116
+                    "size": 120
                 },
                 {
                     "path": "scripts/ge_deploy_v6.sh",
-                    "size": 7312
+                    "size": 7508
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 13151
+                    "size": 13527
                 },
                 {
                     "path": "scripts/ge_restore.sh",
-                    "size": 2437
+                    "size": 2510
                 }
             ]
         },
@@ -596,43 +596,43 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 923
+                    "size": 944
                 },
                 {
                     "path": "scripts/activateGEMMI.sh",
-                    "size": 447
+                    "size": 463
                 },
                 {
                     "path": "scripts/deactivateGEMMI.sh",
-                    "size": 404
+                    "size": 419
                 },
                 {
                     "path": "scripts/deleteCacheGEMMI.sh",
-                    "size": 195
+                    "size": 205
                 },
                 {
                     "path": "scripts/gemmi_wrapper_install.sh",
-                    "size": 1354
+                    "size": 1395
                 },
                 {
                     "path": "scripts/getCacheStatus.sh",
-                    "size": 331
+                    "size": 340
                 },
                 {
                     "path": "scripts/getInfoGEMMI.sh",
-                    "size": 628
+                    "size": 657
                 },
                 {
                     "path": "scripts/restartGEMMI.sh",
-                    "size": 549
+                    "size": 572
                 },
                 {
                     "path": "scripts/shutdownGEMMI.sh",
-                    "size": 216
+                    "size": 226
                 },
                 {
                     "path": "scripts/startGEMMI.sh",
-                    "size": 582
+                    "size": 605
                 }
             ]
         },
@@ -665,7 +665,7 @@
             "files": [
                 {
                     "path": "BINARIES.md",
-                    "size": 938
+                    "size": 962
                 },
                 {
                     "path": "gemmi/debug_gemmi.sh",
@@ -689,11 +689,11 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1621
+                    "size": 1657
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",
-                    "size": 5962
+                    "size": 6141
                 }
             ]
         },
@@ -716,17 +716,17 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 925
+                    "size": 946
                 },
                 {
                     "path": "scripts/ge_p0824_restore.sh",
-                    "size": 2302
+                    "size": 2383
                 }
             ]
         },
         "jvm-extract": {
             "status": "ready",
-            "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u2014 the first step toward custom MMI menu entries",
+            "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u00e2\u20ac\u201d the first step toward custom MMI menu entries",
             "standalone": true,
             "run_script": "jvm_extract.sh",
             "artifact": null,
@@ -745,17 +745,17 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1975
+                    "size": 2001
                 },
                 {
                     "path": "scripts/jvm_extract.sh",
-                    "size": 15299
+                    "size": 15714
                 }
             ]
         },
         "long-coding": {
             "status": "alpha",
-            "description": "Display current long-coding / adaptation values for each configurable MMI feature. Read-only display module \u2014 for safe editing use VCDS or ODIS.",
+            "description": "Display current long-coding / adaptation values for each configurable MMI feature. Read-only display module \u00e2\u20ac\u201d for safe editing use VCDS or ODIS.",
             "standalone": false,
             "run_script": null,
             "artifact": null,
@@ -774,37 +774,37 @@
             "files": [
                 {
                     "path": "engdefs/CodingBusRouting.esd",
-                    "size": 1718
+                    "size": 1808
                 },
                 {
                     "path": "engdefs/CodingCarConfig.esd",
-                    "size": 1920
+                    "size": 2019
                 },
                 {
                     "path": "engdefs/CodingMain.esd",
-                    "size": 1498
+                    "size": 1566
                 },
                 {
                     "path": "module.json",
-                    "size": 1353
+                    "size": 1374
                 },
                 {
                     "path": "scripts/coding_changelog.sh",
-                    "size": 3212
+                    "size": 3305
                 },
                 {
                     "path": "scripts/coding_dump.sh",
-                    "size": 7827
+                    "size": 8021
                 },
                 {
                     "path": "scripts/coding_install.sh",
-                    "size": 4602
+                    "size": 4741
                 }
             ]
         },
         "lte-setup": {
             "status": "ready",
-            "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter \u2014 replaces defunct internal 3G modem with external LTE router",
+            "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter \u00e2\u20ac\u201d replaces defunct internal 3G modem with external LTE router",
             "standalone": true,
             "run_script": "lte_setup.sh",
             "artifact": null,
@@ -822,37 +822,37 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1136
+                    "size": 1158
                 },
                 {
                     "path": "scripts/lte_restore.sh",
-                    "size": 4599
+                    "size": 4719
                 },
                 {
                     "path": "scripts/lte_setup.sh",
-                    "size": 12293
+                    "size": 12632
                 },
                 {
                     "path": "scripts/lte_setup_772d.sh",
-                    "size": 12293
+                    "size": 12632
                 },
                 {
                     "path": "scripts/lte_static.sh",
-                    "size": 2590
+                    "size": 2676
                 },
                 {
                     "path": "scripts/lte_static_772d.sh",
-                    "size": 2346
+                    "size": 2424
                 },
                 {
                     "path": "scripts/lte_status.sh",
-                    "size": 4443
+                    "size": 4593
                 }
             ]
         },
         "map-parser": {
             "status": "ready",
-            "description": "Extract and analyze navigation database config \u2014 reads nav DB version, map regions, configured paths, and FSC activation state. Read-only.",
+            "description": "Extract and analyze navigation database config \u00e2\u20ac\u201d reads nav DB version, map regions, configured paths, and FSC activation state. Read-only.",
             "standalone": true,
             "run_script": "map_parse.sh",
             "artifact": null,
@@ -871,11 +871,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1261
+                    "size": 1285
                 },
                 {
                     "path": "scripts/map_parse.sh",
-                    "size": 7848
+                    "size": 8059
                 }
             ]
         },
@@ -900,25 +900,25 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 932
+                    "size": 949
                 },
                 {
                     "path": "scripts/nav_restore.sh",
-                    "size": 4668
+                    "size": 4788
                 },
                 {
                     "path": "scripts/nav_status.sh",
-                    "size": 4778
+                    "size": 4921
                 },
                 {
                     "path": "scripts/nav_unblocker.sh",
-                    "size": 8024
+                    "size": 8249
                 }
             ]
         },
         "password-finder": {
             "status": "ready",
-            "description": "Dump stored Wi-Fi hotspot passwords, Audi Connect credentials, and other stored secrets from the MMI's persistence partitions. Read-only \u2014 changes nothing on the unit.",
+            "description": "Dump stored Wi-Fi hotspot passwords, Audi Connect credentials, and other stored secrets from the MMI's persistence partitions. Read-only \u00e2\u20ac\u201d changes nothing on the unit.",
             "standalone": true,
             "run_script": "password_dump.sh",
             "artifact": null,
@@ -937,17 +937,17 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1455
+                    "size": 1481
                 },
                 {
                     "path": "scripts/password_dump.sh",
-                    "size": 8552
+                    "size": 8780
                 }
             ]
         },
         "per3-reader": {
             "status": "alpha",
-            "description": "Read per3 / DSI persistence values from shell scripts. Ships an OSGi bundle that installs into the DSITracer.jar slot on /mnt/efs-system/lsd/ \u2014 on MMI boot, the bundle registers as a DSIPersistenceListener and serves synchronous reads through a file-based trigger mechanism. Answers the long-standing 'how do I read per3 addresses without writing a Java GEM screen' question.",
+            "description": "Read per3 / DSI persistence values from shell scripts. Ships an OSGi bundle that installs into the DSITracer.jar slot on /mnt/efs-system/lsd/ \u00e2\u20ac\u201d on MMI boot, the bundle registers as a DSIPersistenceListener and serves synchronous reads through a file-based trigger mechanism. Answers the long-standing 'how do I read per3 addresses without writing a Java GEM screen' question.",
             "standalone": true,
             "run_script": "per3_install.sh",
             "artifact": "per3-reader.jar",
@@ -966,15 +966,15 @@
             "files": [
                 {
                     "path": "MANIFEST.MF",
-                    "size": 368
+                    "size": 380
                 },
                 {
                     "path": "build.sh",
-                    "size": 3170
+                    "size": 3254
                 },
                 {
                     "path": "module.json",
-                    "size": 3194
+                    "size": 3234
                 },
                 {
                     "path": "per3-reader.jar",
@@ -982,97 +982,97 @@
                 },
                 {
                     "path": "scripts/per3_install.sh",
-                    "size": 6086
+                    "size": 6251
                 },
                 {
                     "path": "scripts/per3_read.sh",
-                    "size": 2592
+                    "size": 2677
                 },
                 {
                     "path": "scripts/per3_restore.sh",
-                    "size": 1519
+                    "size": 1568
                 },
                 {
                     "path": "src/de/dspl/per3reader/Activator.java",
-                    "size": 5919
+                    "size": 6074
                 },
                 {
                     "path": "src/de/dspl/per3reader/Per3Reader.java",
-                    "size": 6871
+                    "size": 7051
                 },
                 {
                     "path": "src/de/dspl/per3reader/TriggerLoop.java",
-                    "size": 6805
+                    "size": 7001
                 },
                 {
                     "path": "src/de/dspl/per3reader/test/MockDSIPersistence.java",
-                    "size": 5843
+                    "size": 5989
                 },
                 {
                     "path": "src/de/dspl/per3reader/test/TestMain.java",
-                    "size": 8616
+                    "size": 8853
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/admin/JDSIAdmin.java",
-                    "size": 433
+                    "size": 447
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSIBase.java",
-                    "size": 291
+                    "size": 302
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSIFatalException.java",
-                    "size": 181
+                    "size": 187
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSIListener.java",
-                    "size": 60
+                    "size": 64
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSINonFatalException.java",
-                    "size": 190
+                    "size": 196
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/persistence/DSIPersistence.java",
-                    "size": 6560
+                    "size": 6666
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/persistence/DSIPersistenceListener.java",
-                    "size": 3289
+                    "size": 3360
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/BundleActivator.java",
-                    "size": 411
+                    "size": 423
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/BundleContext.java",
-                    "size": 801
+                    "size": 818
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/InvalidSyntaxException.java",
-                    "size": 164
+                    "size": 169
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/ServiceReference.java",
-                    "size": 135
+                    "size": 141
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/ServiceRegistration.java",
-                    "size": 130
+                    "size": 136
                 },
                 {
                     "path": "src/stubs/org/osgi/util/tracker/ServiceTracker.java",
-                    "size": 491
+                    "size": 504
                 },
                 {
                     "path": "src/stubs/org/osgi/util/tracker/ServiceTrackerCustomizer.java",
-                    "size": 316
+                    "size": 325
                 }
             ]
         },
         "per3-writer": {
             "status": "design",
-            "description": "Write DSI persistence values from shell scripts via OSGi bundle. Enables GEM activation, coding changes, and feature configuration entirely from SD card \u2014 no VCDS/ODIS needed.",
+            "description": "Write DSI persistence values from shell scripts via OSGi bundle. Enables GEM activation, coding changes, and feature configuration entirely from SD card \u00e2\u20ac\u201d no VCDS/ODIS needed.",
             "standalone": false,
             "run_script": null,
             "artifact": null,
@@ -1091,17 +1091,17 @@
             "files": [
                 {
                     "path": "README.md",
-                    "size": 2750
+                    "size": 2843
                 },
                 {
                     "path": "module.json",
-                    "size": 650
+                    "size": 660
                 }
             ]
         },
         "persistence-dump": {
             "status": "ready",
-            "description": "Dumps persistence state (HBpersistence, efs-persist, shmem, coding) to SD card for offline analysis \u2014 use before/after VCDS changes to find exact byte locations",
+            "description": "Dumps persistence state (HBpersistence, efs-persist, shmem, coding) to SD card for offline analysis \u00e2\u20ac\u201d use before/after VCDS changes to find exact byte locations",
             "standalone": true,
             "run_script": "persist_dump.sh",
             "artifact": null,
@@ -1120,11 +1120,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 573
+                    "size": 588
                 },
                 {
                     "path": "scripts/persist_dump.sh",
-                    "size": 3893
+                    "size": 4006
                 }
             ]
         },
@@ -1148,15 +1148,15 @@
             "files": [
                 {
                     "path": "engdefs/RegionAuditMain.esd",
-                    "size": 1221
+                    "size": 1271
                 },
                 {
                     "path": "module.json",
-                    "size": 1540
+                    "size": 1566
                 },
                 {
                     "path": "scripts/region_audit.sh",
-                    "size": 9713
+                    "size": 9983
                 }
             ]
         },
@@ -1181,21 +1181,21 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 973
+                    "size": 997
                 },
                 {
                     "path": "scripts/splash_install.sh",
-                    "size": 4999
+                    "size": 5146
                 },
                 {
                     "path": "scripts/splash_restore.sh",
-                    "size": 3099
+                    "size": 3183
                 }
             ]
         },
         "system-info": {
             "status": "ready",
-            "description": "Comprehensive system diagnostic \u2014 gathers identity, activations, credentials, storage, network, persistence state, and backs up key files to SD card. Single pass, no flash writes.",
+            "description": "Deep system forensic \u00e2\u20ac\u201d gathers identity, activations, credentials, storage, network, persistence state, RSA keys, DataPST database, IPC channel captures (CAN/BAP data), QDB dumps, full process maps, syslog, and system configs. Single pass, no flash writes.",
             "standalone": true,
             "run_script": "sysinfo_dump.sh",
             "artifact": null,
@@ -1214,17 +1214,17 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 798
+                    "size": 949
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 17129
+                    "size": 22098
                 }
             ]
         },
         "variant-dump": {
             "status": "ready",
-            "description": "MMI identification + configuration dumper \u2014 captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
+            "description": "MMI identification + configuration dumper \u00e2\u20ac\u201d captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
             "standalone": true,
             "run_script": "variant_dump.sh",
             "artifact": null,
@@ -1243,11 +1243,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2250
+                    "size": 2283
                 },
                 {
                     "path": "scripts/variant_dump.sh",
-                    "size": 9763
+                    "size": 9990
                 }
             ]
         }

@@ -499,6 +499,123 @@ echo "--- hbsystem ---"
 ls -laR /hbsystem/ 2>/dev/null
 
 # ============================================================
+# ============================================================
+# 15. DEEP BINARY BACKUP
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  15. DEEP BINARY BACKUP"
+echo "================================================================"
+
+mkdir "${BACKUP}/Keys" 2>/dev/null
+mkdir "${BACKUP}/Keys/DataKey" 2>/dev/null
+mkdir "${BACKUP}/Keys/FSCKey" 2>/dev/null
+mkdir "${BACKUP}/Keys/MetainfoKey" 2>/dev/null
+
+cp /HBpersistence/DataPST.db "${BACKUP}/DataPST.db" 2>/dev/null && echo "  DataPST.db backed up" || echo "  DataPST.db not found"
+cp /HBpersistence/DataPST.crc "${BACKUP}/DataPST.crc" 2>/dev/null
+cp /HBpersistence/Keys/DataKey/DK_public_signiert.bin "${BACKUP}/Keys/DataKey/" 2>/dev/null && echo "  DataKey backed up"
+cp /HBpersistence/Keys/FSCKey/FSC_public_signiert.bin "${BACKUP}/Keys/FSCKey/" 2>/dev/null && echo "  FSCKey backed up"
+cp /HBpersistence/Keys/MetainfoKey/MI_public_signiert.bin "${BACKUP}/Keys/MetainfoKey/" 2>/dev/null && echo "  MetainfoKey backed up"
+cp /HBpersistence/FSC/Logs/Security_Exceptions.log "${BACKUP}/FSC/Security_Exceptions.log" 2>/dev/null && echo "  Security_Exceptions.log backed up"
+cp /HBpersistence/oadb_simuCS.dbf "${BACKUP}/oadb_simuCS.dbf" 2>/dev/null && echo "  oadb_simuCS.dbf backed up"
+cp /HBpersistence/PDL.dat "${BACKUP}/PDL.dat" 2>/dev/null
+cp /HBpersistence/addressbook.db "${BACKUP}/addressbook.db" 2>/dev/null && echo "  addressbook.db backed up"
+
+# ============================================================
+# 16. IPC CHANNEL CAPTURE
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  16. IPC CHANNEL CAPTURE (CAN/BAP data)"
+echo "================================================================"
+
+mkdir "${OUTDIR}/ipc" 2>/dev/null
+for ch in 2 3 4 5 6 7 8 9 10 11; do
+    CHPATH=""
+    if [ -e "/dev/ipc/ch${ch}" ]; then
+        CHPATH="/dev/ipc/ch${ch}"
+    elif [ -e "/dev/ipc/ioc/ch${ch}" ]; then
+        CHPATH="/dev/ipc/ioc/ch${ch}"
+    fi
+    if [ -n "$CHPATH" ]; then
+        cat "$CHPATH" > "/tmp/ipc_ch${ch}.bin" &
+        CATPID=$!
+        sleep 3
+        kill $CATPID 2>/dev/null
+        wait $CATPID 2>/dev/null
+        if [ -s "/tmp/ipc_ch${ch}.bin" ]; then
+            SIZE=$(ls -la "/tmp/ipc_ch${ch}.bin" | awk '{print $5}')
+            cp "/tmp/ipc_ch${ch}.bin" "${OUTDIR}/ipc/ch${ch}.bin" 2>/dev/null
+            echo "  ch${ch}: ${SIZE} bytes captured"
+        else
+            echo "  ch${ch}: blocked (0 bytes)"
+            rm -f "/tmp/ipc_ch${ch}.bin"
+        fi
+    fi
+done
+
+# ============================================================
+# 17. QDB DATABASE DUMP
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  17. QDB DATABASE DUMP"
+echo "================================================================"
+
+echo "--- Registered QDB databases ---"
+ls /dev/qdb/ 2>/dev/null
+if [ -e "/dev/qdb/mme" ]; then
+    echo ""
+    echo "--- mme database tables ---"
+    qdbc -d mme "SELECT name FROM sqlite_master WHERE type='table'" > "${OUTDIR}/qdb_mme_tables.txt" 2>/dev/null
+    cat "${OUTDIR}/qdb_mme_tables.txt" 2>/dev/null
+fi
+
+# ============================================================
+# 18. EXTENDED PROCESS DUMP
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  18. EXTENDED PROCESS DUMP"
+echo "================================================================"
+
+pidin -F "%H %p %N %a" > "${OUTDIR}/pidin_full.txt" 2>/dev/null
+echo "  Full pidin saved"
+pidin mem > "${OUTDIR}/pidin_mem.txt" 2>/dev/null
+echo "  Memory map saved"
+pidin fd > "${OUTDIR}/pidin_fd.txt" 2>/dev/null
+echo "  File descriptors saved"
+
+# ============================================================
+# 19. FULL SYSLOG
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  19. FULL SYSLOG DUMP"
+echo "================================================================"
+
+sloginfo > "${OUTDIR}/syslog_full.txt" 2>/dev/null
+echo "  Full syslog saved"
+
+# ============================================================
+# 20. SYSTEM CONFIG FILES
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  20. SYSTEM CONFIG FILES"
+echo "================================================================"
+
+mkdir "${BACKUP}/etc" 2>/dev/null
+for f in /etc/inetd.conf /etc/shadow /etc/passwd /etc/hosts /etc/resolv.conf /etc/qdb.cfg /etc/hmi_country.txt; do
+    if [ -f "$f" ] || [ -L "$f" ]; then
+        BNAME=$(echo "$f" | sed 's|/|_|g')
+        cp "$f" "${BACKUP}/etc/${BNAME}" 2>/dev/null
+        echo "  Backed up: $f"
+    fi
+done
+
+
 echo ""
 echo "################################################################"
 echo "#  End of System Information Report"
