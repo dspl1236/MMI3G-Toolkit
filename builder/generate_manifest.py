@@ -34,6 +34,23 @@ CORE_FILES = {
 }
 
 
+def _lf_size(filepath: str) -> int:
+    """Return file size with LF line endings (platform-independent).
+
+    Text files checked out on Windows may have CRLF endings, making
+    os.path.getsize() differ from Linux.  Reading in text mode and
+    encoding back to UTF-8 normalises to LF so the manifest is stable
+    across platforms.  Binary files fall back to raw byte count.
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8', newline='') as f:
+            content = f.read()
+        # newline='' reads raw; now normalise to LF
+        return len(content.replace('\r\n', '\n').encode('utf-8'))
+    except (UnicodeDecodeError, ValueError):
+        return os.path.getsize(filepath)
+
+
 def walk_module(mod_dir: str) -> list:
     """Return a list of {path, size} for every file in a module directory."""
     files = []
@@ -41,7 +58,7 @@ def walk_module(mod_dir: str) -> list:
         for fname in sorted(fnames):
             full = os.path.join(root, fname)
             rel = os.path.relpath(full, mod_dir).replace(os.sep, '/')
-            size = os.path.getsize(full)
+            size = _lf_size(full)
             files.append({'path': rel, 'size': size})
     return sorted(files, key=lambda f: f['path'])
 

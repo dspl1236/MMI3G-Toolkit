@@ -42,31 +42,31 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1333
+                    "size": 1311
                 },
                 {
                     "path": "scripts/can_diag.sh",
-                    "size": 5759
+                    "size": 5568
                 },
                 {
                     "path": "scripts/grab_binaries.sh",
-                    "size": 2724
+                    "size": 2625
                 },
                 {
                     "path": "scripts/read_dtc.sh",
-                    "size": 1076
+                    "size": 1031
                 },
                 {
                     "path": "scripts/read_live_data.sh",
-                    "size": 4172
+                    "size": 4043
                 },
                 {
                     "path": "scripts/read_module_info.sh",
-                    "size": 994
+                    "size": 956
                 },
                 {
                     "path": "scripts/scan_modules.sh",
-                    "size": 1756
+                    "size": 1688
                 }
             ]
         },
@@ -91,59 +91,59 @@
             "files": [
                 {
                     "path": "engdefs/ScannerEngine1.esd",
-                    "size": 1372
+                    "size": 1309
                 },
                 {
                     "path": "engdefs/ScannerEngine2.esd",
-                    "size": 1344
+                    "size": 1284
                 },
                 {
                     "path": "engdefs/ScannerGPS.esd",
-                    "size": 1218
+                    "size": 1162
                 },
                 {
                     "path": "engdefs/ScannerGaps1.esd",
-                    "size": 2377
+                    "size": 2294
                 },
                 {
                     "path": "engdefs/ScannerGaps2.esd",
-                    "size": 1254
+                    "size": 1194
                 },
                 {
                     "path": "engdefs/ScannerMixed.esd",
-                    "size": 1332
+                    "size": 1272
                 },
                 {
                     "path": "engdefs/ScannerPer3Engine.esd",
-                    "size": 1324
+                    "size": 1264
                 },
                 {
                     "path": "engdefs/ScannerPer3Low.esd",
-                    "size": 1350
+                    "size": 1289
                 },
                 {
                     "path": "engdefs/ScannerPer3Mid1.esd",
-                    "size": 1305
+                    "size": 1245
                 },
                 {
                     "path": "engdefs/ScannerStrings.esd",
-                    "size": 1218
+                    "size": 1168
                 },
                 {
                     "path": "module.json",
-                    "size": 1473
+                    "size": 1449
                 },
                 {
                     "path": "scripts/scan_log.sh",
-                    "size": 3746
+                    "size": 3637
                 },
                 {
                     "path": "scripts/scan_shmem.sh",
-                    "size": 2779
+                    "size": 2703
                 },
                 {
                     "path": "scripts/scanner_install.sh",
-                    "size": 6141
+                    "size": 5975
                 }
             ]
         },
@@ -172,43 +172,43 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1038
+                    "size": 1021
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/DiagApp.java",
-                    "size": 9417
+                    "size": 9148
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/scanner/ModuleScanner.java",
-                    "size": 7021
+                    "size": 6786
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/scanner/VAGModules.java",
-                    "size": 4838
+                    "size": 4714
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/transport/SimulatedTransport.java",
-                    "size": 8986
+                    "size": 8742
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/transport/TransportLayer.java",
-                    "size": 2052
+                    "size": 1979
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/DiagException.java",
-                    "size": 907
+                    "size": 874
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/UDSClient.java",
-                    "size": 13482
+                    "size": 13095
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/UDSConstants.java",
-                    "size": 10393
+                    "size": 10165
                 },
                 {
                     "path": "src/de/audi/mmi3g/diag/uds/UDSMessage.java",
-                    "size": 5024
+                    "size": 4859
                 }
             ]
         },
@@ -232,11 +232,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1027
+                    "size": 1006
                 },
                 {
                     "path": "scripts/dns_refresh_probe.sh",
-                    "size": 4115
+                    "size": 3966
                 }
             ]
         },
@@ -261,11 +261,11 @@
             "files": [
                 {
                     "path": "engdefs/GamesMenu.esd",
-                    "size": 545
+                    "size": 525
                 },
                 {
                     "path": "games/adventure/QuattroQuest.java",
-                    "size": 7867
+                    "size": 7641
                 },
                 {
                     "path": "games/adventure/game.jar",
@@ -273,7 +273,7 @@
                 },
                 {
                     "path": "games/adventure/game.manifest",
-                    "size": 68
+                    "size": 64
                 },
                 {
                     "path": "games/benchmark/game.jar",
@@ -281,7 +281,7 @@
                 },
                 {
                     "path": "games/benchmark/game.manifest",
-                    "size": 92
+                    "size": 89
                 },
                 {
                     "path": "games/fortune/game.jar",
@@ -289,11 +289,11 @@
                 },
                 {
                     "path": "games/fortune/game.manifest",
-                    "size": 83
+                    "size": 80
                 },
                 {
                     "path": "games/snake/Snake.java",
-                    "size": 6195
+                    "size": 6006
                 },
                 {
                     "path": "games/snake/game.jar",
@@ -301,23 +301,23 @@
                 },
                 {
                     "path": "games/snake/game.manifest",
-                    "size": 49
+                    "size": 45
                 },
                 {
                     "path": "module.json",
-                    "size": 1395
+                    "size": 1374
                 },
                 {
                     "path": "scripts/game_install.sh",
-                    "size": 4654
+                    "size": 4520
                 },
                 {
                     "path": "scripts/game_loader.sh",
-                    "size": 5619
+                    "size": 5450
                 },
                 {
                     "path": "scripts/launch_game.sh",
-                    "size": 2634
+                    "size": 2541
                 }
             ]
         },
@@ -342,55 +342,55 @@
             "files": [
                 {
                     "path": "engdefs/GaugesDashboard.esd",
-                    "size": 1123
+                    "size": 1074
                 },
                 {
                     "path": "engdefs/GaugesNetwork.esd",
-                    "size": 866
+                    "size": 832
                 },
                 {
                     "path": "engdefs/GaugesSystem.esd",
-                    "size": 1011
+                    "size": 969
                 },
                 {
                     "path": "module.json",
-                    "size": 1055
+                    "size": 1029
                 },
                 {
                     "path": "scripts/diskinfo.sh",
-                    "size": 2382
+                    "size": 2318
                 },
                 {
                     "path": "scripts/dnscheck.sh",
-                    "size": 314
+                    "size": 304
                 },
                 {
                     "path": "scripts/fullreport.sh",
-                    "size": 3414
+                    "size": 3308
                 },
                 {
                     "path": "scripts/ifconfig.sh",
-                    "size": 99
+                    "size": 96
                 },
                 {
                     "path": "scripts/netstatus.sh",
-                    "size": 2487
+                    "size": 2417
                 },
                 {
                     "path": "scripts/proclist.sh",
-                    "size": 2151
+                    "size": 2099
                 },
                 {
                     "path": "scripts/routetable.sh",
-                    "size": 98
+                    "size": 95
                 },
                 {
                     "path": "scripts/snapshot.sh",
-                    "size": 3537
+                    "size": 3429
                 },
                 {
                     "path": "scripts/syslog.sh",
-                    "size": 2130
+                    "size": 2078
                 }
             ]
         },
@@ -415,31 +415,31 @@
             "files": [
                 {
                     "path": "engdefs/ToolkitDiag.esd",
-                    "size": 1088
+                    "size": 1046
                 },
                 {
                     "path": "engdefs/ToolkitMain.esd",
-                    "size": 1490
+                    "size": 1425
                 },
                 {
                     "path": "engdefs/ToolkitSWDL.esd",
-                    "size": 1098
+                    "size": 1052
                 },
                 {
                     "path": "module.json",
-                    "size": 1005
+                    "size": 986
                 },
                 {
                     "path": "scripts/gem_disable.sh",
-                    "size": 924
+                    "size": 893
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 3194
+                    "size": 3095
                 },
                 {
                     "path": "scripts/gem_status.sh",
-                    "size": 1423
+                    "size": 1378
                 }
             ]
         },
@@ -464,11 +464,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 637
+                    "size": 624
                 },
                 {
                     "path": "scripts/gemmi_dump.sh",
-                    "size": 3487
+                    "size": 3373
                 }
             ]
         },
@@ -497,7 +497,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2178
+                    "size": 2124
                 },
                 {
                     "path": "payload/auth_resp1.bin",
@@ -513,11 +513,11 @@
                 },
                 {
                     "path": "payload/ge_settings.dat",
-                    "size": 1161
+                    "size": 1119
                 },
                 {
                     "path": "payload/gemmi_control.sh",
-                    "size": 1269
+                    "size": 1220
                 },
                 {
                     "path": "payload/gemmi_proxy",
@@ -533,7 +533,7 @@
                 },
                 {
                     "path": "payload/gemmi_server.sh",
-                    "size": 2381
+                    "size": 2310
                 },
                 {
                     "path": "payload/models/audisvcursor.png",
@@ -553,27 +553,27 @@
                 },
                 {
                     "path": "payload/run_gemmi.sh",
-                    "size": 4307
+                    "size": 4140
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 7042
+                    "size": 6856
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
-                    "size": 120
+                    "size": 116
                 },
                 {
                     "path": "scripts/ge_deploy_v6.sh",
-                    "size": 7508
+                    "size": 7312
                 },
                 {
                     "path": "scripts/ge_probe.sh",
-                    "size": 13527
+                    "size": 13151
                 },
                 {
                     "path": "scripts/ge_restore.sh",
-                    "size": 2510
+                    "size": 2437
                 }
             ]
         },
@@ -596,43 +596,43 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 944
+                    "size": 923
                 },
                 {
                     "path": "scripts/activateGEMMI.sh",
-                    "size": 463
+                    "size": 447
                 },
                 {
                     "path": "scripts/deactivateGEMMI.sh",
-                    "size": 419
+                    "size": 404
                 },
                 {
                     "path": "scripts/deleteCacheGEMMI.sh",
-                    "size": 205
+                    "size": 195
                 },
                 {
                     "path": "scripts/gemmi_wrapper_install.sh",
-                    "size": 1395
+                    "size": 1354
                 },
                 {
                     "path": "scripts/getCacheStatus.sh",
-                    "size": 340
+                    "size": 331
                 },
                 {
                     "path": "scripts/getInfoGEMMI.sh",
-                    "size": 657
+                    "size": 628
                 },
                 {
                     "path": "scripts/restartGEMMI.sh",
-                    "size": 572
+                    "size": 549
                 },
                 {
                     "path": "scripts/shutdownGEMMI.sh",
-                    "size": 226
+                    "size": 216
                 },
                 {
                     "path": "scripts/startGEMMI.sh",
-                    "size": 605
+                    "size": 582
                 }
             ]
         },
@@ -665,7 +665,7 @@
             "files": [
                 {
                     "path": "BINARIES.md",
-                    "size": 962
+                    "size": 938
                 },
                 {
                     "path": "gemmi/debug_gemmi.sh",
@@ -689,11 +689,11 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1657
+                    "size": 1621
                 },
                 {
                     "path": "scripts/ge_p0824_deploy.sh",
-                    "size": 6141
+                    "size": 5962
                 }
             ]
         },
@@ -716,11 +716,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 946
+                    "size": 925
                 },
                 {
                     "path": "scripts/ge_p0824_restore.sh",
-                    "size": 2383
+                    "size": 2302
                 }
             ]
         },
@@ -745,11 +745,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2001
+                    "size": 1975
                 },
                 {
                     "path": "scripts/jvm_extract.sh",
-                    "size": 15714
+                    "size": 15299
                 }
             ]
         },
@@ -774,31 +774,31 @@
             "files": [
                 {
                     "path": "engdefs/CodingBusRouting.esd",
-                    "size": 1808
+                    "size": 1718
                 },
                 {
                     "path": "engdefs/CodingCarConfig.esd",
-                    "size": 2019
+                    "size": 1920
                 },
                 {
                     "path": "engdefs/CodingMain.esd",
-                    "size": 1566
+                    "size": 1498
                 },
                 {
                     "path": "module.json",
-                    "size": 1374
+                    "size": 1353
                 },
                 {
                     "path": "scripts/coding_changelog.sh",
-                    "size": 3305
+                    "size": 3212
                 },
                 {
                     "path": "scripts/coding_dump.sh",
-                    "size": 8021
+                    "size": 7827
                 },
                 {
                     "path": "scripts/coding_install.sh",
-                    "size": 4741
+                    "size": 4602
                 }
             ]
         },
@@ -822,31 +822,31 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1158
+                    "size": 1136
                 },
                 {
                     "path": "scripts/lte_restore.sh",
-                    "size": 4719
+                    "size": 4599
                 },
                 {
                     "path": "scripts/lte_setup.sh",
-                    "size": 12632
+                    "size": 12293
                 },
                 {
                     "path": "scripts/lte_setup_772d.sh",
-                    "size": 12632
+                    "size": 12293
                 },
                 {
                     "path": "scripts/lte_static.sh",
-                    "size": 2676
+                    "size": 2590
                 },
                 {
                     "path": "scripts/lte_static_772d.sh",
-                    "size": 2424
+                    "size": 2346
                 },
                 {
                     "path": "scripts/lte_status.sh",
-                    "size": 4593
+                    "size": 4443
                 }
             ]
         },
@@ -871,11 +871,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1285
+                    "size": 1261
                 },
                 {
                     "path": "scripts/map_parse.sh",
-                    "size": 8059
+                    "size": 7848
                 }
             ]
         },
@@ -900,19 +900,19 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 949
+                    "size": 932
                 },
                 {
                     "path": "scripts/nav_restore.sh",
-                    "size": 4788
+                    "size": 4668
                 },
                 {
                     "path": "scripts/nav_status.sh",
-                    "size": 4921
+                    "size": 4778
                 },
                 {
                     "path": "scripts/nav_unblocker.sh",
-                    "size": 8249
+                    "size": 8024
                 }
             ]
         },
@@ -937,11 +937,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1481
+                    "size": 1455
                 },
                 {
                     "path": "scripts/password_dump.sh",
-                    "size": 8780
+                    "size": 8552
                 }
             ]
         },
@@ -966,15 +966,15 @@
             "files": [
                 {
                     "path": "MANIFEST.MF",
-                    "size": 380
+                    "size": 368
                 },
                 {
                     "path": "build.sh",
-                    "size": 3254
+                    "size": 3170
                 },
                 {
                     "path": "module.json",
-                    "size": 3234
+                    "size": 3194
                 },
                 {
                     "path": "per3-reader.jar",
@@ -982,91 +982,91 @@
                 },
                 {
                     "path": "scripts/per3_install.sh",
-                    "size": 6251
+                    "size": 6086
                 },
                 {
                     "path": "scripts/per3_read.sh",
-                    "size": 2677
+                    "size": 2592
                 },
                 {
                     "path": "scripts/per3_restore.sh",
-                    "size": 1568
+                    "size": 1519
                 },
                 {
                     "path": "src/de/dspl/per3reader/Activator.java",
-                    "size": 6074
+                    "size": 5919
                 },
                 {
                     "path": "src/de/dspl/per3reader/Per3Reader.java",
-                    "size": 7051
+                    "size": 6871
                 },
                 {
                     "path": "src/de/dspl/per3reader/TriggerLoop.java",
-                    "size": 7001
+                    "size": 6805
                 },
                 {
                     "path": "src/de/dspl/per3reader/test/MockDSIPersistence.java",
-                    "size": 5989
+                    "size": 5843
                 },
                 {
                     "path": "src/de/dspl/per3reader/test/TestMain.java",
-                    "size": 8853
+                    "size": 8616
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/admin/JDSIAdmin.java",
-                    "size": 447
+                    "size": 433
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSIBase.java",
-                    "size": 302
+                    "size": 291
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSIFatalException.java",
-                    "size": 187
+                    "size": 181
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSIListener.java",
-                    "size": 64
+                    "size": 60
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/base/DSINonFatalException.java",
-                    "size": 196
+                    "size": 190
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/persistence/DSIPersistence.java",
-                    "size": 6666
+                    "size": 6560
                 },
                 {
                     "path": "src/stubs/org/dsi/ifc/persistence/DSIPersistenceListener.java",
-                    "size": 3360
+                    "size": 3289
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/BundleActivator.java",
-                    "size": 423
+                    "size": 411
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/BundleContext.java",
-                    "size": 818
+                    "size": 801
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/InvalidSyntaxException.java",
-                    "size": 169
+                    "size": 164
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/ServiceReference.java",
-                    "size": 141
+                    "size": 135
                 },
                 {
                     "path": "src/stubs/org/osgi/framework/ServiceRegistration.java",
-                    "size": 136
+                    "size": 130
                 },
                 {
                     "path": "src/stubs/org/osgi/util/tracker/ServiceTracker.java",
-                    "size": 504
+                    "size": 491
                 },
                 {
                     "path": "src/stubs/org/osgi/util/tracker/ServiceTrackerCustomizer.java",
-                    "size": 325
+                    "size": 316
                 }
             ]
         },
@@ -1091,11 +1091,11 @@
             "files": [
                 {
                     "path": "README.md",
-                    "size": 2843
+                    "size": 2750
                 },
                 {
                     "path": "module.json",
-                    "size": 660
+                    "size": 650
                 }
             ]
         },
@@ -1120,11 +1120,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 588
+                    "size": 573
                 },
                 {
                     "path": "scripts/persist_dump.sh",
-                    "size": 4006
+                    "size": 3893
                 }
             ]
         },
@@ -1148,15 +1148,15 @@
             "files": [
                 {
                     "path": "engdefs/RegionAuditMain.esd",
-                    "size": 1271
+                    "size": 1221
                 },
                 {
                     "path": "module.json",
-                    "size": 1566
+                    "size": 1540
                 },
                 {
                     "path": "scripts/region_audit.sh",
-                    "size": 9983
+                    "size": 9713
                 }
             ]
         },
@@ -1181,15 +1181,15 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 997
+                    "size": 973
                 },
                 {
                     "path": "scripts/splash_install.sh",
-                    "size": 5146
+                    "size": 4999
                 },
                 {
                     "path": "scripts/splash_restore.sh",
-                    "size": 3183
+                    "size": 3099
                 }
             ]
         },
@@ -1214,7 +1214,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 949
+                    "size": 933
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
@@ -1243,11 +1243,11 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2283
+                    "size": 2250
                 },
                 {
                     "path": "scripts/variant_dump.sh",
-                    "size": 9990
+                    "size": 9763
                 }
             ]
         }

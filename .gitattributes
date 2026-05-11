@@ -1,1 +1,11 @@
+# Force LF line endings for all text files (cross-platform consistency)
+* text=auto eol=lf
+
+# Explicitly mark binary files
+*.png binary
+*.bin binary
+*.jxe binary
+*.jar binary
+*.so binary
+*.zip binary
 modules/google-earth-p0824-deploy/gemmi/** binary
