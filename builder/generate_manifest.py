@@ -71,7 +71,7 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
         files = walk_module(mod_path)
         # Load module.json so the manifest embeds key metadata
         # (lets the UI show status/description without a second fetch)
-        with open(meta_file) as f:
+        with open(meta_file, encoding='utf-8') as f:
             meta = json.load(f)
         manifest['modules'][name] = {
             'status': meta.get('status', 'unknown'),
@@ -124,8 +124,8 @@ def main():
     manifest = build_manifest()
 
     os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
-    with open(OUT_FILE, 'w') as f:
-        json.dump(manifest, f, indent=4)
+    with open(OUT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=4, ensure_ascii=False)
 
     total_files = sum(len(m['files']) for m in manifest['modules'].values())
     total_size = sum(sum(f['size'] for f in m['files']) for m in manifest['modules'].values())

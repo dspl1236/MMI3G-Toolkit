@@ -1,5 +1,5 @@
 {
-    "generated": "2026-05-10",
+    "generated": "2026-05-11",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -15,7 +15,7 @@
     "modules": {
         "can-diag": {
             "status": "alpha",
-            "description": "CAN bus diagnostics via NDR \u00e2\u20ac\u201d v3 with correct devctl codes (class=5, cmd=7/8 from NavigationNdrInfo disassembly). Probes devctl format, scans ~25 ECU module addresses, reads fault codes, module info, and live sensor data. READ-ONLY \u00e2\u20ac\u201d no writes to vehicle systems.",
+            "description": "CAN bus diagnostics via NDR — v3 with correct devctl codes (class=5, cmd=7/8 from NavigationNdrInfo disassembly). Probes devctl format, scans ~25 ECU module addresses, reads fault codes, module info, and live sensor data. READ-ONLY — no writes to vehicle systems.",
             "standalone": true,
             "run_script": "can_diag.sh",
             "artifact": null,
@@ -149,7 +149,7 @@
         },
         "diag-tool": {
             "status": "alpha",
-            "description": "UDS diagnostic scanner for VAG modules \u00e2\u20ac\u201d simulated transport + full UDS client (alpha). Live mode requires external VAG-COM interface (VCDS HEX, VNCI 6154a). Installed as a Java JAR artifact; no GEM screens.",
+            "description": "UDS diagnostic scanner for VAG modules — simulated transport + full UDS client (alpha). Live mode requires external VAG-COM interface (VCDS HEX, VNCI 6154a). Installed as a Java JAR artifact; no GEM screens.",
             "standalone": false,
             "run_script": null,
             "artifact": "diag-tool.jar",
@@ -242,7 +242,7 @@
         },
         "game-loader": {
             "status": "ready",
-            "description": "Java game launcher for MMI3G \u00e2\u20ac\u201d run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
+            "description": "Java game launcher for MMI3G — run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
             "standalone": false,
             "run_script": null,
             "artifact": null,
@@ -396,7 +396,7 @@
         },
         "gem-activator": {
             "status": "ready",
-            "description": "Enable/disable the Green Engineering Menu from SD card \u00e2\u20ac\u201d creates /HBpersistence/DBGModeActive. No VCDS needed!",
+            "description": "Enable/disable the Green Engineering Menu from SD card — creates /HBpersistence/DBGModeActive. No VCDS needed!",
             "standalone": true,
             "run_script": "gem_enable.sh",
             "artifact": null,
@@ -445,7 +445,7 @@
         },
         "gemmi-dump": {
             "status": "ready",
-            "description": "Extract GEMMI (Google Earth) binaries and config from HDD for offline analysis \u00e2\u20ac\u201d needed for auth bypass patching",
+            "description": "Extract GEMMI (Google Earth) binaries and config from HDD for offline analysis — needed for auth bypass patching",
             "standalone": true,
             "run_script": "gemmi_dump.sh",
             "artifact": null,
@@ -474,7 +474,7 @@
         },
         "google-earth": {
             "status": "tested",
-            "description": "Google Earth satellite imagery restoration \u00e2\u20ac\u201d CONFIRMED WORKING. On-car proxy serves dbRoot + auth locally, forwards tiles to kh.google.com via plain HTTP. No PC required.",
+            "description": "Google Earth satellite imagery restoration — CONFIRMED WORKING. On-car proxy serves dbRoot + auth locally, forwards tiles to kh.google.com via plain HTTP. No PC required.",
             "standalone": true,
             "run_script": "ge_deploy.sh",
             "artifact": null,
@@ -726,7 +726,7 @@
         },
         "jvm-extract": {
             "status": "ready",
-            "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering \u00e2\u20ac\u201d the first step toward custom MMI menu entries",
+            "description": "Extract J9 JVM runtime, UI framework JARs, and application config for offline reverse engineering — the first step toward custom MMI menu entries",
             "standalone": true,
             "run_script": "jvm_extract.sh",
             "artifact": null,
@@ -755,7 +755,7 @@
         },
         "long-coding": {
             "status": "alpha",
-            "description": "Display current long-coding / adaptation values for each configurable MMI feature. Read-only display module \u00e2\u20ac\u201d for safe editing use VCDS or ODIS.",
+            "description": "Display current long-coding / adaptation values for each configurable MMI feature. Read-only display module — for safe editing use VCDS or ODIS.",
             "standalone": false,
             "run_script": null,
             "artifact": null,
@@ -804,7 +804,7 @@
         },
         "lte-setup": {
             "status": "ready",
-            "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter \u00e2\u20ac\u201d replaces defunct internal 3G modem with external LTE router",
+            "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter — replaces defunct internal 3G modem with external LTE router",
             "standalone": true,
             "run_script": "lte_setup.sh",
             "artifact": null,
@@ -852,7 +852,7 @@
         },
         "map-parser": {
             "status": "ready",
-            "description": "Extract and analyze navigation database config \u00e2\u20ac\u201d reads nav DB version, map regions, configured paths, and FSC activation state. Read-only.",
+            "description": "Extract and analyze navigation database config — reads nav DB version, map regions, configured paths, and FSC activation state. Read-only.",
             "standalone": true,
             "run_script": "map_parse.sh",
             "artifact": null,
@@ -918,7 +918,7 @@
         },
         "password-finder": {
             "status": "ready",
-            "description": "Dump stored Wi-Fi hotspot passwords, Audi Connect credentials, and other stored secrets from the MMI's persistence partitions. Read-only \u00e2\u20ac\u201d changes nothing on the unit.",
+            "description": "Dump stored Wi-Fi hotspot passwords, Audi Connect credentials, and other stored secrets from the MMI's persistence partitions. Read-only — changes nothing on the unit.",
             "standalone": true,
             "run_script": "password_dump.sh",
             "artifact": null,
@@ -947,7 +947,7 @@
         },
         "per3-reader": {
             "status": "alpha",
-            "description": "Read per3 / DSI persistence values from shell scripts. Ships an OSGi bundle that installs into the DSITracer.jar slot on /mnt/efs-system/lsd/ \u00e2\u20ac\u201d on MMI boot, the bundle registers as a DSIPersistenceListener and serves synchronous reads through a file-based trigger mechanism. Answers the long-standing 'how do I read per3 addresses without writing a Java GEM screen' question.",
+            "description": "Read per3 / DSI persistence values from shell scripts. Ships an OSGi bundle that installs into the DSITracer.jar slot on /mnt/efs-system/lsd/ — on MMI boot, the bundle registers as a DSIPersistenceListener and serves synchronous reads through a file-based trigger mechanism. Answers the long-standing 'how do I read per3 addresses without writing a Java GEM screen' question.",
             "standalone": true,
             "run_script": "per3_install.sh",
             "artifact": "per3-reader.jar",
@@ -1072,7 +1072,7 @@
         },
         "per3-writer": {
             "status": "design",
-            "description": "Write DSI persistence values from shell scripts via OSGi bundle. Enables GEM activation, coding changes, and feature configuration entirely from SD card \u00e2\u20ac\u201d no VCDS/ODIS needed.",
+            "description": "Write DSI persistence values from shell scripts via OSGi bundle. Enables GEM activation, coding changes, and feature configuration entirely from SD card — no VCDS/ODIS needed.",
             "standalone": false,
             "run_script": null,
             "artifact": null,
@@ -1101,7 +1101,7 @@
         },
         "persistence-dump": {
             "status": "ready",
-            "description": "Dumps persistence state (HBpersistence, efs-persist, shmem, coding) to SD card for offline analysis \u00e2\u20ac\u201d use before/after VCDS changes to find exact byte locations",
+            "description": "Dumps persistence state (HBpersistence, efs-persist, shmem, coding) to SD card for offline analysis — use before/after VCDS changes to find exact byte locations",
             "standalone": true,
             "run_script": "persist_dump.sh",
             "artifact": null,
@@ -1195,7 +1195,7 @@
         },
         "system-info": {
             "status": "ready",
-            "description": "Deep system forensic \u00e2\u20ac\u201d gathers identity, activations, credentials, storage, network, persistence state, RSA keys, DataPST database, IPC channel captures (CAN/BAP data), QDB dumps, full process maps, syslog, and system configs. Single pass, no flash writes.",
+            "description": "Deep system forensic — gathers identity, activations, credentials, storage, network, persistence state, RSA keys, DataPST database, IPC channel captures (CAN/BAP data), QDB dumps, full process maps, syslog, and system configs. Single pass, no flash writes.",
             "standalone": true,
             "run_script": "sysinfo_dump.sh",
             "artifact": null,
@@ -1224,7 +1224,7 @@
         },
         "variant-dump": {
             "status": "ready",
-            "description": "MMI identification + configuration dumper \u00e2\u20ac\u201d captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
+            "description": "MMI identification + configuration dumper — captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
             "standalone": true,
             "run_script": "variant_dump.sh",
             "artifact": null,
