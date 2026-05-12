@@ -338,3 +338,40 @@ via the MMI firmware update mechanism.
 Alternative: Gateway re-parameterization via ODIS to forward Motor_1/Motor_2
 to the Infotainment CAN bus, where existing IOC handlers might pick them up
 if there are unused reception slots in the firmware.
+
+---
+
+## DSI (Device Service Interface) Architecture
+
+The DSI framework uses a Proxy/Stub/Event pattern for inter-process communication.
+
+**Transport layer:** CRsuTransport, CHBIpcRsuTransport, CHBMostRsuTransport — handles MOST, IPC, and local transport.
+
+**Access layer:** CRsuAccessorProxy — used by MMI3GApplication to call out to services (e.g., SPHCarKombi for cluster commands).
+
+**Service layer:** CRsuServiceStub — used by MMI3GApplication to serve interfaces it provides to other processes.
+
+**Persistence API:** DSIPersistence interface (namespace, address, value) — this is what per3-reader bridges. PresCtrl classes provide the HMI facade over raw persistence.
+
+### Building a Native DSI Client
+1. Link against libHBdsi.so and libHBrsu.so
+2. Create CRsuAccessorProxy for the target interface
+3. Call methods via the proxy (marshalled to the service process)
+4. Handle events via CRsuEvent callbacks
+
+## Process Graph
+
+### Boot Chain
+Hardware drivers (io-pkt, devc-*, dev-ipc) -> Core services (qdb, slogger, PSSBSSProcess) -> Display/HMI (layermanagerV2, PCM3Root/MMI3GApplication) -> Navigation (NavCore) -> Networking (NWSProcess, inetd)
+
+### Key Process Categories
+- **Hardware:** io-pkt, io-audio, io-usb, dev-ipc, vdev-* (USB device handlers)
+- **Core:** qdb (database), slogger (logging), PSSBSSProcess (persistence)
+- **Display:** layermanagerV2, showScreen, screenserverV2
+- **Navigation:** NavCore, vdev-flexgps
+- **Media:** mme (multimedia engine), mmecli
+- **Network:** NWSProcess, inetd, io-pkt, dhcp.client
+- **Autorun:** proc_scriptlauncher (USB/SD card script execution)
+
+### Interface Dependencies
+105 DSI interfaces identified. Key dependency: PCM3Root/MMI3GApplication depends on nearly all other processes. Killing any core service may crash the main application.

@@ -10,7 +10,7 @@ Pick the tools you want, build an SD card, insert it, done.
 
 ## What Is This?
 
-MMI3G-Toolkit is a collection of 20 modules that extend your MMI3G head unit through the built-in SD card script execution mechanism. It includes a Python builder and a web app that assemble your selected modules into a ready-to-use SD card — handling the `copie_scr.sh` encoding automatically.
+MMI3G-Toolkit is a collection of 26 modules that extend your MMI3G head unit through the built-in SD card script execution mechanism. It includes a Python builder and a web app that assemble your selected modules into a ready-to-use SD card — handling the `copie_scr.sh` encoding automatically.
 
 **No VCDS required for most modules. No permanent modifications. No soldering.**
 
@@ -104,6 +104,8 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **long-coding** | 🧪 Alpha | Live display of current adaptation values via GEM screens |
 | **per3-reader** ⚠️ | 🧪 Alpha | OSGi DSI persistence bridge. See [research/PER3_READER.md](research/PER3_READER.md) |
 | **per3-writer** | 📐 Design | Persistence write capability (planned) |
+| **can-diag** | ✅ Ready | CAN bus diagnostics — read DTCs, module info, live data |
+| **region-audit** | ✅ Ready | Read-only region check and LSD inspection |
 
 > **⚠️ = external tool required.** Every other module is pure software — SD card in, job done.
 
@@ -212,7 +214,7 @@ MMI3G-Toolkit/
 │   ├── copie_scr_plain.sh       # Launcher template (auto-encoded)
 │   ├── platform.sh              # QNX shims, variant detection, logstamp helpers
 │   └── uninstall.sh             # Universal uninstaller
-├── modules/                     # 20 modules (12 ready, 4 alpha, 1 design)
+├── modules/                     # 26 modules
 │   ├── system-info/             # One-shot system state dump to SD
 │   ├── gem-activator/           # engdefs/ setup (enable bit still needs VCDS)
 │   ├── gauges-dashboard/        # Live telemetry — voltage, GPS, data logging
@@ -233,7 +235,7 @@ MMI3G-Toolkit/
 │   ├── long-coding/             # Live adaptation values display (GEM)
 │   ├── per3-reader/             # OSGi DSI persistence bridge (alpha)
 │   └── per3-writer/             # Persistence write capability (design)
-├── research/                    # 31 research documents (9,217 lines)
+├── research/                    # 35 research documents
 │   ├── ENGINEERING_ACCESS.md          # 36 GEM controllers, 529 strings, full DSI key catalog
 │   ├── ESD_SCREEN_FORMAT.md           # GEM screen definition spec (7 widget types, 173 screens)
 │   ├── FSC_SIGNATURE_BYPASS.md        # 2-byte patch bypasses all FSC validation
@@ -244,7 +246,6 @@ MMI3G-Toolkit/
 │   ├── RNS850_ANALYSIS.md             # RNS-850 NAR IFS comparison, GEMMI differences
 │   ├── DATA_CONNECTIVITY_OPTIONS.md   # USB ethernet, LTE, WiFi, driver compatibility
 │   ├── ARCHITECTURE.md                # Decompiled Java UI framework (152 classes)
-│   ├── DSI_ARCHITECTURE.md            # DSI IPC class map (Proxy/Stub/Event pattern)
 │   ├── HMI_ARCHITECTURE.md            # Boot sequence, 101-process graph, hook points
 │   ├── IFS_FORMAT.md                  # QNX IFS format + Harman LZO quirk
 │   ├── F3S_FORMAT.md                  # MMI3G EFS on-disk format notes
@@ -253,10 +254,9 @@ MMI3G-Toolkit/
 │   ├── JAVA_APP_DEVELOPMENT.md        # Java app development guide for MMI3G
 │   ├── GEM_COMPLETE_MAP.md            # Complete GEM screen map (1,624 lines)
 │   ├── PLATFORM_FAMILY.md             # HN+ platform variants
-│   ├── PROCESS_GRAPH.md               # QNX process tree
-│   ├── USB_ETHERNET_COMPATIBILITY.md  # ASIX chipset compatibility matrix
+│   ├── USB_ETHERNET.md               # ASIX chipset compatibility + speed config
 │   ├── IOACTIVE_V850_REFERENCE.md     # V850 IOC RE methodology
-│   └── ... (31 total)
+│   └── ... (35 total)
 ├── tools/                       # Firmware tools (not shipped to SD)
 │   ├── inflate_ifs.py           # Decompress LZO/UCL compressed IFS images
 │   ├── extract_qnx_ifs.py      # Extract files from a decompressed QNX IFS

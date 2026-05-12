@@ -1,51 +1,74 @@
+# USB Ethernet — Compatibility & Configuration
 
-## Speed Discovery (DrGER2, May 2026)
+> Consolidated from USB_ETHERNET.md and USB_ETHERNET_COMPATIBILITY.md.
 
-### Root Cause: Harman hardcodes speed=10 in umass-enum config
+## Supported Chipsets
 
-The ASIX driver speed is set by `vdev-medialauncher` which reads
-`/etc/umass-enum_def.cfg` (IFS, read-only):
+The MMI firmware (QNX 6.3.2) ships with exactly one USB ethernet driver: `/lib/dll/devn-asix.so`. No other chipsets work without IFS modification.
 
+| Chipset | Status | Notes |
+|---|---|---|
+| ASIX AX88172 | Supported | |
+| ASIX AX88172A | Supported | |
+| ASIX AX88772 | Supported | DrGER reference adapter (D-Link DUB-E100) |
+| ASIX AX88772A | Supported | Confirmed on A6 C7 — valid MAC, DHCP works |
+| ASIX AX88772B | Supported | |
+| ASIX AX88772D | Workaround | Not auto-detected; use `did=0x772D,vid=0x0B95` override |
+| ASIX AX88178 | Incompatible | Wrong chip family, null MAC from EEPROM init mismatch |
+| Realtek RTL8152/8153 | Incompatible | No driver in firmware |
+
+## Confirmed Working Adapters
+
+| Adapter | Chipset | Confirmed By |
+|---|---|---|
+| D-Link DUB-E100 | AX88772 | DrGER |
+| Generic AX88772A | AX88772A | Andrew (A6 C7) — MAC `00:0E:C6:06:44:1D` |
+
+## AX88772D Device ID Override
+
+The AX88772D is register-compatible with AX88772 but has a different USB product ID. Force it with:
+
+```sh
+io-pkt-v4-hc -d asix did=0x772D,vid=0x0B95 &
 ```
-vendor=0x0b95,device=0x7720,type=ETH,driver=devn-asix.so,args=speed=10 duplex=1,netif=5,netip=172.16.250.248,netmsk=255.255.0.0
-```
 
-All five ASIX entries in the config use `speed=10 duplex=1`.
-This means **every MMI3G with USB ethernet runs at 10baseT** regardless
-of the AX88772A's 100Mbps capability.
+Source: [QNX devn-asix.so documentation](https://qnx.com/developers/docs/6.4.0/neutrino/utilities/d/devn-asix.so.html)
 
-### Process chain (from sloginfo)
+## Speed Limitation (DrGER2 discovery)
 
-1. `vdev-medialauncher` detects USB insertion (PID from IFS)
+Harman hardcodes `speed=10 duplex=1` in `/etc/umass-enum_def.cfg` (IFS, read-only). Every MMI3G with USB ethernet runs at 10baseT regardless of adapter capability.
+
+### Fix
+
+Our LTE scripts detect en5 and upgrade via `ifconfig en5 media 100baseTX mediaopt full-duplex`, or kill io-pkt and restart with `speed=100`.
+
+### Process Chain
+
+1. `vdev-medialauncher` detects USB insertion
 2. Reads device match from `/etc/umass-enum_def.cfg`
-3. Starts `io-pkt-v4-hc -d devn-asix.so` with `speed=10`
+3. Starts `io-pkt-v4-hc -d devn-asix.so speed=10 duplex=1`
 4. `multicored` assigns IP 172.16.250.248/16 on en5
-5. If `/mnt/efs-persist/usedhcp` exists → NWSProcess starts DHCP client
+5. If `/mnt/efs-persist/usedhcp` exists, NWSProcess starts DHCP client
 
-### Fix approaches
+### Driver Options
 
-**Immediate (our LTE scripts):**
-Our scripts detect if en5 already exists (from vdev-medialauncher)
-and upgrade the speed via `ifconfig en5 media 100baseTX mediaopt full-duplex`.
-Falls back to killing io-pkt and restarting with speed=100.
+| Option | Description | Default |
+|---|---|---|
+| `did=0xXXXX` | Force USB device ID | Auto-detect |
+| `vid=0xXXXX` | Force USB vendor ID | Auto-detect |
+| `speed=10\|100` | Force speed (Mbps) | Auto-negotiate |
+| `duplex=0\|1` | Force half/full duplex | Auto-negotiate |
+| `mac=XXXXXXXXXXXX` | Override MAC address | From hardware |
+| `verbose=1..4` | Debug output (slogger) | 0 (off) |
 
-**Persistent (EFS overlay — untested):**
-QNX union filesystem may allow overlaying the config:
-```
-/mnt/efs-system/etc/umass-enum_def.cfg
-```
-with `speed=100` replacing `speed=10`. If vdev-medialauncher reads
-from the overlay path, this would fix speed system-wide without
-needing to run any scripts.
+## Other Network Drivers in Firmware
 
-**NWSProcess hook:**
-DrGER suggests adding speed change to:
-```
-/mnt/efs-system/pss/nws/usr/bin/NWSProcess.sh
-```
-for persistence across reboots.
+| Driver | Purpose |
+|---|---|
+| devnp-mv8688uap.so | Marvell 88W8688 WiFi (built-in AP, 192.168.1.1) |
+| devnp-shim.so | io-net compatibility shim |
+| devnp-mlb.so | MOST Link Bus (internal car network) |
 
-### Attribution
+## Attribution
 
-Discovery and analysis by DrGER2 (Gary). Config file contents,
-process chain, and sloginfo traces from his K0821 research.
+Speed discovery and analysis by DrGER2. AX88772A testing by Andrew (A6 C7). AX88772D incompatibility confirmed by daredoole (RNS-850).

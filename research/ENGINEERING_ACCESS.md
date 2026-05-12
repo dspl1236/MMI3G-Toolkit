@@ -397,3 +397,26 @@ live vehicle data.
 - DSI interface specs: `research/DSI_ARCHITECTURE.md`
 - GEM activation: `modules/gem-activator/`
 - Per3 addresses: `research/PER3_ADDRESS_MAP.md`
+
+---
+
+## GEM Activation Mechanisms (Porsche vs Audi)
+
+DBGModeActive enables GEM on both platforms but through different mechanisms.
+
+### Porsche PCM3Root
+Native binary has checkDBGModeFile() that reads /HBpersistence/DBGModeActive on boot. Created/deleted by Engineeringmenu_step2 function. Fully traced via Ghidra.
+
+### Audi MMI3GApplication
+The native binary does NOT contain DBGModeActive. The check is in the Java layer (AppDevelopment.jar):
+
+Key classes:
+- EngineeringInfoService: setPersistence(), storeInt(namespace, address, value)
+- FakePersistence: enterGreenEngineeringMenu, writeInt(namespace, address, value)
+- PersistenceAccessor: USEHBPERSISTENCE flag, DSIPersistence interface
+
+DSI Persistence API for per3 read/write:
+- writeInt(namespace=3, address, value) for per3 writes
+- VCDS reads GEM state as module 5F, adaptation channel 6
+
+System property de.audi.tghu.engineering.base_dir sets the ESD screen path. If overrideable, ESD files could load directly from SD card.
