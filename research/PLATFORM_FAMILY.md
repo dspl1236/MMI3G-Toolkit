@@ -137,7 +137,7 @@ Confirmed by firmware analysis (April 2026):
 - `devn-asix.so` present in PCM3_IFS2.ifs
 - `npm-pppmgr.so` PPP manager present
 - `en5` network interface referenced
-- Cinterion AC75i modem (dead after 3G sunset)
+- Cinterion AC75i modem (2G GPRS/EDGE, dead after network sunset)
 - SIM slot physically present in head unit
 - MuxBtNad multiplexer shares BT and modem serial
 - Online services: AHARadio, Weather (Baron Services), Traffic
