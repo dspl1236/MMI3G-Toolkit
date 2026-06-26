@@ -392,7 +392,11 @@ class BuildSdCliTests(unittest.TestCase):
             for dirname in ('bin', 'lib', 'var', 'engdefs', 'scripts'):
                 self.assertTrue((output_dir / dirname).is_dir(), dirname)
 
-            self.assertTrue((output_dir / 'scripts' / 'lte_setup.sh').is_file())
+            # usb-net (status 'ready') is in --all; its driver payload lands in bin/.
+            self.assertTrue((output_dir / 'scripts' / 'usb_net_run.sh').is_file())
+            self.assertTrue((output_dir / 'bin' / 'devn-asix-universal.so').is_file())
+            # lte-setup is deprecated -> excluded from --all (only status=='ready' builds).
+            self.assertFalse((output_dir / 'scripts' / 'lte_setup.sh').exists())
             self.assertTrue((output_dir / 'engdefs' / 'ToolkitMain.esd').is_file())
             self.assertTrue((output_dir / 'engdefs' / 'ScannerPer3Low.esd').is_file())
             self.assertFalse((output_dir / 'scripts' / 'per3_read.sh').exists())

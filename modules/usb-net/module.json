@@ -3,11 +3,12 @@
     "version": "1.0.0",
     "description": "Universal ASIX USB-Ethernet for MMI3G+ / RNS-850. Ships a devn-asix driver that supports AX88772 / 772A / 772B / 772C (+ 88178 and Linksys/NetGear rebadges) by activating Harman's own AX88772B init path from later firmware. Brings up the link + telnet; 'lte' mode also sets DLinkReplacesPPP so the unit uses the USB adapter for online services. Loads from USB only — never modifies the read-only firmware.",
     "author": "dspl1236",
-    "status": "beta",
+    "status": "ready",
     "compatible": ["MMI3G+", "RNS-850"],
     "standalone": true,
     "run_script": "usb_net_run.sh",
     "script_dir": "/scripts/USBNet",
+    "payload_dirs": [{"source": "bin", "target": "bin"}],
     "scripts": [
         "usb_net_run.sh - load universal ASIX driver, bring up link, telnet; modes dhcp/static/lte"
     ],

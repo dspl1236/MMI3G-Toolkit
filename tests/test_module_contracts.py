@@ -39,7 +39,7 @@ class ModuleContractTests(unittest.TestCase):
         for name, meta in self.modules.items():
             with self.subTest(module=name):
                 self.assertEqual(meta['name'], name)
-                self.assertIn(meta['status'], {'alpha', 'design', 'planned', 'ready', 'tested'})
+                self.assertIn(meta['status'], {'alpha', 'beta', 'deprecated', 'design', 'planned', 'ready', 'tested'})
                 self.assertTrue(set(meta['compatible']).issubset(self.builder.SUPPORTED_PLATFORMS))
 
     def test_prerequisite_graph_resolves_for_every_real_module(self):
