@@ -158,18 +158,39 @@ def main():
     class_data[PATCH_OFFSET] = PATCH_NEW
     new_crc = zlib.crc32(bytes(class_data)) & 0xFFFFFFFF
 
-    compressor = zlib.compressobj(RECOMPRESS_LEVEL, zlib.DEFLATED, -15)
-    new_comp = compressor.compress(bytes(class_data)) + compressor.flush()
+    # Recompress to fit the original in-place slot WITHOUT depending on the exact
+    # byte size of any particular zlib build. DEFLATE output size varies by zlib
+    # version, so requiring an exact == match is fragile (it "works" only when the
+    # local zlib happens to reproduce the firmware's original byte count). Instead:
+    # pick the smallest output that fits, then zero-pad to the exact slot size. The
+    # inflater stops at the DEFLATE end-of-stream marker, so trailing padding inside
+    # the slot is ignored, and the (uncompressed) CRC32 we wrote above is unaffected.
+    slot = info['comp_size']
+    new_comp = None
+    smallest = None
+    for level in (9, 8, 7, 6, 5, 4, 3, 2, 1):
+        c = zlib.compressobj(level, zlib.DEFLATED, -15)
+        cand = c.compress(bytes(class_data)) + c.flush()
+        if smallest is None or len(cand) < len(smallest):
+            smallest = cand
+        if len(cand) <= slot:
+            new_comp = cand
+            break
 
-    if len(new_comp) != info['comp_size']:
-        print(f"⚠️ Size mismatch: {len(new_comp)} vs {info['comp_size']}")
-        # Try other levels
-        for level in range(1, 10):
-            c = zlib.compressobj(level, zlib.DEFLATED, -15)
-            test = c.compress(bytes(class_data)) + c.flush()
-            if len(test) == info['comp_size']:
-                new_comp = test
-                break
+    if new_comp is None:
+        # Even max compression overflows the slot -> cannot patch in place without
+        # rebuilding the container. Abort BEFORE writing anything deployable, so a
+        # too-large (EFS-corrupting) blob can never reach the car.
+        print(f"\n❌ Patched data does not fit: smallest recompress is "
+              f"{len(smallest)} bytes vs slot {slot}.")
+        print("   In-place patch impossible for this firmware. Aborting (no files written).")
+        sys.exit(1)
+
+    pad = slot - len(new_comp)
+    if pad:
+        print(f"   Recompressed to {len(new_comp)} B, zero-padded {pad} B "
+              f"to fill the {slot} B slot (version-independent).")
+    new_comp = new_comp + (b'\x00' * pad)   # exactly slot bytes -> safe in-place write
 
     print(f"   Patched CRC32:    0x{new_crc:08x}")
     print(f"   Compressed size:  {len(new_comp)} (original: {info['comp_size']})")
