@@ -1,9 +1,10 @@
 {
     "name": "lte-setup",
-    "version": "1.0.0",
-    "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter — replaces defunct internal 3G modem with external LTE router",
+    "version": "1.1.0",
+    "description": "[DEPRECATED — use the 'usb-net' module] LTE mobile data via USB Ethernet. Superseded by usb-net, which ships the universal ASIX driver (incl. AX88772B/C) and an 'lte' mode that does the same DLinkReplacesPPP + DNS setup. The old AX88772B/D override scripts never worked on io-net and have been removed.",
     "author": "dspl1236",
-    "status": "ready",
+    "status": "deprecated",
+    "deprecated_by": "usb-net",
     "compatible": ["MMI3G+", "RNS-850"],
     "standalone": true,
     "run_script": "lte_setup.sh",
@@ -14,9 +15,9 @@
         "lte_status.sh - Diagnose USB Ethernet, DHCP, DNS, connectivity"
     ],
     "hardware": {
-        "adapter": "D-Link DUB-E100 rev A4/B1 or Gembird NIC-U1 (ASIX AX88772)",
+        "adapter": "ASIX AX88772 / 772A (for 772B/772C use the usb-net module)",
         "router": "TP-Link TL-MR3020 or any router on 192.168.0.1 subnet",
         "cable": "AMI-to-USB Type A adapter cable"
     },
-    "notes": "Based on DrGER2/MMI3GP-LAN-Setup. Creates DLinkReplacesPPP flag, enables DHCP client for en5 interface, installs dhcp-up script for DNS. MMI3G High does NOT have the ASIX driver — this module is for 3G+ and RNS-850 only."
+    "notes": "DEPRECATED -> usb-net. Based on DrGER2/MMI3GP-LAN-Setup. Creates DLinkReplacesPPP flag, enables DHCP on en5, installs dhcp-up for DNS. MMI3G High does NOT have the ASIX driver — 3G+ / RNS-850 only. lte_restore.sh retained to undo a prior LTE setup."
 }

@@ -80,10 +80,14 @@ const MODULES_DISPLAY = [
     desc: "Bypass navigation database activation check",
     compat: ["3G", "3G+", "RNS-850"], category: "nav",
     prereq: null, detail: "Patches manage_cd.sh to terminate vdev-logvolmgr. Persistent, reversed by firmware reinstall." },
-  { id: "lte-setup", name: "LTE Setup", status: "alpha",
-    desc: "USB Ethernet for LTE data + persistent root shell (port 23 + 2323)",
+  { id: "usb-net", name: "USB Ethernet", status: "beta",
+    desc: "Universal ASIX USB-Ethernet (AX88772 / 772A / 772B / 772C) + telnet. Modes: dhcp / static / lte.",
     compat: ["3G+", "RNS-850"], category: "net",
-    prereq: null, detail: "Creates DLinkReplacesPPP flag, enables DHCP on en5, installs dhcp-up for DNS. Adds persistent root shell on port 2323 (inetd.conf) and passwordless root login on port 23 (DrGER2 shadow method). Enables Google Earth UI via SysConstManager NAD detection. Requires ASIX-based USB Ethernet adapter + LTE router. Restore script cleanly reverts everything." },
+    prereq: null, detail: "Ships devn-asix-universal.so — activates Harman's own AX88772B init from later (MU9498) firmware so modern 772B/772C adapters work, not just 772/772A. Loads from USB into the running io-net; never touches the read-only flash (reboot-safe). 'lte' mode also sets DLinkReplacesPPP so the unit uses the adapter for online services. Validated on a Porsche PCM 3.1; MMI3G+/RNS-850 expected (same QNX 6.3 io-net SH4 driver). Supersedes lte-setup." },
+  { id: "lte-setup", name: "LTE Setup", status: "deprecated",
+    desc: "DEPRECATED — use USB Ethernet. The old AX88772B/D overrides never worked on io-net.",
+    compat: ["3G+", "RNS-850"], category: "net",
+    prereq: null, detail: "Superseded by the usb-net module, which ships the universal ASIX driver (incl. 772B/C) and an 'lte' mode that does the same DLinkReplacesPPP + DNS setup. Kept for now for its lte_restore.sh helper." },
   { id: "can-scanner", name: "CAN Scanner", status: "alpha",
     desc: "CAN bus address scanner — discover RPM, boost, coolant, speed",
     compat: ["3G", "3G+", "RNS-850"], category: "diag",
@@ -412,7 +416,7 @@ function generateRunSh(selected, manifest, overrides) {
 async function buildSdBundle(selected, onProgress, overrides) {
   overrides = overrides || {};
   onProgress && onProgress("Loading manifest...", 0);
-  const manifest = await fetchJson(MANIFEST_URL);
+  const manifest = await fetchJson(MANIFEST_URL + "?t=" + Date.now());  // cache-bust: always fresh
   const rawBase = manifest.raw_url_base;
   const moduleOutputPath = (modName, meta, f) => {
     if (f.path === "module.json") return null;

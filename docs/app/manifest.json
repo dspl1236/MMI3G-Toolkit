@@ -1,5 +1,5 @@
 {
-    "generated": "2026-05-12",
+    "generated": "2026-06-26",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -803,8 +803,8 @@
             ]
         },
         "lte-setup": {
-            "status": "ready",
-            "description": "Provision MMI3G+ for LTE mobile data via USB Ethernet adapter — replaces defunct internal 3G modem with external LTE router",
+            "status": "deprecated",
+            "description": "[DEPRECATED — use the 'usb-net' module] LTE mobile data via USB Ethernet. Superseded by usb-net, which ships the universal ASIX driver (incl. AX88772B/C) and an 'lte' mode that does the same DLinkReplacesPPP + DNS setup. The old AX88772B/D override scripts never worked on io-net and have been removed.",
             "standalone": true,
             "run_script": "lte_setup.sh",
             "artifact": null,
@@ -822,7 +822,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1136
+                    "size": 1380
                 },
                 {
                     "path": "scripts/lte_restore.sh",
@@ -833,16 +833,8 @@
                     "size": 12293
                 },
                 {
-                    "path": "scripts/lte_setup_772d.sh",
-                    "size": 12293
-                },
-                {
                     "path": "scripts/lte_static.sh",
                     "size": 2590
-                },
-                {
-                    "path": "scripts/lte_static_772d.sh",
-                    "size": 2346
                 },
                 {
                     "path": "scripts/lte_status.sh",
@@ -1219,6 +1211,42 @@
                 {
                     "path": "scripts/sysinfo_dump.sh",
                     "size": 22098
+                }
+            ]
+        },
+        "usb-net": {
+            "status": "beta",
+            "description": "Universal ASIX USB-Ethernet for MMI3G+ / RNS-850. Ships a devn-asix driver that supports AX88772 / 772A / 772B / 772C (+ 88178 and Linksys/NetGear rebadges) by activating Harman's own AX88772B init path from later firmware. Brings up the link + telnet; 'lte' mode also sets DLinkReplacesPPP so the unit uses the USB adapter for online services. Loads from USB only — never modifies the read-only firmware.",
+            "standalone": true,
+            "run_script": "usb_net_run.sh",
+            "artifact": null,
+            "payload_dirs": [],
+            "release_zip": null,
+            "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
+            "script_dir": "/scripts/USBNet",
+            "installs_to_flash": true,
+            "compatible": [
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "README.md",
+                    "size": 2415
+                },
+                {
+                    "path": "bin/devn-asix-universal.so",
+                    "size": 75540
+                },
+                {
+                    "path": "module.json",
+                    "size": 1865
+                },
+                {
+                    "path": "scripts/usb_net_run.sh",
+                    "size": 4761
                 }
             ]
         },

@@ -1,0 +1,32 @@
+{
+    "name": "usb-net",
+    "version": "1.0.0",
+    "description": "Universal ASIX USB-Ethernet for MMI3G+ / RNS-850. Ships a devn-asix driver that supports AX88772 / 772A / 772B / 772C (+ 88178 and Linksys/NetGear rebadges) by activating Harman's own AX88772B init path from later firmware. Brings up the link + telnet; 'lte' mode also sets DLinkReplacesPPP so the unit uses the USB adapter for online services. Loads from USB only — never modifies the read-only firmware.",
+    "author": "dspl1236",
+    "status": "beta",
+    "compatible": ["MMI3G+", "RNS-850"],
+    "standalone": true,
+    "run_script": "usb_net_run.sh",
+    "script_dir": "/scripts/USBNet",
+    "scripts": [
+        "usb_net_run.sh - load universal ASIX driver, bring up link, telnet; modes dhcp/static/lte"
+    ],
+    "hardware": {
+        "adapter": "Any ASIX AX88772 / 772A / 772B / 772C USB-Ethernet (modern cheap 772B/C now supported)",
+        "router": "Any router/switch on the adapter (DHCP), or direct cable to a PC (static)",
+        "cable": "AMI-to-USB Type A adapter cable"
+    },
+    "options": {
+        "mode": {
+            "label": "Addressing",
+            "type": "select",
+            "default": "dhcp",
+            "values": [
+                {"value": "dhcp", "label": "DHCP — from your router/switch"},
+                {"value": "static", "label": "Static 172.16.42.1 — direct cable to a PC"},
+                {"value": "lte", "label": "LTE/online services — DHCP + DLinkReplacesPPP"}
+            ]
+        }
+    },
+    "notes": "Validated on a Porsche PCM 3.1 (issue #7); MMI3G+/RNS-850 use the same QNX 6.3 io-net SH4 driver ABI and the driver is itself from MMI3G+ MU9498 firmware, so it is expected to work — pending an Audi/VW bench confirmation. Supersedes the lte-setup module (now deprecated): its old AX88772B/D overrides never worked on io-net."
+}
