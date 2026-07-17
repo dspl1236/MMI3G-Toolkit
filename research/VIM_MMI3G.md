@@ -35,6 +35,23 @@ Notes:
 - Always read the current value before writing; the change is fully reversible
   in VCDS/ODIS.
 
+## MMI 3G vs 3G+ — why the codes may be rejected
+
+The serial-digit Security Access derivation above (and the common online VIM
+code generators) are for **MMI 3G non-plus** — the A6/A7 C7-era units. On
+**MMI 3G+ (3GP)** Audi changed the Security Access algorithm, so those logins
+are **rejected even when entered correctly** (reported on
+[issue #10](https://github.com/dspl1236/MMI3G-Toolkit/issues/10) for a 2014
+Audi Q3 3G+). It's the algorithm, not user error.
+
+- 3G+ trains report internal variant IDs **9411 / 9436 / 9478** (vs 9304 = 3G
+  basic, 9308 = 3G high — see the variant detection in
+  [modules/long-coding](../modules/long-coding/) / [variant-dump](../modules/variant-dump/)).
+- A 3G+ car needs a **3G+-specific** security code (a 3G+-aware calculator /
+  ODIS / OBDeleven), or the non-VCDS internal-write route below.
+- First confirm the unit even exposes 5F adaptation channel 48 — not every
+  train carries the VIM adaptation.
+
 ## Where the toolkit fits today
 
 - **[gem-activator](../modules/gem-activator/)** *(ready)* — opens the Green
@@ -66,15 +83,15 @@ Two things make this worth pursuing for VIM specifically:
    write path that VCDS uses. An internal persistence write goes IOC-side, not
    through a UDS session — so it may set channel 48 **without** the serial→code
    login dance. Hypothesis, needs testing.
-2. **The address just needs mapping.** Method:
-   ```
-   per3_dump.sh 3            # dump namespace 3 before
-   # ... enable VIM once via VCDS (5F, adaptation 48 = 255) ...
-   per3_dump.sh 3            # dump after
-   diff before after        # the changed key = VIM's persistence address
-   ```
-   That delta is the missing piece to wire VIM into per3-writer as a one-file SD
-   toggle. If you map it, please drop it on issue #10.
+2. **The address just needs mapping** — with the right tool. Adaptation
+   keyValues live in the MMI's DSI (Java) persistence; read them with the
+   [per3-reader](../modules/per3-reader/) OSGi bundle or the GEM coding screens,
+   **not** a shell dump (`persistence-dump` only captures files — HBpersistence /
+   efs-persist / shmem — which may not surface the value). Dump per3 namespace 3
+   before and after a single **ch6 (GEM)** or **ch48 (VIM)** toggle, then diff —
+   the changed key is the address. ch6 is the easiest first target, since
+   `gem-activator` can toggle it with no VCDS. That delta wires the value into
+   per3-writer; if you map it, please drop it on [issue #10](https://github.com/dspl1236/MMI3G-Toolkit/issues/10).
 
 ## Legal / safety
 
