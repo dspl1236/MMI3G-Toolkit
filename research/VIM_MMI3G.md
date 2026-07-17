@@ -23,14 +23,14 @@ a single stored value behind a security gate.
 |------|--------|
 | 1 | Select control module **5F – Information Electronics** |
 | 2 | **Advanced ID – 1A** → read the navigation unit **serial number** (first field if several) |
-| 3 | Feed that serial to a VIM code generator to produce the **Security Access login code** |
-| 4 | **Security Access – 16** → enter the generated code |
+| 3 | Derive the **Security Access login** from that serial. Per the C7 community list it's the digits at positions **6, 13, 10, 14, 11** of the 1st serial (some trains instead need a serial→code generator/online decoder) |
+| 4 | **Security Access – 16** (16 is the VCDS security-access *function*, not the code) → enter the derived login |
 | 5 | **Adaptation – 10** → channel **48** → read current, set to **255**, test, save |
-| 6 | Reset the MMI (**Setup + scroll-wheel + top-right menu** buttons, held together) |
+| 6 | Reset the MMI (**Menu + big knob + top-right soft button**, held together; some trains use Setup instead of Menu) |
 
 Notes:
-- The generator typically yields two codes; **if the second is rejected, that
-  train/module simply doesn't support VIM adaptation.**
+- Not every 5F train carries VIM — if the login or the channel-48 write is
+  rejected, that unit doesn't support the adaptation.
 - **MMI 2G is different** — module **07**, channel **63** (out of scope here).
 - Always read the current value before writing; the change is fully reversible
   in VCDS/ODIS.
@@ -53,6 +53,12 @@ Channel 48 is stored in the MMI's **DSI persistence** (the same `per N 0xADDR`
 store the GEM reads — see [GEM_COMPLETE_MAP.md](GEM_COMPLETE_MAP.md)). The
 [per3-writer](../modules/per3-writer/) design aims to write those persistence
 values straight from an SD card via `DSIPersistence.requestWriteInt`.
+
+Helpfully, the **GEM hidden menu is itself a 5F adaptation — channel 6 = 1**
+(per the C7 list), which is exactly the address `per3-writer`'s README already
+sets out to map for GEM-enable. So channels **6** (hidden menu) and **48** (VIM)
+are neighbouring 5F adaptations living in the same persistence namespace —
+whatever dump-diff maps one will surface the other.
 
 Two things make this worth pursuing for VIM specifically:
 
@@ -81,5 +87,8 @@ risk, and know it's reversible via VCDS/ODIS.
 - bestcarmods.com/vim/ — MMI 3G VIM via VCDS (5F, SA-16, adaptation 48 = 255)
 - audienthusiasts.com/Articles_VIM.html — step-by-step 5F / Advanced-ID serial →
   Security Access → adaptation channel 48, with the legal caveat
-- Community reference for the coding location; toolkit specifics from this repo's
-  `modules/` and [GEM_COMPLETE_MAP.md](GEM_COMPLETE_MAP.md).
+- audizine.com C7 A6/A7 & S6/S7 VAG-COM list — the serial-digit Security Access
+  derivation (positions 6, 13, 10, 14, 11) and the `5F` `channel 6 = 1`
+  hidden-menu enable (thread 566240)
+- Toolkit specifics from this repo's `modules/` and
+  [GEM_COMPLETE_MAP.md](GEM_COMPLETE_MAP.md).
