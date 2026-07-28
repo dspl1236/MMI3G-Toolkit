@@ -40,7 +40,7 @@ jobs:
 
       - name: Stage site
         run: |
-          mkdir -p _site/payloads
+          mkdir -p _site/app/payloads
           cp -R docs/. _site/
 
       - name: Download GEMMI P0824 payload
@@ -50,8 +50,8 @@ jobs:
           gh release download v1.0-gemmi-p0824 \
             --repo "$GITHUB_REPOSITORY" \
             --pattern gemmi_p0824_eu_vw.zip \
-            --dir _site/payloads
-          test "$(wc -c < _site/payloads/gemmi_p0824_eu_vw.zip)" -eq 9823685
+            --dir _site/app/payloads
+          test "$(wc -c < _site/app/payloads/gemmi_p0824_eu_vw.zip)" -eq 9823685
 
       - uses: actions/upload-pages-artifact@v3
         with:
