@@ -56,10 +56,14 @@ class WebBuilderParityTests(unittest.TestCase):
         p0824_card = self.source[p0824_start:p0824_end]
 
         self.assertNotIn('cliOnly: true', p0824_card)
+        # Relative, so the fetch is same-origin wherever the site is served
+        # from - GitHub Pages here, a self-hosted mirror elsewhere. Asserting a
+        # hardcoded host would pin the app to one deployment.
         self.assertIn(
-            'payloadUrl: "https://dspl1236.github.io/MMI3G-Toolkit/payloads/gemmi_p0824_eu_vw.zip"',
+            'payloadUrl: "payloads/gemmi_p0824_eu_vw.zip"',
             p0824_card,
         )
+        self.assertNotIn('dspl1236.github.io', p0824_card)
 
 
 if __name__ == "__main__":
