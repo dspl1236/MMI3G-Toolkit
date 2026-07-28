@@ -127,7 +127,7 @@ const MODULES_DISPLAY = [
   { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha",
     desc: "Deploy bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi",
     compat: ["RNS-850"], category: "system",
-    prereq: null, payloadUrl: "https://dspl1236.github.io/MMI3G-Toolkit/payloads/gemmi_p0824_eu_vw.zip", detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware. The web app fetches the payload from the same GitHub Pages origin to avoid browser CORS limits." },
+    prereq: null, payloadUrl: "payloads/gemmi_p0824_eu_vw.zip", detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware. The web app fetches the payload from the same GitHub Pages origin to avoid browser CORS limits." },
   { id: "google-earth-p0824-restore", name: "P0824 GEMMI Restore", status: "alpha",
     desc: "Restore /mnt/nav/gemmi from the backup made by P0824 GEMMI Deploy",
     compat: ["RNS-850"], category: "system",
