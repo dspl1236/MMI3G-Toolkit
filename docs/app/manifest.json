@@ -1,5 +1,5 @@
 {
-    "generated": "2026-06-26",
+    "generated": "2026-09-14",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -1210,7 +1210,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 22098
+                    "size": 25215
                 }
             ]
         },
