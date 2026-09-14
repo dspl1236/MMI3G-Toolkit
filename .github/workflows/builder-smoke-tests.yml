@@ -25,3 +25,13 @@ jobs:
 
       - name: Run builder smoke tests
         run: python -m unittest discover -s tests -v
+
+      # The on-device shell is QNX ksh88; dash (ubuntu /bin/sh) is not a
+      # faithful proxy for the trap/wait/kill constructs the system-info
+      # robustness fix relies on. mksh shares pdksh lineage — run those
+      # tests under it too. (Necessary, not sufficient: still validate on
+      # a real unit's /bin/ksh before shipping module-script changes.)
+      - name: Run shell-robustness tests under mksh (pdksh-family)
+        run: |
+          sudo apt-get update && sudo apt-get install -y mksh
+          MMI_TEST_SHELL="$(command -v mksh)" python -m unittest tests.test_system_info_robustness -v

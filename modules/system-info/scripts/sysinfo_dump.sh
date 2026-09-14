@@ -43,12 +43,58 @@ if [ ! -d "${OUTDIR}" ]; then
     REPORT="${SDPATH}/var/sysinfo-${TS}.txt"
 fi
 
+# ------------------------------------------------------------
+# Robustness (issues #12 / #13): a hung QNX utility must never
+# leave the unit stuck on running.png with no completion screen.
+# ------------------------------------------------------------
+# Per-heavy-command and whole-run time budgets (seconds). Overridable
+# for host tests; the defaults are generous for a healthy unit.
+: "${MMI_CMD_BUDGET:=20}"
+: "${MMI_RUN_BUDGET:=300}"
+
+show_screen() {
+    # $1 = png basename under lib/. Best-effort, backgrounded.
+    if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/$1" ]; then
+        "${SDPATH}/bin/showScreen" "${SDPATH}/lib/$1" 2>/dev/null &
+    fi
+}
+
+# Run a command under a hard time budget so a hung utility (notably
+# `pidin fd`, which walks every process's fd table and wedges some
+# units) cannot stall the diagnostic. Same background+sleep+kill idiom
+# proven by the IPC capture (section 16). Redirect at the call site;
+# the command inherits this function's stdout/stderr.
+run_bounded() {
+    _rb_budget="$1"; shift
+    "$@" &
+    _rb_pid=$!
+    # Redirect the watchdog to /dev/null: if it is cancelled, its orphaned
+    # `sleep` child must NOT keep an inherited stdout pipe open (that would
+    # stall a piped caller for the whole budget — the #12/#13 symptom).
+    ( sleep "${_rb_budget}"; kill -15 "${_rb_pid}" 2>/dev/null
+      sleep 2; kill -9 "${_rb_pid}" 2>/dev/null ) >/dev/null 2>&1 &
+    _rb_wd=$!
+    wait "${_rb_pid}" 2>/dev/null
+    _rb_rc=$?
+    kill -9 "${_rb_wd}" 2>/dev/null    # cancel watchdog if the command finished in time
+    wait "${_rb_wd}" 2>/dev/null
+    return ${_rb_rc}
+}
+
+# Always advance the screen off running.png on exit, however we exit — the
+# keystone fix for #12/#13. EXIT covers normal end and any `exit`; INT/TERM/
+# HUP (session reap, launcher signal) re-exit so the EXIT handler still runs.
+_finished() { show_screen done.png; }
+trap _finished EXIT
+trap 'exit' INT TERM HUP
+
 # Show status on screen if showScreen available
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null &
-fi
+show_screen running.png
 
 {
+# Backgrounded subshell: disarm the inherited completion trap so only the
+# parent ever shows done.png (guards any ksh that fires inherited EXIT traps).
+trap - EXIT INT TERM HUP
 echo "################################################################"
 echo "#  MMI-Toolkit System Information Report"
 echo "#  Generated: $(date 2>/dev/null)"
@@ -348,9 +394,9 @@ echo "================================================================"
 echo "  9. RUNNING PROCESSES"
 echo "================================================================"
 
-pidin ar > "${OUTDIR}/processes.txt" 2>/dev/null
-# Show unique process names only
-pidin ar 2>/dev/null | awk '{print $1}' | sort -u | grep -v "^name$" | grep -v "^$"
+run_bounded "${MMI_CMD_BUDGET}" pidin ar > "${OUTDIR}/processes.txt" 2>/dev/null
+# Show unique process names only (reuse the bounded capture above; no 2nd pidin)
+awk '{print $1}' "${OUTDIR}/processes.txt" 2>/dev/null | sort -u | grep -v "^name$" | grep -v "^$"
 
 # ============================================================
 # 10. SYSLOG
@@ -568,7 +614,7 @@ ls /dev/qdb/ 2>/dev/null
 if [ -e "/dev/qdb/mme" ]; then
     echo ""
     echo "--- mme database tables ---"
-    qdbc -d mme "SELECT name FROM sqlite_master WHERE type='table'" > "${OUTDIR}/qdb_mme_tables.txt" 2>/dev/null
+    run_bounded "${MMI_CMD_BUDGET}" qdbc -d mme "SELECT name FROM sqlite_master WHERE type='table'" > "${OUTDIR}/qdb_mme_tables.txt" 2>/dev/null
     cat "${OUTDIR}/qdb_mme_tables.txt" 2>/dev/null
 fi
 
@@ -580,11 +626,14 @@ echo "================================================================"
 echo "  18. EXTENDED PROCESS DUMP"
 echo "================================================================"
 
-pidin -F "%H %p %N %a" > "${OUTDIR}/pidin_full.txt" 2>/dev/null
+run_bounded "${MMI_CMD_BUDGET}" pidin -F "%H %p %N %a" > "${OUTDIR}/pidin_full.txt" 2>/dev/null
 echo "  Full pidin saved"
-pidin mem > "${OUTDIR}/pidin_mem.txt" 2>/dev/null
+run_bounded "${MMI_CMD_BUDGET}" pidin mem > "${OUTDIR}/pidin_mem.txt" 2>/dev/null
 echo "  Memory map saved"
-pidin fd > "${OUTDIR}/pidin_fd.txt" 2>/dev/null
+# `pidin fd` walks every process's fd table and hangs/destabilises some
+# units — the exact point issues #12/#13 stalled. Time-bounded so a hang
+# only loses this one dump instead of wedging the whole run.
+run_bounded "${MMI_CMD_BUDGET}" pidin fd > "${OUTDIR}/pidin_fd.txt" 2>/dev/null
 echo "  File descriptors saved"
 
 # ============================================================
@@ -595,7 +644,7 @@ echo "================================================================"
 echo "  19. FULL SYSLOG DUMP"
 echo "================================================================"
 
-sloginfo > "${OUTDIR}/syslog_full.txt" 2>/dev/null
+run_bounded "${MMI_CMD_BUDGET}" sloginfo > "${OUTDIR}/syslog_full.txt" 2>/dev/null
 echo "  Full syslog saved"
 
 # ============================================================
@@ -624,12 +673,23 @@ echo "#  Backups: ${BACKUP}/"
 echo "#  Report:  ${REPORT}"
 echo "################################################################"
 
-} > "${REPORT}" 2>&1
+} > "${REPORT}" 2>&1 &
+_report_pid=$!
+# Global safety net: even if an unwrapped command hangs (an unknown stall
+# point, e.g. issue #12), guarantee the run ends so the EXIT trap advances
+# the screen. Redirected to /dev/null so an orphaned watchdog `sleep` can
+# never hold a captured stdout pipe open past the run.
+( trap - EXIT INT TERM HUP
+  sleep "${MMI_RUN_BUDGET}"; kill -15 "${_report_pid}" 2>/dev/null
+  sleep 3; kill -9 "${_report_pid}" 2>/dev/null ) >/dev/null 2>&1 &
+_report_wd=$!
+wait "${_report_pid}" 2>/dev/null
+kill -9 "${_report_wd}" 2>/dev/null
+wait "${_report_wd}" 2>/dev/null
 
-# Copy report to the data dir too
-cp "${REPORT}" "${OUTDIR}/" 2>/dev/null
+# Copy report to the data dir too — bounded, in case the SD/mount is wedged
+# (a failing card is exactly the population that runs a diagnostic).
+run_bounded "${MMI_CMD_BUDGET}" cp "${REPORT}" "${OUTDIR}/" 2>/dev/null
 
-# Show completion on screen
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/done.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
-fi
+# done.png is shown by the EXIT trap (_finished) — covering normal end,
+# early crash, and a watchdog kill alike.
