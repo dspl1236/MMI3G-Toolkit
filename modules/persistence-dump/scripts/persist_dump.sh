@@ -10,10 +10,10 @@ LOG="${SDPATH}/var/persist_dump_${TS}.log"
 
 mkdir -p "${DUMP}/HBpersistence" "${DUMP}/efs_persist" "${DUMP}/shmem" "${DUMP}/coding" "${SDPATH}/var" 2>/dev/null
 
-# Show status on MMI screen if showScreen available
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null
-fi
+# Always advance the screen off running.png on exit — persist_dump never
+# showed done.png before, so its screen stayed stuck regardless of hangs (#12/#13).
+mmi_arm_completion done.png
+mmi_show_screen running.png
 
 exec > ${LOG} 2>&1
 
@@ -92,7 +92,7 @@ ls -la /mnt/efs-system/engdefs/ > "${DUMP}/engdefs_listing.txt" 2>&1
 # Process list
 echo ""
 echo "--- Processes ---"
-pidin ar > "${DUMP}/processes.txt" 2>&1
+mmi_run_bounded "${MMI_CMD_BUDGET}" pidin ar > "${DUMP}/processes.txt" 2>&1
 
 # IPC nodes
 ls -la /dev/ipc/ > "${DUMP}/dev_ipc.txt" 2>&1

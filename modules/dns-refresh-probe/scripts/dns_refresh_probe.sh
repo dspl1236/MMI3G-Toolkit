@@ -30,9 +30,9 @@ TARGET_REASON=""
 mkdir "${OUTROOT}" 2>/dev/null
 mkdir "${OUTDIR}" 2>/dev/null
 
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null &
-fi
+# Always advance the screen off running.png on exit (#12/#13).
+mmi_arm_completion done.png
+mmi_show_screen running.png
 
 run_ping() {
     _target="$1"
@@ -144,6 +144,5 @@ echo "============================================"
 
 cat "${REPORT}"
 
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/done.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
-fi
+# done.png is shown by the completion trap (mmi_arm_completion) — covering a
+# normal end, a crash, and a signal/reap alike.
