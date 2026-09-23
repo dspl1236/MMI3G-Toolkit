@@ -40,11 +40,9 @@ OUTDIR="${SDPATH}/var/google-earth"
 REPORT="${OUTDIR}/ge-probe-${TS}.txt"
 mkdir -p "${OUTDIR}" 2>/dev/null
 
-# Show status
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null &
-    SHOW_PID=$!
-fi
+# Show status; always advance the screen off running.png on exit (#12/#13).
+mmi_arm_completion done.png
+mmi_show_screen running.png
 
 exec > "${REPORT}" 2>&1
 
@@ -304,10 +302,10 @@ echo "  GEMMI Process Status"
 echo "================================================================"
 echo ""
 
-GEMMI_PID=$(pidin -F "%a %N" 2>/dev/null | grep gemmi_final | awk '{print $1}')
+GEMMI_PID=$(mmi_run_bounded "${MMI_CMD_BUDGET}" pidin -F "%a %N" 2>/dev/null | grep gemmi_final | awk '{print $1}')
 if [ -n "$GEMMI_PID" ]; then
     echo "[RUNNING] gemmi_final is active (PID: $GEMMI_PID)"
-    pidin -p "$GEMMI_PID" -F "%a %b %N %A" 2>/dev/null
+    mmi_run_bounded "${MMI_CMD_BUDGET}" pidin -p "$GEMMI_PID" -F "%a %b %N %A" 2>/dev/null
 else
     echo "[STOPPED] gemmi_final is NOT running"
 fi
@@ -356,14 +354,7 @@ echo "#  DO NOT run the enabler script until this probe"
 echo "#  has been reviewed by the community."
 echo "################################################################"
 
-# Show done
-if [ -n "$SHOW_PID" ]; then
-    kill $SHOW_PID 2>/dev/null
-    sleep 1
-    if [ -f "${SDPATH}/lib/done.png" ]; then
-        "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
-    fi
-fi
+# done.png is shown by the completion trap (mmi_arm_completion).
 
 # --- Proxy Log ---
 echo ""

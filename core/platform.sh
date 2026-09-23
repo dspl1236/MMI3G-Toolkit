@@ -325,10 +325,73 @@ mmi_logstamp() {
 # on script exit.
 mmi_reclaim_hold() {
     touch /tmp/disableReclaim 2>/dev/null
-    trap 'rm -f /tmp/disableReclaim 2>/dev/null' EXIT INT TERM
+    mmi_at_exit 'rm -f /tmp/disableReclaim 2>/dev/null'
 }
 
 mmi_reclaim_release() {
     rm -f /tmp/disableReclaim 2>/dev/null
+}
+
+# ============================================================
+# Module completion + timeout hardening (issues #12 / #13).
+# A module that shows running.png must ALWAYS advance the screen
+# (to done.png) however it exits, and a hung QNX utility must never
+# wedge it. See docs/MODULE_HARDENING.md.
+# ============================================================
+
+# Per-heavy-command and whole-run time budgets (seconds). Overridable
+# by the environment; defaults are generous for a healthy unit.
+: "${MMI_CMD_BUDGET:=20}"
+: "${MMI_RUN_BUDGET:=300}"
+
+# Shared exit dispatch: helpers register cleanups here instead of each
+# calling `trap` (which would clobber the others). INT/TERM/HUP re-exit
+# so the EXIT handler still runs on a signal/reap.
+_MMI_ON_EXIT=""
+_mmi_run_exit() { eval "${_MMI_ON_EXIT}"; }
+mmi_at_exit() {
+    if [ -z "${_MMI_ON_EXIT}" ]; then
+        _MMI_ON_EXIT="$1"
+        trap _mmi_run_exit EXIT
+        trap 'exit' INT TERM HUP
+    else
+        _MMI_ON_EXIT="${_MMI_ON_EXIT}; $1"
+    fi
+}
+
+# Show a status PNG on the MMI screen (best-effort, backgrounded).
+# $1 = basename under lib/ (running.png, done.png). Uses $SDPATH.
+mmi_show_screen() {
+    if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/$1" ]; then
+        "${SDPATH}/bin/showScreen" "${SDPATH}/lib/$1" 2>/dev/null &
+    fi
+}
+
+# Guarantee the screen advances to $1 (default done.png) however the
+# script exits (normal end, crash, signal/reap) — the keystone fix for
+# the "stuck on running.png" hang. Call once, right after showing
+# running.png; do NOT also emit done.png at the end (the trap owns it).
+mmi_arm_completion() {
+    _mmi_done_png="${1:-done.png}"
+    mmi_at_exit "mmi_show_screen \"${_mmi_done_png}\""
+}
+
+# Run a command under a hard time budget so a hung utility cannot wedge
+# the module: a hang loses only that command. Redirect at the call site
+# (`mmi_run_bounded N cmd > file 2>/dev/null`); the command inherits this
+# function's stdout/stderr. The watchdog is /dev/null-redirected so an
+# orphaned sleep can never hold a captured stdout pipe open.
+mmi_run_bounded() {
+    _rb_budget="$1"; shift
+    "$@" &
+    _rb_pid=$!
+    ( sleep "${_rb_budget}"; kill -15 "${_rb_pid}" 2>/dev/null
+      sleep 2; kill -9 "${_rb_pid}" 2>/dev/null ) >/dev/null 2>&1 &
+    _rb_wd=$!
+    wait "${_rb_pid}" 2>/dev/null
+    _rb_rc=$?
+    kill -9 "${_rb_wd}" 2>/dev/null
+    wait "${_rb_wd}" 2>/dev/null
+    return ${_rb_rc}
 }
 

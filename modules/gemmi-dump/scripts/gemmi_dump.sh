@@ -19,10 +19,9 @@ OUTDIR="${SDPATH}/var/gemmi_dump"
 mkdir "${SDPATH}/var" 2>/dev/null
 mkdir "${OUTDIR}" 2>/dev/null
 
-# Show status
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/running.png" 2>/dev/null &
-fi
+# Show status; always advance the screen off running.png on exit (#12/#13).
+mmi_arm_completion done.png
+mmi_show_screen running.png
 
 LOG="${OUTDIR}/gemmi_dump.log"
 
@@ -94,7 +93,7 @@ du -sk /mnt/img-cache/gemmi/ 2>/dev/null
 # Get process info
 echo ""
 echo "--- GEMMI Process ---"
-pidin ar 2>/dev/null | grep gemmi
+mmi_run_bounded "${MMI_CMD_BUDGET}" pidin ar 2>/dev/null | grep gemmi
 
 echo ""
 echo "============================================"
@@ -108,7 +107,4 @@ echo "============================================"
 } > "$LOG" 2>&1
 cat "$LOG"
 
-# Show done
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/done.png" ]; then
-    "${SDPATH}/bin/showScreen" "${SDPATH}/lib/done.png" 2>/dev/null &
-fi
+# done.png is shown by the completion trap (mmi_arm_completion).
