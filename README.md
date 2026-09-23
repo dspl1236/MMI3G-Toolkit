@@ -212,7 +212,7 @@ MMI3G-Toolkit/
 │   └── generate_manifest.py     # Web app manifest generator
 ├── core/
 │   ├── copie_scr_plain.sh       # Launcher template (auto-encoded)
-│   ├── platform.sh              # QNX shims, variant detection, logstamp helpers
+│   ├── platform.sh              # QNX shims, variant detection, logstamp + module-completion/timeout helpers
 │   └── uninstall.sh             # Universal uninstaller
 ├── modules/                     # 26 modules
 │   ├── system-info/             # One-shot system state dump to SD
@@ -273,6 +273,9 @@ MMI3G-Toolkit/
 └── docs/
     ├── SUPPORTED_VEHICLES.md
     ├── CUSTOM_APPS.md           # Developer guide: 5 ways to run your own code
+    ├── MODULE_HARDENING.md      # Completion-trap/timeout helpers for status-screen modules
+    ├── CAR_TEST_CHECKLIST.md
+    ├── FLASH_RUNBOOK.md
     └── CONTRIBUTING.md
 ```
 
