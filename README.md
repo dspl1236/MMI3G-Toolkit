@@ -89,7 +89,8 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **variant-dump** | ✅ Tested | Comprehensive per3 adaptation dump — 90+ values to SD |
 | **map-parser** | ✅ Tested | Extract nav database descriptor, FSC activation state, map metadata |
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
-| **lte-setup** ⚠️ | ✅ Ready | Provision LTE mobile data via USB Ethernet (**requires hardware**) |
+| **usb-net** ⚠️ | ✅ Ready | Universal ASIX USB-Ethernet for MMI3G+/RNS-850 — modern 772B/772C adapters; **supersedes `lte-setup`** (**requires hardware**) |
+| **lte-setup** | 🗑️ Deprecated | Superseded by **`usb-net`** — LTE via USB Ethernet |
 | **can-scanner** | ✅ Ready | CAN bus address scanner — discover RPM, boost, coolant, speed data |
 | **jvm-extract** | ✅ Ready | Extract J9 JVM and UI framework for reverse engineering |
 | **game-loader** | ✅ Ready | Java game launcher — run games on the MMI's J9 JVM |
@@ -104,8 +105,8 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **long-coding** | 🧪 Alpha | Live display of current adaptation values via GEM screens |
 | **per3-reader** ⚠️ | 🧪 Alpha | OSGi DSI persistence bridge. See [research/PER3_READER.md](research/PER3_READER.md) |
 | **per3-writer** | 📐 Design | Persistence write capability (planned) |
-| **can-diag** | ✅ Ready | CAN bus diagnostics — read DTCs, module info, live data |
-| **region-audit** | ✅ Ready | Read-only region check and LSD inspection |
+| **can-diag** | 🧪 Alpha | CAN bus diagnostics via NDR — read DTCs, module info, live data (read-only) |
+| **region-audit** | 📐 Planned | Read-only region / VZE-TSR audit |
 
 > **⚠️ = external tool required.** Every other module is pure software — SD card in, job done.
 
@@ -226,7 +227,7 @@ MMI3G-Toolkit/
 │   ├── map-parser/              # Nav database + FSC state extractor
 │   ├── persistence-dump/        # Persistence data dump
 │   ├── nav-unblocker/           # Nav database activation bypass
-│   ├── lte-setup/               # LTE mobile data provisioning (3G+)
+│   ├── lte-setup/               # LTE via USB Ethernet (deprecated -> usb-net)
 │   ├── can-scanner/             # CAN bus address discovery tool
 │   ├── jvm-extract/             # Extract J9 JVM + UI framework
 │   ├── game-loader/             # Java game launcher for MMI
@@ -234,7 +235,14 @@ MMI3G-Toolkit/
 │   ├── diag-tool/               # UDS diagnostic scanner (alpha)
 │   ├── long-coding/             # Live adaptation values display (GEM)
 │   ├── per3-reader/             # OSGi DSI persistence bridge (alpha)
-│   └── per3-writer/             # Persistence write capability (design)
+│   ├── per3-writer/             # Persistence write capability (design)
+│   ├── usb-net/                 # Universal ASIX USB-Ethernet (supersedes lte-setup)
+│   ├── can-diag/                # CAN bus diagnostics via NDR (read-only, alpha)
+│   ├── dns-refresh-probe/       # One-shot route/DNS diagnostic + resolv.conf refresh
+│   ├── region-audit/            # Read-only region / VZE-TSR audit (planned)
+│   ├── google-earth-gemmi-wrappers/    # Legacy /scripts/GEMMI control wrappers
+│   ├── google-earth-p0824-deploy/      # Deploy bundled EU VW P0824 GEMMI donor payload
+│   └── google-earth-p0824-restore/     # Restore /mnt/nav/gemmi after the P0824 deploy
 ├── research/                    # 35 research documents
 │   ├── ENGINEERING_ACCESS.md          # 36 GEM controllers, 529 strings, full DSI key catalog
 │   ├── ESD_SCREEN_FORMAT.md           # GEM screen definition spec (7 widget types, 173 screens)
