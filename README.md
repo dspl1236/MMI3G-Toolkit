@@ -125,23 +125,25 @@ Reboot the MMI after saving (hold MENU + rotary knob + upper-right soft key for 
 
 ## Hardware Requirements
 
-Most modules run entirely on the MMI itself and need nothing beyond a FAT32 SD card. Two modules are different:
+Most modules run entirely on the MMI itself and need nothing beyond a FAT32 SD card. The exception is `usb-net`:
 
-### lte-setup (to replace the defunct 3G modem)
+### usb-net (to replace the defunct 3G modem)
 
-After the 3G cellular network shutdown (US 2022, EU ongoing), the MMI3G+'s built-in modem is dead. This module reroutes the MMI's network stack through a USB Ethernet adapter to an external LTE router. You'll need:
+After the 3G cellular network shutdown (US 2022, EU ongoing), the MMI3G+'s built-in modem is dead. The `usb-net` module brings up a USB Ethernet adapter on the MMI; in its **`lte` mode** it also sets `DLinkReplacesPPP` so the unit sends online services through that adapter to an external LTE router instead of the dead modem. (This replaces the deprecated `lte-setup` module, whose AX88772B/D overrides never worked on the MMI's io-net stack.) You'll need:
 
 | Part | Specific models | Notes |
 |------|-----------------|-------|
-| **USB Ethernet adapter** | D-Link DUB-E100 rev A4/B1, or Gembird NIC-U1 | Must use the **ASIX AX88772/A/B** chipset — the AX88772D is NOT supported by the QNX driver |
+| **USB Ethernet adapter** | Any **ASIX AX88772 / 772A / 772B / 772C** (e.g. D-Link DUB-E100, Gembird NIC-U1, most cheap current adapters) | `usb-net` ships a universal ASIX driver, so modern 772B/C adapters work. The original AX88172 (USB 1.1) is **not** supported |
 | **AMI-to-USB Type A cable** | Generic AMI/MDI adapter | The MMI has an AMI connector, not a standard USB port |
-| **LTE router** | TP-Link TL-MR3020, Digi WR11 XT, or similar | Any router that serves DHCP on the 192.168.0.x subnet |
+| **LTE router** | TP-Link TL-MR3020, Digi WR11 XT, or similar | Any router that serves DHCP |
 | **LTE SIM** | Any data-only plan | 1–2 GB/month is usually plenty |
 | **DC-DC power** | 12V → 5V converter | For powering the router from the fuse panel |
 
-**Platform compatibility:** MMI 3G+ and RNS-850 only. **MMI 3G High does NOT have the ASIX driver** — don't waste money on hardware for a 3G High unit.
+**Setup:** build a stick with the module in `lte` mode, boot the unit fully, insert the stick, then reboot once for `DLinkReplacesPPP` to take effect. The driver loads from the stick (the read-only firmware is never modified), so re-insert it after each reboot. The other modes are `dhcp` (the default) and `static` (`172.16.42.1`, for a direct cable to a PC), which you can use for telnet access without an LTE router. See [modules/usb-net/README.md](modules/usb-net/README.md).
 
-The module is based on [DrGER2/MMI3GP-LAN-Setup](https://github.com/DrGER2/MMI3GP-LAN-Setup). Total parts cost is typically $100–150. Once configured, you'll get Google Earth overlay, online POI, weather, and other Audi Connect services back via LTE.
+**Platform compatibility:** MMI 3G+ and RNS-850 only. **MMI 3G High does NOT have the ASIX driver**, so don't buy hardware for a 3G High unit. `usb-net` is **beta**: it is validated on a Porsche PCM 3.1 (same QNX io-net driver ABI) and still needs confirmation on an Audi/VW bench unit.
+
+The LTE approach is based on [DrGER2/MMI3GP-LAN-Setup](https://github.com/DrGER2/MMI3GP-LAN-Setup). Total parts cost is typically $100–150. Once configured, online POI, weather, and other connected services can reach the network over LTE. Google Earth also needs the `google-earth` module, because Google's authentication endpoint has been removed (see above).
 
 ## Quick Start
 
