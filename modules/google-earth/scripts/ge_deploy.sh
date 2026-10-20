@@ -135,12 +135,23 @@ if grep -q "kh.google.com" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null; then
     echo "[OK] Cleaned old hosts entries from run_gemmi.sh"
 fi
 
+# Configure DNS if not present (QNX cellular PPP connections do not populate resolv.conf automatically)
+if [ ! -s /etc/resolv.conf ]; then
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+    echo "[OK] Initialized /etc/resolv.conf with public DNS"
+fi
+
 # Add/update gemmi_proxy startup in run_gemmi.sh (before GEMMI starts)
 # Remove any existing proxy startup lines first
-grep -v "gemmi_proxy\|Start on-car proxy" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.clean" 2>/dev/null
+grep -v "gemmi_proxy\|Start on-car proxy\|resolv.conf" "${GEMMI_DST}/run_gemmi.sh" > "${GEMMI_DST}/run_gemmi.sh.clean" 2>/dev/null
 mv "${GEMMI_DST}/run_gemmi.sh.clean" "${GEMMI_DST}/run_gemmi.sh" 2>/dev/null
 if true; then
     echo '# Start on-car proxy (serves dbRoot + auth, forwards tiles to Google)' > "${GEMMI_DST}/run_gemmi.sh.tmp"
+    echo 'if [ ! -s /etc/resolv.conf ]; then' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+    echo '    echo "nameserver 8.8.8.8" > /etc/resolv.conf' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+    echo '    echo "nameserver 1.1.1.1" >> /etc/resolv.conf' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
+    echo 'fi' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo 'if [ -x /mnt/nav/gemmi/gemmi_proxy ]; then' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo '    /mnt/nav/gemmi/gemmi_proxy > /mnt/img-cache/gemmi/proxy.log 2>&1 &' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
     echo '    sleep 1' >> "${GEMMI_DST}/run_gemmi.sh.tmp"
