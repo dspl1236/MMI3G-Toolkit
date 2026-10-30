@@ -91,6 +91,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
 | **usb-net** ⚠️ | ✅ Ready | Universal ASIX USB-Ethernet for MMI3G+/RNS-850 — modern 772B/772C adapters; **supersedes `lte-setup`** (**requires hardware**) |
 | **lte-setup** | 🗑️ Deprecated | Superseded by **`usb-net`** — LTE via USB Ethernet |
+| **wifi-sta** | 🧪 Alpha | Wi-Fi client (station mode): the MMI 3G+ joins a phone hotspot instead of running its access point, and online services use it. New 88W8688 station driver + `wpa_supplicant`; tested on one K0942 unit. From [chundla/mmi3g-wifi-sta](https://github.com/chundla/mmi3g-wifi-sta) |
 | **can-scanner** | ✅ Ready | CAN bus address scanner — discover RPM, boost, coolant, speed data |
 | **jvm-extract** | ✅ Ready | Extract J9 JVM and UI framework for reverse engineering |
 | **game-loader** | ✅ Ready | Java game launcher — run games on the MMI's J9 JVM |
@@ -230,6 +231,7 @@ MMI3G-Toolkit/
 │   ├── persistence-dump/        # Persistence data dump
 │   ├── nav-unblocker/           # Nav database activation bypass
 │   ├── lte-setup/               # LTE via USB Ethernet (deprecated -> usb-net)
+│   ├── wifi-sta/                # Wi-Fi client (station mode) to a phone hotspot (alpha)
 │   ├── can-scanner/             # CAN bus address discovery tool
 │   ├── jvm-extract/             # Extract J9 JVM + UI framework
 │   ├── game-loader/             # Java game launcher for MMI

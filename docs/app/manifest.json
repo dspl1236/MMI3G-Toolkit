@@ -1,5 +1,5 @@
 {
-    "generated": "2026-09-23",
+    "generated": "2026-10-30",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -1281,6 +1281,138 @@
                 {
                     "path": "scripts/variant_dump.sh",
                     "size": 9763
+                }
+            ]
+        },
+        "wifi-sta": {
+            "status": "alpha",
+            "description": "Wi-Fi client (station mode): the MMI 3G+ joins a phone hotspot (WPA2-PSK) instead of running the car's access point, and the factory LAN mode routes online services through it. Ships a new 88W8688 station driver, wpa_supplicant 2.11 and Marvell's linux-firmware station firmware; the factory driver cannot do station mode.",
+            "standalone": true,
+            "run_script": "wifi_sta_run.sh",
+            "artifact": null,
+            "payload_dirs": [
+                {
+                    "source": "payload",
+                    "target": "wifi-sta"
+                }
+            ],
+            "release_zip": null,
+            "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
+            "script_dir": "/scripts/wifi-sta",
+            "installs_to_flash": false,
+            "compatible": [
+                "MMI3G+"
+            ],
+            "files": [
+                {
+                    "path": "README.md",
+                    "size": 7156
+                },
+                {
+                    "path": "module.json",
+                    "size": 2171
+                },
+                {
+                    "path": "payload/CKSUMS",
+                    "size": 804
+                },
+                {
+                    "path": "payload/LICENSES/GPL-2.0.txt",
+                    "size": 18092
+                },
+                {
+                    "path": "payload/LICENSES/LICENCE.Marvell",
+                    "size": 1152
+                },
+                {
+                    "path": "payload/LICENSES/jitterentropy-LICENSE.bsd.txt",
+                    "size": 1382
+                },
+                {
+                    "path": "payload/LICENSES/mmi3g-wifi-sta-BSD-3-Clause.txt",
+                    "size": 1512
+                },
+                {
+                    "path": "payload/LICENSES/qnx632-openssh-BSD-2-Clause.txt",
+                    "size": 1296
+                },
+                {
+                    "path": "payload/LICENSES/wpa_supplicant-COPYING.txt",
+                    "size": 965
+                },
+                {
+                    "path": "payload/SOURCES.md",
+                    "size": 2209
+                },
+                {
+                    "path": "payload/WifiClient.esd",
+                    "size": 762
+                },
+                {
+                    "path": "payload/boot-launch.sh",
+                    "size": 853
+                },
+                {
+                    "path": "payload/devn-mv8688sta.so",
+                    "size": 64931
+                },
+                {
+                    "path": "payload/gem-install.sh",
+                    "size": 11400
+                },
+                {
+                    "path": "payload/gem.sh",
+                    "size": 12514
+                },
+                {
+                    "path": "payload/hotspot.conf.example",
+                    "size": 724
+                },
+                {
+                    "path": "payload/jitter-egd",
+                    "size": 35856
+                },
+                {
+                    "path": "payload/lan-mode.sh",
+                    "size": 8045
+                },
+                {
+                    "path": "payload/mv8688-ctl",
+                    "size": 11450
+                },
+                {
+                    "path": "payload/mv8688-probe",
+                    "size": 77195
+                },
+                {
+                    "path": "payload/sd8688.bin",
+                    "size": 259172
+                },
+                {
+                    "path": "payload/sd8688_helper.bin",
+                    "size": 2616
+                },
+                {
+                    "path": "payload/sta-boot.sh",
+                    "size": 4507
+                },
+                {
+                    "path": "payload/sta-install.sh",
+                    "size": 19745
+                },
+                {
+                    "path": "payload/sta-mode.sh",
+                    "size": 45937
+                },
+                {
+                    "path": "payload/wpa_supplicant",
+                    "size": 491332
+                },
+                {
+                    "path": "scripts/wifi_sta_run.sh",
+                    "size": 8759
                 }
             ]
         }

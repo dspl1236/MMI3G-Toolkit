@@ -1,0 +1,27 @@
+#############################################
+#
+#	Wi-Fi client (station mode), phases 7.4a to 7.6
+#	see docs/wifi-client/wifi-client-mode.md
+#############################################
+
+screen	WifiClient Main
+
+   script
+	value		sys 1 0x0100 "/mnt/efs-persist/wifi-sta/gem/status"
+	label		"Station status"
+
+   script
+	value		sys 1 0x0100 "/mnt/efs-persist/wifi-sta/gem/client"
+	label		"Start-up: join the hotspot"
+
+   script
+	value		sys 1 0x0100 "/mnt/efs-persist/wifi-sta/gem/ap"
+	label		"Start-up: car access point (restart to apply)"
+
+   script
+	value		sys 1 0x0100 "/mnt/efs-persist/wifi-sta/gem/start"
+	label		"Start station now (access point off until restart)"
+
+   script
+	value		sys 1 0x0100 "/mnt/efs-persist/wifi-sta/gem/check"
+	label		"Runner check"

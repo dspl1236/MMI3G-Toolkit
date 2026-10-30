@@ -1,0 +1,16 @@
+# The phone hotspot this unit joins. Copy this file to hotspot.conf beside
+# it, on the card, and put in the hotspot's name and key.
+#
+# Make the key on a computer:   wpa_passphrase "Hotspot name" "passphrase"
+# and copy its psk=<64 hex digits> line. Its #psk="..." line is the
+# passphrase itself; the installer drops it, so the unit keeps only the
+# derived key. The installer stores the file on the unit's HDD (root,
+# mode 600) and deletes it from the card.
+#
+# Exactly one network, with ssid=, psk= and key_mgmt=WPA-PSK (WPA2-PSK,
+# 2.4 GHz). Turn on "Maximise compatibility" on an iPhone hotspot.
+network={
+	ssid="Hotspot name"
+	key_mgmt=WPA-PSK
+	psk=0000000000000000000000000000000000000000000000000000000000000000
+}
