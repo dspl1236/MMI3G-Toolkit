@@ -63,12 +63,13 @@ sd8688_helper.bin 600 1538620194 2616
 sd8688.bin 600 251454034 259172
 wpa_supplicant 700 2366746706 491332
 jitter-egd 700 2336099037 35856
-sta-mode.sh 700 3337595432 45937
+sta-mode.sh 700 2285213847 47091
 sta-boot.sh 700 4201762923 4507
 boot-launch.sh 700 898658748 853'
 # Earlier builds' sums of files this build replaces: an install upgrades
 # them, and remove takes them out as its own.
 older='sta-mode.sh 2913500418 43139
+sta-mode.sh 3337595432 45937
 sta-boot.sh 1916130123 3248'
 # The start-up block in the factory lsd.sh, the launcher it runs, the copy
 # of lsd.sh before it and the rollback. The launcher is on efs-persist, as

@@ -1,7 +1,7 @@
 # Where these files come from
 
 Original work: **[chundla/mmi3g-wifi-sta](https://github.com/chundla/mmi3g-wifi-sta)**
-(commit `11f7001`) and **[chundla/qnx632-openssh](https://github.com/chundla/qnx632-openssh)**
+(commit `0e27791`) and **[chundla/qnx632-openssh](https://github.com/chundla/qnx632-openssh)**
 (commit `602b297`, the `openssh` submodule of the former). Both repositories
 reproduce every binary below byte for byte with the QNX 6.3.2 SDK; see their
 READMEs. The research, evidence and validation limits are in

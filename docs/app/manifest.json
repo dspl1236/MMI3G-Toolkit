@@ -1316,7 +1316,7 @@
                 },
                 {
                     "path": "payload/CKSUMS",
-                    "size": 804
+                    "size": 805
                 },
                 {
                     "path": "payload/LICENSES/GPL-2.0.txt",
@@ -1400,11 +1400,11 @@
                 },
                 {
                     "path": "payload/sta-install.sh",
-                    "size": 19745
+                    "size": 19774
                 },
                 {
                     "path": "payload/sta-mode.sh",
-                    "size": 45937
+                    "size": 47091
                 },
                 {
                     "path": "payload/wpa_supplicant",

@@ -576,9 +576,18 @@ cmd_start() {
     fi
     # mkdir is atomic: of two starts, one gets the lock.
     mkdir "$lock" 2>/dev/null || { say "another start holds $lock."; exit 2; }
-    for f in sta_driver ctl probe helper image wpa_bin conf ap_mac ssh egd egd_bin; do
-        eval "echo \"\$$f\"" > "$lock/$f"
-    done
+    # Written one by one: see load_lock for why there is no eval.
+    echo "$sta_driver" > "$lock/sta_driver"
+    echo "$ctl" > "$lock/ctl"
+    echo "$probe" > "$lock/probe"
+    echo "$helper" > "$lock/helper"
+    echo "$image" > "$lock/image"
+    echo "$wpa_bin" > "$lock/wpa_bin"
+    echo "$conf" > "$lock/conf"
+    echo "$ap_mac" > "$lock/ap_mac"
+    echo "$ssh" > "$lock/ssh"
+    echo "$egd" > "$lock/egd"
+    echo "$egd_bin" > "$lock/egd_bin"
     echo starting > "$state/phase"
     rm -f "$state/verdict" "$state/stop.verdict" "$state/bound" "$state/sshd.pid" \
         "$state/dhcp.pid" "$state/wpa.pid" "$state/keeper.pid"
@@ -592,10 +601,25 @@ cmd_start() {
 }
 
 # --- start: the work (detached) -------------------------------------------------
+# No eval here or anywhere in this script. The unit's ksh (PD KSH v5.2.14)
+# leaves its current input source pointing at an eval's temporary record
+# until the next top-level command, and a worker is one top-level command
+# that runs until the restart. Once that memory is reused, the next built-in
+# error message (a kill -0 on an ended pid, as in alive and bounded) reads a
+# freed pointer: on 2026-10-30 a start worker died of SIGSEGV in strcmp,
+# called from the shell's error prefix, just after the detach.
 load_lock() {
-    for f in sta_driver ctl probe helper image wpa_bin conf ap_mac ssh egd egd_bin; do
-        eval "$f=\$(cat \"\$lock/\$f\" 2>/dev/null)"
-    done
+    sta_driver=$(cat "$lock/sta_driver" 2>/dev/null)
+    ctl=$(cat "$lock/ctl" 2>/dev/null)
+    probe=$(cat "$lock/probe" 2>/dev/null)
+    helper=$(cat "$lock/helper" 2>/dev/null)
+    image=$(cat "$lock/image" 2>/dev/null)
+    wpa_bin=$(cat "$lock/wpa_bin" 2>/dev/null)
+    conf=$(cat "$lock/conf" 2>/dev/null)
+    ap_mac=$(cat "$lock/ap_mac" 2>/dev/null)
+    ssh=$(cat "$lock/ssh" 2>/dev/null)
+    egd=$(cat "$lock/egd" 2>/dev/null)
+    egd_bin=$(cat "$lock/egd_bin" 2>/dev/null)
 }
 verdict() {
     echo "$1" > "$state/verdict"
