@@ -36,8 +36,11 @@ following passed:
   in-place upgrade.
 
 **Running without the OpenSSH installation has not run on a unit yet**
-(that unit always used OpenSSH's `jitter-egd`). Not yet seen at all:
-- a cold start in the car away from home;
+(that unit always used OpenSSH's `jitter-egd`).
+
+In the car, the owner reported these working on 2026-10-31, but nothing
+was logged from them:
+- a cold start away from home;
 - a start-up with the hotspot off;
 - a long drive.
 

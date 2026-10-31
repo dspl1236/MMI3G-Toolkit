@@ -76,8 +76,11 @@ hotspot. PIO over the FPGA SDIO host is the limit.
 
 ## Not established
 
-- A cold start in the car away from home; a start-up with the hotspot off;
-  behaviour over a long drive.
+- Logs from the car: the owner reported a cold start away from home, a
+  start-up with the hotspot off and a long drive all working (2026-10-31),
+  but none of them was logged.
+- The station without the OpenSSH installation, using the module's own
+  `jitter-egd`.
 - The Audi connect info services and online POI search do not use the
   connection ("No SIM card"), and Google Earth does.
 - Any unit other than the one above.
