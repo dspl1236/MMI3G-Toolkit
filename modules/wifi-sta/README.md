@@ -23,17 +23,20 @@ lists each file's source, checksum and licence.
 ## Status: alpha, one unit
 
 Tested on **one unit only: 9411, HN+R_US_AU_K0942_3, MU 1038** (2012 Audi
-A6, North America). On that unit, from 2026-10-23 to 2026-10-30, the
-following passed, with the scripts run by hand over SSH:
+A6, North America). On that unit, from 2026-10-23 to 2026-10-31, the
+following passed:
 - WPA2-PSK/CCMP with rekeys and reconnects;
 - an iPhone hotspot at about 1.6 Mbit/s;
 - the LAN-mode default route and DNS;
 - the GEM screen's start button;
-- the automatic join at start-up, about 3.5 minutes after power-on;
-- back to the car's access point after a restart.
+- the automatic join at start-up from the `lsd.sh` block, about
+  3 minutes 20 s after power-on;
+- back to the car's access point after a restart;
+- this SD card: a first install over an earlier hand install, and an
+  in-place upgrade.
 
-**This SD-card installer, the `lsd.sh` start-up block and running without
-the OpenSSH installation have not run on a unit yet.** Not yet seen at all:
+**Running without the OpenSSH installation has not run on a unit yet**
+(that unit always used OpenSSH's `jitter-egd`). Not yet seen at all:
 - a cold start in the car away from home;
 - a start-up with the hotspot off;
 - a long drive.
