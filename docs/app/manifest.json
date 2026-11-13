@@ -1,5 +1,5 @@
 {
-    "generated": "2026-09-23",
+    "generated": "2026-10-20",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -513,7 +513,7 @@
                 },
                 {
                     "path": "payload/ge_settings.dat",
-                    "size": 1119
+                    "size": 1141
                 },
                 {
                     "path": "payload/gemmi_control.sh",
@@ -557,7 +557,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy.sh",
-                    "size": 6856
+                    "size": 7493
                 },
                 {
                     "path": "scripts/ge_deploy_oncar.sh",
@@ -565,7 +565,7 @@
                 },
                 {
                     "path": "scripts/ge_deploy_v6.sh",
-                    "size": 7312
+                    "size": 7949
                 },
                 {
                     "path": "scripts/ge_probe.sh",
