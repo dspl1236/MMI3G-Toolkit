@@ -1,7 +1,7 @@
 SETTINGS {
-	;Transfer timeout when under 500 bytes for 10 second
-	Connection/minTransferRate = 500
-	Connection/minTransferRateTime = 10
+	;Transfer timeout relaxed for 2G/EDGE cellular connections (post-3G sunset)
+	Connection/minTransferRate = 50
+	Connection/minTransferRateTime = 30
 
     ; Don't keep in memory copy of textures.
     discardOriginalTextureImages = true

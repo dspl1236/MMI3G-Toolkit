@@ -144,7 +144,7 @@ then
 			echo "[GEMMI] GEMMI is being launched with 'nice -n $myRelPrio'."
 		fi
 
-		nice -n $myRelPrio $LD_LIBRARY_PATH/$GEMMI_NAME -roadwidthscale 0.0116 -opt 1 -prefetch 1 -printromeevents 0 -poithresholdspeed 500 -lodmode 12 -roadnamescale 0.85 -roadnamecolor ffd0ffff -framestats 0 -minsleep 10 -maxfps 12 $memorySettings -maxpingtime 2000 -createroadsinmultibunch -trafficregion $myRegion $variantArgs --tp=/etc/DefaultScope.hbtc --bp
+		nice -n $myRelPrio $LD_LIBRARY_PATH/$GEMMI_NAME -roadwidthscale 0.0116 -opt 1 -prefetch 1 -printromeevents 0 -poithresholdspeed 500 -lodmode 12 -roadnamescale 0.85 -roadnamecolor ffd0ffff -framestats 0 -minsleep 10 -maxfps 12 $memorySettings -maxpingtime 6000 -createroadsinmultibunch -trafficregion $myRegion $variantArgs --tp=/etc/DefaultScope.hbtc --bp
 
 		# exit if flag is set
 		if [ -a /tmp/factory_reset_gemmi ]
