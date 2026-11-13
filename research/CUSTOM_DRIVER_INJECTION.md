@@ -95,12 +95,23 @@ For native LTE modem support (replacing USB ethernet + router):
 ## Use Case: WiFi Client Mode
 
 The current `devnp-mv8688uap.so` runs in AP mode only (creates
-a hotspot). For client mode (connecting to phone hotspot):
+a hotspot). A client-mode driver now exists: `devn-mv8688sta.so`, from
+[chundla/mmi3g-wifi-sta](https://github.com/chundla/mmi3g-wifi-sta),
+installed by the [`wifi-sta` module](../modules/wifi-sta/README.md). It
+was tested on one MMI 3G+ (9411, HN+R_US_AU_K0942_3, MU 1038). How it is
+loaded:
 
-1. The Marvell 88W8688 chip supports both AP and STA modes
-2. A client-mode driver would need QNX SH4 compilation
-3. Deploy via LD_LIBRARY_PATH
-4. Would eliminate the need for USB ethernet entirely
+1. It is an **io-net** driver, built with the QNX 6.3.2 SDK.
+2. `ifconfig uap0 destroy` detaches the factory driver from the running
+   `io-pkt-v4-hc`.
+3. `mount -T io-pkt -o lan=6,mac=…,helper=…,firmware=… devn-mv8688sta.so`
+   then loads the new driver into that same stack, through the factory
+   `devnp-shim.so`. That gives `en6`, with no second stack and no
+   `LD_LIBRARY_PATH`.
+4. It downloads the linux-firmware `sd8688.bin` (station firmware) itself.
+   The access point returns only after a restart.
+
+See [WIFI_STATION_MODE.md](WIFI_STATION_MODE.md).
 
 ## Building Drivers
 
@@ -117,6 +128,13 @@ qcc -Vgcc_ntosh -shared -o devn-custom.so driver_source.c
 The eval VM is the key to building ANY native QNX tool or driver
 for the MMI — including `curl`, `ssh`, `netcat`, custom network
 drivers, and even a local tile proxy server for Google Earth.
+
+> **MMI 3G+ caveat:** binaries linked by the QNX 6.5 toolchain need
+> `libc.so.3`, which the MMI 3G+ (QNX 6.3.2) does not have; it has
+> `libc.so.2`. The station driver, `wpa_supplicant` and OpenSSH for the
+> MMI 3G+ were built with the QNX 6.3.2 SDK
+> (`sh-unknown-nto-qnx6.3.0-gcc` 3.3.5). See
+> [chundla/qnx632-openssh `docs/build.md`](https://github.com/chundla/qnx632-openssh/blob/main/docs/build.md).
 
 ## Security Considerations
 

@@ -9,3 +9,7 @@
 *.so binary
 *.zip binary
 modules/google-earth-p0824-deploy/gemmi/** binary
+modules/wifi-sta/payload/mv8688-ctl binary
+modules/wifi-sta/payload/mv8688-probe binary
+modules/wifi-sta/payload/wpa_supplicant binary
+modules/wifi-sta/payload/jitter-egd binary

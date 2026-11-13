@@ -1,0 +1,29 @@
+{
+    "name": "wifi-sta",
+    "version": "0.1.0",
+    "description": "Wi-Fi client (station mode): the MMI 3G+ joins a phone hotspot (WPA2-PSK) instead of running the car's access point, and the factory LAN mode routes online services through it. Ships a new 88W8688 station driver, wpa_supplicant 2.11 and Marvell's linux-firmware station firmware; the factory driver cannot do station mode.",
+    "author": "chundla",
+    "status": "alpha",
+    "compatible": ["MMI3G+"],
+    "standalone": true,
+    "run_script": "wifi_sta_run.sh",
+    "installs_to_flash": false,
+    "requires_reboot": true,
+    "payload_dirs": [{"source": "payload", "target": "wifi-sta"}],
+    "scripts": [
+        "wifi_sta_run.sh - check the card and the unit's factory files, set the LAN-mode flag, install the station files on the HDD, store wifi-sta/hotspot.conf, add the WifiClient GEM screen and the start-up block; or remove it all (wifi-sta/REMOVE on the card)"
+    ],
+    "hardware": {
+        "phone": "A phone hotspot on 2.4 GHz with WPA2-PSK (iPhone: Maximise Compatibility on)",
+        "way_back_in": "Station mode removes the car's access point until a restart; the GEM's 'Start-up: car access point' then a restart brings it back"
+    },
+    "source": {
+        "station": "https://github.com/chundla/mmi3g-wifi-sta",
+        "openssh_and_jitter_egd": "https://github.com/chundla/qnx632-openssh"
+    },
+    "notes": [
+        "Validated on one unit only: 9411, HN+R_US_AU_K0942_3, MU 1038 (2012 Audi A6, North America). The installer refuses unless the factory devnp-mv8688uap.so, dhcp.client and dhcp-up match that unit's checksums, so other firmware is left untouched.",
+        "installs_to_flash is false so the builder does not copy scripts or platform.sh to efs-system. The module's own scripts write two things on flash: the WifiClient.esd screen in /mnt/efs-system/engdefs and a five-line marked block in /mnt/efs-system/lsd/lsd.sh, each with a backup and its own rollback. The station files go on the HDD (about 1 MB).",
+        "Needs the GEM enabled (gem-activator) to use the screen. SSH over the hotspot is optional and needs chundla/qnx632-openssh installed."
+    ]
+}

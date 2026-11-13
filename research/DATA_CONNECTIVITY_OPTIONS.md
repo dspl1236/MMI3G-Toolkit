@@ -114,15 +114,21 @@ What's MISSING for client mode:
 3. Port wpa_supplicant to QNX 6.3.2 SH4
 4. Configure DHCP client on the WiFi interface
 
-**Status:** Hardware capable, software not present. Major project —
-would need QNX 6.3 development tools (Momentics) and Marvell SDK.
-Not practical as a quick fix, but could be a long-term community
-project. If successful, it would eliminate ALL external hardware —
-just phone hotspot → MMI WiFi client → GEMMI tiles.
+**Status (2026-10): built, alpha.** The
+[`wifi-sta` module](../modules/wifi-sta/README.md) provides all four
+pieces. It ships a new io-net station driver (`devn-mv8688sta.so`),
+`wpa_supplicant` 2.11 and the linux-firmware `sd8688.bin`, and it uses the
+factory `dhcp.client` with the LAN-mode flag `DLinkReplacesPPP` for the
+route and DNS. It was tested on one MMI 3G+ (9411, HN+R_US_AU_K0942_3,
+MU 1038): WPA2-PSK to an iPhone hotspot at about 1.6 Mbit/s, and Google
+Earth tiles over it. The original work is in
+[chundla/mmi3g-wifi-sta](https://github.com/chundla/mmi3g-wifi-sta); see
+[WIFI_STATION_MODE.md](WIFI_STATION_MODE.md).
 
-**Risk:** Switching the WiFi chip to client mode would disable the
-built-in hotspot AP. Could break existing WiFi-based diagnostics
-and DrGER's LAN scripts that use the uap0 interface.
+**Risk:** Station mode removes the built-in access point until the next
+restart, because the chip holds one firmware at a time. Anything that uses
+`uap0` (phones on the car's Wi-Fi, Wi-Fi diagnostics) loses it while the
+station runs.
 
 ## Recommended Setup
 
@@ -237,53 +243,20 @@ congo (ruthr on a5oc.com) sells a patched binary for €75-180:
 
 ### WiFi Client Mode — Firmware Swap Discovery
 
-The Marvell 88W8688 driver (`devnp-mv8688uap.so`) searches for
-firmware in this order:
+**Superseded: the firmware swap does not work, and this test should not
+be run.** Decompiling `devnp-mv8688uap.so` and inspecting a running MMI 3G+
+(9411, HN+R_US_AU_K0942_3, MU 1038) showed the following:
 
-```
-1. /tmp/FwImage/sd8688_ap.bin      ← checked FIRST
-2. /tmp/FwImage/helper_sd.bin      ← helper checked FIRST
-3. /FwImage/sd8688_ap.bin          ← IFS fallback (current)
-4. /FwImage/helper_sd.bin          ← IFS fallback
+| Earlier assumption | What the unit does |
+|---|---|
+| `/tmp/FwImage/` is checked before the IFS copy | Only when no `fwpath` is given. The factory mount passes `fwpath=/lib/dll`, so `/tmp/FwImage` is never read. |
+| `slay -f devnp-mv8688uap`, and the driver restarts with the new firmware | The driver is a DLL inside `io-pkt-v4-hc`, not a process. Killing that `io-pkt` also drops MOST IP (`mam0`), `pf` and any network shell. Without a chip reset the uAP firmware stays loaded (`resetmask=0`, "Skip FW download"). |
+| Marvell may do the mode logic in firmware | The driver sends uAP-only commands (for example `0x00b0`) at interface start-up, and frames every packet with the uAP TxPD. The station firmware expects the libertas command set and `struct txpd`. |
+| `io-pkt-v4 -d devnp-mv8688uap.so fwpath=…` | A second stack instance taking over the same FPGA SDIO module is untested and unsafe. |
 
-Driver option: fwpath=xxx  (overrides search path, default /tmp)
-```
-
-The driver checks `/tmp/FwImage/` BEFORE the IFS copy. No IFS
-modification needed to swap firmware.
-
-#### Proposed Test
-
-1. Download `sd8688.bin` (STA firmware) from Linux firmware repo
-   https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/mrvl/sd8688.bin
-2. Place on SD card as `var/FwImage/sd8688_ap.bin` (same filename!)
-3. Boot script:
-   ```bash
-   # Copy STA firmware where driver looks first
-   mkdir -p /tmp/FwImage
-   cp /mnt/sdcard/var/FwImage/sd8688_ap.bin /tmp/FwImage/
-   # Kill AP driver
-   slay -f devnp-mv8688uap
-   sleep 2
-   # Driver restarts, finds STA firmware in /tmp first
-   ```
-4. Or restart with fwpath override:
-   ```bash
-   io-pkt-v4 -d devnp-mv8688uap.so fwpath=/mnt/sdcard/var
-   ```
-5. Check `ifconfig` — look for `wlan0` or `sta0` instead of `uap0`
-
-#### Risks
-
-- Driver binary is AP-mode code — sends AP-specific commands
-- STA firmware might not respond correctly to AP commands
-- Worst case: WiFi crashes, reboot restores IFS firmware
-- Best case: Marvell does mode logic in firmware, thin driver works
-
-#### Status: UNTESTED / ALPHA
-
-Documented for future experimentation. Safe to test — reboot
-always restores clean IFS firmware. No permanent changes.
+Station mode therefore needs a new driver. One is now built: see
+[WIFI_STATION_MODE.md](WIFI_STATION_MODE.md) and the
+[`wifi-sta` module](../modules/wifi-sta/README.md).
 
 ## FRF Firmware Decryption — WORKING
 
