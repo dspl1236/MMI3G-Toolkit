@@ -1,7 +1,15 @@
 # Internal development tools
 
-These scripts are used by maintainers during audits. They are not
-user-facing and not shipped in the built SD card.
+These scripts are used by maintainers during audits. They are not shipped
+in the built SD card. The opt-in console helper below is an advanced exception
+to the otherwise internal development tooling.
+
+## persistent_telnet.sh (experimental, advanced)
+
+An opt-in MMI3G+ boot helper for a dedicated raw TCP root console on port
+2323. It is **unauthenticated and unencrypted**, and is not a default SD
+module or an automatic installer. Read [the security, staging, persistence
+and removal instructions](../docs/PERSISTENT_TELNET.md) before use.
 
 ## retrofit.py
 
