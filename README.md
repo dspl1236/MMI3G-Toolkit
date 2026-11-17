@@ -247,7 +247,7 @@ MMI3G-Toolkit/
 │   ├── google-earth-gemmi-wrappers/    # Legacy /scripts/GEMMI control wrappers
 │   ├── google-earth-p0824-deploy/      # Deploy bundled EU VW P0824 GEMMI donor payload
 │   └── google-earth-p0824-restore/     # Restore /mnt/nav/gemmi after the P0824 deploy
-├── research/                    # 35 research documents
+├── research/                    # 36 research documents
 │   ├── ENGINEERING_ACCESS.md          # 36 GEM controllers, 529 strings, full DSI key catalog
 │   ├── ESD_SCREEN_FORMAT.md           # GEM screen definition spec (7 widget types, 173 screens)
 │   ├── FSC_SIGNATURE_BYPASS.md        # 2-byte patch bypasses all FSC validation
@@ -258,6 +258,7 @@ MMI3G-Toolkit/
 │   ├── RNS850_ANALYSIS.md             # RNS-850 NAR IFS comparison, GEMMI differences
 │   ├── DATA_CONNECTIVITY_OPTIONS.md   # USB ethernet, LTE, WiFi, driver compatibility
 │   ├── ARCHITECTURE.md                # Decompiled Java UI framework (152 classes)
+│   ├── CLUSTER_NAV_DISPLAY.md         # Turn arrows to the cluster: symbol table, TP2.0 0x490/0x491
 │   ├── HMI_ARCHITECTURE.md            # Boot sequence, 101-process graph, hook points
 │   ├── IFS_FORMAT.md                  # QNX IFS format + Harman LZO quirk
 │   ├── F3S_FORMAT.md                  # MMI3G EFS on-disk format notes
