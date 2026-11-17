@@ -236,7 +236,9 @@ The IOC manages these CAN buses:
 - `PERS` — Personality/Persistence (maps CAN data → per 3 namespace)
 - `GATW` — Gateway configuration
 - `HPIPC` — High Performance IPC (V850 ↔ SH4 shared memory)
-- `TP20` — VAG Transport Protocol 2.0 (diagnostics)
+- `TP20` — VAG Transport Protocol 2.0 (diagnostics; in the 3G High K0133
+  image it also carries the cluster's navigation display on the fixed channel
+  0x490/0x491: see [CLUSTER_NAV_DISPLAY.md](CLUSTER_NAV_DISPLAY.md))
 
 ### CAN Message IDs Found in IOC Firmware
 All major VAG drivetrain CAN IDs are present in the V850 binary:
