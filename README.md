@@ -61,6 +61,12 @@ All integrity checks are CRC32 (bypassable with `skipCrc = true`). The LZO recom
 
 **Telnet access:** The firmware already includes `inetd`, `telnetd`, `io-pkt-v4-hc`, and `devn-asix.so` (USB-Ethernet driver). Adding 4 lines to `start_network.sh` gives a root shell at `172.16.42.1` via a D-Link DUB-E100 adapter.
 
+For an experimental, opt-in **persistent raw console on MMI3G+ K0900**, see
+[Persistent console](docs/PERSISTENT_TELNET.md). This advanced helper is not
+part of the default SD build; making it persistent requires a reviewed boot
+hook and is a permanent modification. Port 2323 is unauthenticated root access,
+not SSH or a recovery guarantee.
+
 See **[research/ENGINEERING_ACCESS.md](research/ENGINEERING_ACCESS.md)** for shell access details and **[research/FIRMWARE_UPDATE_FORMAT.md](research/FIRMWARE_UPDATE_FORMAT.md)** for the metainfo2.txt specification.
 
 ## Supported Vehicles
