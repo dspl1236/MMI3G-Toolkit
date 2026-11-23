@@ -15,9 +15,16 @@ Two modes:
     python3 tools/repack_ifs.py modified_decompressed.ifs repacked.ifs
 
 The compressor uses lzo1x_999 (optimal), matching Harman's original
-encoder. In --reference mode the output is byte-identical to the
-original compressed IFS. In fixed-chunk mode the imagefs content is
-identical but the container is slightly larger (~3%).
+encoder. In --reference mode, repacking an unchanged image gives the
+original compressed IFS back byte for byte. In fixed-chunk mode the
+imagefs content is identical but the container is slightly larger (~3%).
+
+Like mkifs, it ends the chunk stream with a 4-byte data-checksum trailer
+and redoes the startup checksum; the IPL checks both before it boots the
+image (a mismatch is the "DATA CHECKSUM ERROR" / no valid IFS case).
+
+Check the result before flashing:
+    python3 tools/verify_ifs.py repacked.ifs --decompressed modified_decompressed.ifs
 
 After repacking, update the CRCs with:
     python3 tools/mu_crc_patcher.py --metainfo metainfo2.txt \\
@@ -94,12 +101,13 @@ def main():
     print(f'[repack_ifs] {in_size:,} bytes -> {out_size:,} bytes ({ratio:.1f}%)')
 
     if args.reference:
-        ref_size = os.path.getsize(args.reference)
-        if out_size == ref_size:
-            print(f'[repack_ifs] output is byte-identical to reference ✓')
+        with open(args.output, 'rb') as a, open(args.reference, 'rb') as b:
+            same = a.read() == b.read()
+        if same:
+            print('[repack_ifs] output is byte-identical to reference ✓')
         else:
-            print(f'[repack_ifs] output differs from reference '
-                  f'({out_size:,} vs {ref_size:,})')
+            print('[repack_ifs] output differs from reference (expected when files '
+                  'changed); check it with tools/verify_ifs.py before flashing')
 
 
 if __name__ == '__main__':

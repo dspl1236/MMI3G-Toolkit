@@ -74,11 +74,24 @@ You now have all 345+ firmware files at `$WORKDIR/ifs_files/`.
 
 ## Step 2: Make your modifications
 
+**Keep the layout.** mkifs links every executable in the IFS to run in
+place from its exact spot in the image (each ELF's load address is its
+position in the image), and starts every file on a 4 KiB page. Both tools
+below therefore leave every file where it was: an edited file is written in
+place, and if it grew, the files after it move down by whole pages and get
+their load addresses updated. An unchanged image rebuilds byte for byte.
+(Versions of these tools before the issue #25 fix re-packed every file
+tightly, which broke the kernel and every program even when nothing was
+edited: the unit stopped at a red screen.)
+
 ### Option A: Replace a specific file (patch_ifs.py)
 
 Best for replacing a single binary, config file, or script.
 
 ```bash
+# List the paths in the image
+python3 tools/patch_ifs.py "$WORKDIR/ifs_decompressed.ifs" --list
+
 # Replace a file (handles any size change)
 python3 tools/patch_ifs.py "$WORKDIR/ifs_decompressed.ifs" \
     "$WORKDIR/ifs_patched.ifs" \
@@ -89,11 +102,20 @@ python3 tools/patch_ifs.py "$WORKDIR/ifs_decompressed.ifs" \
     "$WORKDIR/ifs_patched.ifs" \
     --replace "mnt/ifs-root/usr/bin/start_network.sh=./mod_network.sh" \
     --replace "mnt/ifs-root/etc/mmi3g-srv-starter.cfg=./mod_config.cfg"
+
+# Add or remove files the same way
+python3 tools/patch_ifs.py "$WORKDIR/ifs_decompressed.ifs" \
+    "$WORKDIR/ifs_patched.ifs" \
+    --add "mnt/ifs-root/usr/bin/my_tool=./my_tool" \
+    --remove "mnt/ifs-root/some/unnecessary/file"
 ```
 
-### Option B: Add/remove files (build_ifs.py)
+### Option B: Rebuild from the edited tree (build_ifs.py)
 
-Best for adding new files or removing existing ones.
+Best when you edited the extracted tree directly. `--reference` must be
+the decompressed image that tree was extracted from: the tool starts from
+it and applies only what changed in the tree (changed, added and removed
+files). An untouched tree gives the reference back unchanged.
 
 ```bash
 # Edit the extracted tree
@@ -126,10 +148,26 @@ python3 tools/mu_repack.py \
 ```bash
 python3 tools/repack_ifs.py \
     "$WORKDIR/ifs_patched.ifs" \
-    "$WORKDIR/ifs-root.ifs"
+    "$WORKDIR/ifs-root.ifs" \
+    --reference "$ORIGINAL_IFS"
 ```
 
-The output `ifs-root.ifs` is the flashable compressed image.
+The output `ifs-root.ifs` is the flashable compressed image. Like mkifs,
+the compressor ends it with a data checksum and redoes the startup
+checksum; the IPL checks both before it starts the IFS.
+
+### Check it before you flash
+
+```bash
+python3 tools/verify_ifs.py "$WORKDIR/ifs-root.ifs" \
+    --decompressed "$WORKDIR/ifs_patched.ifs"
+```
+
+It runs the IPL's checks (startup checksum, data checksum, stored size)
+and the layout checks the kernel relies on (imagefs checksum, every file
+on its page, every executable linked for where it sits). Flash only on
+`RESULT: PASS`. Self-test: repacking the unchanged image with
+`--reference` must print `byte-identical to reference`.
 
 
 ## Step 4: Handle CRC verification
@@ -307,9 +345,11 @@ BIOSCtrl
 |------|---------|
 | `inflate_ifs.py` | Decompress IFS (LZO/UCL) |
 | `extract_qnx_ifs.py` | Extract files from IFS |
-| `build_ifs.py` | Build IFS from file tree |
-| `patch_ifs.py` | Replace files in IFS |
+| `build_ifs.py` | Rebuild IFS from an edited tree (layout kept) |
+| `patch_ifs.py` | Replace / add / remove files in IFS |
 | `repack_ifs.py` | Recompress IFS (byte-identical) |
+| `verify_ifs.py` | Check an IFS before flashing (IPL checksums, XIP layout) |
+| `ifs_image.py` | Shared layout + checksum code used by patch/build |
 | `mu_crc_patcher.py` | Fix or skip CRC checksums |
 | `mu_repack.py` | One-command pipeline |
 

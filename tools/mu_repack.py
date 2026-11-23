@@ -195,6 +195,9 @@ def main():
         repack_args += ['--reference', ifs_path]
 
     run_tool('repack_ifs.py', repack_args, 'Step 3/4: Recompress IFS')
+    # stop here rather than hand over an image the IPL or the kernel would refuse
+    run_tool('verify_ifs.py', [recompressed_path, '--decompressed', patched_path],
+             'Step 3b/4: Verify the new IFS')
 
     # --- Step 7: Fix CRCs ---
     metainfo = find_metainfo(mu_dir)
