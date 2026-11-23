@@ -40,9 +40,14 @@ See **[docs/CUSTOM_APPS.md](docs/CUSTOM_APPS.md)** for a developer guide coverin
 The complete custom firmware pipeline is built and verified:
 
 ```
-inflate_ifs.py  →  patch_ifs.py / build_ifs.py  →  repack_ifs.py  →  mu_crc_patcher.py
-  decompress          modify files                   recompress         fix CRCs
+inflate_ifs.py  →  patch_ifs.py / build_ifs.py  →  repack_ifs.py  →  verify_ifs.py  →  mu_crc_patcher.py
+  decompress          modify files                   recompress        check            fix CRCs
 ```
+
+The modify step keeps the original image's layout (the IFS executables run
+in place from their exact positions), and an unchanged image rebuilds byte
+for byte. Run `verify_ifs.py` on the result before flashing; see
+[docs/FLASH_RUNBOOK.md](docs/FLASH_RUNBOOK.md).
 
 Or use the one-command wrapper:
 ```bash
@@ -273,9 +278,11 @@ MMI3G-Toolkit/
 ├── tools/                       # Firmware tools (not shipped to SD)
 │   ├── inflate_ifs.py           # Decompress LZO/UCL compressed IFS images
 │   ├── extract_qnx_ifs.py      # Extract files from a decompressed QNX IFS
-│   ├── build_ifs.py             # Construct QNX IFS from file tree
-│   ├── patch_ifs.py             # Replace files in decompressed IFS
+│   ├── build_ifs.py             # Rebuild a QNX IFS from an edited tree (layout kept)
+│   ├── patch_ifs.py             # Replace/add/remove files in a decompressed IFS
+│   ├── ifs_image.py             # Shared layout + checksum logic for the two above
 │   ├── repack_ifs.py            # Recompress IFS (byte-identical to Harman)
+│   ├── verify_ifs.py            # Check an IFS before flashing (IPL + XIP checks)
 │   ├── mu_crc_patcher.py        # Recompute/skip SWDL firmware CRCs
 │   ├── mu_repack.py             # One-command firmware modification pipeline
 │   ├── eol_modifier.py          # Unlock hidden features in lsd.jxe

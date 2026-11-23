@@ -172,9 +172,10 @@ def walk_dirents(data, ihdr, image_start_offset):
         except Exception:
             ent['path'] = '<bad-path>'
 
-        # Symlink target follows fixed fields (at sym_offset bytes past record start)
+        # Symlink target: sym_offset counts from the path field (record + 28),
+        # not from the start of the record
         if ftype == S_IFLNK and 'sym_offset' in ent:
-            sym_start = off + ent['sym_offset']
+            sym_start = path_start + ent['sym_offset']
             sym_end = data.find(b'\x00', sym_start, sym_start + ent['sym_size'] + 1)
             if sym_end < 0:
                 sym_end = sym_start + ent['sym_size']

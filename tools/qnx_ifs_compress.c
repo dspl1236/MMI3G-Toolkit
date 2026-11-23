@@ -55,6 +55,49 @@ static void write_u16be(FILE *f, uint16_t v) {
     fwrite(buf, 1, 2, f);
 }
 
+static uint32_t sum32(const uint8_t *p, size_t len) {
+    uint32_t total = 0, w;
+    for (size_t i = 0; i + 4 <= len; i += 4) {
+        memcpy(&w, p + i, 4);
+        total += w;
+    }
+    return total;
+}
+
+/* Pad + data trailer, stored_size, startup checksum. See the call site. */
+static int finish_container(const char *path, uint32_t startup_size) {
+    FILE *f = fopen(path, "rb");
+    if (!f) { perror("reopen output"); return -1; }
+    fseek(f, 0, SEEK_END);
+    size_t len = ftell(f);
+    rewind(f);
+    uint8_t *buf = calloc(1, len + 8);
+    if (!buf || fread(buf, 1, len, f) != len) { fclose(f); free(buf); return -1; }
+    fclose(f);
+
+    if (startup_size % 4 || startup_size < sizeof(struct startup_header) + 4) {
+        fprintf(stderr, "odd startup_size 0x%x\n", startup_size);
+        free(buf); return -1;
+    }
+    len = (len + 3) & ~(size_t)3;                 /* zero pad (calloc) */
+    uint32_t trailer = (uint32_t)0 - sum32(buf + startup_size, len - startup_size);
+    memcpy(buf + len, &trailer, 4);
+    len += 4;
+
+    struct startup_header *sh = (struct startup_header *)buf;
+    sh->stored_size = (uint32_t)len;
+    uint32_t zero = 0;
+    memcpy(buf + startup_size - 4, &zero, 4);
+    uint32_t ck = (uint32_t)0 - sum32(buf, startup_size);
+    memcpy(buf + startup_size - 4, &ck, 4);
+
+    f = fopen(path, "wb");
+    if (!f || fwrite(buf, 1, len, f) != len) { perror("rewrite output"); free(buf); return -1; }
+    fclose(f);
+    free(buf);
+    return 0;
+}
+
 /*
  * Mode 1: Reference-based compression.
  * Read chunk boundaries from original, apply to (potentially modified)
@@ -292,14 +335,28 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* Patch stored_size in the output header */
-    long total_size = ftell(out);
-    fseek(out, offsetof(struct startup_header, stored_size), SEEK_SET);
+    fclose(out);
+
+    /*
+     * Finish the container the way Harman's mkifs does; the IPL refuses to
+     * boot the image otherwise ("DATA CHECKSUM ERROR" / "No valid IFS"):
+     *   1. zero-pad the chunk stream (after its 0x0000 end marker) to 4 bytes
+     *      and append a uint32 trailer so that the uint32 sum of
+     *      [startup_size, stored_size) is 0
+     *   2. stored_size = whole file, including that trailer
+     *   3. redo the startup checksum (last word of the startup section): it
+     *      covers the startup_header, whose stored_size/flags1/imagefs_size
+     *      just changed
+     */
+    if (finish_container(out_path, startup_size) != 0) return 1;
+
+    FILE *chk = fopen(out_path, "rb");
+    fseek(chk, 0, SEEK_END);
+    long total_size = ftell(chk);
+    fclose(chk);
     uint32_t stored = (uint32_t)total_size;
-    fwrite(&stored, 4, 1, out);
 
     fprintf(stderr, "output: %ld bytes (stored_size=0x%x)\n", total_size, stored);
-    fclose(out);
     free(decomp_data);
     return 0;
 }
