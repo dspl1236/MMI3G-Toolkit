@@ -20,7 +20,7 @@ to understand what you're hooking into.
 | 2. Flash-persistent script | shell | Across reboots | Easy | `nav-unblocker` |
 | 3. GEM screen | Java + XML | Across reboots | Medium | `gauges-dashboard`, `long-coding` |
 | 4. OSGi bundle | Java | Across reboots | Hard | `per3-reader` |
-| 5. Native binary | C/C++ | Across reboots | Hard (need toolchain) | none yet |
+| 5. Native binary | C | Per-run (RAM) | Medium | `examples/sh4-native` (`hello_libc`) |
 
 ## Mechanism 1: SD-card scripts
 
@@ -139,10 +139,24 @@ scripts over IPC.
 
 Now that `tools/inflate_ifs.py --extract` gives you every SH4 binary
 on the system, building and running custom native code becomes
-feasible. No one has shipped a toolkit module that does this yet, so
-this section is a plan more than a recipe.
+feasible. No toolkit module ships native code yet, but building and
+running a C program is tested: see Option 0 below.
 
 ### Building
+
+**Option 0 — Linux cross compiler + stub libraries (tested, recommended).**
+No QNX SDK or licence. Ubuntu/Debian's `gcc-sh4-linux-gnu` links against
+small stub libraries that carry the unit's SONAMEs (`libc.so.2`, ...), and
+the unit's own `ldqnx.so.2` binds the imports to its real libraries at run
+time. A start-up file initialises libc the way the unit's own programs do,
+so stdio, the heap and the environment work. The toolchain is PCM-Forge's
+[`tools/sh4-toolchain`](https://github.com/dspl1236/PCM-Forge/tree/main/tools/sh4-toolchain)
+(the Porsche PCM 3.1 is the same platform); its `hello_raw` and `hello_libc`
+passed on an MMI 3G+ (K0942_3) on 2026-11-26. Walkthrough:
+[`examples/sh4-native`](../examples/sh4-native/README.md). C only, and you
+call only what the stubs declare (add a line for anything else).
+
+The options below are the older plan, for a full QNX toolchain and sysroot:
 
 **Toolchain.** You need a QNX 6.3-ish cross-compiler targeting
 Renesas SH4, plus a sysroot built from extracted libraries.
