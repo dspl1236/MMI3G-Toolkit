@@ -27,6 +27,9 @@ flag_dir=/HBpersistence
 rse_marker=/mnt/efs-system/RSE
 dhcp_up=/etc/dhcp/dhcp-up
 dhcp_up_sum='3046797907 6292'
+# DrGER's LTE dhcp-up (20230218), common on 3G+ units: it puts the lease's
+# name servers in resolv.conf too, without the factory DNS redirects.
+dhcp_up_drger_sum='1601281849 792'
 resolv_conf=/etc/resolv.conf
 state=/mnt/efs-persist/lan-mode
 owner=$state/owner
@@ -152,8 +155,10 @@ enable() {
         return 0
     fi
     [ -d "$flag_dir" ] || fail "$flag_dir is missing"
-    [ "$(sum_of "$dhcp_up")" = "$dhcp_up_sum" ] ||
-        fail "dhcp-up is not the reviewed copy ($dhcp_up_sum): $(sum_of "$dhcp_up")"
+    case "$(sum_of "$dhcp_up")" in
+        "$dhcp_up_sum"|"$dhcp_up_drger_sum") ;;
+        *) fail "dhcp-up is neither the reviewed factory copy ($dhcp_up_sum) nor DrGER's LTE one ($dhcp_up_drger_sum): $(sum_of "$dhcp_up")";;
+    esac
     [ -e "$rse_marker" ] && fail "$rse_marker exists: dhcp-up would take its RSE branch"
     free=$(free_kb "$flag_dir")
     case $free in

@@ -1,0 +1,17 @@
+{
+    "name": "dtc-checker",
+    "version": "1.0.0",
+    "description": "Onboard diagnostic trouble code reader: view and clear DTCs from the GEM in one 20-row screen, read through the V850 IOC (DSI namespace 2).",
+    "author": "dspl1236",
+    "status": "tested",
+    "compatible": ["MMI3G", "MMI3G+", "RNS-850"],
+    "prereq": "gem-activator",
+    "gem_path": "/toolkit/dtc",
+    "screens": [
+        "ToolkitDTC.esd - DTC overview (20 rows), detail with status flags, clear/test"
+    ],
+    "notes": [
+        "GEM screen only: the builder copies engdefs/ToolkitDTC.esd to /mnt/efs-system/engdefs. No scripts.",
+        "Needs the GEM enabled (gem-activator)."
+    ]
+}

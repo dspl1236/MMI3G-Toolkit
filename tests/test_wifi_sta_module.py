@@ -102,7 +102,7 @@ class Installer(unittest.TestCase):
 case "{name} $1" in
     "sta-install.sh status") echo "wifi-sta: state: ${{MOCK_STA_STATE:-absent}}"
         [ -n "${{MOCK_OLD_HOOK-}}" ] && echo "{self.STATUS_OLD}"
-        [ -n "${{MOCK_CONF_PRESENT-}}" ] && echo "wifi-sta: wpa-hotspot.conf: present, root, mode 600, one WPA-PSK network"
+        [ -n "${{MOCK_CONF_PRESENT-}}" ] && echo "wifi-sta: wpa-hotspot.conf: present, root, mode 600, 1 WPA-PSK network(s)"
         exit 0;;
     "gem-install.sh status") echo "wifi-gem: state: ${{MOCK_GEM_STATE:-absent}}"; exit 0;;
     "sta-install.sh conf") cat > "{b}/conf.received"; exit ${{MOCK_CONF_RC:-0}};;
@@ -119,7 +119,7 @@ exit 0
         self.tool('cksum', '#!/bin/sh\ncase $1 in\n'
                   f'    {self.factory["devnp-mv8688uap.so"]}) echo "${{MOCK_DRIVER_SUM:-1022510863 93538}} $1";;\n'
                   f'    {self.factory["dhcp.client"]}) echo "263280565 57048 $1";;\n'
-                  f'    {self.factory["dhcp-up"]}) echo "3046797907 6292 $1";;\n'
+                  f'    {self.factory["dhcp-up"]}) echo "${{MOCK_DHCP_UP_SUM:-3046797907 6292}} $1";;\n'
                   '    *) exec /usr/bin/cksum "$@";;\nesac\n')
         text = RUN.read_text()
         shell = os.environ.get('MMI_TEST_SHELL', '/bin/sh')
@@ -209,6 +209,22 @@ exit 0
         self.assertEqual(self.steps(), [])
         self.assertFalse(self.calls.exists())
 
+    def test_drgers_lte_dhcp_up_is_accepted(self):
+        # A unit with DrGER's LTE set-up: his dhcp-up, and the flag already set.
+        self.flag.write_text('')
+        out = self.run_it(MOCK_DHCP_UP_SUM='1601281849 792', MOCK_CONF_PRESENT='1')
+        self.assertIn("dhcp-up is DrGER's LTE one (accepted)", out.stdout, out.stdout)
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertEqual(self.steps(), [
+            f'sta-install.sh install {self.pay}', f'gem-install.sh install {self.pay}',
+            'sta-install.sh hook'])
+
+    def test_any_other_dhcp_up_changes_nothing(self):
+        out = self.run_it(MOCK_DHCP_UP_SUM='12345 678')
+        self.assertIn("neither the factory", out.stdout, out.stdout)
+        self.assertIn('nothing was changed', out.stdout)
+        self.assertFalse(self.calls.exists())
+
     def test_a_damaged_card_changes_nothing(self):
         with (self.pay / 'sd8688.bin').open('ab') as f:
             f.write(b'x')
@@ -249,6 +265,152 @@ exit 0
         self.assertIn('RESULT: OK, removed.', out.stdout, out.stdout)
         self.assertEqual(self.steps(), ['sta-install.sh unhook', 'sta-install.sh remove',
                                         'gem-install.sh remove'])
+
+    # --- wifi-sta/options -------------------------------------------------
+
+    def inbound(self):
+        path = self.gem_dir / 'inbound'
+        return path.read_text().splitlines() if path.exists() else None
+
+    def test_options_set_the_start_up_choice_and_the_inbound_list(self):
+        self.flag.write_text('')
+        (self.gem_dir / 'telnet-on-hotspot').write_text('')
+        (self.pay / 'options').write_text(
+            '# made by the web builder\nstart-up=client\nallow=icmp\n'
+            'allow=tcp 23   # telnet\n  allow=udp 5353\n')
+        out = self.run_it()
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertTrue(self.marker.exists())
+        self.assertEqual(self.inbound(), ['icmp', 'tcp 23', 'udp 5353'])
+        self.assertFalse((self.gem_dir / 'telnet-on-hotspot').exists())
+        self.assertIn('inbound: ping, tcp 23, udp 5353 admitted', out.stdout)
+        self.assertIn('WARNING: telnet (tcp 23) is a root login', out.stdout)
+
+    def test_options_ap_clears_the_start_up_choice(self):
+        self.flag.write_text('')
+        self.marker.write_text('')
+        (self.pay / 'options').write_text('start-up=ap\n')
+        out = self.run_it()
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertFalse(self.marker.exists())
+        self.assertIn('inbound: unchanged', out.stdout)
+
+    def test_without_options_the_inbound_list_stays(self):
+        self.flag.write_text('')
+        (self.gem_dir / 'inbound').write_text('icmp\n')
+        out = self.run_it()
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertEqual(self.inbound(), ['icmp'])
+
+    def test_allow_none_clears_the_list_and_the_telnet_marker(self):
+        self.flag.write_text('')
+        (self.gem_dir / 'inbound').write_text('icmp\ntcp 23\n')
+        (self.gem_dir / 'telnet-on-hotspot').write_text('')
+        (self.pay / 'options').write_text('allow=icmp\nallow=none\n')
+        out = self.run_it()
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertIsNone(self.inbound())
+        self.assertFalse((self.gem_dir / 'telnet-on-hotspot').exists())
+
+    def test_a_bad_option_stops_before_any_step(self):
+        for bad in ('allow=tcp', 'allow=tcp 0', 'allow=tcp 65536', 'allow=tcp 023',
+                    'allow=tcp 23 24', 'allow=any', 'start-up=maybe'):
+            with self.subTest(bad=bad):
+                if self.calls.exists():
+                    self.calls.unlink()
+                (self.pay / 'options').write_text(f'start-up=client\n{bad}\n')
+                out = self.run_it()
+                self.assertIn('RESULT: FAILED', out.stdout)
+                self.assertEqual(self.steps(), [])
+                self.assertFalse(self.marker.exists())
+
+    def test_remove_takes_the_inbound_list_too(self):
+        (self.gem_dir / 'inbound').write_text('icmp\n')
+        (self.gem_dir / 'telnet-on-hotspot').write_text('')
+        (self.pay / 'REMOVE').write_text('')
+        out = self.run_it()
+        self.assertIn('RESULT: OK, removed.', out.stdout, out.stdout)
+        self.assertIsNone(self.inbound())
+        self.assertFalse((self.gem_dir / 'telnet-on-hotspot').exists())
+
+
+class StationInbound(unittest.TestCase):
+    """sta-mode.sh's inbound allow-list: its parser and the pf rules it loads,
+    with pfctl replaced by a stand-in that keeps the rules in a file."""
+
+    FUNCS = ('say', 'network_of', 'inbound_read', 'inbound_words', 'pf_load', 'inbound_pf')
+    RULES = (
+        'scrub in all no-df fragment reassemble\n'
+        'pass in quick on en6 inet proto udp from any port = bootps to any port = bootpc keep state label "mmi_sta_en6"\n'
+        'block drop in quick on en6 all label "mmi_sta_en6"\n'
+        'pass out all keep state\n'
+        'pass in quick on en5 all keep state\n')
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        b = self.base = Path(self.tmp.name)
+        (b / 'state').mkdir()
+        (b / 'rules').write_text(self.RULES)
+        text = (PAYLOAD / 'sta-mode.sh').read_text()
+        parts = []
+        for name in self.FUNCS:
+            m = re.search(rf'^{name}\(\) {{\n.*?^}}\n', text, re.M | re.S)
+            self.assertIsNotNone(m, name)
+            parts.append(m.group(0))
+        consts = {k: re.search(rf'^{k}=(.*)$', text, re.M).group(1)
+                  for k in ('sta_if', 'pf_label', 'ssh_label', 'inbound_label', 'inbound_max')}
+        self.prelude = ''.join(f'{k}={v}\n' for k, v in consts.items()) + f"""
+state={b}/state
+inbound_file={b}/inbound
+telnet_marker={b}/telnet-on-hotspot
+pfctl() {{
+    case "$1 $2" in
+        "-sr ") cat "{b}/rules";;
+        "-n -R") :;;
+        "-R -f") cp "$3" "{b}/rules";;
+        *) echo "pfctl $*" >&2; return 1;;
+    esac
+}}
+""" + ''.join(parts)
+
+    def sh(self, body):
+        out = subprocess.run([os.environ.get('MMI_TEST_SHELL', '/bin/sh'), '-c',
+                              self.prelude + body], capture_output=True, text=True, timeout=30)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        return out.stdout
+
+    def test_the_list_keeps_what_it_can_use(self):
+        (self.base / 'inbound').write_text(
+            "# the owner's list\nicmp\ntcp 23   # telnet\nudp 5353\ntcp 0\ntcp 70000\n"
+            'tcp 023\ngopher 1\ntcp\ntcp 23\n\n')
+        (self.base / 'telnet-on-hotspot').write_text('')
+        out = self.sh('inbound_read; echo "LIST=$inbound"; echo "WORDS=$(inbound_words)"')
+        self.assertIn('LIST=tcp:23 icmp udp:5353\n', out)
+        self.assertIn('WORDS=tcp 23, ping, udp 5353\n', out)
+        for skipped in ('tcp 0', 'tcp 70000', 'tcp 023', 'gopher', 'tcp '):
+            self.assertIn(f'skipped "{skipped}', out)
+
+    def test_no_list_admits_nothing(self):
+        self.assertIn('LIST=\n', self.sh('inbound_read; echo "LIST=$inbound"'))
+
+    def test_the_rules_follow_the_lease(self):
+        self.sh('inbound="icmp tcp:23 udp:5353"; inbound_pf "192.168.43.17 24"')
+        rules = (self.base / 'rules').read_text().splitlines()
+        ours = [r for r in rules if 'label "mmi_sta_in"' in r]
+        self.assertEqual(ours, [
+            'pass in quick on en6 inet proto icmp from 192.168.43.0/24 to 192.168.43.17 icmp-type echoreq keep state label "mmi_sta_in"',
+            'pass in quick on en6 inet proto tcp from 192.168.43.0/24 to 192.168.43.17 port = 23 flags S/SA keep state label "mmi_sta_in"',
+            'pass in quick on en6 inet proto udp from 192.168.43.0/24 to 192.168.43.17 port = 5353 keep state label "mmi_sta_in"'])
+        block = next(i for i, r in enumerate(rules) if r.startswith('block drop in quick on en6'))
+        self.assertLess(rules.index(ours[-1]), block)
+        # a lease on another network replaces them
+        self.sh('inbound="icmp tcp:23 udp:5353"; inbound_pf "172.20.10.5 24"')
+        rules = (self.base / 'rules').read_text()
+        self.assertEqual(rules.count('label "mmi_sta_in"'), 3)
+        self.assertNotIn('192.168.43.17', rules)
+        self.assertIn('from 172.20.10.0/24 to 172.20.10.5 port = 23', rules)
+        self.assertEqual(rules.count('label "mmi_sta_en6"'), 2)
 
 
 if __name__ == '__main__':

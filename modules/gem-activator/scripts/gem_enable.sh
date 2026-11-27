@@ -93,7 +93,11 @@ echo "============================================"
 # Also output to console
 cat "$LOG"
 
-# Show GEM enabled screen
-if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/gem_enabled.png" ]; then
+# Tell the user what to do next. Under the card's status screen (run.sh sets
+# FORGE_PROGRESS and FORGE_NOTE) the note goes on its DONE screen; on its own,
+# showScreen shows the GEM enabled picture.
+if [ -n "${FORGE_PROGRESS:-}" ]; then
+    echo "GEM on: restart the MMI, then CAR + BACK" > "${FORGE_NOTE:-/dev/null}" 2>/dev/null
+elif [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/gem_enabled.png" ]; then
     "${SDPATH}/bin/showScreen" "${SDPATH}/lib/gem_enabled.png" 2>/dev/null &
 fi

@@ -29,5 +29,6 @@
             ]
         }
     },
-    "notes": "Validated on a Porsche PCM 3.1 (issue #7); MMI3G+/RNS-850 use the same QNX 6.3 io-net SH4 driver ABI and the driver is itself from MMI3G+ MU9498 firmware, so it is expected to work — pending an Audi/VW bench confirmation. Supersedes the lte-setup module (now deprecated): its old AX88772B/D overrides never worked on io-net."
+    "notes": "Validated on a Porsche PCM 3.1 (issue #7); MMI3G+/RNS-850 use the same QNX 6.3 io-net SH4 driver ABI and the driver is itself from MMI3G+ MU9498 firmware, so it is expected to work — pending an Audi/VW bench confirmation. Supersedes the lte-setup module (now deprecated): its old AX88772B/D overrides never worked on io-net.",
+    "uninstall": {"note": "the LAN-mode flag /HBpersistence/DLinkReplacesPPP from its lte mode stays (DrGER's LTE set-up and wifi-sta use it too)"}
 }

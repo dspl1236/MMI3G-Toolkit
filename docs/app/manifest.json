@@ -1,5 +1,5 @@
 {
-    "generated": "2026-11-13",
+    "generated": "2026-11-26",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -7,8 +7,13 @@
         "uninstall_sh": "core/uninstall.sh",
         "platform_sh": "core/platform.sh",
         "showScreen": "core/bin/showScreen",
+        "mmi_splash": "core/bin/mmi_splash",
         "lib_running_png": "core/lib/running.png",
         "lib_done_png": "core/lib/done.png",
+        "lib_failed_png": "core/lib/failed.png",
+        "lib_running_bin": "core/lib/running.bin",
+        "lib_done_bin": "core/lib/done.bin",
+        "lib_failed_bin": "core/lib/failed.bin",
         "lib_gem_enabled_png": "core/lib/gem_enabled.png",
         "lib_gem_disabled_png": "core/lib/gem_disabled.png"
     },
@@ -26,6 +31,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/CanDiag",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -83,6 +89,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Scanner",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -160,6 +167,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/DiagTool",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -225,6 +233,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/NetDiag",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -237,6 +246,40 @@
                 {
                     "path": "scripts/dns_refresh_probe.sh",
                     "size": 3904
+                }
+            ]
+        },
+        "dtc-checker": {
+            "status": "tested",
+            "description": "Onboard diagnostic trouble code reader: view and clear DTCs from the GEM in one 20-row screen, read through the V850 IOC (DSI namespace 2).",
+            "standalone": false,
+            "run_script": null,
+            "artifact": null,
+            "payload_dirs": [],
+            "release_zip": null,
+            "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
+            "script_dir": "/scripts/dtc-checker",
+            "installs_to_flash": true,
+            "exit_code_reports_failure": false,
+            "compatible": [
+                "MMI3G",
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "README.md",
+                    "size": 2273
+                },
+                {
+                    "path": "engdefs/ToolkitDTC.esd",
+                    "size": 1913
+                },
+                {
+                    "path": "module.json",
+                    "size": 672
                 }
             ]
         },
@@ -253,6 +296,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/game-loader",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -334,6 +378,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Gauges",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -407,6 +452,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GEM",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -427,7 +473,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 986
+                    "size": 1115
                 },
                 {
                     "path": "scripts/gem_disable.sh",
@@ -435,7 +481,7 @@
                 },
                 {
                     "path": "scripts/gem_enable.sh",
-                    "size": 3095
+                    "size": 3402
                 },
                 {
                     "path": "scripts/gem_status.sh",
@@ -456,6 +502,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GEMMIDump",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -490,6 +537,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -497,7 +545,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2124
+                    "size": 2265
                 },
                 {
                     "path": "payload/auth_resp1.bin",
@@ -590,6 +638,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GEMMI",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "RNS-850"
             ],
@@ -659,6 +708,7 @@
             "prebuilt_zip": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "RNS-850"
             ],
@@ -710,6 +760,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "RNS-850"
             ],
@@ -737,6 +788,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/jvm-extract",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -766,6 +818,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/long-coding",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -815,6 +868,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/LTE",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -822,7 +876,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1380
+                    "size": 1516
                 },
                 {
                     "path": "scripts/lte_restore.sh",
@@ -842,35 +896,6 @@
                 }
             ]
         },
-        "map-parser": {
-            "status": "ready",
-            "description": "Extract and analyze navigation database config — reads nav DB version, map regions, configured paths, and FSC activation state. Read-only.",
-            "standalone": true,
-            "run_script": "map_parse.sh",
-            "artifact": null,
-            "payload_dirs": [],
-            "release_zip": null,
-            "release_assets": null,
-            "web_build": true,
-            "prebuilt_zip": null,
-            "script_dir": "/scripts/MapParser",
-            "installs_to_flash": false,
-            "compatible": [
-                "MMI3G",
-                "MMI3G+",
-                "RNS-850"
-            ],
-            "files": [
-                {
-                    "path": "module.json",
-                    "size": 1261
-                },
-                {
-                    "path": "scripts/map_parse.sh",
-                    "size": 7848
-                }
-            ]
-        },
         "nav-unblocker": {
             "status": "ready",
             "description": "Bypass navigation database activation check - uses DrGER2's improved manage_cd.sh patch method (Keldo's discovery)",
@@ -884,6 +909,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/NavUnblocker",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -892,7 +918,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 932
+                    "size": 1114
                 },
                 {
                     "path": "scripts/nav_restore.sh",
@@ -905,35 +931,6 @@
                 {
                     "path": "scripts/nav_unblocker.sh",
                     "size": 8024
-                }
-            ]
-        },
-        "password-finder": {
-            "status": "ready",
-            "description": "Dump stored Wi-Fi hotspot passwords, Audi Connect credentials, and other stored secrets from the MMI's persistence partitions. Read-only — changes nothing on the unit.",
-            "standalone": true,
-            "run_script": "password_dump.sh",
-            "artifact": null,
-            "payload_dirs": [],
-            "release_zip": null,
-            "release_assets": null,
-            "web_build": true,
-            "prebuilt_zip": null,
-            "script_dir": "/scripts/PasswordFinder",
-            "installs_to_flash": false,
-            "compatible": [
-                "MMI3G",
-                "MMI3G+",
-                "RNS-850"
-            ],
-            "files": [
-                {
-                    "path": "module.json",
-                    "size": 1455
-                },
-                {
-                    "path": "scripts/password_dump.sh",
-                    "size": 8552
                 }
             ]
         },
@@ -950,6 +947,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Per3Reader",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -966,7 +964,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 3194
+                    "size": 3327
                 },
                 {
                     "path": "per3-reader.jar",
@@ -1075,6 +1073,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/per3-writer",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1091,35 +1090,6 @@
                 }
             ]
         },
-        "persistence-dump": {
-            "status": "ready",
-            "description": "Dumps persistence state (HBpersistence, efs-persist, shmem, coding) to SD card for offline analysis — use before/after VCDS changes to find exact byte locations",
-            "standalone": true,
-            "run_script": "persist_dump.sh",
-            "artifact": null,
-            "payload_dirs": [],
-            "release_zip": null,
-            "release_assets": null,
-            "web_build": true,
-            "prebuilt_zip": null,
-            "script_dir": "/scripts/PersistDump",
-            "installs_to_flash": false,
-            "compatible": [
-                "MMI3G",
-                "MMI3G+",
-                "RNS-850"
-            ],
-            "files": [
-                {
-                    "path": "module.json",
-                    "size": 573
-                },
-                {
-                    "path": "scripts/persist_dump.sh",
-                    "size": 3937
-                }
-            ]
-        },
         "region-audit": {
             "status": "planned",
             "description": "Read-only region and VZE/TSR audit. Shows live region-related persistence values in GEM and writes a structured audit report to SD card.",
@@ -1133,6 +1103,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/RegionAudit",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -1165,6 +1136,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Splash",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1173,7 +1145,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 973
+                    "size": 1124
                 },
                 {
                     "path": "scripts/splash_install.sh",
@@ -1198,6 +1170,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/SystemInfo",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1210,7 +1183,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 25215
+                    "size": 28680
                 }
             ]
         },
@@ -1232,6 +1205,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/USBNet",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -1247,40 +1221,11 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1924
+                    "size": 2073
                 },
                 {
                     "path": "scripts/usb_net_run.sh",
                     "size": 4761
-                }
-            ]
-        },
-        "variant-dump": {
-            "status": "ready",
-            "description": "MMI identification + configuration dumper — captures train name, MU software version, MU variant, HMI region, kernel info, HDD/partition layout, nav database state, FSC status, persistence file inventory, and LVM unblocker status. Mirrors DrGER2's mmi3ginfo3 approach. Read-only, writes a text report to SD card.",
-            "standalone": true,
-            "run_script": "variant_dump.sh",
-            "artifact": null,
-            "payload_dirs": [],
-            "release_zip": null,
-            "release_assets": null,
-            "web_build": true,
-            "prebuilt_zip": null,
-            "script_dir": "/scripts/VariantDump",
-            "installs_to_flash": false,
-            "compatible": [
-                "MMI3G",
-                "MMI3G+",
-                "RNS-850"
-            ],
-            "files": [
-                {
-                    "path": "module.json",
-                    "size": 2250
-                },
-                {
-                    "path": "scripts/variant_dump.sh",
-                    "size": 9763
                 }
             ]
         },
@@ -1302,21 +1247,22 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/wifi-sta",
             "installs_to_flash": false,
+            "exit_code_reports_failure": true,
             "compatible": [
                 "MMI3G+"
             ],
             "files": [
                 {
                     "path": "README.md",
-                    "size": 7288
+                    "size": 10716
                 },
                 {
                     "path": "module.json",
-                    "size": 2171
+                    "size": 2579
                 },
                 {
                     "path": "payload/CKSUMS",
-                    "size": 805
+                    "size": 807
                 },
                 {
                     "path": "payload/LICENSES/GPL-2.0.txt",
@@ -1344,7 +1290,7 @@
                 },
                 {
                     "path": "payload/SOURCES.md",
-                    "size": 2209
+                    "size": 3146
                 },
                 {
                     "path": "payload/WifiClient.esd",
@@ -1368,7 +1314,7 @@
                 },
                 {
                     "path": "payload/hotspot.conf.example",
-                    "size": 724
+                    "size": 795
                 },
                 {
                     "path": "payload/jitter-egd",
@@ -1376,7 +1322,7 @@
                 },
                 {
                     "path": "payload/lan-mode.sh",
-                    "size": 8045
+                    "size": 8324
                 },
                 {
                     "path": "payload/mv8688-ctl",
@@ -1400,11 +1346,11 @@
                 },
                 {
                     "path": "payload/sta-install.sh",
-                    "size": 19774
+                    "size": 20077
                 },
                 {
                     "path": "payload/sta-mode.sh",
-                    "size": 47091
+                    "size": 55335
                 },
                 {
                     "path": "payload/wpa_supplicant",
@@ -1412,7 +1358,7 @@
                 },
                 {
                     "path": "scripts/wifi_sta_run.sh",
-                    "size": 8759
+                    "size": 14137
                 }
             ]
         }

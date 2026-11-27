@@ -63,13 +63,16 @@ sd8688_helper.bin 600 1538620194 2616
 sd8688.bin 600 251454034 259172
 wpa_supplicant 700 2366746706 491332
 jitter-egd 700 2336099037 35856
-sta-mode.sh 700 2285213847 47091
+sta-mode.sh 700 3055985812 55335
 sta-boot.sh 700 4201762923 4507
 boot-launch.sh 700 898658748 853'
 # Earlier builds' sums of files this build replaces: an install upgrades
 # them, and remove takes them out as its own.
 older='sta-mode.sh 2913500418 43139
 sta-mode.sh 3337595432 45937
+sta-mode.sh 2285213847 47091
+sta-mode.sh 4237717798 47633
+sta-mode.sh 1881802411 52940
 sta-boot.sh 1916130123 3248'
 # The start-up block in the factory lsd.sh, the launcher it runs, the copy
 # of lsd.sh before it and the rollback. The launcher is on efs-persist, as
@@ -99,6 +102,8 @@ run=/fs/tmpfs
 lock=$run/wifi-sta-install.lock
 min_free_kb=2048
 conf_max=4096
+# As sta-mode.sh: 1 to this many networks.
+conf_networks=4
 locked=no
 txn=none
 
@@ -219,10 +224,11 @@ conf_ok() {
     [ "$2" = "-rw-------" ] && [ "$4" = "$conf_owner" ] || return 1
     [ "${6:-0}" -le "$conf_max" ] 2>/dev/null || return 1
     cl() { sed -e 's/^[ 	]*//' -e 's/[ 	]*$//' "$1"; }
-    [ "$(cl "$1" | grep -c '^network={')" = 1 ] &&
-        [ "$(cl "$1" | grep -c '^ssid=')" = 1 ] &&
-        [ "$(cl "$1" | grep -c '^psk=')" = 1 ] &&
-        [ "$(cl "$1" | grep -Fxc 'key_mgmt=WPA-PSK')" = 1 ]
+    cl_n=$(cl "$1" | grep -c '^network={')
+    [ "$cl_n" -ge 1 ] && [ "$cl_n" -le "$conf_networks" ] &&
+        [ "$(cl "$1" | grep -c '^ssid=')" = "$cl_n" ] &&
+        [ "$(cl "$1" | grep -c '^psk=')" = "$cl_n" ] &&
+        [ "$(cl "$1" | grep -Fxc 'key_mgmt=WPA-PSK')" = "$cl_n" ]
 }
 
 remove_ours() {
@@ -273,7 +279,7 @@ status() {
         done
         if [ -f "$sums" ]; then say "SUMS: present"; else say "SUMS: absent"; fi
         if conf_ok "$conf"; then
-            say "wpa-hotspot.conf: present, $conf_owner, mode 600, one WPA-PSK network"
+            say "wpa-hotspot.conf: present, $conf_owner, mode 600, $(sed -e 's/^[ 	]*//' "$conf" | grep -c '^network={') WPA-PSK network(s)"
         elif [ -f "$conf" ]; then
             set -- $(ls -l "$conf")
             say "wpa-hotspot.conf: NOT USABLE ($1 $3; sta-mode.sh would refuse it)"
@@ -357,7 +363,7 @@ conf_in() {
     chmod 600 "$new"
     if ! conf_ok "$new"; then
         rm -f "$new"
-        fail "the configuration needs one network={, one ssid=, one psk= and key_mgmt=WPA-PSK, at most $conf_max bytes; nothing was changed"
+        fail "the configuration needs 1 to $conf_networks network={ blocks, each with one ssid=, one psk= and key_mgmt=WPA-PSK, at most $conf_max bytes; nothing was changed"
     fi
     mv -f "$new" "$conf" || { rm -f "$new"; fail "could not move it into place"; }
     conf_ok "$conf" || fail "$conf is not as written"

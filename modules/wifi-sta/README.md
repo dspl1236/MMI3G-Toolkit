@@ -35,8 +35,13 @@ following passed:
 - this SD card: a first install over an earlier hand install, and an
   in-place upgrade.
 
-**Running without the OpenSSH installation has not run on a unit yet**
-(that unit always used OpenSSH's `jitter-egd`).
+**Without the OpenSSH installation** it ran on a second unit (an A6,
+`HN+R_US_AU_K0942_3`) on 2026-11-26, with the module's own `jitter-egd`
+and DrGER's LTE `dhcp-up`: joined in 16 s, leased 17 s later, internet and
+Google Earth over the phone; then, with two networks configured, it
+joined the home network at start-up (wired adapter out) and admitted
+telnet from it. **Not yet run on a unit:** the switch from one network to
+the other, and the `inbound` list beyond telnet (both below).
 
 In the car, the owner reported these working on 2026-10-31, but nothing
 was logged from them:
@@ -50,6 +55,19 @@ streams audio; unicast is unaffected.
 The installer checks that this unit's factory `devnp-mv8688uap.so`,
 `dhcp.client` and `dhcp-up` match the tested unit's checksums. On any other
 firmware it stops and changes nothing.
+
+**DrGER's LTE set-up is accepted too.** Many 3G+ units run DrGER's LTE
+`dhcp-up` (dated 20230218, `cksum` `1601281849 792`) instead of the factory
+one; he keeps the factory script next to it as `dhcp-up-GSM`. The station
+needs two things from `dhcp-up`: `resolv.conf` naming the lease's name
+servers, and `_CS_RESOLVE` cleared. DrGER's script does both, and
+`dhcp.client` sets the default route itself, so the installer,
+`sta-mode.sh` and `lan-mode.sh` accept either script (and no other). His
+script leaves out the factory script's fallback name server for a lease
+that names none, its `/16` route to Harman's network and its DNS redirects
+for `mam0`/`uap0` clients; phone hotspots always name a server, and the
+access point is off while the station runs. This is a review of the
+scripts, not yet a run on a unit with DrGER's script.
 
 ## What it changes
 
@@ -75,8 +93,9 @@ Wi-Fi lose it while the station runs. To get the access point back, press
 2. **Make `hotspot.conf`.** Copy `wifi-sta/hotspot.conf.example` on the
    built card to `wifi-sta/hotspot.conf`, and put in your hotspot's name.
    For the key, run `wpa_passphrase "Hotspot name" "passphrase"` on a
-   computer and copy its `psk=<64 hex digits>` line. The file needs exactly
-   one network, with `ssid=`, `psk=` and `key_mgmt=WPA-PSK`.
+   computer and copy its `psk=<64 hex digits>` line. The file holds 1 to
+   4 networks, each with `ssid=`, `psk=` and `key_mgmt=WPA-PSK` (see
+   "More than one network").
 3. **Run the card.** Boot the unit fully, insert the card, and wait for
    the done screen. Read `var/install-*.log` on the card: it must end with
    `[wifi-sta] RESULT: OK, installed.` The installer deletes
@@ -114,8 +133,58 @@ If [qnx632-openssh](https://github.com/chundla/qnx632-openssh) is
 installed, the station uses that installation's `jitter-egd` instead. It
 also starts an `sshd` on the hotspot address (port 2222, public-key only,
 reachable only from the hotspot's own subnet). At start-up it waits for
-OpenSSH to come up before switching. Without OpenSSH there is no shell
+OpenSSH to come up before switching. Without OpenSSH there is no SSH
 over the hotspot.
+
+## Ping, telnet and other ports from the network (optional)
+
+By default the station admits nothing from its network but the DHCP
+server's replies: the unit does not even answer ping there. Everything the
+unit starts itself (Google Earth, online services, DNS) goes out and gets
+its replies either way.
+
+To admit more, list it in `/mnt/efs-persist/wifi-sta/gem/inbound`, one
+entry per line (`#` starts a comment):
+
+    icmp        # ping
+    tcp 23      # telnet
+    tcp 2021    # another TCP port; udp <port> for UDP
+
+or put a `wifi-sta/options` file on the card (below), which writes it.
+From the next station start each entry is admitted from the lease's own
+subnet only, to the lease's address, and moves with each new lease;
+`sta-mode.sh status` shows the list. Lines it cannot use are skipped and
+reported; at most 16 entries.
+
+The unit's factory telnet is a root login with no password, so admitting
+`tcp 23` gives a root shell to everyone on that network: list it only for
+networks that are yours alone, such as your own phone's hotspot. The
+older marker `/mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot` still
+works and means `tcp 23`.
+
+## Options on the card (optional)
+
+A `wifi-sta/options` file on the card (the web builder writes one) sets
+the start-up choice and the inbound list when the card runs:
+
+    start-up=client     # join the networks at every start-up (or: ap)
+    allow=icmp
+    allow=tcp 23
+    allow=none          # admit nothing; overrides the allow= lines
+
+Any `allow=` line replaces the unit's inbound list (and the
+`telnet-on-hotspot` marker); without one the list stays as it is. An
+unknown line stops the card before it changes anything.
+
+## More than one network
+
+`hotspot.conf` may list up to 4 `network={...}` blocks, for example the
+phone's hotspot and the home network; `wpa_supplicant` joins whichever it
+finds (add `priority=` lines to prefer one). A lease belongs to the
+network it came from: when the supplicant joins a different network, the
+station gives up the old address and its default route and asks for a new
+lease, and the SSH and inbound rules follow it. At start-up the station
+still stays off while the wired adapter (en5) is present.
 
 ## If something goes wrong
 

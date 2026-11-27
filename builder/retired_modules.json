@@ -1,0 +1,61 @@
+{
+  "_comment": "What earlier toolkit versions installed and the current modules no longer do: GEM screen patterns (in /mnt/efs-system/engdefs) and script folders (under /mnt/efs-system/scripts). generate_uninstall.py keeps removing these forever, so a unit that ran an old card is still cleaned. Add an entry whenever a module is retired, merged or renamed; never delete one. Patterns were checked against the stock K0942_3 engdefs (183 files): none match an OEM screen.",
+  "retired": [
+    {
+      "name": "legacy GEM screens",
+      "note": "Patterns the hand-written uninstaller used before 2026-11-26 (module names of earlier versions).",
+      "engdefs": [
+        "Gauges*.esd",
+        "SystemInfo*.esd",
+        "Scanner*.esd",
+        "Coding*.esd",
+        "GamesMenu*.esd",
+        "MapParser*.esd",
+        "NavUnblocker*.esd",
+        "PasswordFinder*.esd",
+        "Splash*.esd",
+        "VariantDump*.esd",
+        "LTE*.esd",
+        "GEM*.esd",
+        "JVMExtract*.esd",
+        "DiagTool*.esd"
+      ],
+      "script_dirs": [
+        "Gauges",
+        "SystemInfo",
+        "Scanner",
+        "Coding",
+        "Games",
+        "MapParser",
+        "NavUnblocker",
+        "PasswordFinder",
+        "Splash",
+        "VariantDump",
+        "LTE",
+        "GEM",
+        "GEMMI",
+        "GoogleEarth",
+        "NetDiag",
+        "JVMExtract",
+        "DiagTool"
+      ]
+    },
+    {
+      "name": "password-finder, variant-dump, persistence-dump, map-parser",
+      "merged_into": "system-info",
+      "note": "Merged into system-info on 2026-11-26: credentials (sections 4, 12), persistence (8, 13, 21), nav and maps (11, 21), identification and HDD (1, 21). All four were SD-only; earlier versions may have left these script folders.",
+      "engdefs": [
+        "PasswordFinder*.esd",
+        "VariantDump*.esd",
+        "MapParser*.esd",
+        "PersistDump*.esd"
+      ],
+      "script_dirs": [
+        "PasswordFinder",
+        "VariantDump",
+        "MapParser",
+        "PersistDump"
+      ]
+    }
+  ]
+}

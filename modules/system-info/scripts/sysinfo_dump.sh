@@ -53,7 +53,9 @@ fi
 : "${MMI_RUN_BUDGET:=300}"
 
 show_screen() {
-    # $1 = png basename under lib/. Best-effort, backgrounded.
+    # $1 = png basename under lib/. Best-effort, backgrounded. Under the card's
+    # status screen (run.sh sets FORGE_PROGRESS) that screen shows the state.
+    [ -z "${FORGE_PROGRESS:-}" ] || return 0
     if [ -x "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/$1" ]; then
         "${SDPATH}/bin/showScreen" "${SDPATH}/lib/$1" 2>/dev/null &
     fi
@@ -85,6 +87,14 @@ run_bounded() {
 # keystone fix for #12/#13. EXIT covers normal end and any `exit`; INT/TERM/
 # HUP (session reap, launcher signal) re-exit so the EXIT handler still runs.
 _finished() { show_screen done.png; }
+
+# section_mark <n>: the card's status screen shows which section is running.
+SECTIONS=21
+section_mark() {
+    [ -n "${FORGE_PROGRESS:-}" ] || return 0
+    echo "${FORGE_MOD_RANGE:+${FORGE_MOD_RANGE} }System info: section $1 of ${SECTIONS}" > "${FORGE_PROGRESS}" 2>/dev/null
+    return 0
+}
 trap _finished EXIT
 trap 'exit' INT TERM HUP
 
@@ -107,6 +117,7 @@ echo "################################################################"
 echo ""
 echo "================================================================"
 echo "  1. SYSTEM IDENTITY"
+section_mark 1
 echo "================================================================"
 
 echo ""
@@ -150,6 +161,7 @@ pidin info > "${OUTDIR}/pidin_info.txt" 2>/dev/null
 echo ""
 echo "================================================================"
 echo "  2. GEM & ENGINEERING STATUS"
+section_mark 2
 echo "================================================================"
 
 echo ""
@@ -183,6 +195,7 @@ done
 echo ""
 echo "================================================================"
 echo "  3. ACTIVATION & FEATURE STATE"
+section_mark 3
 echo "================================================================"
 
 echo ""
@@ -235,6 +248,7 @@ echo "--- LAN/Network Flags ---"
 echo ""
 echo "================================================================"
 echo "  4. CREDENTIALS & PASSWORDS"
+section_mark 4
 echo "================================================================"
 
 echo ""
@@ -299,6 +313,7 @@ cp /etc/default/login "${BACKUP}/default_login" 2>/dev/null
 echo ""
 echo "================================================================"
 echo "  5. STORAGE & PARTITIONS"
+section_mark 5
 echo "================================================================"
 
 echo ""
@@ -323,6 +338,7 @@ ls -la /dev/sdcard* 2>/dev/null
 echo ""
 echo "================================================================"
 echo "  6. NETWORK"
+section_mark 6
 echo "================================================================"
 
 echo ""
@@ -346,6 +362,7 @@ cat /etc/resolv.conf > "${OUTDIR}/dns.txt" 2>/dev/null
 echo ""
 echo "================================================================"
 echo "  7. INSTALLED SCRIPTS & MODIFICATIONS"
+section_mark 7
 echo "================================================================"
 
 echo ""
@@ -366,6 +383,7 @@ fi
 echo ""
 echo "================================================================"
 echo "  8. HBpersistence SNAPSHOT"
+section_mark 8
 echo "================================================================"
 
 echo ""
@@ -392,6 +410,7 @@ echo "Key files backed up to SD"
 echo ""
 echo "================================================================"
 echo "  9. RUNNING PROCESSES"
+section_mark 9
 echo "================================================================"
 
 run_bounded "${MMI_CMD_BUDGET}" pidin ar > "${OUTDIR}/processes.txt" 2>/dev/null
@@ -404,6 +423,7 @@ awk '{print $1}' "${OUTDIR}/processes.txt" 2>/dev/null | sort -u | grep -v "^nam
 echo ""
 echo "================================================================"
 echo "  10. SYSTEM LOG"
+section_mark 10
 echo "================================================================"
 
 sloginfo 2>/dev/null | sed -n '1,200p' > "${OUTDIR}/syslog.txt" 2>/dev/null
@@ -415,13 +435,15 @@ echo "Syslog saved (first 200 lines)"
 echo ""
 echo "================================================================"
 echo "  11. NAVIGATION DATABASE & MAP STATE"
+section_mark 11
 echo "================================================================"
 
 echo ""
 echo "--- acios_db.ini ---"
 ACIOS=""
 for candidate in /mnt/nav/db/acios_db.ini /mnt/lvm/acios_db.ini \
-                 /mnt/hdd/acios_db.ini /mnt/efs-persist/acios_db.ini; do
+                 /mnt/hdd/acios_db.ini /mnt/hdd/mme_db/acios_db.ini \
+                 /mnt/efs-persist/acios_db.ini; do
     if [ -f "$candidate" ]; then
         ACIOS="$candidate"
         echo "Found: $candidate"
@@ -460,8 +482,19 @@ ifconfig lo0 2>/dev/null | grep -i "address"
 
 echo ""
 echo "--- Nav Unblocker State ---"
-ls -la /mnt/efs-system/scripts/manage_cd_original.sh 2>/dev/null && echo "Nav unblocker: INSTALLED" || echo "Nav unblocker: not installed"
-ls -la /mnt/efs-system/scripts/manage_cd.sh 2>/dev/null
+if [ -f /mnt/efs-system/usr/bin/manage_cd.sh-ORIG ]; then
+    echo "Nav unblocker: INSTALLED (original kept as /mnt/efs-system/usr/bin/manage_cd.sh-ORIG)"
+else
+    echo "Nav unblocker: no -ORIG backup"
+fi
+ls -la /mnt/efs-system/usr/bin/manage_cd.sh /usr/bin/manage_cd.sh 2>/dev/null
+if grep -q 'acios_db.ini' /usr/bin/manage_cd.sh 2>/dev/null; then
+    echo "LVM unblocker patch: present in /usr/bin/manage_cd.sh"
+elif [ -f /etc/mmelauncher.cfg ] && grep -q 'mme-becker.sh' /etc/mmelauncher.cfg 2>/dev/null; then
+    echo "LVM unblocker patch: legacy (Keldo/Vlasoff) via /etc/mmelauncher.cfg"
+else
+    echo "LVM unblocker patch: not found"
+fi
 
 # ============================================================
 # 12. CREDENTIAL SWEEP
@@ -469,6 +502,7 @@ ls -la /mnt/efs-system/scripts/manage_cd.sh 2>/dev/null
 echo ""
 echo "================================================================"
 echo "  12. CREDENTIAL SWEEP"
+section_mark 12
 echo "================================================================"
 
 echo ""
@@ -492,6 +526,7 @@ done
 echo ""
 echo "================================================================"
 echo "  13. PERSISTENCE FILE BACKUP"
+section_mark 13
 echo "================================================================"
 
 echo ""
@@ -517,6 +552,7 @@ ls -la /mnt/efs-persist/ 2>/dev/null | head -30
 echo ""
 echo "================================================================"
 echo "  14. QNX KERNEL & BUS TOPOLOGY"
+section_mark 14
 echo "================================================================"
 
 echo ""
@@ -551,6 +587,7 @@ ls -laR /hbsystem/ 2>/dev/null
 echo ""
 echo "================================================================"
 echo "  15. DEEP BINARY BACKUP"
+section_mark 15
 echo "================================================================"
 
 mkdir "${BACKUP}/Keys" 2>/dev/null
@@ -574,6 +611,7 @@ cp /HBpersistence/addressbook.db "${BACKUP}/addressbook.db" 2>/dev/null && echo 
 echo ""
 echo "================================================================"
 echo "  16. IPC CHANNEL CAPTURE (CAN/BAP data)"
+section_mark 16
 echo "================================================================"
 
 mkdir "${OUTDIR}/ipc" 2>/dev/null
@@ -607,6 +645,7 @@ done
 echo ""
 echo "================================================================"
 echo "  17. QDB DATABASE DUMP"
+section_mark 17
 echo "================================================================"
 
 echo "--- Registered QDB databases ---"
@@ -624,6 +663,7 @@ fi
 echo ""
 echo "================================================================"
 echo "  18. EXTENDED PROCESS DUMP"
+section_mark 18
 echo "================================================================"
 
 run_bounded "${MMI_CMD_BUDGET}" pidin -F "%H %p %N %a" > "${OUTDIR}/pidin_full.txt" 2>/dev/null
@@ -642,6 +682,7 @@ echo "  File descriptors saved"
 echo ""
 echo "================================================================"
 echo "  19. FULL SYSLOG DUMP"
+section_mark 19
 echo "================================================================"
 
 run_bounded "${MMI_CMD_BUDGET}" sloginfo > "${OUTDIR}/syslog_full.txt" 2>/dev/null
@@ -653,6 +694,7 @@ echo "  Full syslog saved"
 echo ""
 echo "================================================================"
 echo "  20. SYSTEM CONFIG FILES"
+section_mark 20
 echo "================================================================"
 
 mkdir "${BACKUP}/etc" 2>/dev/null
@@ -664,6 +706,67 @@ for f in /etc/inetd.conf /etc/shadow /etc/passwd /etc/hosts /etc/resolv.conf /et
     fi
 done
 
+
+# ============================================================
+# 21. VARIANT, HDD AND SHARED MEMORY
+#     (what variant-dump, persistence-dump and map-parser added)
+# ============================================================
+echo ""
+echo "================================================================"
+echo "  21. VARIANT, HDD AND SHARED MEMORY"
+echo "================================================================"
+section_mark 21
+
+echo ""
+echo "--- Main unit identification ---"
+echo "  MainUnit-version:  $(sed -n 's/^version = //p' /etc/version/MainUnit-version.txt 2>/dev/null | head -1)"
+echo "  hwSample:          $(cat /etc/hwSample 2>/dev/null)"
+echo "  hmi_type:          $(cat /etc/hmi_type.txt 2>/dev/null | sed 's/\"//g')"
+echo "  srv-starter variant: $(sed -n 's,^<VariantName>,,;s,</VariantName>.*$,,p' /etc/mmi3g-srv-starter.cfg 2>/dev/null | head -1)"
+echo "  Gracenote DB (first lines):"
+head -3 /mnt/gracenode/db/gracenote.txt 2>/dev/null | sed 's/^/    /'
+
+echo ""
+echo "--- Navigation packages ---"
+ls -la /mnt/nav/db/pkgdb/*.pkg 2>/dev/null | head -20
+
+echo ""
+echo "--- FSC 000 folders ---"
+ls -la /mnt/efs-persist/FSC/000* /HBpersistence/FSC/000* 2>/dev/null | head -20
+
+echo ""
+echo "--- HDD geometry (fdisk) ---"
+if [ -e /dev/hd0 ]; then
+    run_bounded "${MMI_CMD_BUDGET}" fdisk /dev/hd0 info 2>/dev/null
+    run_bounded "${MMI_CMD_BUDGET}" fdisk /dev/hd0 show 2>/dev/null
+else
+    echo "  /dev/hd0 not present"
+fi
+
+echo ""
+echo "--- /mnt/persistence (HDD) ---"
+ls -la /mnt/persistence/ 2>/dev/null | head -40
+
+echo ""
+echo "--- /mnt/hdd tree (depth 3, first 50) ---"
+if [ -d /mnt/hdd ]; then
+    run_bounded "${MMI_CMD_BUDGET}" find /mnt/hdd -maxdepth 3 2>/dev/null | head -50
+else
+    echo "  /mnt/hdd not present"
+fi
+
+echo ""
+echo "--- Shared memory files under 64 KB (copied to backup/shmem) ---"
+mkdir -p "${BACKUP}/shmem" 2>/dev/null
+ls -la /dev/shmem/ > "${OUTDIR}/shmem_listing.txt" 2>&1
+for f in /dev/shmem/*; do
+    [ -f "$f" ] || continue
+    sz=$(ls -la "$f" 2>/dev/null | awk '{print $5}')
+    if [ -n "$sz" ] && [ "$sz" -lt 65536 ] 2>/dev/null; then
+        cp "$f" "${BACKUP}/shmem/" 2>/dev/null
+    fi
+done
+echo "  copied $(ls "${BACKUP}/shmem/" 2>/dev/null | wc -l) file(s)"
 
 echo ""
 echo "################################################################"

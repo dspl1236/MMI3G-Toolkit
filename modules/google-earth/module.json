@@ -50,5 +50,6 @@
         "dbroot": "Custom EncryptedDbRootProto with geoServer→kh.google.com",
         "auth": "Static cached responses (auth1: 16b, auth2: 136b)",
         "tiles": "Plain HTTP from kh.google.com (no SSL needed)"
-    }
+    },
+    "uninstall": {"note": "libembeddedearth.so and the on-car proxy stay: run ge_restore.sh first (it puts back libembeddedearth.so.orig)"}
 }

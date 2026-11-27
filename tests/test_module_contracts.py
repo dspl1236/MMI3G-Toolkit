@@ -59,14 +59,19 @@ class ModuleContractTests(unittest.TestCase):
             re.S,
         ).group(1)
         display_ids = re.findall(r'\{\s*id:\s*"([^"]+)"', display_block)
+        # In the repo but not in the web catalog: can-diag and region-audit
+        # (not ready), lte-setup (superseded by usb-net), per3-writer (design
+        # only), diag-tool (a developer JAR the builder never installs).
         explicitly_hidden = {
             'can-diag',
-            'persistence-dump',
             'region-audit',
+            'lte-setup',
+            'per3-writer',
+            'diag-tool',
         }
-        display_only = {
-            'dtc-checker',
-        }
+        # Every displayed module is buildable (dtc-checker had no module.json
+        # until 2026-11-26: the web listed it, cards could not include it).
+        display_only = set()
 
         self.assertEqual(len(display_ids), len(set(display_ids)))
         self.assertEqual(set(display_ids) - set(self.manifest['modules']), display_only)

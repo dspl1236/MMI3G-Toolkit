@@ -18,8 +18,18 @@
 #      delete it from the card
 #   5. add the WifiClient GEM screen
 #   6. add the start-up block to /mnt/efs-system/lsd/lsd.sh
-#   An earlier install is upgraded in place; its hotspot configuration and
-#   its GEM start-up choice stay.
+#   7. if wifi-sta/options is on the card, apply it (see below)
+#   An earlier install is upgraded in place; its hotspot configuration,
+#   its GEM start-up choice and its inbound list stay unless the options
+#   change them.
+# wifi-sta/options (optional; the web builder writes it), one per line:
+#   start-up=client      join the networks at every start-up (or: ap)
+#   allow=icmp           admit ping from the station's own network
+#   allow=tcp 23         admit a TCP (or udp) port from it; 23 is the
+#                        factory telnet, a root login with no password
+#   allow=none           admit nothing but DHCP replies
+#   Any allow= line replaces the unit's inbound list (and the older
+#   telnet-on-hotspot marker); with none, the list stays as it is.
 # Remove: put an empty file wifi-sta/REMOVE on the card. The LAN-mode
 #   flag stays (wifi-sta/lan-mode.sh disable removes it).
 #
@@ -43,6 +53,7 @@ unset LD_PRELOAD
 ksh=/bin/ksh
 pay="${SDPATH}/wifi-sta"
 card_conf="${pay}/hotspot.conf"
+card_options="${pay}/options"
 remove_flag="${pay}/REMOVE"
 sums="${pay}/CKSUMS"
 run=/fs/tmpfs
@@ -50,6 +61,9 @@ persistence=/mnt/persistence
 efs_system=/mnt/efs-system
 marker=/mnt/efs-persist/wifi-sta/gem/client-at-start-up
 gem_dir=/mnt/efs-persist/wifi-sta/gem
+inbound_file=$gem_dir/inbound
+telnet_marker=$gem_dir/telnet-on-hotspot
+inbound_max=16
 flag=/HBpersistence/DLinkReplacesPPP
 # The factory files the station was validated with, on one unit (9411,
 # HN+R_US_AU_K0942_3, MU 1038). sta-mode.sh refuses to start without them.
@@ -59,11 +73,22 @@ dhcp_client=/usr/sbin/dhcp.client
 dhcp_client_sum='263280565 57048'
 dhcp_up=/etc/dhcp/dhcp-up
 dhcp_up_sum='3046797907 6292'
+# DrGER's LTE dhcp-up (20230218), which many 3G+ units run instead; it gives a
+# lease's name servers to resolv.conf as the station needs (see sta-mode.sh).
+dhcp_up_drger_sum='1601281849 792'
 # Seconds per step; every step finishes well inside this on a healthy unit.
 budget=300
 
 say() {
     echo "[wifi-sta] $*"
+}
+
+# The card's status screen: this step's line, under the module's share of the
+# bar (run.sh exports FORGE_PROGRESS and FORGE_MOD_RANGE; alone, nothing).
+progress() {
+    [ -n "${FORGE_PROGRESS:-}" ] || return 0
+    echo "${FORGE_MOD_RANGE:+${FORGE_MOD_RANGE} }Wi-Fi: $*" > "$FORGE_PROGRESS" 2>/dev/null
+    return 0
 }
 
 fail() {
@@ -126,19 +151,102 @@ check_card() {
 
 check_unit() {
     [ "$(uname -s)" = QNX ] || fail "run this on the MMI"
-    for f in "$driver $driver_sum" "$dhcp_client $dhcp_client_sum" "$dhcp_up $dhcp_up_sum"; do
+    for f in "$driver $driver_sum" "$dhcp_client $dhcp_client_sum"; do
         set -- $f
         if [ "$(sum_of "$1")" != "$2 $3" ]; then
             fail "$1 is $(sum_of "$1"), not the $2 $3 the station was validated with; this firmware is not supported, nothing was changed"
         fi
     done
-    say "the factory driver, dhcp.client and dhcp-up are the validated ones"
+    case "$(sum_of "$dhcp_up")" in
+        "$dhcp_up_sum") say "the factory driver, dhcp.client and dhcp-up are the validated ones" ;;
+        "$dhcp_up_drger_sum") say "the factory driver and dhcp.client are the validated ones; dhcp-up is DrGER's LTE one (accepted)" ;;
+        *) fail "$dhcp_up is $(sum_of "$dhcp_up"), neither the factory $dhcp_up_sum nor DrGER's LTE $dhcp_up_drger_sum; nothing was changed" ;;
+    esac
     [ -d "$persistence" ] || fail "${persistence} is absent (no HDD); nothing was changed"
 }
 
+# read_options: checks wifi-sta/options and sets opt_startup (client, ap or
+# empty) and opt_allow (the inbound lines, "none", or empty). Changes
+# nothing; fails on any line it does not know.
+read_options() {
+    opt_startup=
+    opt_allow=
+    opt_n=0
+    [ -f "$card_options" ] || return 0
+    while IFS= read -r o_line; do
+        o_line=${o_line%%#*}
+        set -- $o_line
+        [ $# -gt 0 ] || continue
+        o_line="$*"
+        case $o_line in
+            start-up=client|start-up=ap)
+                opt_startup=${o_line#start-up=} ;;
+            allow=none)
+                opt_allow=none ;;
+            allow=icmp)
+                o_entry=icmp ;;
+            "allow=tcp "*|"allow=udp "*)
+                set -- ${o_line#allow=}
+                [ $# = 2 ] || fail "options: \"$o_line\" needs one port; nothing was changed by the options"
+                case $2 in
+                    [1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9]) ;;
+                    *) fail "options: \"$o_line\": the port must be 1-65535; nothing was changed by the options" ;;
+                esac
+                [ "$2" -le 65535 ] || fail "options: \"$o_line\": the port must be 1-65535; nothing was changed by the options"
+                o_entry="$1 $2" ;;
+            *) fail "options: unknown line \"$o_line\" in ${card_options}; nothing was changed by the options" ;;
+        esac
+        case $o_line in
+            allow=icmp|"allow=tcp "*|"allow=udp "*)
+                [ "$opt_allow" != none ] || continue
+                opt_n=$((opt_n + 1))
+                [ "$opt_n" -le "$inbound_max" ] || fail "options: more than $inbound_max allow= lines; nothing was changed by the options"
+                opt_allow="${opt_allow:+$opt_allow
+}$o_entry" ;;
+        esac
+    done < "$card_options"
+    # allow=none anywhere wins over the other allow= lines.
+    grep -q '^[ 	]*allow=none[ 	]*\(#.*\)*$' "$card_options" && opt_allow=none
+    return 0
+}
+
+apply_options() {
+    [ -f "$card_options" ] || return 0
+    say "options from ${card_options}"
+    case $opt_startup in
+        client) : > "$marker" || fail "could not write $marker"
+            say "start-up: join the networks at every start-up" ;;
+        ap) rm -f "$marker"
+            say "start-up: the car's access point" ;;
+    esac
+    case $opt_allow in
+        '') say "inbound: unchanged" ;;
+        none)
+            rm -f "$inbound_file" "$telnet_marker"
+            say "inbound: nothing admitted but DHCP replies" ;;
+        *)
+            echo "$opt_allow" > "$inbound_file.new.$$" && chmod 644 "$inbound_file.new.$$" &&
+                mv -f "$inbound_file.new.$$" "$inbound_file" ||
+                { rm -f "$inbound_file.new.$$"; fail "could not write $inbound_file"; }
+            rm -f "$telnet_marker"
+            say "inbound: $(echo $opt_allow | sed -e 's/icmp/ping/' -e 's/ \([a-z]\)/, \1/g') admitted from the station's own network"
+            case "
+$opt_allow
+" in
+                *"
+tcp 23
+"*) say "WARNING: telnet (tcp 23) is a root login with no password for everyone on that network" ;;
+            esac ;;
+    esac
+    say "these take effect at the next station start"
+}
+
 install_all() {
+    progress "checking the card"
     check_card
+    progress "checking the unit"
     check_unit
+    read_options
     say "train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
     # gem-install.sh does not remount; the factory start-up mounts it
     # read-write, so this only makes sure.
@@ -155,6 +263,7 @@ install_all() {
     if [ -f "$flag" ] && [ ! -s "$flag" ]; then
         say "the LAN-mode flag ${flag} is already set"
     else
+        progress "setting LAN mode"
         step lan-mode.sh enable || fail "lan-mode.sh enable"
         restart_for_flag=yes
     fi
@@ -164,9 +273,11 @@ install_all() {
     case $sta_before in
         *'an older build'*) step sta-install.sh unhook || fail "sta-install.sh unhook" ;;
     esac
+    progress "installing station files"
     step sta-install.sh install "$pay" || fail "sta-install.sh install"
 
     if [ -f "$card_conf" ]; then
+        progress "storing networks"
         # The passphrase line wpa_passphrase leaves as a comment is dropped:
         # the unit keeps only the derived key.
         tmp="${run}/wifi-sta-conf.$$"
@@ -197,17 +308,22 @@ install_all() {
     case $gem_before in
         *'state: older'*) step gem-install.sh remove || fail "gem-install.sh remove" ;;
     esac
+    progress "adding the GEM screen"
     step gem-install.sh install "$pay" || fail "gem-install.sh install"
+    progress "adding the start-up hook"
     step sta-install.sh hook || fail "sta-install.sh hook"
 
     if [ "$marker_was" = present ] && [ ! -f "$marker" ] && [ -d "$gem_dir" ]; then
         : > "$marker" && say "GEM start-up choice kept: hotspot client"
     fi
+    progress "applying options"
+    apply_options
 
     step sta-install.sh status
     step gem-install.sh status
     step lan-mode.sh status
     say "RESULT: OK, installed."
+    [ -z "${FORGE_NOTE:-}" ] || echo "Wi-Fi client installed: restart the MMI" > "$FORGE_NOTE" 2>/dev/null
     if [ "$restart_for_flag" = yes ]; then
         say "Restart the unit: the LAN-mode flag and the GEM screen take effect at the next start-up."
     else
@@ -217,10 +333,14 @@ install_all() {
 }
 
 remove_all() {
+    progress "removing"
     [ "$(uname -s)" = QNX ] || fail "run this on the MMI"
     mount -uw "$efs_system" 2>/dev/null
     step sta-install.sh unhook || fail "sta-install.sh unhook"
     step sta-install.sh remove || fail "sta-install.sh remove"
+    # The owner's inbound choices first, so the GEM removal can take the
+    # directory.
+    rm -f "$inbound_file" "$telnet_marker"
     step gem-install.sh remove || fail "gem-install.sh remove"
     step lan-mode.sh status
     say "RESULT: OK, removed. The LAN-mode flag stays; restart the unit."
