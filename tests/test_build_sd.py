@@ -336,23 +336,25 @@ class BuildSdCliTests(unittest.TestCase):
             self.assertIn('ksh "${SDPATH}/scripts/ge_p0824_deploy.sh" "${SDPATH}"', run_sh)
             self.assertIn('SCRIPTDIR="${EFSDIR}/scripts/GoogleEarth"', run_sh)
 
-    def test_dns_refresh_probe_card_includes_netdiag_runner(self):
+    def test_an_sd_only_card_does_not_remount_efs_system(self):
+        # system-info runs from the card and installs nothing to flash (it also
+        # carries the old network check's reachability tests since 2026-11-27).
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir) / 'sdcard'
             result = self.run_builder(
-                '-m', 'dns-refresh-probe',
+                '-m', 'system-info',
                 '--target-platform', 'RNS-850',
                 '-o', str(output_dir),
             )
 
             self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
-            self.assertTrue((output_dir / 'scripts' / 'dns_refresh_probe.sh').is_file())
+            self.assertTrue((output_dir / 'scripts' / 'sysinfo_dump.sh').is_file())
 
             run_sh = (output_dir / 'run.sh').read_text(encoding='utf-8')
-            self.assertIn('ksh "${SDPATH}/scripts/dns_refresh_probe.sh" "${SDPATH}"', run_sh)
+            self.assertIn('ksh "${SDPATH}/scripts/sysinfo_dump.sh" "${SDPATH}"', run_sh)
             self.assertIn('SD-only module set; efs-system will not be remounted', run_sh)
-            self.assertNotIn('SCRIPTDIR="${EFSDIR}/scripts/NetDiag"', run_sh)
-            self.assertNotIn('cp -v "${SDPATH}/scripts/dns_refresh_probe.sh"', run_sh)
+            self.assertNotIn('SCRIPTDIR="${EFSDIR}/scripts/SystemInfo"', run_sh)
+            self.assertNotIn('cp -v "${SDPATH}/scripts/sysinfo_dump.sh"', run_sh)
             self.assertNotIn('mount -uw ${EFSDIR}', run_sh)
 
     def test_google_earth_gemmi_wrappers_card_includes_legacy_scripts(self):

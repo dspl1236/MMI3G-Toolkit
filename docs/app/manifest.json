@@ -220,35 +220,6 @@
                 }
             ]
         },
-        "dns-refresh-probe": {
-            "status": "alpha",
-            "description": "One-shot network diagnostic that snapshots route/DNS state, rewrites /etc/resolv.conf to a better DNS candidate, and reruns connectivity checks.",
-            "standalone": true,
-            "run_script": "dns_refresh_probe.sh",
-            "artifact": null,
-            "payload_dirs": [],
-            "release_zip": null,
-            "release_assets": null,
-            "web_build": true,
-            "prebuilt_zip": null,
-            "script_dir": "/scripts/NetDiag",
-            "installs_to_flash": false,
-            "exit_code_reports_failure": false,
-            "compatible": [
-                "MMI3G+",
-                "RNS-850"
-            ],
-            "files": [
-                {
-                    "path": "module.json",
-                    "size": 1006
-                },
-                {
-                    "path": "scripts/dns_refresh_probe.sh",
-                    "size": 3904
-                }
-            ]
-        },
         "dtc-checker": {
             "status": "tested",
             "description": "Onboard diagnostic trouble code reader: view and clear DTCs from the GEM in one 20-row screen, read through the V850 IOC (DSI namespace 2).",
@@ -1183,7 +1154,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 28680
+                    "size": 29236
                 }
             ]
         },
