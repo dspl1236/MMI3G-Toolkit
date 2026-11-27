@@ -845,6 +845,41 @@ async function buildSdBundle(selected, onProgress, overrides, wifiFiles) {
  * Write the bundle directly to a user-chosen directory (Chrome/Edge).
  * Uses the File System Access API — same approach as PCM-Forge.
  */
+// Entries the OS puts on any card: not a sign the card is in use.
+const CARD_SYSTEM_ENTRIES = new Set(["System Volume Information", "$RECYCLE.BIN", ".Spotlight-V100",
+  ".fseventsd", ".Trashes", ".TemporaryItems", ".DS_Store", "._.DS_Store", "desktop.ini"]);
+
+// What is already in the chosen folder, apart from the OS's own entries.
+async function cardContents(dirHandle) {
+  const names = [];
+  for await (const [name] of dirHandle.entries()) {
+    if (!CARD_SYSTEM_ENTRIES.has(name)) names.push(name);
+  }
+  return names.sort();
+}
+
+// Read every written file back and compare its size with what was meant to be
+// written. Returns the paths that are missing or the wrong size.
+async function verifyBundleInDirectory(bundle, dirHandle) {
+  const bad = [];
+  for (const f of bundle.files) {
+    if (f.path.endsWith("/.keep")) continue;
+    const parts = f.path.split("/").filter(Boolean);
+    if (parts.length === 0) continue;
+    const fname = parts.pop();
+    try {
+      let dir = dirHandle;
+      for (const part of parts) dir = await dir.getDirectoryHandle(part);
+      const file = await (await dir.getFileHandle(fname)).getFile();
+      const want = f.bytes.byteLength !== undefined ? f.bytes.byteLength : f.bytes.length;
+      if (file.size !== want) bad.push(f.path);
+    } catch (e) {
+      bad.push(f.path);
+    }
+  }
+  return bad;
+}
+
 async function writeBundleToDirectory(bundle, dirHandle) {
   async function ensureDir(parent, name) {
     return await parent.getDirectoryHandle(name, { create: true });
@@ -877,7 +912,7 @@ async function writeBundleToDirectory(bundle, dirHandle) {
   }
   if (writeErrors.length > 0) {
     console.warn(`Failed to write ${writeErrors.length} files:`, writeErrors);
-    alert(`Warning: ${writeErrors.length} file(s) could not be written to the SD card.\n\nUse "Download ZIP" instead and extract manually.\n\nFailed: ${writeErrors.slice(0, 5).join(", ")}${writeErrors.length > 5 ? "..." : ""}`);
+    // verifyBundleInDirectory() reports these to the user after the write.
   }
 }
 
@@ -1413,10 +1448,24 @@ function App() {
         return;
       }
       try {
-        // Ask for the SD card folder FIRST so the user intent is captured before the build runs
-        dirHandle = await window.showDirectoryPicker({ mode: "readwrite", startIn: "desktop" });
+        // Ask for the SD card FIRST so the user intent is captured before the build runs.
+        // The id makes the picker reopen where the card was picked last time.
+        dirHandle = await window.showDirectoryPicker({ id: "mmi3g-sd-card", mode: "readwrite" });
       } catch (e) {
         return; // the picker was cancelled
+      }
+      // An old card's files would mix with the new ones: say so before writing.
+      let existing = [];
+      try { existing = await cardContents(dirHandle); } catch (e) { existing = []; }
+      if (existing.length > 0) {
+        const oldCard = existing.includes("copie_scr.sh") || existing.includes("run.sh");
+        const shown = existing.slice(0, 8).join(", ") + (existing.length > 8 ? ", and " + (existing.length - 8) + " more" : "");
+        const ok = window.confirm(
+          (oldCard
+            ? "This looks like an older toolkit card (" + shown + "). Its files would mix with the new ones, and old modules could run again."
+            : "The folder " + dirHandle.name + " isn't empty: " + shown + ".") +
+          "\n\nBest: cancel, empty or reformat the card (FAT32), and write again.\nWrite anyway?");
+        if (!ok) return;
       }
     }
     setBuiltWifi(null);
@@ -1443,9 +1492,18 @@ function App() {
       }
       const bundle = await buildInMemory(wifiFiles);
       if (mode === "folder") {
-        setBuildProgress({ label: "Writing to the folder...", pct: 99 });
+        setBuildProgress({ label: "Writing to the card...", pct: 98 });
         await writeBundleToDirectory(bundle, dirHandle);
-        setBuildProgress({ label: "Written to the folder", pct: 100 });
+        setBuildProgress({ label: "Checking what was written...", pct: 99 });
+        const bad = await verifyBundleInDirectory(bundle, dirHandle);
+        if (bad.length > 0) {
+          const err = new Error(bad.length + " file" + (bad.length === 1 ? "" : "s") + " did not come back as written: " +
+            bad.slice(0, 6).join(", ") + (bad.length > 6 ? ", ..." : "") +
+            ". The card may be full, locked or failing. Reformat it (FAT32) and write again, or use a different card.");
+          err.userFacing = true;
+          throw err;
+        }
+        setBuildProgress({ label: "Card written and checked", pct: 100 });
         setBuildState("done-sd");
       } else {
         setBuildProgress({ label: "Packaging ZIP...", pct: 99 });
@@ -1565,18 +1623,20 @@ function App() {
     h("button", {
       type: "button", className: "btn" + (building ? " busy" : (selected.size === 0 || issues.length > 0) ? " wait" : ""),
       "aria-disabled": (building || selected.size === 0 || issues.length > 0) ? "true" : "false",
-      onClick: () => runBuild("zip"),
-    }, building ? (buildProgress.label || "Building...") : "Build SD card"),
-    h("div", { className: "muted small", style: { marginTop: 8, textAlign: "center" } }, "Downloads a ZIP. The card shows live progress on the MMI."),
-    chromium
-      ? h("button", { type: "button", className: "btn2", disabled: building, onClick: () => runBuild("folder") }, "Write to a folder instead (the SD card)")
-      : h("div", { className: "muted small", style: { marginTop: 6, textAlign: "center" } }, "Writing straight to a card needs Chrome or Edge."),
+      onClick: () => runBuild(chromium ? "folder" : "zip"),
+    }, building ? (buildProgress.label || "Building...") : (chromium ? "Write to SD card" : "Build SD card")),
+    h("div", { className: "muted small", style: { marginTop: 8, textAlign: "center" } },
+      chromium
+        ? "Pick the empty FAT32 card in the next window. Every file is read back and checked."
+        : "Downloads a ZIP: unzip it onto an empty FAT32 card. Writing straight to a card needs Chrome or Edge."),
+    chromium && h("button", { type: "button", className: "btn2", disabled: building, onClick: () => runBuild("zip") }, "Download a ZIP instead"),
+    h("div", { className: "muted small", style: { marginTop: 6, textAlign: "center" } }, "The card shows live progress on the MMI."),
     building && h("div", { style: { marginTop: 12 } },
       h("div", { className: "muted small mono" }, buildProgress.label + " \u00b7 " + buildProgress.pct + "%"),
       h("div", { className: "bar" }, h("div", { style: { width: buildProgress.pct + "%" } }))),
     buildState === "error" && h("div", { className: "failbox", role: "alert" }, buildError),
     (buildState === "done-sd" || buildState === "done-zip") && buildStats && h("div", { className: "result" },
-      h("div", { className: "green", style: { fontWeight: 600 } }, buildState === "done-sd" ? "Written to the folder" : "ZIP ready"),
+      h("div", { className: "green", style: { fontWeight: 600 } }, buildState === "done-sd" ? "Card ready: written and checked" : "ZIP ready"),
       h("div", { className: "muted mono", style: { fontSize: 11, marginTop: 2 } }, buildStats.fileCount + " files \u00b7 " + formatMB(buildStats.totalBytes)),
       h("ol", null, steps.map((s, n) => h("li", { key: n }, s)))),
     builtWifi && h("div", { className: "note-a" },
@@ -1596,7 +1656,7 @@ function App() {
     h("div", { className: "caps" }, "SD card builder"),
     h("div", { className: "rule" }),
     h("h1", { style: { fontSize: 22, fontWeight: 600 } }, "Build a card for your MMI"),
-    h("p", { className: "muted", style: { fontSize: 13, margin: "4px 0 22px" } }, "Pick your car, choose modules, then build a ZIP for an empty FAT32 card."),
+    h("p", { className: "muted", style: { fontSize: 13, margin: "4px 0 22px" } }, "Pick your car, choose modules, then write them to an empty FAT32 SD card (or download a ZIP)."),
     sections.length === 0
       ? h("div", { className: "empty" }, "No modules match \u201C" + query.trim() + "\u201D.")
       : sections.map((s) => h("section", { key: s.cat, className: "section", "aria-label": CAT_LABELS[s.cat] },
