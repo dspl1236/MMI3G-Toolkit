@@ -241,6 +241,20 @@ tcp 23
     say "these take effect at the next station start"
 }
 
+# stop_station: sta-install.sh will not replace the station's files while it
+# runs, and with "start-up: join the hotspot" it is always running by the time
+# a card goes in (a real A6, 2026-11-27). Stop it first; it comes back at the
+# next start-up.
+stop_station() {
+    [ -d "${run}/mmi-sta/lock" ] || return 0
+    progress "stopping the station"
+    say "station mode is running: stopping it so its files can be replaced (Wi-Fi drops until the restart)"
+    step sta-mode.sh stop ||
+        fail "sta-mode.sh stop; restart the unit with the card out, then insert the card once it is up"
+    [ ! -d "${run}/mmi-sta/lock" ] ||
+        fail "station mode still holds ${run}/mmi-sta/lock; restart the unit with the card out, then insert the card once it is up"
+}
+
 install_all() {
     progress "checking the card"
     check_card
@@ -270,6 +284,7 @@ install_all() {
 
     # An earlier build's start-up line in the OpenSSH start-up comes out
     # first; its rollback also clears the marker, which is put back below.
+    stop_station
     case $sta_before in
         *'an older build'*) step sta-install.sh unhook || fail "sta-install.sh unhook" ;;
     esac
@@ -336,6 +351,7 @@ remove_all() {
     progress "removing"
     [ "$(uname -s)" = QNX ] || fail "run this on the MMI"
     mount -uw "$efs_system" 2>/dev/null
+    stop_station
     step sta-install.sh unhook || fail "sta-install.sh unhook"
     step sta-install.sh remove || fail "sta-install.sh remove"
     # The owner's inbound choices first, so the GEM removal can take the

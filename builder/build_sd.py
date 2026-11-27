@@ -699,6 +699,7 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         lines.append('export FORGE_MOD_RANGE')
         lines.append(f'progress "${{FORGE_MOD_RANGE}} {mod_name}"')
         lines.append(f'echo "[MODULE] Installing {mod_name}..."')
+        lines.append('MOD_FAILED_BEFORE=${RUN_FAILED}')
         if installs_to_flash:
             # Re-mount EFS rw (standalone modules may trigger F3S reclaim)
             lines.append('mount -uw ${EFSDIR} 2>/dev/null')
@@ -788,7 +789,8 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         else:
             lines.append(f'echo "[INFO] {mod_name} is SD-only; no flash files installed"')
 
-        lines.append(f'echo "[OK] {mod_name} installed"')
+        lines.append(f'if [ "${{RUN_FAILED}}" = "${{MOD_FAILED_BEFORE}}" ]; then echo "[OK] {mod_name} installed"; '
+                     f'else echo "[FAIL] {mod_name} did not install"; fi')
         lines.append('echo ""')
         lines.append('')
 

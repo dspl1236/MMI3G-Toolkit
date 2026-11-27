@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULE = ROOT / 'modules' / 'wifi-sta'
 PAYLOAD = MODULE / 'payload'
 RUN = MODULE / 'scripts' / 'wifi_sta_run.sh'
-STEPS = ('sta-install.sh', 'gem-install.sh', 'lan-mode.sh')
+STEPS = ('sta-install.sh', 'gem-install.sh', 'lan-mode.sh', 'sta-mode.sh')
 
 
 def cksum(path):
@@ -108,6 +108,7 @@ case "{name} $1" in
     "sta-install.sh conf") cat > "{b}/conf.received"; exit ${{MOCK_CONF_RC:-0}};;
     "sta-install.sh unhook") rm -f "{self.marker}";;
     "sta-install.sh install") [ -n "${{MOCK_HANG-}}" ] && exec /bin/sleep 30;;
+    "sta-mode.sh stop") [ -n "${{MOCK_STOP_KEEPS_LOCK-}}" ] || rm -rf "{self.run_dir}/mmi-sta/lock";;
 esac
 case " ${{MOCK_REFUSE-}} " in
     *" {name}:$1 "*) echo "refused"; exit 2;;
@@ -258,6 +259,22 @@ exit 0
         out = self.run_it()
         self.assertIn('WARNING: no hotspot configured', out.stdout)
         self.assertIn('RESULT: OK, installed.', out.stdout)
+
+    def test_a_running_station_is_stopped_before_its_files_are_replaced(self):
+        # With "start-up: join the hotspot" the station is up before any card.
+        (self.run_dir / 'mmi-sta' / 'lock').mkdir(parents=True)
+        self.flag.write_text('')
+        out = self.run_it(MOCK_STA_STATE='older', MOCK_GEM_STATE='installed', MOCK_CONF_PRESENT='1')
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertEqual(self.steps()[:2], ['sta-mode.sh stop', f'sta-install.sh install {self.pay}'])
+        self.assertIn('Wi-Fi drops until the restart', out.stdout)
+
+    def test_a_station_that_will_not_stop_stops_the_install(self):
+        (self.run_dir / 'mmi-sta' / 'lock').mkdir(parents=True)
+        self.flag.write_text('')
+        out = self.run_it(MOCK_STOP_KEEPS_LOCK='1', MOCK_CONF_PRESENT='1')
+        self.assertIn('restart the unit with the card out', out.stdout, out.stdout)
+        self.assertEqual(self.steps(), ['sta-mode.sh stop'])
 
     def test_remove(self):
         (self.pay / 'REMOVE').write_text('')
