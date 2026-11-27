@@ -99,6 +99,28 @@ class UnitToolUse(unittest.TestCase):
         self.assertEqual(stale, {}, 'remove fixed entries from KNOWN_GAPS')
 
 
+FIND_ABS = re.compile(r'(?:^|[|;&(`]|\$\()\s*(?:(?:mmi_)?run_bounded\s+\S+\s+)?find\s+("?/[^\s"]*)')
+
+
+class UnitFindWalks(unittest.TestCase):
+    def test_a_find_over_the_unit_stays_on_one_filesystem_or_is_shallow(self):
+        # /mnt/efs-persist has the owner's manual disc image mounted inside it;
+        # grepping a find over it buried a real A6 (2026-11-27). /mnt holds
+        # the whole hard disk.
+        problems = []
+        for path in on_unit_scripts():
+            rel = path.relative_to(REPO_ROOT).as_posix()
+            for n, line in enumerate(path.read_text(encoding='utf-8', errors='replace').splitlines(), 1):
+                s = line.strip()
+                if s.startswith('#'):
+                    continue
+                for m in FIND_ABS.finditer(s):
+                    rest = s[m.start():]
+                    if '-xdev' not in rest and '-maxdepth' not in rest:
+                        problems.append(f'{rel}:{n}: find {m.group(1)} needs -xdev or -maxdepth')
+        self.assertEqual(problems, [], '\n' + '\n'.join(problems))
+
+
 # The stand-ins against what the real tools print. Same cases as the run on the A6.
 SHIM_CASES = r'''
 . "$PLAT"
@@ -142,6 +164,10 @@ chk find-name "$(find "$T/fd" -name '*.txt' -type f | sort -u | wc -l)" "2"
 chk find-depth "$(find "$T/fd" -maxdepth 1 -type f)" "$T/fd/a.txt"
 chk find-dirs "$(find "$T/fd" -type d | wc -l)" "2"
 chk xargs-grep "$(find "$T/fd" -type f | xargs grep -l 3)" "$T/fd/sub/c.log"
+mount() { echo "/dev/x on $T/fd/sub type dos (fat32)"; }
+chk find-xdev "$(find "$T/fd" -xdev -type f)" "$T/fd/a.txt"
+chk find-xdev-dir "$(find "$T/fd" -xdev -type d | wc -l)" "2"
+unset -f mount
 chk xargs-basename "$(ls -d "$T/fd/sub" | head -1 | xargs basename)" "sub"
 echo "RESULT pass=$P fail=$F"
 '''

@@ -328,7 +328,7 @@
                 },
                 {
                     "path": "scripts/game_loader.sh",
-                    "size": 5450
+                    "size": 5586
                 },
                 {
                     "path": "scripts/launch_game.sh",
@@ -1154,7 +1154,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 29533
+                    "size": 30578
                 }
             ]
         },

@@ -520,13 +520,35 @@ echo "================================================================"
 
 echo ""
 echo "--- Broad string sweep (ssid/psk/password/token) ---"
+# Size of one file from ls -l (the unit has no stat).
+_file_size() { set -- $(ls -l "$1" 2>/dev/null); echo "${5:-0}"; }
+# Only small text configs are read, on the directory's own filesystem:
+# /mnt/efs-persist has the owner's manual disc image (hundreds of MB, read off
+# the hard disk) mounted inside it, and grepping that buried a real A6
+# (2026-11-27). The list is made first (bounded), then at most 200 files read.
+SWEEP_LIST="${OUTDIR}/sweep_files.txt"
 for searchdir in /mnt/efs-persist /mnt/persist /mnt/efs-system/etc; do
     if [ -d "$searchdir" ]; then
-        # find and xargs are platform.sh stand-ins on the unit: bound the walk.
-        HITS=$(run_bounded "${MMI_CMD_BUDGET}" find "$searchdir" -type f 2>/dev/null | xargs grep -il "ssid\|psk\|passphrase\|password\|token\|apikey" 2>/dev/null)
+        run_bounded "${MMI_CMD_BUDGET}" find "$searchdir" -xdev -type f > "${SWEEP_LIST}" 2>/dev/null
+        HITS=""
+        _swept=0
+        while IFS= read -r f; do
+            case "${f##*/}" in
+                *.cfg|*.conf|*.ini|*.txt|*.xml|*.properties|*.json|*.sh|*.dat|wpa*|*passwd*|*shadow*) ;;
+                *) continue ;;
+            esac
+            [ "${_swept}" -ge 200 ] && { echo "  (stopped after 200 files in $searchdir)"; break; }
+            _swept=$((_swept + 1))
+            _sz="$(_file_size "$f")"
+            [ "${_sz}" -le 262144 ] 2>/dev/null || continue
+            grep -il "ssid\|psk\|passphrase\|password\|token\|apikey" "$f" >/dev/null 2>&1 && HITS="${HITS}${f}
+"
+        done < "${SWEEP_LIST}"
+        echo "  $searchdir: ${_swept} config files checked"
         if [ -n "$HITS" ]; then
             echo "  Files with credential-like strings in $searchdir:"
             echo "$HITS" | while read f; do
+                [ -n "$f" ] || continue
                 echo "    $f"
                 # Names only: a Wi-Fi key or token stays out of the report (SSIDs are shown).
                 grep -Ein "ssid=|psk=|passphrase=|password=|token=|apikey=" "$f" 2>/dev/null | head -5 | \
