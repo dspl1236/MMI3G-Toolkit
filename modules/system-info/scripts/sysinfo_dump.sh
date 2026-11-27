@@ -365,7 +365,7 @@ NET_GW=$(netstat -rn 2>/dev/null | grep "^default" | awk '{print $2}' | head -1)
 echo "Default gateway: ${NET_GW:-<none>}"
 for target in ${NET_GW} 1.1.1.1 kh.google.com; do
     echo "\$ ping -c 1 -w 3 ${target}"
-    run_bounded 8 ping -c 1 -w 3 "${target}" 2>&1
+    run_bounded "${MMI_CMD_BUDGET}" ping -c 1 -w 3 "${target}" 2>&1
     echo "  (exit $?)"
 done
 

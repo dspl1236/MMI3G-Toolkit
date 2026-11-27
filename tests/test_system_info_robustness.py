@@ -42,7 +42,8 @@ class SystemInfoRobustnessTests(unittest.TestCase):
         (self.sd / "lib" / "done.png").write_text("")
 
         # Trivial mocks for the other heavy commands.
-        for name in ("qdbc", "sloginfo"):
+        # ping too: the reachability checks must not reach the network from a test.
+        for name in ("qdbc", "sloginfo", "ping"):
             self._write(self.mockbin / name, '#!/bin/sh\necho "%s mock"\n' % name)
         self._pidin()   # default: everything echoes
 
