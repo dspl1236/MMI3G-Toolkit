@@ -25,6 +25,7 @@ import io
 import json
 import os
 import shutil
+import subprocess
 import sys
 import time
 import urllib.request
@@ -814,6 +815,27 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
     return '\n'.join(lines) + '\n'
 
 
+def card_stamp(selected_modules, builder):
+    """toolkit-card.txt: which build made this card, so its logs can be matched
+    to it later (the web builder writes the same keys)."""
+    return "\n".join([
+        "MMI3G-Toolkit card",
+        "built: " + time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
+        "builder: " + builder,
+        "modules: " + " ".join(selected_modules),
+        "",
+    ])
+
+
+def _git_rev():
+    try:
+        out = subprocess.run(["git", "-C", REPO_ROOT, "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True, timeout=10)
+        return out.stdout.strip() if out.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def build_sd(selected_modules: list, modules: dict, output_dir: str):
     """Build the SD card contents."""
 
@@ -869,6 +891,11 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
         print(f"  [OK] copie_scr.sh encoded ({len(encoded)} bytes)")
     else:
         print(f"  [WARN] {template_path} not found - you'll need to add copie_scr.sh manually")
+
+    rev = _git_rev()
+    with open(os.path.join(output_dir, 'toolkit-card.txt'), 'w', encoding='utf-8', newline='\n') as f:
+        f.write(card_stamp(selected_modules, "build_sd.py" + (f" (git {rev})" if rev else "")))
+    print("  [OK] toolkit-card.txt")
 
     # Ship the platform.sh helper to scripts/common/ so modules can source it
     platform_src = os.path.join(CORE_DIR, 'platform.sh')

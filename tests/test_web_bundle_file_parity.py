@@ -29,6 +29,7 @@ class WebBundleFileParityTests(unittest.TestCase):
             'copie_scr.sh',
             'run.sh',
             'uninstall.sh',
+            'toolkit-card.txt',
             'scripts/common/platform.sh',
             'bin/showScreen',
             'bin/mmi_splash',
