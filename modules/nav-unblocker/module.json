@@ -13,5 +13,6 @@
         "nav_restore.sh - Remove patch, restore factory activation",
         "nav_status.sh - Check patch state and nav database status"
     ],
-    "notes": "Appends Keldo's vdev-logvolmgr termination command to manage_cd.sh (DrGER2 method). Works on both MMI3G High and 3G+ without needing sed binary. Persistent across reboots. Overwritten by efs-system firmware reinstall. Detects and coexists with legacy Keldo/Vlasoff/DarkDll activator scripts."
+    "notes": "Appends Keldo's vdev-logvolmgr termination command to manage_cd.sh (DrGER2 method). Works on both MMI3G High and 3G+ without needing sed binary. Persistent across reboots. Overwritten by efs-system firmware reinstall. Detects and coexists with legacy Keldo/Vlasoff/DarkDll activator scripts.",
+    "uninstall": {"note": "manage_cd.sh stays patched: run nav_restore.sh first (GEM or the nav-unblocker card); the original is kept at /mnt/efs-system/usr/bin/manage_cd.sh-ORIG"}
 }

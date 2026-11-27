@@ -64,9 +64,9 @@ class ModuleContractTests(unittest.TestCase):
             'persistence-dump',
             'region-audit',
         }
-        display_only = {
-            'dtc-checker',
-        }
+        # Every displayed module is buildable (dtc-checker had no module.json
+        # until 2026-11-26: the web listed it, cards could not include it).
+        display_only = set()
 
         self.assertEqual(len(display_ids), len(set(display_ids)))
         self.assertEqual(set(display_ids) - set(self.manifest['modules']), display_only)

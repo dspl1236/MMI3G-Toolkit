@@ -20,5 +20,6 @@
         "filename": "startup_generic.png",
         "mmi_path": "/mnt/efs-system/etc/splashscreens/"
     },
-    "notes": "Use the MMI3G-Toolkit desktop app to upload any image and auto-format it to the correct resolution. The installer backs up existing splash screens to SD card before overwriting."
+    "notes": "Use the MMI3G-Toolkit desktop app to upload any image and auto-format it to the correct resolution. The installer backs up existing splash screens to SD card before overwriting.",
+    "uninstall": {"note": "the boot images stay: restore them with splash_restore.sh from the card you installed with (its backup is in var/ there)"}
 }

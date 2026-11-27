@@ -26,5 +26,6 @@
         "Validated on one unit only: 9411, HN+R_US_AU_K0942_3, MU 1038 (2012 Audi A6, North America). The installer refuses unless the factory devnp-mv8688uap.so, dhcp.client and dhcp-up match that unit's checksums, so other firmware is left untouched. DrGER's LTE dhcp-up (20230218, 1601281849 792) is accepted in place of the factory one (ran on a second 9411 K0942_3 unit on 2026-11-26, with the module's own jitter-egd).",
         "installs_to_flash is false so the builder does not copy scripts or platform.sh to efs-system. The module's own scripts write two things on flash: the WifiClient.esd screen in /mnt/efs-system/engdefs and a five-line marked block in /mnt/efs-system/lsd/lsd.sh, each with a backup and its own rollback. The station files go on the HDD (about 1 MB).",
         "Needs the GEM enabled (gem-activator) to use the screen. SSH over the hotspot is optional and needs chundla/qnx632-openssh installed."
-    ]
+    ],
+    "uninstall": {"own_removal": true, "note": "left as it is: build its card with an empty wifi-sta/REMOVE file, which removes the station files, its GEM screen and its start-up block together"}
 }

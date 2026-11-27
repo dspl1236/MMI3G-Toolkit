@@ -15,5 +15,6 @@
         "gem_status.sh - Check GEM activation state"
     ],
     "mechanism": "touch /HBpersistence/DBGModeActive — checked by MMI3GApplication (Audi) and PCM3Root (Porsche) at boot. Same file, same path, both platforms.",
-    "notes": "v3.0: Discovered DBGModeActive file marker in firmware RE. No longer requires VCDS/ODIS for activation. Confirmed working on Cayenne 958 PCM 3.1. Testing on Audi C7 A6 MMI3G+ K0942."
+    "notes": "v3.0: Discovered DBGModeActive file marker in firmware RE. No longer requires VCDS/ODIS for activation. Confirmed working on Cayenne 958 PCM 3.1. Testing on Audi C7 A6 MMI3G+ K0942.",
+    "uninstall": {"note": "the GEM stays enabled: run gem_disable.sh first (GEM or the gem-activator card) if you want it off"}
 }

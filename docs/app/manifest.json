@@ -249,6 +249,40 @@
                 }
             ]
         },
+        "dtc-checker": {
+            "status": "tested",
+            "description": "Onboard diagnostic trouble code reader: view and clear DTCs from the GEM in one 20-row screen, read through the V850 IOC (DSI namespace 2).",
+            "standalone": false,
+            "run_script": null,
+            "artifact": null,
+            "payload_dirs": [],
+            "release_zip": null,
+            "release_assets": null,
+            "web_build": true,
+            "prebuilt_zip": null,
+            "script_dir": "/scripts/dtc-checker",
+            "installs_to_flash": true,
+            "exit_code_reports_failure": false,
+            "compatible": [
+                "MMI3G",
+                "MMI3G+",
+                "RNS-850"
+            ],
+            "files": [
+                {
+                    "path": "README.md",
+                    "size": 2273
+                },
+                {
+                    "path": "engdefs/ToolkitDTC.esd",
+                    "size": 1913
+                },
+                {
+                    "path": "module.json",
+                    "size": 672
+                }
+            ]
+        },
         "game-loader": {
             "status": "ready",
             "description": "Java game launcher for MMI3G — run games from SD card on the J9 JVM. Use SD slot 2 as your game library!",
@@ -439,7 +473,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 986
+                    "size": 1115
                 },
                 {
                     "path": "scripts/gem_disable.sh",
@@ -511,7 +545,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 2124
+                    "size": 2265
                 },
                 {
                     "path": "payload/auth_resp1.bin",
@@ -842,7 +876,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 1380
+                    "size": 1516
                 },
                 {
                     "path": "scripts/lte_restore.sh",
@@ -914,7 +948,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 932
+                    "size": 1114
                 },
                 {
                     "path": "scripts/nav_restore.sh",
@@ -990,7 +1024,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 3194
+                    "size": 3327
                 },
                 {
                     "path": "per3-reader.jar",
@@ -1201,7 +1235,7 @@
             "files": [
                 {
                     "path": "module.json",
-                    "size": 973
+                    "size": 1124
                 },
                 {
                     "path": "scripts/splash_install.sh",
@@ -1277,7 +1311,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 1924
+                    "size": 2073
                 },
                 {
                     "path": "scripts/usb_net_run.sh",
@@ -1344,7 +1378,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 2382
+                    "size": 2579
                 },
                 {
                     "path": "payload/CKSUMS",

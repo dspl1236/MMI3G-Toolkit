@@ -36,5 +36,6 @@
         "Takes the DSITracer.jar slot — if you're actively debugging with DSITracer installed, this will replace it. per3_install.sh preserves the original as .bak so restoring is straightforward.",
         "Requires MMI reboot to take effect (drops onto the bootclasspath at JVM start)."
     ],
-    "credits": "DSIPersistence interface inferred from decompiled FakePersistence and PersistenceAccessor under research/decompiled/. Extension-point pattern (DSITracer.jar slot) documented by Harman-Becker in /mnt/efs-system/lsd/lsd.sh. Motivation and validation: DrGER2's 2026-04 review of this toolkit."
+    "credits": "DSIPersistence interface inferred from decompiled FakePersistence and PersistenceAccessor under research/decompiled/. Extension-point pattern (DSITracer.jar slot) documented by Harman-Becker in /mnt/efs-system/lsd/lsd.sh. Motivation and validation: DrGER2's 2026-04 review of this toolkit.",
+    "uninstall": {"note": "its bundle stays in the DSITracer.jar slot: run per3_restore.sh first (it puts back DSITracer.jar.bak)"}
 }
