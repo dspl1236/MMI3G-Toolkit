@@ -45,18 +45,50 @@
 # On Linux/macOS the native commands are used unchanged.
 # ============================================================
 
-# head — QNX has no head; use sed to print first N lines
+# What a real unit has (probed on an A6 MMI 3G+, K0942_3, 2026-11-27):
+#   sed grep cat ls cp mv rm mkdir cksum df netstat ifconfig pidin
+#   sloginfo ping date uname use slay mount route touch chmod ln sleep
+# and NOT: awk head tail cut tr sort uniq wc xargs find basename dirname
+#   printf readlink (nor dd od strings diff md5 tee expr env gzip tar).
+# The stand-ins below cover what the toolkit's scripts use, with the
+# same file arguments the real tools take. tests/test_unit_tools.py
+# checks every on-unit script against this list.
+
+# head [-n N | -N] [file...]: sed quits after N lines, so a long pipe stops early
 if ! command -v head >/dev/null 2>&1; then
     head() {
+        local _n=10
         case "$1" in
-            -n) shift; sed -n "1,${1}p"; shift ;;
-            -[0-9]*) sed -n "1,${1#-}p" ;;
-            *)  sed -n '1,10p' ;;
+            -n) _n="$2"; shift 2 ;;
+            -n*) _n="${1#-n}"; shift ;;
+            -c|-c*) echo "head: -c is not available on this unit" >&2; return 1 ;;
+            -[0-9]*) _n="${1#-}"; shift ;;
         esac
+        [ "$_n" -gt 0 ] 2>/dev/null || return 0
+        sed "${_n}q" "$@"
     }
 fi
 
-# basename — QNX has no basename; use parameter expansion
+# tail [-n N | -N] [file...]: keeps the last N lines in sed's hold space
+if ! command -v tail >/dev/null 2>&1; then
+    tail() {
+        local _n=10
+        case "$1" in
+            -n) _n="$2"; shift 2 ;;
+            -n*) _n="${1#-n}"; shift ;;
+            -f|-c|-c*) echo "tail: $1 is not available on this unit" >&2; return 1 ;;
+            -[0-9]*) _n="${1#-}"; shift ;;
+        esac
+        [ "$_n" -gt 0 ] 2>/dev/null || return 0
+        if [ "$_n" -eq 1 ]; then
+            sed -n '$p' "$@"
+        else
+            sed -e ':a' -e '$q' -e 'N' -e "$((_n + 1)),\$D" -e 'ba' "$@"
+        fi
+    }
+fi
+
+# basename path [suffix]
 if ! command -v basename >/dev/null 2>&1; then
     basename() {
         local _p="${1%/}"
@@ -68,56 +100,233 @@ if ! command -v basename >/dev/null 2>&1; then
     }
 fi
 
-# wc — QNX has no wc; count lines with a read loop
+# dirname path
+if ! command -v dirname >/dev/null 2>&1; then
+    dirname() {
+        local _d="${1%/}"
+        case "$_d" in
+            */*) _d="${_d%/*}"; echo "${_d:-/}" ;;
+            '') echo "/" ;;
+            *) echo "." ;;
+        esac
+    }
+fi
+
+# wc -l [file]: count lines with a read loop
 if ! command -v wc >/dev/null 2>&1; then
     wc() {
-        if [ "$1" = "-l" ]; then
-            shift
-            if [ -n "$1" ]; then
-                local _c=0
-                while IFS= read -r _; do _c=$((_c + 1)); done < "$1"
-                echo "      $_c $1"
-            else
-                local _c=0
-                while IFS= read -r _; do _c=$((_c + 1)); done
-                echo "$_c"
-            fi
+        if [ "$1" != "-l" ]; then
+            echo "wc: only -l is available on this unit" >&2; return 1
+        fi
+        shift
+        local _c=0
+        if [ -n "$1" ]; then
+            while IFS= read -r _; do _c=$((_c + 1)); done < "$1"
+            echo "      $_c $1"
+        else
+            while IFS= read -r _; do _c=$((_c + 1)); done
+            echo "$_c"
         fi
     }
 fi
 
-# printf — QNX has no printf; use echo for simple cases
+# printf: echo for the simple cases (%s / %d with their arguments)
 if ! command -v printf >/dev/null 2>&1; then
     printf() {
         local _fmt="$1"; shift
-        # Handle the most common cases: %s and plain strings
         case "$_fmt" in
-            *%s*) echo "$@" ;;
-            *%d*) echo "$@" ;;
+            *%s*|*%d*) echo "$@" ;;
             *)    echo "$_fmt" "$@" ;;
         esac
     }
 fi
 
-# awk — QNX has no awk; provide minimal field extraction
+# awk [-F sep] '{print $N}' [file...]: one field per line, the only program the toolkit uses
 if ! command -v awk >/dev/null 2>&1; then
     awk() {
-        # Only handles: awk '{print $N}' and awk -F: '{print $N}'
-        local _sep=" " _field=""
+        local _sep="" _prog _field
         case "$1" in
-            -F*)  _sep="${1#-F}"; shift ;;
+            -F) _sep="$2"; shift 2 ;;
+            -F*) _sep="${1#-F}"; shift ;;
         esac
-        case "$1" in
-            '{print $'*) _field=$(echo "$1" | sed 's/.*\$\([0-9]*\).*/\1/') ;;
+        _prog="$1"; shift
+        _field="${_prog#\{print \$}"; _field="${_field%\}}"
+        case "$_field" in
+            ''|*[!0-9]*)
+                echo "awk: only '{print \$N}' is available on this unit" >&2
+                return 1 ;;
         esac
-        if [ -n "$_field" ]; then
-            while IFS="$_sep" read -r _line; do
+        cat "$@" | (
+            set -f
+            [ -n "$_sep" ] && IFS="$_sep"
+            while read -r _line; do
                 set -- $_line
                 eval "echo \"\${$_field}\""
             done
-        else
-            cat  # pass through if we can't parse the awk expression
+        )
+    }
+fi
+
+# cut -d X -f N | -f N- | -c A-B [file...]: sed does the work
+if ! command -v cut >/dev/null 2>&1; then
+    cut() {
+        local _d="	" _f="" _c="" _a _b _q _r
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                -d) _d="$2"; shift 2 ;;
+                -d*) _d="${1#-d}"; shift ;;
+                -f) _f="$2"; shift 2 ;;
+                -f*) _f="${1#-f}"; shift ;;
+                -c) _c="$2"; shift 2 ;;
+                -c*) _c="${1#-c}"; shift ;;
+                *) break ;;
+            esac
+        done
+        if [ -n "$_c" ]; then
+            _a="${_c%%-*}"; _b="${_c#*-}"
+            [ "$_c" = "$_a" ] && _b="$_a"
+            [ -z "$_a" ] && _a=1
+            if [ -z "$_b" ]; then
+                sed "s/^.\{$((_a - 1))\}//" "$@"
+            else
+                sed -e "s/^.\{$((_a - 1))\}//" -e "s/^\(.\{0,$((_b - _a + 1))\}\).*/\1/" "$@"
+            fi
+            return
         fi
+        case "$_f" in
+            ''|*,*) echo "cut: only -f N, -f N- and -c A-B are available on this unit" >&2; return 1 ;;
+        esac
+        # the delimiter inside a bracket expression; ']' '^' '\' are not supported
+        _q="[$_d]"; _r="[^$_d]"
+        case "$_f" in
+            *-) _a="${_f%-}"
+                sed -e "/$_q/!b" -e "s/^\($_r*$_q\)\{$((_a - 1))\}//" -e 't' -e 's/.*//' "$@" ;;
+            *)  _a="$_f"
+                sed -e "/$_q/!b" -e "s/^\($_r*$_q\)\{$((_a - 1))\}\($_r*\).*/\2/" -e 't' -e 's/.*//' "$@" ;;
+        esac
+    }
+fi
+
+# tr -d SET | tr SET1 SET2 (ranges a-z A-Z 0-9 A-F a-f, and \r \n \t)
+if ! command -v tr >/dev/null 2>&1; then
+    _tr_set() {
+        echo "$1" | sed -e 's/a-z/abcdefghijklmnopqrstuvwxyz/g' -e 's/A-Z/ABCDEFGHIJKLMNOPQRSTUVWXYZ/g' \
+            -e 's/a-f/abcdef/g' -e 's/A-F/ABCDEF/g' -e 's/0-9/0123456789/g'
+    }
+    tr() {
+        local _s1 _s2 _cr _tab
+        _cr="$(echo x | sed 's/x/\r/')"
+        _tab="$(echo x | sed 's/x/\t/')"
+        if [ "$1" = "-d" ]; then
+            case "$2" in
+                '\r') sed "s/$_cr//g" ;;
+                '\n') echo "tr: -d '\\n' is not available on this unit" >&2; cat; return 1 ;;
+                '\t') sed "s/$_tab//g" ;;
+                *) _s1="$(_tr_set "$2")"; sed "s/[$_s1]//g" ;;
+            esac
+            return
+        fi
+        _s1="$(_tr_set "$1")"; _s2="$(_tr_set "$2")"
+        sed "y/$_s1/$_s2/"
+    }
+fi
+
+# xargs [cmd args...]: runs cmd once per input line (file names with spaces stay whole)
+if ! command -v xargs >/dev/null 2>&1; then
+    xargs() {
+        local _l
+        [ $# -eq 0 ] && set -- echo
+        while IFS= read -r _l; do
+            [ -n "$_l" ] && "$@" "$_l"
+        done
+    }
+fi
+
+# find dir... [-maxdepth N] [-type f|d] [-name PATTERN]: a walk with shell globs
+if ! command -v find >/dev/null 2>&1; then
+    _find_emit() {
+        case "$_find_type" in
+            f) [ -f "$1" ] || return 0 ;;
+            d) [ -d "$1" ] || return 0 ;;
+        esac
+        if [ -n "$_find_name" ]; then
+            case "${1##*/}" in
+                $_find_name) ;;
+                *) return 0 ;;
+            esac
+        fi
+        echo "$1"
+    }
+    _find_walk() {
+        local _e
+        for _e in "$1"/* "$1"/.[!.]*; do
+            [ -e "$_e" ] || [ -h "$_e" ] || continue
+            _find_emit "$_e"
+            if [ -d "$_e" ] && [ ! -h "$_e" ]; then
+                if [ -z "$_find_max" ] || [ "$2" -lt "$_find_max" ]; then
+                    _find_walk "$_e" $(($2 + 1))
+                fi
+            fi
+        done
+    }
+    find() {
+        local _dirs="" _d
+        _find_type=""; _find_name=""; _find_max=""
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                -maxdepth) _find_max="$2"; shift 2 ;;
+                -type) _find_type="$2"; shift 2 ;;
+                -name) _find_name="$2"; shift 2 ;;
+                -print) shift ;;
+                -*) echo "find: $1 is not available on this unit" >&2; return 1 ;;
+                *) _dirs="$_dirs
+$1"; shift ;;
+            esac
+        done
+        [ -z "$_dirs" ] && _dirs="."
+        echo "$_dirs" | while IFS= read -r _d; do
+            [ -z "$_d" ] && continue
+            [ -e "$_d" ] || { echo "find: $_d: No such file or directory" >&2; continue; }
+            _find_emit "$_d"
+            if [ -d "$_d" ] && [ "${_find_max:-1}" -gt 0 ]; then
+                _find_walk "${_d%/}" 1
+            fi
+        done
+    }
+fi
+
+# sort / sort -u: no sorting on the unit; -u drops repeated lines (keeps the first)
+if ! command -v sort >/dev/null 2>&1; then
+    sort() {
+        local _u="" _l _seen
+        [ "$1" = "-u" ] && { _u=1; shift; }
+        if [ -z "$_u" ]; then
+            cat "$@"; return
+        fi
+        _seen="
+"
+        cat "$@" | while IFS= read -r _l; do
+            case "$_seen" in
+                *"
+$_l
+"*) ;;
+                *) echo "$_l"; _seen="$_seen$_l
+" ;;
+            esac
+        done
+    }
+fi
+
+# uniq: drops a line equal to the one before it
+if ! command -v uniq >/dev/null 2>&1; then
+    uniq() {
+        local _l _prev="" _first=1
+        cat "$@" | while IFS= read -r _l; do
+            if [ -n "$_first" ] || [ "$_l" != "$_prev" ]; then
+                echo "$_l"
+            fi
+            _prev="$_l"; _first=""
+        done
     }
 fi
 
@@ -193,17 +402,6 @@ if ! command -v readlink >/dev/null 2>&1; then
     }
 fi
 
-# sort — QNX 6.3.2 has no sort; pass through unsorted
-# (better than crashing, and most uses are cosmetic)
-if ! command -v sort >/dev/null 2>&1; then
-    sort() {
-        case "$1" in
-            -u) shift; cat "$@" ;;  # -u = unique, just pass through
-            *)  cat "$@" ;;
-        esac
-    }
-fi
-
 # ============================================================
 
 # -------- Variant detection (authoritative: /etc/pci-3g_*.cfg) --------
@@ -244,13 +442,13 @@ fi
 # -------- Train name (3G+ only populates sw_trainname.txt) --------
 MMI_TRAIN="n/a"
 if [ -f /dev/shmem/sw_trainname.txt ]; then
-    T="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
-    [ -n "$T" ] && MMI_TRAIN="$T"
+    _mmi_t="$(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
+    [ -n "$_mmi_t" ] && MMI_TRAIN="$_mmi_t"
 fi
 # Basic/High fallback — DrGER2's sloginfo method
 if [ "$MMI_TRAIN" = "n/a" ]; then
-    T="$(sloginfo -m 10000 -s 5 2>/dev/null | sed -n 's/^.* +++ Train //p' | sed -n 1p)"
-    [ -n "$T" ] && MMI_TRAIN="$T"
+    _mmi_t="$(sloginfo -m 10000 -s 5 2>/dev/null | sed -n 's/^.* +++ Train //p' | sed -n 1p)"
+    [ -n "$_mmi_t" ] && MMI_TRAIN="$_mmi_t"
 fi
 
 # -------- RNS-850 disambiguation --------
@@ -265,8 +463,8 @@ fi
 # -------- Other identification sources --------
 MMI_SW_VERSION="n/a"
 if [ -f /etc/version/MainUnit-version.txt ]; then
-    V="$(sed -n 's/^version = //p' /etc/version/MainUnit-version.txt 2>/dev/null | head -1)"
-    [ -n "$V" ] && MMI_SW_VERSION="$V"
+    _mmi_v="$(sed -n 's/^version = //p' /etc/version/MainUnit-version.txt 2>/dev/null | head -1)"
+    [ -n "$_mmi_v" ] && MMI_SW_VERSION="$_mmi_v"
 fi
 
 MMI_HW_SAMPLE="n/a"
@@ -293,14 +491,14 @@ mmi_getTime() {
 mmi_logstamp() {
     # Prefer getTime (epoch seconds) and format with date -r if possible
     if command -v getTime >/dev/null 2>&1; then
-        T="$(getTime 2>/dev/null)"
-        if [ -n "$T" ]; then
+        _mmi_t="$(getTime 2>/dev/null)"
+        if [ -n "$_mmi_t" ]; then
             # Try date -r (BSD/QNX) to format the epoch value
-            if date -r "$T" +%Y%m%d-%H%M%S 2>/dev/null; then
+            if date -r "$_mmi_t" +%Y%m%d-%H%M%S 2>/dev/null; then
                 return 0
             fi
             # Last resort: emit the raw epoch seconds (still uniquely sortable)
-            echo "epoch-$T"
+            echo "epoch-$_mmi_t"
             return 0
         fi
     fi

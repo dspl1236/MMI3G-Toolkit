@@ -39,7 +39,7 @@ ADDR_IN="$2"
 NS="${3:-0}"
 
 # Strip 0x prefix, lowercase, ensure hex
-ADDR="$(echo "$ADDR_IN" | sed 's/^0[xX]//' | tr 'A-F' 'a-f')"
+ADDR="$(echo "$ADDR_IN" | sed -e 's/^0[xX]//' -e 'y/ABCDEF/abcdef/')"
 
 # Pick trigger dir: SD card first, then /tmp
 if [ -d "$TRIGDIR_SD" ]; then
@@ -65,10 +65,10 @@ WAITED=0
 while [ $WAITED -lt $TIMEOUT_MS ]; do
     if [ -f "$RESP" ]; then
         cat "$RESP"
+        # The first line decides the exit code: read it before the reply goes.
+        FIRSTLINE="$(sed 1q "$RESP" 2>/dev/null)"
         rm -f "$RESP" 2>/dev/null
-        # If first word is "err", return non-zero
-        FIRST="$(head -c 3 "$RESP" 2>/dev/null)"
-        case "$(cat "$RESP" 2>/dev/null | head -1)" in
+        case "$FIRSTLINE" in
             ok*)  exit 0 ;;
             err*) exit 1 ;;
             *)    exit 1 ;;
