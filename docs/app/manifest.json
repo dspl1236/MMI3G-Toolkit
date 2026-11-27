@@ -7,8 +7,13 @@
         "uninstall_sh": "core/uninstall.sh",
         "platform_sh": "core/platform.sh",
         "showScreen": "core/bin/showScreen",
+        "mmi_splash": "core/bin/mmi_splash",
         "lib_running_png": "core/lib/running.png",
         "lib_done_png": "core/lib/done.png",
+        "lib_failed_png": "core/lib/failed.png",
+        "lib_running_bin": "core/lib/running.bin",
+        "lib_done_bin": "core/lib/done.bin",
+        "lib_failed_bin": "core/lib/failed.bin",
         "lib_gem_enabled_png": "core/lib/gem_enabled.png",
         "lib_gem_disabled_png": "core/lib/gem_disabled.png"
     },
@@ -26,6 +31,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/CanDiag",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -83,6 +89,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Scanner",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -160,6 +167,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/DiagTool",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -225,6 +233,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/NetDiag",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -253,6 +262,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/game-loader",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -334,6 +344,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Gauges",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -407,6 +418,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GEM",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -456,6 +468,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GEMMIDump",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -490,6 +503,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -590,6 +604,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GEMMI",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "RNS-850"
             ],
@@ -659,6 +674,7 @@
             "prebuilt_zip": "https://github.com/dspl1236/MMI3G-Toolkit/releases/download/v1.0-gemmi-p0824/gemmi_p0824_eu_vw.zip",
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "RNS-850"
             ],
@@ -710,6 +726,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/GoogleEarth",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "RNS-850"
             ],
@@ -737,6 +754,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/jvm-extract",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -766,6 +784,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/long-coding",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -815,6 +834,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/LTE",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -855,6 +875,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/MapParser",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -884,6 +905,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/NavUnblocker",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -921,6 +943,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/PasswordFinder",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -950,6 +973,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Per3Reader",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1075,6 +1099,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/per3-writer",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1104,6 +1129,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/PersistDump",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1133,6 +1159,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/RegionAudit",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -1165,6 +1192,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/Splash",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1198,6 +1226,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/SystemInfo",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1232,6 +1261,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/USBNet",
             "installs_to_flash": true,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G+",
                 "RNS-850"
@@ -1268,6 +1298,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/VariantDump",
             "installs_to_flash": false,
+            "exit_code_reports_failure": false,
             "compatible": [
                 "MMI3G",
                 "MMI3G+",
@@ -1302,6 +1333,7 @@
             "prebuilt_zip": null,
             "script_dir": "/scripts/wifi-sta",
             "installs_to_flash": false,
+            "exit_code_reports_failure": true,
             "compatible": [
                 "MMI3G+"
             ],
@@ -1312,7 +1344,7 @@
                 },
                 {
                     "path": "module.json",
-                    "size": 2343
+                    "size": 2382
                 },
                 {
                     "path": "payload/CKSUMS",
@@ -1412,7 +1444,7 @@
                 },
                 {
                     "path": "scripts/wifi_sta_run.sh",
-                    "size": 13400
+                    "size": 14030
                 }
             ]
         }

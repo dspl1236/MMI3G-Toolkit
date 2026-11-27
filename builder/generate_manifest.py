@@ -27,8 +27,13 @@ CORE_FILES = {
     'uninstall_sh': 'core/uninstall.sh',
     'platform_sh': 'core/platform.sh',
     'showScreen': 'core/bin/showScreen',
+    'mmi_splash': 'core/bin/mmi_splash',
     'lib_running_png': 'core/lib/running.png',
     'lib_done_png': 'core/lib/done.png',
+    'lib_failed_png': 'core/lib/failed.png',
+    'lib_running_bin': 'core/lib/running.bin',
+    'lib_done_bin': 'core/lib/done.bin',
+    'lib_failed_bin': 'core/lib/failed.bin',
     'lib_gem_enabled_png': 'core/lib/gem_enabled.png',
     'lib_gem_disabled_png': 'core/lib/gem_disabled.png',
 }
@@ -103,6 +108,7 @@ def build_manifest(modules_dir: Optional[str] = None) -> dict:
             'prebuilt_zip': meta.get('prebuilt_zip'),
             'script_dir': meta.get('script_dir', f'/scripts/{name}'),
             'installs_to_flash': meta.get('installs_to_flash', True),
+            'exit_code_reports_failure': meta.get('exit_code_reports_failure', False),
             'compatible': meta.get('compatible', ['MMI3G+']),
             'files': files,
         }

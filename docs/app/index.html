@@ -257,13 +257,58 @@ function generateRunSh(selected, manifest, overrides) {
     "    . \"${SDPATH}/scripts/common/platform.sh\"",
     "fi",
     "",
-    "# Show \"running\" status on MMI display",
-    "if [ -f \"${SDPATH}/bin/showScreen\" ] && [ -f \"${SDPATH}/lib/running.png\" ]; then",
+    "# Status screen: mmi_splash on MMI 3G+ units (live steps, then DONE or",
+    "# FAILED); showScreen with the PNGs elsewhere, or if mmi_splash does not start.",
+    "TMPD=/tmp; [ -d /fs/tmpfs ] && TMPD=/fs/tmpfs",
+    "FORGE_DONE=\"${TMPD}/forge_done\"",
+    "FORGE_PROGRESS=\"${TMPD}/forge_progress\"",
+    "export FORGE_PROGRESS",
+    "rm -f \"${FORGE_DONE}\" \"${FORGE_PROGRESS}\"",
+    "SPLASH_PID=\"\"",
+    "SHOWSCREEN_PID=\"\"",
+    "RUN_FAILED=0",
+    "RUN_DONE=0",
+    "if [ -f /etc/pci-3g_9411.cfg ] && [ -f \"${SDPATH}/bin/mmi_splash\" ] && [ -f \"${SDPATH}/lib/running.bin\" ]; then",
+    "    cp \"${SDPATH}/bin/mmi_splash\" \"${TMPD}/mmi_splash\" 2>/dev/null && chmod +x \"${TMPD}/mmi_splash\" 2>/dev/null",
+    "    \"${TMPD}/mmi_splash\" \"${SDPATH}/lib/running.bin\" \"${SDPATH}/lib/done.bin\" \"${FORGE_DONE}\" 3600 8 \"${SDPATH}/lib/failed.bin\" > \"${TMPD}/mmi_splash.log\" 2>&1 &",
+    "    SPLASH_PID=$!",
+    "    sleep 2",
+    "    kill -0 ${SPLASH_PID} 2>/dev/null || SPLASH_PID=\"\"",
+    "fi",
+    "if [ -z \"${SPLASH_PID}\" ] && [ -f \"${SDPATH}/bin/showScreen\" ] && [ -f \"${SDPATH}/lib/running.png\" ]; then",
     "    cp \"${SDPATH}/bin/showScreen\" /tmp/showScreen 2>/dev/null",
     "    chmod +x /tmp/showScreen 2>/dev/null",
     "    /tmp/showScreen \"${SDPATH}/lib/running.png\" &",
     "    SHOWSCREEN_PID=$!",
     "fi",
+    "",
+    "# progress <line>: the status screen's step line (\"a-b/n label\" or \"label\")",
+    "progress() {",
+    "    echo \"$*\" > \"${FORGE_PROGRESS}\" 2>/dev/null",
+    "}",
+    "",
+    "# At exit: DONE, or FAILED if a module reported a failure or run.sh stopped early.",
+    "finish() {",
+    "    [ \"${RUN_DONE}\" = 1 ] || RUN_FAILED=1",
+    "    if [ \"${RUN_FAILED}\" = 0 ]; then",
+    "        : > \"${FORGE_DONE}\"",
+    "    else",
+    "        echo FAIL > \"${FORGE_DONE}\"",
+    "        echo \"[FAIL] the card did not finish cleanly; see the lines above\"",
+    "    fi",
+    "    if [ -n \"${SPLASH_PID}\" ]; then",
+    "        wait ${SPLASH_PID} 2>/dev/null",
+    "        cp \"${TMPD}/mmi_splash.log\" \"${SDPATH}/var/\" 2>/dev/null",
+    "    elif [ -n \"${SHOWSCREEN_PID}\" ]; then",
+    "        kill ${SHOWSCREEN_PID} 2>/dev/null",
+    "        sleep 1",
+    "        SCREEN=done",
+    "        [ \"${RUN_FAILED}\" = 0 ] || SCREEN=failed",
+    "        [ -f \"${SDPATH}/lib/${SCREEN}.png\" ] || SCREEN=done",
+    "        /tmp/showScreen \"${SDPATH}/lib/${SCREEN}.png\" &",
+    "    fi",
+    "}",
+    "trap finish 0",
     "",
     "mkdir -p \"${SDPATH}/var\" 2>/dev/null",
     "LOGFILE=\"${SDPATH}/var/install-$(date +%Y%m%d-%H%M%S).log\"",
@@ -320,7 +365,8 @@ function generateRunSh(selected, manifest, overrides) {
     );
   }
 
-  for (const modName of selected) {
+  const modCount = selected.length;
+  for (const [modIndex, modName] of selected.entries()) {
     const meta = manifest.modules[modName];
     if (!meta) continue;
     const installsToFlash = meta.installs_to_flash !== false;
@@ -333,6 +379,10 @@ function generateRunSh(selected, manifest, overrides) {
       .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 
     lines.push(`# --- Module: ${modName} ---`);
+    // The status screen's bar creeps through this module's share.
+    lines.push(`FORGE_MOD_RANGE="${modIndex}-${modIndex + 1}/${modCount}"`);
+    lines.push("export FORGE_MOD_RANGE");
+    lines.push(`progress "\${FORGE_MOD_RANGE} ${modName}"`);
     lines.push(`echo "[MODULE] Installing ${modName}..."`);
     if (installsToFlash) {
       // Re-mount EFS rw (standalone modules may trigger F3S reclaim)
@@ -344,7 +394,18 @@ function generateRunSh(selected, manifest, overrides) {
       const runScript = overrides[modName] || meta.run_script;
       lines.push(`if [ -f "\${SDPATH}/scripts/${runScript}" ]; then`);
       lines.push(`    ksh "\${SDPATH}/scripts/${runScript}" "\${SDPATH}"`);
-      lines.push(`    echo "[OK] ${modName} standalone script executed"`);
+      lines.push("    MOD_RC=$?");
+      lines.push("    if [ ${MOD_RC} -eq 0 ]; then");
+      lines.push(`        echo "[OK] ${modName} standalone script executed"`);
+      if (meta.exit_code_reports_failure) {
+        lines.push("    else");
+        lines.push(`        echo "[FAIL] ${modName} reported a failure (exit \${MOD_RC})"`);
+        lines.push("        RUN_FAILED=1");
+      } else {
+        lines.push("    else");
+        lines.push(`        echo "[WARN] ${modName} script exited \${MOD_RC}"`);
+      }
+      lines.push("    fi");
       lines.push("else");
       lines.push(`    echo "[WARN] ${runScript} not found for ${modName}"`);
       lines.push("fi");
@@ -394,20 +455,21 @@ function generateRunSh(selected, manifest, overrides) {
   }
 
   lines.push("# --- Complete ---");
+  lines.push(`progress "${selected.length}/${selected.length} finishing"`);
   lines.push("echo \"============================================\"");
-  lines.push("echo \" Installation Complete\"");
+  lines.push("if [ \"${RUN_FAILED}\" = 0 ]; then");
+  lines.push("    echo \" Installation Complete\"");
+  lines.push("else");
+  lines.push("    echo \" Installation FAILED: see the [FAIL] lines above\"");
+  lines.push("fi");
   lines.push(`echo " Modules installed: ${selected.length}"`);
   lines.push("echo \" Log: ${LOGFILE}\"");
   lines.push("echo \"\"");
   lines.push("echo \" Open GEM (CAR + BACK) to access new screens\"");
   lines.push("echo \"============================================\"");
   lines.push("");
-  lines.push("# Show \"done\" status on MMI display");
-  lines.push("if [ -x /tmp/showScreen ] && [ -f \"${SDPATH}/lib/done.png\" ]; then");
-  lines.push("    kill ${SHOWSCREEN_PID} 2>/dev/null");
-  lines.push("    sleep 1");
-  lines.push("    /tmp/showScreen \"${SDPATH}/lib/done.png\" &");
-  lines.push("fi");
+  lines.push("# The status screen shows DONE or FAILED from finish() at exit.");
+  lines.push("RUN_DONE=1");
 
   return lines.join("\n") + "\n";
 }
@@ -440,7 +502,9 @@ async function buildSdBundle(selected, onProgress, overrides) {
   let totalFiles = 2; // copie_scr_plain.sh + uninstall.sh
   if (manifest.core_files.platform_sh) totalFiles += 1;
   if (manifest.core_files.showScreen) totalFiles += 1;
-  for (const pngKey of ["lib_running_png", "lib_done_png"]) {
+  if (manifest.core_files.mmi_splash) totalFiles += 1;
+  for (const pngKey of ["lib_running_png", "lib_done_png", "lib_failed_png",
+                        "lib_running_bin", "lib_done_bin", "lib_failed_bin"]) {
     if (manifest.core_files[pngKey]) totalFiles += 1;
   }
   if (selected.includes("gem-activator")) {
@@ -556,15 +620,24 @@ async function buildSdBundle(selected, onProgress, overrides) {
   if (showScreenBin) {
     files.push({ path: "bin/showScreen", bytes: showScreenBin });
   }
-  // Always include universal status PNGs
-  for (const pngKey of ['lib_running_png', 'lib_done_png']) {
-    if (manifest.core_files[pngKey]) {
+  // The status screen: mmi_splash and its RUNNING/DONE/FAILED images (MMI 3G+),
+  // with showScreen and the PNGs as the fallback. Always included.
+  const statusAssets = [
+    ['mmi_splash', 'bin/mmi_splash'],
+    ['lib_running_png', 'lib/running.png'],
+    ['lib_done_png', 'lib/done.png'],
+    ['lib_failed_png', 'lib/failed.png'],
+    ['lib_running_bin', 'lib/running.bin'],
+    ['lib_done_bin', 'lib/done.bin'],
+    ['lib_failed_bin', 'lib/failed.bin'],
+  ];
+  for (const [key, outPath] of statusAssets) {
+    if (manifest.core_files[key]) {
       try {
-        const png = await fetchBinary(rawBase + manifest.core_files[pngKey]);
-        const fname = pngKey.replace('lib_', '').replace('_png', '.png');
-        files.push({ path: `lib/${fname}`, bytes: png });
-        step(`Fetched ${fname}`);
-      } catch (e) { console.warn(`${pngKey} not available:`, e); }
+        const bytes = await fetchBinary(rawBase + manifest.core_files[key]);
+        files.push({ path: outPath, bytes });
+        step(`Fetched ${outPath}`);
+      } catch (e) { console.warn(`${key} not available:`, e); }
     }
   }
   // Module-specific PNGs — only when that module is selected

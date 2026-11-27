@@ -23,8 +23,11 @@ class WebBuilderParityTests(unittest.TestCase):
             "/tmp/showScreen",
             "SHOWSCREEN_PID=$!",
             "lib/running.png",
-            "lib/done.png",
+            "lib/${SCREEN}.png",
             "kill ${SHOWSCREEN_PID} 2>/dev/null",
+            "bin/mmi_splash",
+            "lib/failed.bin",
+            "trap finish 0",
         ):
             self.assertIn(snippet, self.source)
 

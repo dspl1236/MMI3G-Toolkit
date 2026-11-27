@@ -579,13 +579,58 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         '    . "${SDPATH}/scripts/common/platform.sh"',
         'fi',
         '',
-        '# Show "running" status on MMI display',
-        'if [ -f "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then',
+        '# Status screen: mmi_splash on MMI 3G+ units (live steps, then DONE or',
+        '# FAILED); showScreen with the PNGs elsewhere, or if mmi_splash does not start.',
+        'TMPD=/tmp; [ -d /fs/tmpfs ] && TMPD=/fs/tmpfs',
+        'FORGE_DONE="${TMPD}/forge_done"',
+        'FORGE_PROGRESS="${TMPD}/forge_progress"',
+        'export FORGE_PROGRESS',
+        'rm -f "${FORGE_DONE}" "${FORGE_PROGRESS}"',
+        'SPLASH_PID=""',
+        'SHOWSCREEN_PID=""',
+        'RUN_FAILED=0',
+        'RUN_DONE=0',
+        'if [ -f /etc/pci-3g_9411.cfg ] && [ -f "${SDPATH}/bin/mmi_splash" ] && [ -f "${SDPATH}/lib/running.bin" ]; then',
+        '    cp "${SDPATH}/bin/mmi_splash" "${TMPD}/mmi_splash" 2>/dev/null && chmod +x "${TMPD}/mmi_splash" 2>/dev/null',
+        '    "${TMPD}/mmi_splash" "${SDPATH}/lib/running.bin" "${SDPATH}/lib/done.bin" "${FORGE_DONE}" 3600 8 "${SDPATH}/lib/failed.bin" > "${TMPD}/mmi_splash.log" 2>&1 &',
+        '    SPLASH_PID=$!',
+        '    sleep 2',
+        '    kill -0 ${SPLASH_PID} 2>/dev/null || SPLASH_PID=""',
+        'fi',
+        'if [ -z "${SPLASH_PID}" ] && [ -f "${SDPATH}/bin/showScreen" ] && [ -f "${SDPATH}/lib/running.png" ]; then',
         '    cp "${SDPATH}/bin/showScreen" /tmp/showScreen 2>/dev/null',
         '    chmod +x /tmp/showScreen 2>/dev/null',
         '    /tmp/showScreen "${SDPATH}/lib/running.png" &',
         '    SHOWSCREEN_PID=$!',
         'fi',
+        '',
+        "# progress <line>: the status screen's step line (\"a-b/n label\" or \"label\")",
+        'progress() {',
+        '    echo "$*" > "${FORGE_PROGRESS}" 2>/dev/null',
+        '}',
+        '',
+        '# At exit: DONE, or FAILED if a module reported a failure or run.sh stopped early.',
+        'finish() {',
+        '    [ "${RUN_DONE}" = 1 ] || RUN_FAILED=1',
+        '    if [ "${RUN_FAILED}" = 0 ]; then',
+        '        : > "${FORGE_DONE}"',
+        '    else',
+        '        echo FAIL > "${FORGE_DONE}"',
+        '        echo "[FAIL] the card did not finish cleanly; see the lines above"',
+        '    fi',
+        '    if [ -n "${SPLASH_PID}" ]; then',
+        '        wait ${SPLASH_PID} 2>/dev/null',
+        '        cp "${TMPD}/mmi_splash.log" "${SDPATH}/var/" 2>/dev/null',
+        '    elif [ -n "${SHOWSCREEN_PID}" ]; then',
+        '        kill ${SHOWSCREEN_PID} 2>/dev/null',
+        '        sleep 1',
+        '        SCREEN=done',
+        '        [ "${RUN_FAILED}" = 0 ] || SCREEN=failed',
+        '        [ -f "${SDPATH}/lib/${SCREEN}.png" ] || SCREEN=done',
+        '        /tmp/showScreen "${SDPATH}/lib/${SCREEN}.png" &',
+        '    fi',
+        '}',
+        'trap finish 0',
         '',
         'mkdir -p "${SDPATH}/var" 2>/dev/null',
         'LOGFILE="${SDPATH}/var/install-$(date +%Y%m%d-%H%M%S).log"',
@@ -642,10 +687,15 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
         ])
 
     # Add install section for each module
-    for mod_name in selected_modules:
+    count = len(selected_modules)
+    for index, mod_name in enumerate(selected_modules):
         meta = modules[mod_name]
         installs_to_flash = meta.get('installs_to_flash', True)
         lines.append(f'# --- Module: {mod_name} ---')
+        # The status screen's bar creeps through this module's share.
+        lines.append(f'FORGE_MOD_RANGE="{index}-{index + 1}/{count}"')
+        lines.append('export FORGE_MOD_RANGE')
+        lines.append(f'progress "${{FORGE_MOD_RANGE}} {mod_name}"')
         lines.append(f'echo "[MODULE] Installing {mod_name}..."')
         if installs_to_flash:
             # Re-mount EFS rw (standalone modules may trigger F3S reclaim)
@@ -659,7 +709,17 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
             run_script = meta['run_script']
             lines.append(f'if [ -f "${{SDPATH}}/scripts/{run_script}" ]; then')
             lines.append(f'    ksh "${{SDPATH}}/scripts/{run_script}" "${{SDPATH}}"')
-            lines.append(f'    echo "[OK] {mod_name} standalone script executed"')
+            lines.append('    MOD_RC=$?')
+            lines.append('    if [ ${MOD_RC} -eq 0 ]; then')
+            lines.append(f'        echo "[OK] {mod_name} standalone script executed"')
+            if meta.get('exit_code_reports_failure'):
+                lines.append('    else')
+                lines.append(f'        echo "[FAIL] {mod_name} reported a failure (exit ${{MOD_RC}})"')
+                lines.append('        RUN_FAILED=1')
+            else:
+                lines.append('    else')
+                lines.append(f'        echo "[WARN] {mod_name} script exited ${{MOD_RC}}"')
+            lines.append('    fi')
             lines.append(f'else')
             lines.append(f'    echo "[WARN] {run_script} not found for {mod_name}"')
             lines.append(f'fi')
@@ -733,20 +793,21 @@ def generate_run_sh(selected_modules: list, modules: dict) -> str:
     # Summary
     lines.extend([
         '# --- Complete ---',
+        f'progress "{len(selected_modules)}/{len(selected_modules)} finishing"',
         'echo "============================================"',
-        'echo " Installation Complete"',
+        'if [ "${RUN_FAILED}" = 0 ]; then',
+        '    echo " Installation Complete"',
+        'else',
+        '    echo " Installation FAILED: see the [FAIL] lines above"',
+        'fi',
         f'echo " Modules installed: {len(selected_modules)}"',
         'echo " Log: ${LOGFILE}"',
         'echo ""',
         'echo " Open GEM (CAR + BACK) to access new screens"',
         'echo "============================================"',
         '',
-        '# Show "done" status on MMI display',
-        'if [ -x /tmp/showScreen ] && [ -f "${SDPATH}/lib/done.png" ]; then',
-        '    kill ${SHOWSCREEN_PID} 2>/dev/null',
-        '    sleep 1',
-        '    /tmp/showScreen "${SDPATH}/lib/done.png" &',
-        'fi',
+        '# The status screen shows DONE or FAILED from finish() at exit.',
+        'RUN_DONE=1',
     ])
 
     return '\n'.join(lines) + '\n'
@@ -818,11 +879,17 @@ def build_sd(selected_modules: list, modules: dict, output_dir: str):
             dst.write(src.read().replace(b'\r\n', b'\n'))
         print(f"  [OK] scripts/common/platform.sh")
 
-    # Ship the showScreen helper and status PNGs used by run.sh
+    # Ship the status screen: mmi_splash with its RUNNING/DONE/FAILED images
+    # (MMI 3G+), and showScreen with the PNGs as the fallback.
     status_assets = [
         ('core/bin/showScreen', 'bin/showScreen'),
+        ('core/bin/mmi_splash', 'bin/mmi_splash'),
         ('core/lib/running.png', 'lib/running.png'),
         ('core/lib/done.png', 'lib/done.png'),
+        ('core/lib/failed.png', 'lib/failed.png'),
+        ('core/lib/running.bin', 'lib/running.bin'),
+        ('core/lib/done.bin', 'lib/done.bin'),
+        ('core/lib/failed.bin', 'lib/failed.bin'),
     ]
     if 'gem-activator' in selected_modules:
         status_assets.extend([

@@ -51,6 +51,9 @@ class BuildSdCliTests(unittest.TestCase):
             self.assertTrue((output_dir / 'bin' / 'showScreen').is_file())
             self.assertTrue((output_dir / 'lib' / 'running.png').is_file())
             self.assertTrue((output_dir / 'lib' / 'done.png').is_file())
+            for name in ('bin/mmi_splash', 'lib/failed.png', 'lib/running.bin',
+                         'lib/done.bin', 'lib/failed.bin'):
+                self.assertTrue((output_dir / name).is_file(), name)
             self.assertTrue((output_dir / 'scripts' / 'sysinfo_dump.sh').is_file())
             self.assertTrue((output_dir / 'scripts' / 'common' / 'platform.sh').is_file())
 
@@ -484,6 +487,61 @@ class BuildSdValidationTests(unittest.TestCase):
                     self.builder.find_modules()
 
             self.assertIn('payload_dir', str(exc.exception))
+
+
+
+class RunShStatusScreenTests(unittest.TestCase):
+    """The generated run.sh on the host: no MMI, so neither status program runs, but
+    the progress line and the DONE/FAIL flag it leaves for mmi_splash are checked."""
+
+    def setUp(self):
+        import shutil
+        self.builder = load_builder_module()
+        self.modules = self.builder.find_modules()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name)
+        self.bin = self.base / 'bin'
+        self.bin.mkdir()
+        # run.sh calls the module script with ksh; the host's sh stands in
+        shell = shutil.which('ksh') or shutil.which('bash') or '/bin/sh'
+        (self.bin / 'ksh').symlink_to(shell)
+        for name in ('/tmp/forge_done', '/tmp/forge_progress'):
+            Path(name).unlink(missing_ok=True)
+            self.addCleanup(Path(name).unlink, missing_ok=True)
+
+    def run_card(self, module, script_body):
+        card = self.base / 'card'
+        self.builder.build_sd([module], self.modules, str(card))
+        script = card / 'scripts' / self.modules[module]['run_script']
+        script.write_text('#!/bin/sh\n' + script_body + '\n')
+        import os
+        env = {'PATH': f'{self.bin}:/usr/bin:/bin', 'HOME': str(self.base)}
+        out = subprocess.run([str(self.bin / 'ksh'), str(card / 'run.sh'), str(card)],
+                             capture_output=True, text=True, timeout=60, env=env)
+        log = ''.join(p.read_text() for p in (card / 'var').glob('install-*.log'))
+        return out, log
+
+    def flag(self):
+        path = Path('/tmp/forge_done')
+        return path.read_text() if path.exists() else None
+
+    def test_a_clean_run_leaves_done(self):
+        out, log = self.run_card('wifi-sta', 'echo "${FORGE_MOD_RANGE} Wi-Fi: step" > "$FORGE_PROGRESS"; exit 0')
+        self.assertEqual(self.flag(), '', log + out.stderr)
+        self.assertIn('Installation Complete', log)
+        self.assertEqual(Path('/tmp/forge_progress').read_text().strip(), '1/1 finishing')
+
+    def test_a_module_that_reports_failure_leaves_fail(self):
+        out, log = self.run_card('wifi-sta', 'exit 2')
+        self.assertEqual(self.flag(), 'FAIL\n', log + out.stderr)
+        self.assertIn('[FAIL] wifi-sta reported a failure (exit 2)', log)
+        self.assertIn('Installation FAILED', log)
+
+    def test_other_modules_only_warn_on_a_nonzero_exit(self):
+        out, log = self.run_card('system-info', 'exit 1')
+        self.assertEqual(self.flag(), '', log + out.stderr)
+        self.assertIn('[WARN] system-info script exited 1', log)
 
 
 if __name__ == '__main__':

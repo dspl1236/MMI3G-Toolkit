@@ -83,6 +83,14 @@ say() {
     echo "[wifi-sta] $*"
 }
 
+# The card's status screen: this step's line, under the module's share of the
+# bar (run.sh exports FORGE_PROGRESS and FORGE_MOD_RANGE; alone, nothing).
+progress() {
+    [ -n "${FORGE_PROGRESS:-}" ] || return 0
+    echo "${FORGE_MOD_RANGE:+${FORGE_MOD_RANGE} }Wi-Fi: $*" > "$FORGE_PROGRESS" 2>/dev/null
+    return 0
+}
+
 fail() {
     say "FAILED: $*"
     say "RESULT: FAILED. Steps before this one stay done; each has its own status and rollback."
@@ -234,7 +242,9 @@ tcp 23
 }
 
 install_all() {
+    progress "checking the card"
     check_card
+    progress "checking the unit"
     check_unit
     read_options
     say "train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
@@ -253,6 +263,7 @@ install_all() {
     if [ -f "$flag" ] && [ ! -s "$flag" ]; then
         say "the LAN-mode flag ${flag} is already set"
     else
+        progress "setting LAN mode"
         step lan-mode.sh enable || fail "lan-mode.sh enable"
         restart_for_flag=yes
     fi
@@ -262,9 +273,11 @@ install_all() {
     case $sta_before in
         *'an older build'*) step sta-install.sh unhook || fail "sta-install.sh unhook" ;;
     esac
+    progress "installing station files"
     step sta-install.sh install "$pay" || fail "sta-install.sh install"
 
     if [ -f "$card_conf" ]; then
+        progress "storing networks"
         # The passphrase line wpa_passphrase leaves as a comment is dropped:
         # the unit keeps only the derived key.
         tmp="${run}/wifi-sta-conf.$$"
@@ -295,12 +308,15 @@ install_all() {
     case $gem_before in
         *'state: older'*) step gem-install.sh remove || fail "gem-install.sh remove" ;;
     esac
+    progress "adding the GEM screen"
     step gem-install.sh install "$pay" || fail "gem-install.sh install"
+    progress "adding the start-up hook"
     step sta-install.sh hook || fail "sta-install.sh hook"
 
     if [ "$marker_was" = present ] && [ ! -f "$marker" ] && [ -d "$gem_dir" ]; then
         : > "$marker" && say "GEM start-up choice kept: hotspot client"
     fi
+    progress "applying options"
     apply_options
 
     step sta-install.sh status
@@ -316,6 +332,7 @@ install_all() {
 }
 
 remove_all() {
+    progress "removing"
     [ "$(uname -s)" = QNX ] || fail "run this on the MMI"
     mount -uw "$efs_system" 2>/dev/null
     step sta-install.sh unhook || fail "sta-install.sh unhook"

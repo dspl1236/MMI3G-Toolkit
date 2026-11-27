@@ -7,6 +7,7 @@
     "compatible": ["MMI3G+"],
     "standalone": true,
     "run_script": "wifi_sta_run.sh",
+    "exit_code_reports_failure": true,
     "installs_to_flash": false,
     "requires_reboot": true,
     "payload_dirs": [{"source": "payload", "target": "wifi-sta"}],

@@ -31,8 +31,13 @@ class WebBundleFileParityTests(unittest.TestCase):
             'uninstall.sh',
             'scripts/common/platform.sh',
             'bin/showScreen',
+            'bin/mmi_splash',
             'lib/running.png',
             'lib/done.png',
+            'lib/failed.png',
+            'lib/running.bin',
+            'lib/done.bin',
+            'lib/failed.bin',
         }
 
         if 'gem-activator' in selected:
