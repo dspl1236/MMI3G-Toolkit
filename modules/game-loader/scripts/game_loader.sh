@@ -107,7 +107,7 @@ echo ""
 if [ ! -x "$J9" ]; then
     echo "[ERROR] J9 JVM not found at $J9"
     echo "[ERROR] Trying to locate j9..."
-    J9=$(find /j9 /mnt/ifs-root -name "j9" -type f 2>/dev/null | head -1)
+    J9=$(find /j9 /mnt/ifs-root -xdev -name "j9" -type f 2>/dev/null | head -1)
     if [ -z "$J9" ]; then
         echo "[ERROR] J9 JVM not found anywhere!"
         exit 1
@@ -118,7 +118,11 @@ fi
 # Verify lsd.jxe is available
 if [ ! -f "$JXE" ]; then
     JXE="/lsd/lsd.jxe"
-    [ ! -f "$JXE" ] && JXE=$(find /mnt -name "lsd.jxe" -type f 2>/dev/null | head -1)
+    # Known places only: a find over /mnt would walk the whole hard disk.
+    for j in /mnt/efs-system/lsd/lsd.jxe /mnt/ifs-root/lsd/lsd.jxe; do
+        [ -f "$JXE" ] || JXE="$j"
+    done
+    [ -f "$JXE" ] || JXE=""
     if [ -z "$JXE" ]; then
         echo "[ERROR] lsd.jxe not found!"
         exit 1

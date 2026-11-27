@@ -242,7 +242,9 @@ if ! command -v xargs >/dev/null 2>&1; then
     }
 fi
 
-# find dir... [-maxdepth N] [-type f|d] [-name PATTERN]: a walk with shell globs
+# find dir... [-maxdepth N] [-xdev] [-type f|d] [-name PATTERN]: a walk with
+# shell globs. -xdev matters on the unit: /mnt/efs-persist has the owner's
+# manual disc image (hundreds of MB, on the hard disk) mounted inside it.
 if ! command -v find >/dev/null 2>&1; then
     _find_emit() {
         case "$_find_type" in
@@ -263,6 +265,10 @@ if ! command -v find >/dev/null 2>&1; then
             [ -e "$_e" ] || [ -h "$_e" ] || continue
             _find_emit "$_e"
             if [ -d "$_e" ] && [ ! -h "$_e" ]; then
+                # -xdev: a directory something else is mounted on is not walked
+                case "$_find_mnts" in *"
+$_e
+"*) continue ;; esac
                 if [ -z "$_find_max" ] || [ "$2" -lt "$_find_max" ]; then
                     _find_walk "$_e" $(($2 + 1))
                 fi
@@ -271,10 +277,13 @@ if ! command -v find >/dev/null 2>&1; then
     }
     find() {
         local _dirs="" _d
-        _find_type=""; _find_name=""; _find_max=""
+        _find_type=""; _find_name=""; _find_max=""; _find_mnts=""
         while [ $# -gt 0 ]; do
             case "$1" in
                 -maxdepth) _find_max="$2"; shift 2 ;;
+                -xdev) _find_mnts="
+$(mount 2>/dev/null | sed -n 's/^.* on \([^ ]*\) type .*$/\1/p')
+"; shift ;;
                 -type) _find_type="$2"; shift 2 ;;
                 -name) _find_name="$2"; shift 2 ;;
                 -print) shift ;;
