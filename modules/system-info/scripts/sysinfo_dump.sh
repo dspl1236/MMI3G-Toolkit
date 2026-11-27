@@ -356,6 +356,19 @@ echo "--- DNS ---"
 cat /etc/resolv.conf 2>/dev/null
 cat /etc/resolv.conf > "${OUTDIR}/dns.txt" 2>/dev/null
 
+# Reachability (what the network-check module did, without its resolv.conf
+# rewrite: this report changes nothing). The gateway shows the route works,
+# 1.1.1.1 the internet, kh.google.com name lookups and the Google Earth host.
+echo ""
+echo "--- Reachability ---"
+NET_GW=$(netstat -rn 2>/dev/null | grep "^default" | awk '{print $2}' | head -1)
+echo "Default gateway: ${NET_GW:-<none>}"
+for target in ${NET_GW} 1.1.1.1 kh.google.com; do
+    echo "\$ ping -c 1 -w 3 ${target}"
+    run_bounded 8 ping -c 1 -w 3 "${target}" 2>&1
+    echo "  (exit $?)"
+done
+
 # ============================================================
 # 7. INSTALLED SCRIPTS & MODIFICATIONS
 # ============================================================

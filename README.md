@@ -85,7 +85,7 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| **system-info** | ✅ Tested | One-shot system reporter — full MMI state dump to SD: identity and variant, credentials, persistence and shared memory, nav database and maps, HDD, processes and logs (it absorbed password-finder, variant-dump, persistence-dump and map-parser) |
+| **system-info** | ✅ Tested | One-shot system reporter — full MMI state dump to SD: identity and variant, credentials, persistence and shared memory, nav database and maps, HDD, network and reachability, processes and logs (it absorbed password-finder, variant-dump, persistence-dump, map-parser and the network check) |
 | **gem-activator** ⚠️ | ✅ Tested | GEM infrastructure setup. **Setting the enable bit requires VCDS/ODIS** — adaptation 5F channel 6 = 1 |
 | **gauges-dashboard** | ✅ Tested | Live telemetry — battery voltage, GPS, system info, data logging |
 | **dtc-checker** | ✅ Tested | Read and display diagnostic trouble codes from the GEM |
@@ -98,7 +98,6 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **jvm-extract** | ✅ Ready | Extract J9 JVM and UI framework for reverse engineering |
 | **game-loader** | ✅ Ready | Java game launcher — run games on the MMI's J9 JVM |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
-| **dns-refresh-probe** | 🧪 Alpha | One-shot route/DNS diagnostic that rewrites `/etc/resolv.conf` to the SD override or gateway and logs before/after checks |
 | **google-earth** | 🧪 Alpha | Google Earth restoration — probe, enable, deploy, restore. [GEMMI binaries](https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi) auto-included from GitHub Release |
 | **google-earth-gemmi-wrappers** | 🧪 Alpha | Install legacy `/scripts/GEMMI/*.sh` controls expected by the OEM Google Earth screen |
 | **google-earth-p0824-deploy** | 🧪 Alpha | Deploy bundled EU VW `P0824` GEMMI donor payload to `/mnt/nav/gemmi` with backup |
@@ -219,7 +218,7 @@ MMI3G-Toolkit/
 │   ├── copie_scr_plain.sh       # Launcher template (auto-encoded)
 │   ├── platform.sh              # QNX shims, variant detection, logstamp + module-completion/timeout helpers
 │   └── uninstall.sh             # Universal uninstaller
-├── modules/                     # 24 modules
+├── modules/                     # 23 modules
 │   ├── system-info/             # One-shot system state dump to SD
 │   ├── gem-activator/           # engdefs/ setup (enable bit still needs VCDS)
 │   ├── gauges-dashboard/        # Live telemetry — voltage, GPS, data logging
@@ -239,7 +238,6 @@ MMI3G-Toolkit/
 │   ├── per3-writer/             # Persistence write capability (design)
 │   ├── usb-net/                 # Universal ASIX USB-Ethernet (supersedes lte-setup)
 │   ├── can-diag/                # CAN bus diagnostics via NDR (read-only, alpha)
-│   ├── dns-refresh-probe/       # One-shot route/DNS diagnostic + resolv.conf refresh
 │   ├── region-audit/            # Read-only region / VZE-TSR audit (planned)
 │   ├── google-earth-gemmi-wrappers/    # Legacy /scripts/GEMMI control wrappers
 │   ├── google-earth-p0824-deploy/      # Deploy bundled EU VW P0824 GEMMI donor payload

@@ -56,6 +56,15 @@
         "MapParser",
         "PersistDump"
       ]
+    },
+    {
+      "name": "dns-refresh-probe",
+      "merged_into": "system-info",
+      "note": "Merged into system-info on 2026-11-27: its route/DNS snapshot and pings are in section 6. Its /etc/resolv.conf rewrite was dropped (system-info writes nothing; usb-net's lte mode, DrGER's dhcp-up and wifi-sta set DNS from each lease). It was SD-only.",
+      "engdefs": [],
+      "script_dirs": [
+        "NetDiag"
+      ]
     }
   ]
 }
