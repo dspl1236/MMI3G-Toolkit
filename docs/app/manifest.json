@@ -1,5 +1,5 @@
 {
-    "generated": "2026-11-26",
+    "generated": "2026-11-27",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -332,7 +332,7 @@
                 },
                 {
                     "path": "scripts/launch_game.sh",
-                    "size": 2541
+                    "size": 2589
                 }
             ]
         },
@@ -456,7 +456,7 @@
                 },
                 {
                     "path": "scripts/gem_status.sh",
-                    "size": 1378
+                    "size": 1413
                 }
             ]
         },
@@ -947,7 +947,7 @@
                 },
                 {
                     "path": "scripts/per3_read.sh",
-                    "size": 2592
+                    "size": 2604
                 },
                 {
                     "path": "scripts/per3_restore.sh",
@@ -1154,7 +1154,7 @@
                 },
                 {
                     "path": "scripts/sysinfo_dump.sh",
-                    "size": 29236
+                    "size": 29515
                 }
             ]
         },
@@ -1196,7 +1196,7 @@
                 },
                 {
                     "path": "scripts/usb_net_run.sh",
-                    "size": 4761
+                    "size": 4797
                 }
             ]
         },

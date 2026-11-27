@@ -37,10 +37,11 @@ EXTRA_CP=""
 VMARGS=""
 
 if [ -f "$MANIFEST" ]; then
-    MAINCLASS=$(grep "^main=" "$MANIFEST" | cut -d= -f2)
-    EXTRA_ARGS=$(grep "^args=" "$MANIFEST" | cut -d= -f2)
-    EXTRA_CP=$(grep "^classpath=" "$MANIFEST" | cut -d= -f2)
-    VMARGS=$(grep "^vmargs=" "$MANIFEST" | cut -d= -f2)
+    # sed, not cut: the unit has no cut
+    MAINCLASS=$(sed -n 's/^main=//p' "$MANIFEST" | sed 1q)
+    EXTRA_ARGS=$(sed -n 's/^args=//p' "$MANIFEST" | sed 1q)
+    EXTRA_CP=$(sed -n 's/^classpath=//p' "$MANIFEST" | sed 1q)
+    VMARGS=$(sed -n 's/^vmargs=//p' "$MANIFEST" | sed 1q)
 fi
 
 # If no main class specified, try to read from JAR manifest

@@ -257,7 +257,7 @@ for f in /mnt/efs-persist/wlan_*.conf /mnt/efs-system/etc/wpa_supplicant.conf /e
     if [ -f "$f" ]; then
         echo "FOUND: $f"
         cat "$f" 2>/dev/null
-        cp "$f" "${BACKUP}/${f##/*}" 2>/dev/null
+        cp "$f" "${BACKUP}/${f##*/}" 2>/dev/null
     fi
 done
 
@@ -274,7 +274,7 @@ for f in /mnt/efs-system/scripts/Connectivity/common.cfg /lsd/MMI3G_MyAudi.prope
     if [ -f "$f" ]; then
         echo "FOUND: $f"
         grep -i "user\|pass\|key\|token\|auth\|ssid\|psk" "$f" 2>/dev/null
-        cp "$f" "${BACKUP}/${f##/*}" 2>/dev/null
+        cp "$f" "${BACKUP}/${f##*/}" 2>/dev/null
     fi
 done
 
@@ -522,12 +522,15 @@ echo ""
 echo "--- Broad string sweep (ssid/psk/password/token) ---"
 for searchdir in /mnt/efs-persist /mnt/persist /mnt/efs-system/etc; do
     if [ -d "$searchdir" ]; then
-        HITS=$(find "$searchdir" -type f 2>/dev/null | xargs grep -il "ssid\|psk\|passphrase\|password\|token\|apikey" 2>/dev/null)
+        # find and xargs are platform.sh stand-ins on the unit: bound the walk.
+        HITS=$(run_bounded "${MMI_CMD_BUDGET}" find "$searchdir" -type f 2>/dev/null | xargs grep -il "ssid\|psk\|passphrase\|password\|token\|apikey" 2>/dev/null)
         if [ -n "$HITS" ]; then
             echo "  Files with credential-like strings in $searchdir:"
             echo "$HITS" | while read f; do
                 echo "    $f"
-                grep -Ein "ssid=|psk=|passphrase=|password=|token=|apikey=" "$f" 2>/dev/null | head -5 | sed 's/^/      /'
+                # Names only: a Wi-Fi key or token stays out of the report (SSIDs are shown).
+                grep -Ein "ssid=|psk=|passphrase=|password=|token=|apikey=" "$f" 2>/dev/null | head -5 | \
+                    sed -e '/[Ss][Ss][Ii][Dd]=/!s/=.*/=<value hidden>/' -e 's/^/      /'
             done
         fi
     fi

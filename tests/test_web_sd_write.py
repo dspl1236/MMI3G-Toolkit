@@ -89,6 +89,28 @@ class WebSdWrite(unittest.TestCase):
         '''))
         self.assertEqual(got, [[], ['lib/done.bin', 'lib/failed.bin', 'wifi-sta/options']])
 
+    def test_the_card_stamp_has_the_same_keys_as_the_builders(self):
+        src = WEB_APP.read_text(encoding='utf-8')
+        code = extract_function(src, 'cardStamp')
+        script = code + ('\nconsole.log(JSON.stringify(cardStamp(new Set(["wifi-sta", "system-info"]),'
+                         ' {generated: "2026-11-27", branch: "main"})));\n')
+        with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f:
+            f.write(script)
+            path = f.name
+        out = subprocess.run([self.node, path], capture_output=True, text=True, timeout=30)
+        Path(path).unlink()
+        self.assertEqual(out.returncode, 0, out.stderr)
+        web = json.loads(out.stdout).splitlines()
+        spec = importlib.util.spec_from_file_location('mmi3g_build_sd_stamp', REPO_ROOT / 'builder' / 'build_sd.py')
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        cli = builder.card_stamp(['wifi-sta', 'system-info'], 'build_sd.py').splitlines()
+        self.assertEqual([l.split(':')[0] for l in web], [l.split(':')[0] for l in cli])
+        self.assertEqual(web[0], 'MMI3G-Toolkit card')
+        self.assertEqual(web[-1], 'modules: wifi-sta system-info')
+        self.assertRegex(web[1], r'^built: \d{4}-\d\d-\d\d \d\d:\d\d UTC$')
+        self.assertIn('manifest 2026-11-27, main', web[2])
+
     def test_write_to_card_is_the_main_action_where_the_browser_can(self):
         src = WEB_APP.read_text(encoding='utf-8')
         self.assertIn('onClick: () => runBuild(chromium ? "folder" : "zip")', src)

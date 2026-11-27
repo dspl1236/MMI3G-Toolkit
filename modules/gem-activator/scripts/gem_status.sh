@@ -25,7 +25,8 @@ echo ""
 
 # Check engdefs
 if [ -d /mnt/efs-system/engdefs ]; then
-    COUNT=$(ls /mnt/efs-system/engdefs/*.esd 2>/dev/null | wc -l)
+    COUNT=0
+    for e in /mnt/efs-system/engdefs/*.esd; do [ -f "$e" ] && COUNT=$((COUNT + 1)); done
     echo "[ESD] engdefs/ exists — ${COUNT} screen files"
 else
     echo "[ESD] engdefs/ not found"

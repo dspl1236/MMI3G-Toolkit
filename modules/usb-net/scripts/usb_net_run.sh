@@ -25,7 +25,7 @@ DRVPATH=""
 for c in "${USBROOT}/${DRV}" "${USBROOT}/scripts/USBNet/${DRV}" "${USBROOT}/bin/${DRV}"; do
     [ -f "$c" ] && DRVPATH="$c" && break
 done
-[ -z "$DRVPATH" ] && DRVPATH=$(ls "${USBROOT}"/*/"${DRV}" "${USBROOT}"/*/*/"${DRV}" 2>/dev/null | head -1)
+[ -z "$DRVPATH" ] && DRVPATH=$(ls "${USBROOT}"/*/"${DRV}" "${USBROOT}"/*/*/"${DRV}" 2>/dev/null | sed 1q)
 DTSTAMP=$(date +%Y%m%d_%H%M%S 2>/dev/null || echo nodate)
 LOG="${USBROOT}/mmi_usbnet_${DTSTAMP}.txt"
 TMPD=/tmp; [ -d /fs/tmpfs ] && TMPD=/fs/tmpfs
@@ -98,7 +98,7 @@ echo "2323 stream tcp nowait root /bin/ksh ksh -i" > /dev/shmem/inetd_2323.conf
 
 {
     echo ""; echo "--- ifconfig ---"; ifconfig 2>&1
-    echo ""; echo "--- driver log ---"; sloginfo 2>/dev/null | grep -iE 'asix|devn-ax|mii|media|baset|duplex|transceiver|8877' | tail -25
+    echo ""; echo "--- driver log ---"; sloginfo 2>/dev/null | grep -iE 'asix|devn-ax|mii|media|baset|duplex|transceiver|8877' | sed -e ':a' -e '$q' -e 'N' -e '26,$D' -e 'ba'
     echo ""; echo "telnet: port 23 (login root) or 2323 (raw shell) once you have an inet address."
     [ "$MODE" = "lte" ] && echo "lte: reboot the unit for DLinkReplacesPPP to take effect for online services."
 } >> "$LOG" 2>&1

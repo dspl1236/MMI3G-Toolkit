@@ -620,6 +620,20 @@ function generateRunSh(selected, manifest, overrides) {
  * Returns an array of { path, bytes } ready to be written either to a
  * directory picker or to a ZIP.
  */
+// toolkit-card.txt: which build made this card, so its logs can be matched to
+// it later (builder/build_sd.py writes the same keys).
+function cardStamp(selected, manifest) {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  const built = d.getUTCFullYear() + "-" + p(d.getUTCMonth() + 1) + "-" + p(d.getUTCDate()) + " " +
+    p(d.getUTCHours()) + ":" + p(d.getUTCMinutes()) + " UTC";
+  return ["MMI3G-Toolkit card",
+    "built: " + built,
+    "builder: web (manifest " + (manifest.generated || "?") + ", " + (manifest.branch || "?") + ")",
+    "modules: " + Array.from(selected).join(" "),
+    ""].join("\n");
+}
+
 async function buildSdBundle(selected, onProgress, overrides, wifiFiles) {
   overrides = overrides || {};
   onProgress && onProgress("Loading manifest...", 0);
@@ -699,6 +713,7 @@ async function buildSdBundle(selected, onProgress, overrides, wifiFiles) {
   const files = [];
   files.push({ path: "copie_scr.sh", bytes: encodedCopie });
   files.push({ path: "uninstall.sh", bytes: uninstallSh });
+  files.push({ path: "toolkit-card.txt", bytes: new TextEncoder().encode(cardStamp(selected, manifest)) });
   if (platformSh) {
     files.push({ path: "scripts/common/platform.sh", bytes: platformSh });
   }
