@@ -25,18 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure Pages uses workflow deployments
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api \
-            --method PUT \
-            "repos/${GITHUB_REPOSITORY}/pages" \
-            -f build_type=workflow \
-            --silent
-
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
       - name: Stage site
         run: |
@@ -53,9 +42,9 @@ jobs:
             --dir _site/app/payloads
           test "$(wc -c < _site/app/payloads/gemmi_p0824_eu_vw.zip)" -eq 9823685
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
