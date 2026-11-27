@@ -3,27 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MMI-Toolkit — SD Card Builder</title>
-  <meta name="description" content="SD card toolkit for Audi/VW MMI infotainment systems infotainment systems">
+  <!-- Only what the builder needs. Scripts: cdnjs (pinned by integrity below);
+       'unsafe-inline' and 'unsafe-eval' because babel-standalone compiles the
+       inline text/babel script in the page. connect-src: the manifest (self),
+       raw.githubusercontent.com (module files, core files, GEMMI assets), the
+       GitHub Pages origin named by release_zip.web_url, and GitHub's release
+       hosts for a release_zip.url / release_assets fallback. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://raw.githubusercontent.com https://dspl1236.github.io https://github.com https://objects.githubusercontent.com https://release-assets.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>MMI3G-Toolkit SD card builder</title>
+  <meta name="description" content="Build an SD card for Audi and VW MMI 3G, 3G+ and RNS-850 units, in the browser">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23c41e3a'/><text y='72' x='12' font-size='56' font-family='monospace' font-weight='bold' fill='white'>M3</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <style>
+    :root {
+      --bg: #0a0a0c; --panel: #0e0e11; --card: #0f0f12; --field: #0a0a0c;
+      --line: #1c1c20; --line2: #2a2a2e; --text: #e8e8ea; --muted: #8a8a90; --dim: #55555a;
+      --red: #c41e3a; --selbg: #160b0e; --seltext: #f08a9c;
+      --green: #2fbf71; --greenbg: #0f1a14; --greenline: #1c3a2a; --greentext: #a8d8bc;
+      --amber: #f0a020; --amberbg: #1a1408; --amberline: #3a2c10; --ambertext: #f3c46a;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0a0a0c; }
+    html, body { background: var(--bg); color: var(--text); }
+    body { font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.45; -webkit-text-size-adjust: 100%; }
     #root { min-height: 100vh; }
-    input[type="range"] { height: 4px; }
-    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #c41e3a; cursor: pointer; }
+    button, input, select { font: inherit; color: inherit; }
+    a { color: var(--seltext); }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .caps { letter-spacing: .2em; font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .rule { width: 36px; height: 2px; background: var(--red); margin: 8px 0 12px; }
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+
+    .hdr { border-bottom: 1px solid var(--line); background: var(--panel); }
+    .hdr-row { display: flex; align-items: center; gap: 14px; padding: 12px 20px; flex-wrap: wrap; max-width: 1320px; margin: 0 auto; }
+    .hdr-row + .hdr-row { padding-top: 0; }
+    .logo { display: flex; gap: 3px; align-items: flex-end; height: 20px; flex: none; }
+    .logo span { width: 3px; display: block; }
+    .name { letter-spacing: .18em; font-weight: 600; font-size: 13px; white-space: nowrap; }
+    .grow { flex: 1; }
+    .tabs { display: flex; gap: 2px; }
+    .tabs button { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font-size: 13px; padding: 6px 10px; cursor: pointer; }
+    .tabs button.on { color: var(--text); border-bottom-color: var(--red); }
+    .gh { color: var(--muted); font-size: 12px; text-decoration: none; padding: 5px 10px; border: 1px solid var(--line2); border-radius: 6px; white-space: nowrap; }
+    .gh:hover { color: var(--text); }
+    .search { flex: 0 1 260px; min-width: 160px; padding: 7px 10px; border: 1px solid var(--line2); border-radius: 6px; background: var(--field); font-size: 13px; outline: none; }
+    .search:focus, .field:focus { border-color: #4a4a50; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .chip { font-size: 12px; padding: 5px 10px; border: 1px solid var(--line2); color: var(--muted); background: none; border-radius: 6px; cursor: pointer; }
+    .chip.on { border-color: var(--red); color: var(--seltext); }
+
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 370px; max-width: 1320px; margin: 0 auto; align-items: start; }
+    .catalog { padding: 20px 20px 48px; min-width: 0; }
+    .section { margin-bottom: 26px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+    .card { padding: 12px; border: 1px solid var(--line); background: var(--card); border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .card:hover { border-color: var(--line2); }
+    .card.on { border-color: var(--red); background: var(--selbg); }
+    .card:focus-visible, .btn:focus-visible, .btn2:focus-visible, .chip:focus-visible, .tog:focus-visible, .x:focus-visible, .link:focus-visible, .tabs button:focus-visible { outline: 2px solid var(--seltext); outline-offset: 2px; }
+    .card.offcar { opacity: .55; }
+    .card-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+    .card-name { font-size: 14px; font-weight: 500; }
+    .card.on .card-name { color: #fff; }
+    .tick { color: var(--seltext); font-size: 13px; flex: none; }
+    .card-desc { font-size: 12px; color: var(--muted); }
+    .card-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 5px; font-size: 11px; }
+    .card-detail { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; line-height: 1.55; cursor: auto; }
+    .card-detail p + p { margin-top: 6px; }
+    .link { background: none; border: 0; color: var(--seltext); cursor: pointer; font-size: 12px; padding: 0; }
+    .link.dim { color: var(--muted); }
+    .empty { padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line2); border-radius: 8px; }
+
+    .panel { border-left: 1px solid var(--line); background: var(--panel); padding: 20px 18px 28px; position: sticky; top: 0; max-height: 100vh; overflow-y: auto; min-height: calc(100vh - 110px); }
+    .pitem { border-bottom: 1px solid var(--line); padding: 8px 0; }
+    .pitem-row { display: flex; align-items: center; gap: 8px; }
+    .pitem-name { flex: 1; font-size: 13px; min-width: 0; }
+    .pitem-sub { font-size: 11px; color: var(--muted); }
+    .x { background: none; border: 0; color: var(--dim); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px; }
+    .x:hover { color: var(--text); }
+    .opts { margin: 8px 0 4px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+    .opt-h { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .field { width: 100%; padding: 8px 10px; border: 1px solid var(--line2); border-radius: 6px; background: var(--field); font-size: 13px; outline: none; min-width: 0; }
+    .field.bad { border-color: var(--amber); }
+    select.field { cursor: pointer; }
+    .net { display: grid; grid-template-columns: 18px minmax(0, 1fr) 24px; gap: 6px 8px; align-items: start; padding: 8px 0; border-top: 1px solid var(--line); }
+    .net:first-child { border-top: 0; }
+    .net-n { font-size: 12px; color: var(--muted); padding-top: 9px; }
+    .net-fields { display: grid; gap: 6px; min-width: 0; }
+    .err { font-size: 11px; color: var(--amber); }
+    .row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
+    .row-t { flex: 1; font-size: 13px; }
+    .tog { width: 32px; height: 18px; border-radius: 9px; background: var(--line2); position: relative; flex: none; border: 0; cursor: pointer; }
+    .tog::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--muted); transition: left .12s; }
+    .tog.on { background: var(--red); }
+    .tog.on::after { left: 17px; background: #fff; }
+    .tickrow { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 5px 0; cursor: pointer; }
+    .tickrow input { margin-top: 3px; accent-color: var(--red); flex: none; }
+    .tickrow.off { cursor: default; color: var(--muted); }
+    .note-g { margin-top: 10px; padding: 9px 11px; border: 1px solid var(--greenline); background: var(--greenbg); border-radius: 6px; font-size: 12px; color: var(--greentext); }
+    .note-a { margin-top: 10px; padding: 9px 11px; border: 1px solid var(--amberline); background: var(--amberbg); border-radius: 6px; font-size: 12px; color: var(--ambertext); }
+    .warn { font-size: 12px; color: var(--amber); margin-top: 8px; }
+    .issues { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--amber); border-radius: 6px; background: var(--amberbg); font-size: 12px; color: var(--ambertext); }
+    .issues ul { margin: 4px 0 0 16px; }
+    .btn { display: block; width: 100%; text-align: center; font-size: 14px; font-weight: 600; padding: 11px 16px; background: var(--red); color: #fff; border: 0; border-radius: 6px; cursor: pointer; margin-top: 14px; }
+    .btn:hover { background: #d42a47; }
+    .btn.wait, .btn.wait:hover { background: var(--line2); color: var(--muted); }
+    .btn.busy, .btn.busy:hover { background: var(--line2); color: var(--text); cursor: progress; }
+    .btn2 { display: block; width: 100%; margin-top: 8px; font-size: 12px; padding: 8px; background: none; color: var(--muted); border: 1px solid var(--line2); border-radius: 6px; cursor: pointer; }
+    .btn2:hover { color: var(--text); }
+    .bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+    .bar div { height: 100%; background: var(--red); transition: width .2s; }
+    .result { margin-top: 12px; padding: 12px; border: 1px solid var(--greenline); background: var(--greenbg); border-radius: 6px; font-size: 12px; }
+    .result ol { margin: 6px 0 0 16px; color: var(--greentext); line-height: 1.7; }
+    .failbox { margin-top: 12px; padding: 10px 12px; border: 1px solid #5a1a26; background: #1a0b0f; border-radius: 6px; font-size: 12px; color: var(--seltext); white-space: pre-wrap; word-break: break-word; }
+    details.cli { margin-top: 16px; font-size: 12px; color: var(--muted); }
+    details.cli summary { cursor: pointer; }
+    details.cli pre { margin-top: 8px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--seltext); white-space: pre-wrap; word-break: break-all; font-size: 11px; }
+    .mbar { display: none; }
+
+    .splash { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: start; max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .box { padding: 12px; border: 1px solid var(--line); background: var(--card); border-radius: 8px; }
+    input[type="range"] { height: 4px; accent-color: var(--red); width: 100%; }
     ::selection { background: rgba(196,30,58,0.3); }
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0a0a0c; }
-    ::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .panel { position: static; max-height: none; min-height: 0; border-left: 0; border-top: 1px solid var(--line); padding-bottom: 90px; }
+      .catalog { padding-bottom: 24px; }
+      .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; align-items: center; gap: 12px; padding: 10px 16px; background: #111114; border-top: 1px solid var(--line); }
+      .mbar .btn { width: auto; margin: 0; padding: 8px 14px; font-size: 13px; }
+      .splash { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .hdr-row { padding: 10px 16px; gap: 10px; }
+      .hdr-row + .hdr-row { padding-top: 0; }
+      .search { flex: 1 1 100%; }
+      .catalog { padding: 16px 16px 24px; }
+      .panel { padding-left: 16px; padding-right: 16px; }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .splash { padding: 16px; }
+    }
   </style>
 </head>
 <body>
   <div id="root"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js" integrity="sha384-ku9eM40vVDsFUiERorrdlHlF0LIhdfn716M7TntM72Uo98T7LWiogD3hNenPx8Q0" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
   <script type="text/babel">
     const { useState, useRef, useCallback, useEffect } = React;
 
@@ -60,92 +193,80 @@ class MMI3GCipher {
 
 const MANIFEST_URL = "./manifest.json";
 const MODULES_DISPLAY = [
-  { id: "system-info", name: "System Info", status: "tested",
-    desc: "Complete diagnostic — identity, activations, credentials, nav DB, persistence backup, bus topology. Single pass, no flash writes.",
+  { id: "system-info", name: "System info", status: "tested",
+    desc: "Full read-only report of the unit, with a backup of its settings.",
     compat: ["3G", "3G+", "RNS-850"], category: "diag", primary: true,
     prereq: null, detail: "21-section report: system identity, GEM state, activation/FSC, credentials + sweep, storage, network, installed mods, HBpersistence backup, processes, syslog, nav DB/map/acios_db.ini, credential sweep, CVALUE/FSC file backup, QNX kernel + IPC/DSP/MOST/CAN bus topology. Consolidates system-info + password-finder + variant-dump + persistence-dump + map-parser." },
-  { id: "gem-activator", name: "GEM Activator", status: "tested",
-    desc: "Enable the Green Engineering Menu from SD card — creates /HBpersistence/DBGModeActive. No VCDS needed!",
+  { id: "gem-activator", name: "GEM activator", status: "tested",
+    desc: "Turns on the Green Engineering Menu from the card, without VCDS.",
     compat: ["3G", "3G+", "RNS-850"], category: "system",
     prereq: null, detail: "Creates the DBGModeActive file marker checked by the MMI firmware at boot. Reboot after running to activate GEM. Confirmed working on MMI 3G+." },
-  { id: "gauges-dashboard", name: "Gauges Dashboard", status: "tested",
-    desc: "Live telemetry — voltage, GPS, system info, data logging",
+  { id: "gauges-dashboard", name: "Gauges dashboard", status: "tested",
+    desc: "Live voltage, GPS and system data in the GEM, with logging.",
     compat: ["3G", "3G+", "RNS-850"], category: "gem",
     prereq: "gem-activator", detail: "3 GEM screens with 500ms battery polling, GPS satellite tracking, and one-tap data logging to SD card." },
-  { id: "splash-screen", name: "Splash Screen", status: "alpha",
-    desc: "Custom boot logo — use the formatter tab to prepare your image",
+  { id: "splash-screen", name: "Splash screen", status: "alpha",
+    desc: "Your own boot logo. Prepare the image in the Splash screen tab.",
     compat: ["3G", "3G+", "RNS-850"], category: "visual",
     prereq: null, detail: "Copies 800x480 PNG to /mnt/efs-system/etc/splashscreens/. Backs up factory screens automatically." },
-  { id: "nav-unblocker", name: "Nav Unblocker", status: "alpha",
-    desc: "Bypass navigation database activation check",
+  { id: "nav-unblocker", name: "Nav unblocker", status: "alpha",
+    desc: "Skips the navigation database activation check.",
     compat: ["3G", "3G+", "RNS-850"], category: "nav",
     prereq: null, detail: "Patches manage_cd.sh to terminate vdev-logvolmgr. Persistent, reversed by firmware reinstall." },
   { id: "usb-net", name: "USB Ethernet", status: "beta",
-    desc: "Universal ASIX USB-Ethernet (AX88772 / 772A / 772B / 772C) + telnet. Modes: dhcp / static / lte.",
+    desc: "Modern ASIX USB-Ethernet adapters and LTE routers, with telnet.",
     compat: ["3G+", "RNS-850"], category: "net",
     prereq: null, detail: "Ships devn-asix-universal.so — activates Harman's own AX88772B init from later (MU9498) firmware so modern 772B/772C adapters work, not just 772/772A. Loads from USB into the running io-net; never touches the read-only flash (reboot-safe). 'lte' mode also sets DLinkReplacesPPP so the unit uses the adapter for online services. Validated on a Porsche PCM 3.1; MMI3G+/RNS-850 expected (same QNX 6.3 io-net SH4 driver). Supersedes lte-setup." },
-  { id: "wifi-sta", name: "Wi-Fi Client", status: "alpha",
-    desc: "Wi-Fi client (station mode): join a phone hotspot instead of running the car's access point.",
+  { id: "wifi-sta", name: "Wi-Fi client", status: "alpha",
+    desc: "Join your phone's hotspot or home Wi-Fi instead of running the car's access point.",
     compat: ["3G+"], category: "net",
     prereq: null, detail: "Ships a new 88W8688 station driver, wpa_supplicant 2.11, jitter-egd and Marvell's linux-firmware station firmware (from chundla/mmi3g-wifi-sta). Installs to the HDD, adds the WifiClient GEM screen and a start-up block in lsd.sh, and sets the factory LAN-mode flag so online services use the hotspot. Put wifi-sta/hotspot.conf (see hotspot.conf.example) on the card. Refuses on firmware other than the tested K0942 unit's. Station mode removes the car's access point until a restart. Alpha: one unit." },
-  { id: "lte-setup", name: "LTE Setup", status: "deprecated",
-    desc: "DEPRECATED — use USB Ethernet. The old AX88772B/D overrides never worked on io-net.",
-    compat: ["3G+", "RNS-850"], category: "net",
-    prereq: null, detail: "Superseded by the usb-net module, which ships the universal ASIX driver (incl. 772B/C) and an 'lte' mode that does the same DLinkReplacesPPP + DNS setup. Kept for now for its lte_restore.sh helper." },
-  { id: "can-scanner", name: "CAN Scanner", status: "alpha",
-    desc: "CAN bus address scanner — discover RPM, boost, coolant, speed",
+  { id: "can-scanner", name: "CAN scanner", status: "alpha",
+    desc: "Scans CAN addresses to find RPM, boost, coolant and speed.",
     compat: ["3G", "3G+", "RNS-850"], category: "diag",
     prereq: "gem-activator", detail: "Live address scan via per3 namespace. Great for discovering custom data for gauges dashboard." },
-    { id: "dtc-checker", name: "DTC Checker", status: "tested",
-    desc: "Onboard diagnostic trouble code reader — view and clear DTCs from the GEM",
+  { id: "dtc-checker", name: "DTC checker", status: "tested",
+    desc: "Read and clear fault codes from the GEM.",
     compat: ["3G", "3G+", "RNS-850"], category: "gem",
     prereq: "gem-activator", detail: "3 GEM screens: DTC overview (20 rows), single DTC detail with status flags, and DTC control (clear/test). Uses DSI namespace 2 via IOC. V850 IOC has TP2.0 diagnostic protocol support." },
-    { id: "per3-reader", name: "Per3 Reader", status: "alpha",
-    desc: "Read DSI persistence values from shell scripts via Java OSGi bundle",
+  { id: "per3-reader", name: "Per3 reader", status: "alpha",
+    desc: "Lets shell scripts read DSI persistence values (a Java bundle).",
     compat: ["3G", "3G+", "RNS-850"], category: "system",
     prereq: null, detail: "OSGi bundle installs into DSITracer.jar slot. After reboot, shell scripts can read any DSI persistence value (battery voltage, coding bytes, train name). Requires reboot after install." },
-  { id: "per3-writer", name: "Per3 Writer", status: "design",
-    desc: "Write DSI persistence values — enable GEM, change coding without VCDS",
-    compat: ["3G", "3G+", "RNS-850"], category: "system",
-    prereq: "per3-reader", detail: "Same OSGi pattern as per3-reader but calls requestWriteInt. Would enable GEM activation, coding changes, and feature configuration entirely from SD card. Design phase — needs per3-reader verified first." },
-  { id: "jvm-extract", name: "JVM Extract", status: "alpha",
-    desc: "Extract J9 JVM and UI framework for reverse engineering",
+  { id: "jvm-extract", name: "JVM extract", status: "alpha",
+    desc: "Copies the J9 Java runtime and UI framework to the card for study.",
     compat: ["3G", "3G+", "RNS-850"], category: "diag",
     prereq: null, detail: "Copies J9 runtime and AppDevelopment.jar to SD for offline analysis." },
-  { id: "game-loader", name: "Game Loader", status: "alpha",
-    desc: "Run Java games on the MMI's J9 JVM from SD card",
+  { id: "game-loader", name: "Game loader", status: "alpha",
+    desc: "Runs Java games on the MMI from the card.",
     compat: ["3G", "3G+", "RNS-850"], category: "visual",
     prereq: "gem-activator", detail: "Launcher module plus example games. Loads signed JARs via the built-in job framework." },
-  { id: "gemmi-dump", name: "GEMMI Dump", status: "tested",
-    desc: "Extract Google Earth binaries from HDD for offline analysis and patching",
+  { id: "gemmi-dump", name: "GEMMI dump", status: "tested",
+    desc: "Copies the Google Earth binaries from the HDD to the card for study.",
     compat: ["3G+", "RNS-850"], category: "diag",
     prereq: null, detail: "Copies gemmi_final (~2MB), libembeddedearth.so (~20MB), and all GEMMI config/scripts to SD card. Needed for Ghidra RE of Google hostnames and auth bypass. Based on ruthr/congo approach." },
-  { id: "google-earth", name: "Google Earth", status: "tested",
-    desc: "Google Earth satellite imagery — live tiles from Google\'s servers",
+  { id: "google-earth", name: "Google Earth on-car proxy", status: "tested",
+    desc: "Live satellite map tiles through a small proxy on the car.",
     compat: ["3G+", "RNS-850"], category: "system",
-    prereq: null, detail: "Restores Google Earth satellite imagery to your MMI3G+ head unit. Deploys a lightweight on-car proxy that serves map data directly from Google\\'s tile servers — no PC or external server required. Just build the SD card, insert, reboot, and enjoy live satellite imagery from the map menu. Requires working internet (LTE, WiFi tethering, USB Ethernet, or any other method). Zoom levels 1-22+ confirmed working." },
-  { id: "google-earth-gemmi-wrappers", name: "GEMMI Wrappers", status: "alpha",
-    desc: "Install legacy /scripts/GEMMI controls expected by the OEM Google Earth screen",
+    prereq: null, detail: "Restores Google Earth satellite imagery to your MMI3G+ head unit. Deploys a lightweight on-car proxy that serves map data directly from Google's tile servers — no PC or external server required. Just build the SD card, insert, reboot, and enjoy live satellite imagery from the map menu. Requires working internet (LTE, WiFi tethering, USB Ethernet, or any other method). Zoom levels 1-22+ confirmed working." },
+  { id: "google-earth-gemmi-wrappers", name: "GEMMI control scripts", status: "alpha",
+    desc: "The control scripts the factory Google Earth screen expects.",
     compat: ["RNS-850"], category: "system",
     prereq: null, detail: "Installs shell wrappers for activate/deactivate/start/stop/cache controls that forward to the deployed /mnt/nav/gemmi runtime." },
-  { id: "google-earth-p0824-deploy", name: "P0824 GEMMI Deploy", status: "alpha",
-    desc: "Deploy bundled EU VW P0824 GEMMI donor payload to /mnt/nav/gemmi",
+  { id: "google-earth-p0824-deploy", name: "Google Earth donor payload", status: "alpha",
+    desc: "Installs the bundled EU VW P0824 Google Earth payload.",
     compat: ["RNS-850"], category: "system",
     prereq: null, payloadUrl: "payloads/gemmi_p0824_eu_vw.zip", detail: "Backs up the existing /mnt/nav/gemmi tree, copies the bundled EU VW P0824 GEMMI payload from SD card root /gemmi, and adds minimal drivers.ini auth-bypass settings. Does not patch lsd.jxe or firmware. The web app fetches the payload relative to its own origin, so the request is same-origin wherever the site is hosted and never hits browser CORS limits." },
-  { id: "google-earth-p0824-restore", name: "P0824 GEMMI Restore", status: "alpha",
-    desc: "Restore /mnt/nav/gemmi from the backup made by P0824 GEMMI Deploy",
+  { id: "google-earth-p0824-restore", name: "Google Earth donor restore", status: "alpha",
+    desc: "Puts back the Google Earth files saved by the donor install.",
     compat: ["RNS-850"], category: "system",
     prereq: null, detail: "Uses /mnt/nav/.mmi3g_toolkit/google-earth-p0824/active.env to restore the previous GEMMI tree or remove the donor tree if none existed before deploy." },
-  { id: "dns-refresh-probe", name: "DNS Refresh Probe", status: "alpha",
-    desc: "One-shot route/DNS diagnostic and temporary /etc/resolv.conf refresh",
+  { id: "dns-refresh-probe", name: "Network check", status: "alpha",
+    desc: "One-off route and DNS check, with a temporary DNS refresh.",
     compat: ["3G+", "RNS-850"], category: "net",
     prereq: null, detail: "Snapshots route and DNS state, backs up /etc/resolv.conf to SD, rewrites nameserver to /dns-refresh-target.txt override or the default gateway, then reruns connectivity checks." },
-  { id: "diag-tool", name: "Diag Tool", status: "alpha",
-    desc: "UDS diagnostic scanner — needs VAG-COM cable",
-    compat: ["3G+"], category: "diag",
-    prereq: null, detail: "Auto-scans modules, reads/clears DTCs. Alpha — requires external diagnostic hardware." },
-  { id: "long-coding", name: "Long Coding", status: "alpha",
-    desc: "Live display of adaptation values via GEM (read-only)",
+  { id: "long-coding", name: "Long coding", status: "alpha",
+    desc: "Shows adaptation values in the GEM (read-only).",
     compat: ["3G", "3G+", "RNS-850"], category: "gem",
     prereq: "gem-activator", detail: "3 GEM screens for car-device, CAN routing. Read-only — use VCDS/ODIS to change values." },
 ];
@@ -160,8 +281,43 @@ const MODELS = [
   { id: "touareg", label: "Touareg 7P", brand: "vw", fsc: "bouncy" },
 ];
 
-const CAT_COLORS = { system: "#f59e0b", gem: "#10b981", visual: "#8b5cf6", nav: "#3b82f6", diag: "#6b7280", net: "#ef4444" };
-const CAT_LABELS = { system: "System", gem: "GEM Screens", visual: "Visual", nav: "Navigation", diag: "Diagnostics", net: "Network" };
+// The catalog's sections, in order. "start" holds the primary module.
+const CAT_ORDER = ["start", "net", "gem", "system", "visual", "nav", "diag"];
+const CAT_LABELS = { start: "Start here", net: "Connectivity", gem: "GEM screens", system: "System", visual: "Look and feel", nav: "Navigation", diag: "Diagnostics and research" };
+
+// Catalog cards that stand for more than one module. Selecting the card
+// selects the module id(s) its settings choose; the build sees only ids.
+const CATALOG_GROUPS = [
+  { key: "ge", name: "Google Earth", category: "net",
+    desc: "Satellite imagery in the map. Pick how to install it in your card's settings.",
+    members: ["google-earth", "google-earth-p0824-deploy", "google-earth-gemmi-wrappers", "google-earth-p0824-restore"] },
+  { key: "research", name: "Research extracts", category: "diag",
+    desc: "Copy Google Earth and Java files from the unit to the card for study.",
+    members: ["gemmi-dump", "jvm-extract"] },
+];
+const GE_METHODS = [
+  { value: "oncar", label: "On-car proxy (MMI 3G+)" },
+  { value: "donor", label: "Donor payload (RNS-850)" },
+  { value: "restore", label: "Restore the donor payload (RNS-850)" },
+];
+const GE_SCRIPTS = [
+  { value: "ge_deploy_oncar.sh", label: "Install Google Earth" },
+  { value: "ge_deploy_v6.sh", label: "Install, v6 Street View test" },
+  { value: "ge_probe.sh", label: "Probe only (changes nothing)" },
+  { value: "ge_restore.sh", label: "Undo all changes" },
+];
+function geMembers(method, wrappers) {
+  if (method === "donor") return wrappers ? ["google-earth-p0824-deploy", "google-earth-gemmi-wrappers"] : ["google-earth-p0824-deploy"];
+  if (method === "restore") return ["google-earth-p0824-restore"];
+  return ["google-earth"];
+}
+
+// Which unit families each model chip stands for (module compat values).
+const BRAND_PLATFORMS = { audi: ["3G", "3G+"], vw: ["RNS-850"] };
+const COMPAT_ORDER = ["3G", "3G+", "RNS-850"];
+const GREEN_STATUS = ["tested", "ready"];
+// mmi_splash, its three 800x480 frames and the PNG fallbacks: on every card.
+const STATUS_SCREEN_BYTES = 4.7e6;
 
 // ============================================================
 // SD card assembly — runs entirely in the browser
@@ -468,7 +624,7 @@ function generateRunSh(selected, manifest, overrides) {
  * Returns an array of { path, bytes } ready to be written either to a
  * directory picker or to a ZIP.
  */
-async function buildSdBundle(selected, onProgress, overrides) {
+async function buildSdBundle(selected, onProgress, overrides, wifiFiles) {
   overrides = overrides || {};
   onProgress && onProgress("Loading manifest...", 0);
   const manifest = await fetchJson(MANIFEST_URL + "?t=" + Date.now());  // cache-bust: always fresh
@@ -664,6 +820,18 @@ async function buildSdBundle(selected, onProgress, overrides) {
     }
   }
 
+  // --- wifi-sta settings made in this page (only when wifi-sta is selected) ---
+  // hotspot.conf holds derived keys only (null: keep the car's networks);
+  // options sets the start-up choice and the inbound list.
+  if (selected.includes("wifi-sta") && wifiFiles) {
+    if (wifiFiles.hotspotConf) {
+      files.push({ path: "wifi-sta/hotspot.conf", bytes: new TextEncoder().encode(wifiFiles.hotspotConf) });
+    }
+    if (wifiFiles.options) {
+      files.push({ path: "wifi-sta/options", bytes: new TextEncoder().encode(wifiFiles.options) });
+    }
+  }
+
   // Deduplicate: later entries (release_zip) override earlier ones (manifest)
   const deduped = new Map();
   for (const f of files) deduped.set(f.path, f);
@@ -731,20 +899,352 @@ async function downloadBundleAsZip(bundle, filename) {
 }
 
 // ============================================================
-// React component
+// Wi-Fi client (wifi-sta) settings. Checked and rendered here, in the
+// browser: the passphrases never leave the page. wifiPsk() turns each one
+// into the WPA2 key and only the key goes on the card, in the same
+// hotspot.conf format as make_hotspot_conf.py writes.
 // ============================================================
+
+// A network name: 1-32 bytes of UTF-8, no double quote (it ends ssid="...").
+function wifiSsidProblem(ssid) {
+  const s = String(ssid == null ? "" : ssid);
+  if (s.length === 0) return "Enter the network name";
+  if (new TextEncoder().encode(s).length > 32) return "The name is longer than 32 bytes";
+  if (s.indexOf('"') !== -1) return "The name cannot contain a double quote";
+  if (/[\u0000-\u001f\u007f]/.test(s)) return "The name cannot contain control characters";
+  return null;
+}
+
+// A WPA2 passphrase: 8-63 printable ASCII characters (0x20-0x7e).
+function wifiPassphraseProblem(pass) {
+  const p = String(pass == null ? "" : pass);
+  if (p.length === 0) return "Enter the passphrase";
+  for (let i = 0; i < p.length; i++) {
+    const c = p.charCodeAt(i);
+    if (c < 0x20 || c > 0x7e) return "Use plain ASCII letters, digits and symbols only";
+  }
+  if (p.length < 8 || p.length > 63) return "A WPA2 passphrase is 8 to 63 characters";
+  return null;
+}
+
+// The key wpa_passphrase prints: PBKDF2-HMAC-SHA1(passphrase, ssid, 4096
+// rounds, 32 bytes) as 64 lowercase hex digits.
+async function wifiPsk(ssid, passphrase) {
+  const problem = wifiSsidProblem(ssid) || wifiPassphraseProblem(passphrase);
+  if (problem) throw new Error(problem);
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new Error("This browser cannot make the Wi-Fi keys here (the page needs HTTPS)");
+  }
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(passphrase), { name: "PBKDF2" }, false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-1", salt: enc.encode(ssid), iterations: 4096 }, key, 256);
+  return Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// hotspot.conf from [{ ssid, psk }], first = preferred. The same blocks as
+// make_hotspot_conf.py: priority= lines only when there is more than one.
+function renderHotspotConf(networks) {
+  if (!Array.isArray(networks) || networks.length < 1 || networks.length > 4) {
+    throw new Error("hotspot.conf takes 1 to 4 networks");
+  }
+  let out = "# Made by the MMI3G-Toolkit web builder (keys derived as wpa_passphrase does).\n";
+  networks.forEach((n, i) => {
+    const problem = wifiSsidProblem(n.ssid);
+    if (problem) throw new Error(problem);
+    if (typeof n.psk !== "string" || n.psk.length !== 64 || !/^[0-9a-f]+$/.test(n.psk)) {
+      throw new Error("each network needs a 64-digit hex key");
+    }
+    out += "network={\n\tssid=\"" + n.ssid + "\"\n\tkey_mgmt=WPA-PSK\n\tpsk=" + n.psk + "\n";
+    if (networks.length > 1) out += "\tpriority=" + (networks.length - i) + "\n";
+    out += "}\n";
+  });
+  return out;
+}
+
+// "tcp 2021, udp 5353" -> ["tcp 2021", "udp 5353"]. Commas, semicolons or
+// new lines separate entries; ports 1-65535 without leading zeros.
+function parseExtraPorts(text) {
+  const entries = [];
+  const problems = [];
+  for (const raw of String(text == null ? "" : text).split(/[,;\n]/)) {
+    const item = raw.trim().toLowerCase().replace(/\s+/g, " ");
+    if (!item) continue;
+    const m = /^(tcp|udp) ([1-9][0-9]*)$/.exec(item);
+    if (!m || Number(m[2]) > 65535) {
+      problems.push("\"" + raw.trim() + "\" is not tcp or udp and a port from 1 to 65535");
+      continue;
+    }
+    const entry = m[1] + " " + m[2];
+    if (entries.indexOf(entry) === -1) entries.push(entry);
+  }
+  return { entries: entries, problems: problems };
+}
+
+// The inbound entries the switches and the extra ports make, without repeats.
+function wifiAllowLines(opts) {
+  const o = opts || {};
+  const parsed = parseExtraPorts(o.extraPorts);
+  const allow = [];
+  const add = (entry) => { if (allow.indexOf(entry) === -1) allow.push(entry); };
+  if (o.ping !== false) add("icmp");
+  if (o.telnet === true) add("tcp 23");
+  parsed.entries.forEach(add);
+  return { allow: allow, problems: parsed.problems };
+}
+
+// wifi-sta/options, as read_options() in wifi_sta_run.sh reads it.
+function renderWifiOptions(opts) {
+  const o = opts || {};
+  const lines = wifiAllowLines(o);
+  if (lines.problems.length) throw new Error("extra ports: " + lines.problems[0]);
+  if (lines.allow.length > 16) throw new Error("at most 16 allow lines");
+  const out = ["# wifi-sta options (made by the web builder)",
+    "start-up=" + (o.joinAtStartup === false ? "ap" : "client")];
+  if (lines.allow.length === 0) out.push("allow=none");
+  for (const entry of lines.allow) out.push("allow=" + entry);
+  return out.join("\n") + "\n";
+}
+
+// What the Wi-Fi form still needs, per row and for the card panel.
+function wifiFormState(wifi) {
+  const rows = wifi.nets.map((n) => ({ ssid: wifiSsidProblem(n.ssid), pass: wifiPassphraseProblem(n.pass) }));
+  wifi.nets.forEach((n, i) => {
+    if (!rows[i].ssid && wifi.nets.slice(0, i).some((o) => o.ssid === n.ssid)) {
+      rows[i].ssid = "This network is already in the list";
+    }
+  });
+  const lines = wifiAllowLines({ ping: wifi.ping, telnet: wifi.telnet, extraPorts: wifi.extra });
+  const issues = [];
+  if (!wifi.keep) {
+    const filled = wifi.nets.filter((n) => n.ssid || n.pass);
+    if (filled.length === 0) {
+      issues.push("Wi-Fi client needs its networks set");
+    } else if (wifi.cleared && wifi.nets.every((n) => !n.pass) && rows.every((r) => !r.ssid)) {
+      issues.push("Wi-Fi client: enter the passphrases again (they were cleared after the last build)");
+    } else {
+      rows.forEach((r, i) => {
+        const p = r.ssid || r.pass;
+        if (p) issues.push("Wi-Fi client, network " + (i + 1) + ": " + p.charAt(0).toLowerCase() + p.slice(1));
+      });
+    }
+  }
+  lines.problems.forEach((p) => issues.push("Wi-Fi client, extra ports: " + p));
+  if (lines.allow.length > 16) issues.push("Wi-Fi client: at most 16 entries can be allowed, this has " + lines.allow.length);
+  return { rows: rows, allow: lines.allow, extraProblems: lines.problems, issues: issues };
+}
+
+// ============================================================
+// Card size estimate: the manifest's file sizes for what the build bundles
+// (as buildSdBundle picks them), plus the status screen files.
+// ============================================================
+
+function estimateCardBytes(selected, manifest) {
+  let total = STATUS_SCREEN_BYTES;
+  for (const modName of selected) {
+    const meta = manifest.modules[modName];
+    if (!meta) continue;
+    for (const f of (meta.files || [])) {
+      if (f.path === "module.json") continue;
+      const inPayload = (meta.payload_dirs || []).some((p) => {
+        const source = String(p.source || "").replace(/\/+$/, "");
+        return source && f.path.startsWith(source + "/");
+      });
+      if (f.path.startsWith("engdefs/") || f.path.startsWith("scripts/") ||
+          (meta.artifact && f.path === meta.artifact) || inPayload) {
+        total += f.size || 0;
+      }
+    }
+    if (meta.release_zip && meta.release_zip.size) total += meta.release_zip.size;
+    const ra = meta.release_assets;
+    if (ra && ra.files) for (const a of ra.files) total += a.size || 0;
+  }
+  if (selected.includes("google-earth") && !selected.includes("google-earth-p0824-deploy") && manifest.gemmi_assets) {
+    for (const a of (manifest.gemmi_assets.files || [])) total += a.size || 0;
+  }
+  return total;
+}
+
+function formatMB(bytes) {
+  return (bytes / 1e6).toFixed(bytes < 1e7 ? 1 : 0) + " MB";
+}
+
+// ============================================================
+// Catalog model: one card per module, except CATALOG_GROUPS.
+// ============================================================
+
+const MODULE_BY_ID = Object.fromEntries(MODULES_DISPLAY.map((m) => [m.id, m]));
+const CATALOG_ITEMS = (() => {
+  const items = [];
+  const seen = new Set();
+  for (const m of MODULES_DISPLAY) {
+    const g = CATALOG_GROUPS.find((x) => x.members.includes(m.id));
+    if (g) {
+      if (!seen.has(g.key)) { seen.add(g.key); items.push({ key: g.key, group: g }); }
+    } else {
+      items.push({ key: m.id, module: m });
+    }
+  }
+  return items;
+})();
+const ITEMS_WITH_SETTINGS = new Set(["ge", "research", "wifi-sta"]);
+
+function withPrereqs(s) {
+  MODULES_DISPLAY.forEach(m => { if (s.has(m.id) && m.prereq && !s.has(m.prereq)) s.add(m.prereq); });
+  return s;
+}
+
+// ============================================================
+// React components
+// ============================================================
+
+const h = React.createElement;
+
+function Toggle({ on, onChange, label }) {
+  return h("button", {
+    type: "button", role: "switch", "aria-checked": on ? "true" : "false", "aria-label": label,
+    className: "tog" + (on ? " on" : ""), onClick: () => onChange(!on),
+  });
+}
+
+function GeOptions({ method, setMethod, script, setScript, wrappers, setWrappers, platforms, modelLabel }) {
+  const donor = MODULE_BY_ID["google-earth-p0824-deploy"];
+  return h("div", { className: "opts" },
+    h("div", { className: "opt-h" }, "How to install"),
+    GE_METHODS.map((m) => {
+      const ids = geMembers(m.value, false);
+      const fits = ids.some((id) => MODULE_BY_ID[id].compat.some((c) => platforms.includes(c)));
+      return h("label", { key: m.value, className: "tickrow" },
+        h("input", { type: "radio", name: "ge-method", checked: method === m.value, onChange: () => setMethod(m.value) }),
+        h("span", null, m.label,
+          !fits && h("span", { className: "amber small" }, " \u00b7 not for " + modelLabel)));
+    }),
+    method === "oncar" && h("div", { style: { marginTop: 8 } },
+      h("label", { className: "caps", htmlFor: "ge-script", style: { display: "block", marginBottom: 6 } }, "Script to run"),
+      h("select", { id: "ge-script", className: "field", value: script, onChange: (e) => setScript(e.target.value) },
+        GE_SCRIPTS.map((o) => h("option", { key: o.value, value: o.value }, o.label)))
+    ),
+    method === "donor" && h("div", { style: { marginTop: 6 } },
+      h("label", { className: "tickrow" },
+        h("input", { type: "checkbox", checked: wrappers, onChange: (e) => setWrappers(e.target.checked) }),
+        h("span", null, "Install the GEM screen's control scripts")),
+      donor && donor.payloadUrl && h("div", { className: "small", style: { marginTop: 4 } },
+        h("a", { href: donor.payloadUrl, target: "_blank", rel: "noopener" }, "Download the payload ZIP"),
+        h("span", { className: "muted" }, " (the build fetches it for you)"))
+    )
+  );
+}
+
+function ResearchOptions({ picks, setPicks }) {
+  const members = CATALOG_GROUPS.find((g) => g.key === "research").members;
+  return h("div", { className: "opts" },
+    h("div", { className: "opt-h" }, "What to copy"),
+    members.map((id) => {
+      const m = MODULE_BY_ID[id];
+      const on = picks.includes(id);
+      const last = on && picks.length === 1;
+      return h("label", { key: id, className: "tickrow" + (last ? " off" : "") },
+        h("input", { type: "checkbox", checked: on, disabled: last,
+          onChange: (e) => setPicks(e.target.checked ? members.filter((x) => x === id || picks.includes(x)) : picks.filter((x) => x !== id)) }),
+        h("span", null, m.name, h("span", { className: "muted small" }, " \u00b7 " + m.desc)));
+    })
+  );
+}
+
+function WifiOptions({ wifi, setWifi, form, showErrors }) {
+  const setNet = (i, field, value) => setWifi((w) => ({
+    ...w,
+    cleared: field === "pass" ? false : w.cleared,
+    nets: w.nets.map((n, j) => (j === i ? { ...n, [field]: value } : n)),
+  }));
+  const telnetOpen = form.allow.includes("tcp 23");
+  return h("div", { className: "opts" },
+    h("div", { className: "opt-h" }, "Wi-Fi networks"),
+    h("div", { className: "muted small" }, "The first one is preferred. 2.4 GHz, WPA2."),
+    h("label", { className: "tickrow", style: { marginTop: 6 } },
+      h("input", { type: "checkbox", checked: wifi.keep, onChange: (e) => setWifi((w) => ({ ...w, keep: e.target.checked })) }),
+      h("span", null, "Keep the networks already on the car",
+        h("span", { className: "muted small", style: { display: "block" } }, "No hotspot.conf goes on the card; the car keeps the networks it has."))),
+    !wifi.keep && h("div", null,
+      h("div", null,
+        wifi.nets.map((n, i) => {
+          const r = form.rows[i];
+          const ssidErr = r.ssid && (showErrors || n.ssid !== "") ? r.ssid : null;
+          const passErr = r.pass && (showErrors || n.pass !== "") ? r.pass : null;
+          return h("div", { key: n.id, className: "net" },
+            h("span", { className: "net-n" }, String(i + 1)),
+            h("div", { className: "net-fields" },
+              h("input", { type: "text", className: "field" + (ssidErr ? " bad" : ""), placeholder: "Network name",
+                "aria-label": "Network " + (i + 1) + " name", value: n.ssid, maxLength: 64,
+                autoComplete: "off", spellCheck: false, autoCapitalize: "off", autoCorrect: "off",
+                onChange: (e) => setNet(i, "ssid", e.target.value) }),
+              ssidErr && h("div", { className: "err" }, ssidErr),
+              h("input", { type: "password", className: "field" + (passErr ? " bad" : ""), placeholder: "Passphrase",
+                "aria-label": "Network " + (i + 1) + " passphrase", value: n.pass, maxLength: 128,
+                autoComplete: "off", spellCheck: false, autoCapitalize: "off", autoCorrect: "off",
+                onChange: (e) => setNet(i, "pass", e.target.value) }),
+              passErr && h("div", { className: "err" }, passErr)
+            ),
+            wifi.nets.length > 1
+              ? h("button", { type: "button", className: "x", "aria-label": "Remove network " + (i + 1), title: "Remove",
+                  onClick: () => setWifi((w) => ({ ...w, nets: w.nets.filter((_, j) => j !== i) })) }, "\u00d7")
+              : h("span")
+          );
+        })
+      ),
+      wifi.nets.length < 4 && h("button", { type: "button", className: "link", style: { marginTop: 4 },
+        onClick: () => setWifi((w) => ({ ...w, nextId: w.nextId + 1, nets: [...w.nets, { id: w.nextId, ssid: "", pass: "" }] })) }, "+ Add a network"),
+      h("div", { className: "note-g" }, "Passwords never leave this page. Your browser turns each one into the WPA2 key, and only the key goes on the card.")
+    ),
+    h("div", { className: "caps", style: { margin: "16px 0 4px" } }, "On the car"),
+    h("div", { className: "row" },
+      h("div", { className: "row-t" }, "Join Wi-Fi at every start-up",
+        !wifi.join && h("div", { className: "muted small" }, "The car starts its own access point; join from the GEM instead")),
+      h(Toggle, { on: wifi.join, label: "Join Wi-Fi at every start-up", onChange: (v) => setWifi((w) => ({ ...w, join: v })) })),
+    h("div", { className: "row" },
+      h("div", { className: "row-t" }, "Answer ping on the network"),
+      h(Toggle, { on: wifi.ping, label: "Answer ping on the network", onChange: (v) => setWifi((w) => ({ ...w, ping: v })) })),
+    h("div", { className: "row", style: { borderBottom: "1px solid var(--line)" } },
+      h("div", { className: "row-t" }, "Allow telnet",
+        telnetOpen && h("div", { className: "small amber" }, "Root shell with no password, for anyone on that network")),
+      h(Toggle, { on: wifi.telnet, label: "Allow telnet", onChange: (v) => setWifi((w) => ({ ...w, telnet: v })) })),
+    h("button", { type: "button", className: "link dim", style: { marginTop: 8 }, "aria-expanded": wifi.advanced,
+      onClick: () => setWifi((w) => ({ ...w, advanced: !w.advanced })) }, (wifi.advanced ? "\u25BE " : "\u25B8 ") + "Advanced: more ports"),
+    (wifi.advanced || wifi.extra) && h("div", { style: { marginTop: 8 } },
+      h("label", { className: "caps", htmlFor: "wifi-extra", style: { display: "block", marginBottom: 6 } }, "Extra ports to allow"),
+      h("input", { id: "wifi-extra", type: "text", className: "field" + (form.extraProblems.length ? " bad" : ""),
+        placeholder: "tcp 2021, udp 5353", value: wifi.extra, spellCheck: false, autoComplete: "off", autoCapitalize: "off",
+        onChange: (e) => setWifi((w) => ({ ...w, extra: e.target.value })) }),
+      form.extraProblems.map((p, i) => h("div", { key: i, className: "err" }, p)),
+      form.allow.length > 16 && h("div", { className: "err" }, "At most 16 entries in all; this has " + form.allow.length),
+      h("div", { className: "muted small", style: { marginTop: 4 } }, "Admitted only from the network the car joins.")
+    )
+  );
+}
 
 function App() {
   const [tab, setTab] = useState("modules");
   const [selected, setSelected] = useState(new Set(["system-info"]));
   const [model, setModel] = useState("a6c7");
-  const [expandedMod, setExpandedMod] = useState(null);
+  const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState(new Set());
+  const [openOpts, setOpenOpts] = useState(new Set());
   const [geScript, setGeScript] = useState("ge_deploy_oncar.sh");
-  const [lteMode, setLteMode] = useState("lte_setup.sh");
-  const [buildState, setBuildState] = useState("idle"); // idle | building | done | error
+  const [geMethod, setGeMethod] = useState("oncar");
+  const [geWrappers, setGeWrappers] = useState(false);
+  const [researchPicks, setResearchPicks] = useState(["gemmi-dump", "jvm-extract"]);
+  const [wifi, setWifi] = useState({
+    nets: [{ id: 1, ssid: "", pass: "" }], nextId: 2, keep: false, cleared: false,
+    join: true, ping: true, telnet: false, extra: "", advanced: false,
+  });
+  const [showIssues, setShowIssues] = useState(false);
+  const [manifest, setManifest] = useState(null);
+  const [manifestFailed, setManifestFailed] = useState(false);
+  const [buildState, setBuildState] = useState("idle"); // idle | building | done-zip | done-sd | error
   const [buildProgress, setBuildProgress] = useState({ label: "", pct: 0 });
   const [buildError, setBuildError] = useState(null);
   const [buildStats, setBuildStats] = useState(null);
+  const [builtWifi, setBuiltWifi] = useState(null);
   const [sourceImg, setSourceImg] = useState(null);
   const [processedUrl, setProcessedUrl] = useState(null);
   const [zoom, setZoom] = useState(1);
@@ -753,6 +1253,15 @@ function App() {
   const [exported, setExported] = useState(false);
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
+  const panelRef = useRef(null);
+  const issuesRef = useRef(null);
+
+  // The manifest gives the size estimate; the build fetches its own fresh copy.
+  useEffect(() => {
+    let live = true;
+    fetchJson(MANIFEST_URL).then((m) => { if (live) setManifest(m); }).catch(() => { if (live) setManifestFailed(true); });
+    return () => { live = false; };
+  }, []);
 
   const processImage = useCallback(() => {
     if (!sourceImg) return;
@@ -784,20 +1293,75 @@ function App() {
     r.readAsDataURL(f);
   };
 
-  const toggle = (id) => {
-    const s = new Set(selected);
-    if (s.has(id)) s.delete(id); else s.add(id);
-    MODULES_DISPLAY.forEach(m => { if (s.has(m.id) && m.prereq && !s.has(m.prereq)) s.add(m.prereq); });
-    setSelected(s);
+  // ---- catalog items and selection ----
+  const modelInfo = MODELS.find((m) => m.id === model) || MODELS[0];
+  const platforms = BRAND_PLATFORMS[modelInfo.brand] || COMPAT_ORDER;
+  const groupChosen = (key, c) => {
+    if (key === "ge") return geMembers(c.geMethod, c.geWrappers);
+    if (key === "research") return CATALOG_GROUPS.find((g) => g.key === "research").members.filter((id) => c.researchPicks.includes(id));
+    return [];
+  };
+  const ctx = { geMethod, geWrappers, researchPicks };
+  const chosenOf = (item) => (item.group ? groupChosen(item.key, ctx) : [item.key]);
+  const allOf = (item) => (item.group ? item.group.members : [item.key]);
+  const isOn = (item) => allOf(item).some((id) => selected.has(id));
+  // A selected group shows what is on the card; an unselected one, what its settings would add.
+  const modsOf = (item) => {
+    const ids = item.group && isOn(item) ? item.group.members.filter((id) => selected.has(id)) : chosenOf(item);
+    return ids.map((id) => MODULE_BY_ID[id]).filter(Boolean);
+  };
+  const itemName = (item) => (item.group ? item.group.name : item.module.name);
+  const itemDesc = (item) => (item.group ? item.group.desc : item.module.desc);
+  const itemCat = (item) => (item.group ? item.group.category : (item.module.primary ? "start" : item.module.category));
+  const itemStatus = (item) => {
+    const mods = modsOf(item);
+    const odd = mods.find((m) => !GREEN_STATUS.includes(m.status));
+    return (odd || mods[0] || { status: "" }).status;
+  };
+  const itemCompat = (item) => COMPAT_ORDER.filter((c) => modsOf(item).some((m) => m.compat.includes(c)));
+  const compatText = (list) => (list.length === COMPAT_ORDER.length ? "all" : list.join(", "));
+  const fitsCar = (item) => itemCompat(item).some((c) => platforms.includes(c));
+  const itemSub = (item) => {
+    if (item.key === "ge") {
+      const m = GE_METHODS.find((x) => x.value === geMethod);
+      return m ? m.label : "";
+    }
+    if (item.key === "research") return modsOf(item).map((m) => m.name).join(", ");
+    return "";
   };
 
-  const selectAll = () => setSelected(new Set(MODULES_DISPLAY.map(m => m.id)));
-  const selectNone = () => setSelected(new Set());
-  const pw = MMI_W * PREVIEW_SCALE;
-  const ph = MMI_H * PREVIEW_SCALE;
+  const toggleItem = (item) => {
+    const s = new Set(selected);
+    const on = isOn(item);
+    if (on) allOf(item).forEach((id) => s.delete(id));
+    else chosenOf(item).forEach((id) => s.add(id));
+    setSelected(withPrereqs(s));
+    if (!on && ITEMS_WITH_SETTINGS.has(item.key)) setOpenOpts((o) => new Set(o).add(item.key));
+  };
+  // A group's settings changed: swap its module ids if the card is on.
+  const regroup = (key, c) => {
+    const item = CATALOG_ITEMS.find((i) => i.key === key);
+    if (!item || !isOn(item)) return;
+    const s = new Set(selected);
+    item.group.members.forEach((id) => s.delete(id));
+    groupChosen(key, c).forEach((id) => s.add(id));
+    setSelected(withPrereqs(s));
+  };
+  const changeGeMethod = (v) => { setGeMethod(v); regroup("ge", { ...ctx, geMethod: v }); };
+  const changeGeWrappers = (v) => { setGeWrappers(v); regroup("ge", { ...ctx, geWrappers: v }); };
+  const changeResearch = (v) => { setResearchPicks(v); regroup("research", { ...ctx, researchPicks: v }); };
+  const flip = (setter, key) => setter((o) => { const n = new Set(o); if (n.has(key)) n.delete(key); else n.add(key); return n; });
 
-  // Build bundle into memory. Used by both "Write to SD" and "Download ZIP".
-  const buildInMemory = async () => {
+  // ---- what the card still needs ----
+  const wifiForm = wifiFormState(wifi);
+  const issues = [];
+  if (selected.has("wifi-sta")) wifiForm.issues.forEach((t) => issues.push({ key: "wifi-sta", text: t }));
+  const panelItems = CATALOG_ITEMS.filter(isOn);
+  const estimate = manifest ? estimateCardBytes([...selected], manifest) : null;
+  const sizeText = estimate != null ? "about " + formatMB(estimate) : (manifestFailed ? "size unknown" : "working out the size");
+
+  // Build bundle into memory. Used by both "Write to a folder" and the ZIP.
+  const buildInMemory = async (wifiFiles) => {
     // Check for modules that can't be web-built (CORS-blocked release assets)
     const blocked = [...selected].filter(m => MODULES_DISPLAY.find(d => d.id === m && d.cliOnly));
     if (blocked.length > 0) {
@@ -820,7 +1384,7 @@ function App() {
     try {
       const bundle = await buildSdBundle([...selected], (label, pct) => {
         setBuildProgress({ label, pct });
-      }, { "google-earth": geScript, "lte-setup": lteMode });
+      }, { "google-earth": geScript }, wifiFiles);
       const totalBytes = bundle.files.reduce((n, f) => n + f.bytes.length, 0);
       setBuildStats({ fileCount: bundle.files.filter(f => !f.path.endsWith("/.keep")).length, totalBytes });
       return bundle;
@@ -832,319 +1396,283 @@ function App() {
     }
   };
 
-  const handleWriteToSd = async () => {
-    if (!window.showDirectoryPicker) {
-      setBuildError("Direct SD write needs Chrome or Edge. Use 'Download ZIP' instead.");
-      setBuildState("error");
+  const runBuild = async (mode) => {
+    if (buildState === "building") return;
+    if (selected.size === 0 || issues.length > 0) {
+      setShowIssues(true);
+      if (issues.length) setOpenOpts((o) => { const n = new Set(o); issues.forEach((i) => n.add(i.key)); return n; });
+      setTimeout(() => { if (issuesRef.current) issuesRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, 0);
       return;
     }
-    let dirHandle;
-    try {
-      // Ask for the SD card folder FIRST so the user intent is captured before the build runs
-      dirHandle = await window.showDirectoryPicker({ mode: "readwrite", startIn: "desktop" });
-    } catch (e) {
-      // User cancelled the picker
-      return;
+    setShowIssues(false);
+    let dirHandle = null;
+    if (mode === "folder") {
+      if (!window.showDirectoryPicker) {
+        setBuildError("Writing to a folder needs Chrome or Edge. Use Build SD card for a ZIP instead.");
+        setBuildState("error");
+        return;
+      }
+      try {
+        // Ask for the SD card folder FIRST so the user intent is captured before the build runs
+        dirHandle = await window.showDirectoryPicker({ mode: "readwrite", startIn: "desktop" });
+      } catch (e) {
+        return; // the picker was cancelled
+      }
     }
+    setBuiltWifi(null);
     try {
-      const bundle = await buildInMemory();
-      setBuildProgress({ label: "Writing to SD...", pct: 99 });
-      await writeBundleToDirectory(bundle, dirHandle);
-      setBuildProgress({ label: "Written to SD", pct: 100 });
-      setBuildState("done-sd");
+      let wifiFiles = null;
+      let netCount = 0;
+      if (selected.has("wifi-sta")) {
+        setBuildState("building");
+        setBuildError(null);
+        setBuildProgress({ label: "Making the Wi-Fi keys...", pct: 0 });
+        const nets = wifi.keep ? [] : wifi.nets;
+        try {
+          const keyed = [];
+          for (const n of nets) keyed.push({ ssid: n.ssid, psk: await wifiPsk(n.ssid, n.pass) });
+          wifiFiles = {
+            hotspotConf: keyed.length ? renderHotspotConf(keyed) : null,
+            options: renderWifiOptions({ joinAtStartup: wifi.join, ping: wifi.ping, telnet: wifi.telnet, extraPorts: wifi.extra }),
+          };
+          netCount = keyed.length;
+        } finally {
+          // The passphrases are not kept once the keys are made.
+          if (nets.length) setWifi((w) => ({ ...w, cleared: true, nets: w.nets.map((n) => ({ ...n, pass: "" })) }));
+        }
+      }
+      const bundle = await buildInMemory(wifiFiles);
+      if (mode === "folder") {
+        setBuildProgress({ label: "Writing to the folder...", pct: 99 });
+        await writeBundleToDirectory(bundle, dirHandle);
+        setBuildProgress({ label: "Written to the folder", pct: 100 });
+        setBuildState("done-sd");
+      } else {
+        setBuildProgress({ label: "Packaging ZIP...", pct: 99 });
+        const fname = `MMI3G-Toolkit-${new Date().toISOString().slice(0,10)}.zip`;
+        await downloadBundleAsZip(bundle, fname);
+        setBuildProgress({ label: "ZIP downloaded", pct: 100 });
+        setBuildState("done-zip");
+      }
+      setBuiltWifi(netCount > 0 ? { count: netCount, mode } : null);
     } catch (e) {
       if (!e.userFacing) console.error(e);
       setBuildError(String(e.message || e));
       setBuildState("error");
     }
-  };
-
-  const handleDownloadZip = async () => {
-    try {
-      const bundle = await buildInMemory();
-      setBuildProgress({ label: "Packaging ZIP...", pct: 99 });
-      const fname = `MMI3G-Toolkit-${new Date().toISOString().slice(0,10)}.zip`;
-      await downloadBundleAsZip(bundle, fname);
-      setBuildProgress({ label: "ZIP downloaded", pct: 100 });
-      setBuildState("done-zip");
-    } catch (e) {
-      if (!e.userFacing) console.error(e);
-      setBuildError(String(e.message || e));
-      setBuildState("error");
-    }
-  };
-
-  const sdTree = () => {
-    let l = ["SD Root/", "\u251C\u2500\u2500 copie_scr.sh  (encoded)", "\u251C\u2500\u2500 run.sh        (auto-generated)", "\u251C\u2500\u2500 uninstall.sh"];
-    if (selected.has("splash-screen")) l.push("\u251C\u2500\u2500 splashscreens/", "\u2502   \u2514\u2500\u2500 startup_generic.png");
-    if ([...selected].some(id => { const m = MODULES_DISPLAY.find(x => x.id === id); return m && (m.category === "gem" || m.category === "visual"); }))
-      l.push("\u251C\u2500\u2500 engdefs/", "\u2502   \u2514\u2500\u2500 *.esd");
-    l.push("\u251C\u2500\u2500 scripts/", "\u2502   \u2514\u2500\u2500 *.sh", "\u251C\u2500\u2500 bin/", "\u251C\u2500\u2500 lib/", "\u2514\u2500\u2500 var/  (logs saved here)");
-    return l.join("\n");
   };
 
   const repoUrl = "https://github.com/dspl1236/MMI3G-Toolkit";
   const chromium = typeof window !== "undefined" && "showDirectoryPicker" in window;
+  const cliCommand = "python builder/build_sd.py" + [...selected].map(id => " -m " + id).join("") + " -o F:\\";
+  const pw = MMI_W * PREVIEW_SCALE;
+  const ph = MMI_H * PREVIEW_SCALE;
+  const building = buildState === "building";
 
-  return React.createElement("div", { style: { minHeight: "100vh", background: "#0a0a0c", color: "#e0ddd8", fontFamily: "'DM Sans', system-ui, sans-serif" } },
-    React.createElement("link", { href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap", rel: "stylesheet" }),
+  // ---- catalog ----
+  const q = query.trim().toLowerCase();
+  const matches = (item) => {
+    if (!q) return true;
+    const texts = [itemName(item), itemDesc(item)];
+    if (item.group) item.group.members.forEach((id) => { texts.push(MODULE_BY_ID[id].name, MODULE_BY_ID[id].desc); });
+    return texts.some((t) => String(t).toLowerCase().includes(q));
+  };
+  const sections = CAT_ORDER
+    .map((cat) => ({ cat, items: CATALOG_ITEMS.filter((i) => itemCat(i) === cat && matches(i)) }))
+    .filter((s) => s.items.length > 0);
 
-    // Header
-    React.createElement("div", { style: { borderBottom: "1px solid #1c1c20", padding: "14px 20px", display: "flex", alignItems: "center", gap: 14, background: "#0e0e11" } },
-      React.createElement("div", { style: { width: 34, height: 34, background: "linear-gradient(135deg, #c41e3a, #7a1225)", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "#fff", fontFamily: "IBM Plex Mono" } }, "M3"),
-      React.createElement("div", { style: { flex: 1 } },
-        React.createElement("div", { style: { fontSize: 15, fontWeight: 700 } }, "MMI3G-Toolkit"),
-        React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono" } }, "Audi / VW MMI 3G \u00b7 SD Card Builder")
+  const renderCard = (item) => {
+    const on = isOn(item);
+    const isExp = expanded.has(item.key);
+    const status = itemStatus(item);
+    const fits = fitsCar(item);
+    const mods = modsOf(item);
+    return h("div", {
+      key: item.key, role: "button", tabIndex: 0, "aria-pressed": on ? "true" : "false",
+      className: "card" + (on ? " on" : "") + (fits ? "" : " offcar"),
+      onClick: () => toggleItem(item),
+      onKeyDown: (e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleItem(item); } },
+    },
+      h("div", { className: "card-top" },
+        h("span", { className: "card-name" }, itemName(item)),
+        on && h("span", { className: "tick", "aria-hidden": "true" }, "\u2713")),
+      h("div", { className: "card-desc" }, itemDesc(item)),
+      h("div", { className: "card-foot" },
+        h("span", { className: GREEN_STATUS.includes(status) ? "green" : "amber" },
+          status + " \u00b7 " + compatText(itemCompat(item)) + (fits ? "" : " \u00b7 not for " + modelInfo.label)),
+        h("button", { type: "button", className: "link dim", "aria-expanded": isExp ? "true" : "false",
+          onClick: (e) => { e.stopPropagation(); flip(setExpanded, item.key); } }, isExp ? "Hide details" : "Details")),
+      isExp && h("div", { className: "card-detail", onClick: (e) => e.stopPropagation() },
+        item.group
+          ? mods.map((m) => h("p", { key: m.id }, h("span", { style: { color: "var(--text)" } }, m.name + ": "), m.detail))
+          : h("p", null, item.module.detail),
+        mods.filter((m) => m.prereq).map((m) => h("p", { key: "pre-" + m.id, className: "small" },
+          "Needs " + ((MODULE_BY_ID[m.prereq] || {}).name || m.prereq) + ", which is added for you.")),
+        !item.group && item.module.payloadUrl && h("p", null,
+          h("a", { href: item.module.payloadUrl, target: "_blank", rel: "noopener" }, "Download the payload ZIP"))
+      )
+    );
+  };
+
+  const optionsFor = (item) => {
+    if (item.key === "ge") return h(GeOptions, { method: geMethod, setMethod: changeGeMethod, script: geScript, setScript: setGeScript,
+      wrappers: geWrappers, setWrappers: changeGeWrappers, platforms, modelLabel: modelInfo.label });
+    if (item.key === "research") return h(ResearchOptions, { picks: researchPicks, setPicks: changeResearch });
+    if (item.key === "wifi-sta") return h(WifiOptions, { wifi, setWifi, form: wifiForm, showErrors: showIssues });
+    return null;
+  };
+
+  const renderPanelItem = (item) => {
+    const hasOpts = ITEMS_WITH_SETTINGS.has(item.key);
+    const open = openOpts.has(item.key);
+    const neededBy = item.group ? [] : MODULES_DISPLAY.filter((d) => d.prereq === item.key && selected.has(d.id)).map((d) => d.name);
+    const sub = itemSub(item);
+    const itemIssues = issues.filter((i) => i.key === item.key);
+    return h("div", { key: item.key, className: "pitem" },
+      h("div", { className: "pitem-row" },
+        h("div", { className: "pitem-name" }, itemName(item),
+          sub && h("div", { className: "pitem-sub" }, sub),
+          neededBy.length > 0 && h("div", { className: "pitem-sub" }, "Needed by " + neededBy.join(", ")),
+          !fitsCar(item) && h("div", { className: "pitem-sub amber" }, "Not listed for " + modelInfo.label)),
+        hasOpts && h("button", { type: "button", className: "link" + (itemIssues.length ? "" : " dim"), "aria-expanded": open ? "true" : "false",
+          onClick: () => flip(setOpenOpts, item.key) }, (open ? "\u25BE" : "\u25B8") + " Settings"),
+        h("button", { type: "button", className: "x", title: "Remove", "aria-label": "Remove " + itemName(item),
+          onClick: () => toggleItem(item) }, "\u00d7")),
+      hasOpts && open && optionsFor(item)
+    );
+  };
+
+  const steps = [
+    buildState === "done-zip" ? "Extract the ZIP to the root of an empty FAT32 SDHC card (32 GB)" : "The card must be FAT32 SDHC (32 GB)",
+    "Start the MMI and let it boot fully (3 minutes or more)",
+    "Insert the card; the screen shows the progress, then done",
+    "Remove the card and restart the MMI",
+    "Open the GEM with CAR + BACK (C7)",
+  ];
+
+  const panel = h("aside", { className: "panel", ref: panelRef, "aria-label": "Your card" },
+    h("div", { className: "caps" }, "Your card"),
+    h("div", { className: "rule", style: { width: 28 } }),
+    panelItems.length === 0
+      ? h("div", { className: "muted small" }, "Nothing on the card yet. Pick modules from the list.")
+      : h("div", { style: { borderTop: "1px solid var(--line)" } }, panelItems.map(renderPanelItem)),
+    issues.map((i, n) => h("div", { key: "w" + n, className: "warn" }, "\u26A0 " + i.text)),
+    h("div", { className: "muted small", style: { marginTop: 12 } },
+      selected.size + " module" + (selected.size === 1 ? "" : "s") + " \u00b7 " + sizeText + " \u00b7 FAT32 card"),
+    showIssues && (selected.size === 0 || issues.length > 0) && h("div", { className: "issues", ref: issuesRef, role: "alert" },
+      selected.size === 0 ? "Pick at least one module from the list first." : "Before you build:",
+      issues.length > 0 && h("ul", null, issues.map((i, n) => h("li", { key: n }, i.text)))),
+    h("button", {
+      type: "button", className: "btn" + (building ? " busy" : (selected.size === 0 || issues.length > 0) ? " wait" : ""),
+      "aria-disabled": (building || selected.size === 0 || issues.length > 0) ? "true" : "false",
+      onClick: () => runBuild("zip"),
+    }, building ? (buildProgress.label || "Building...") : "Build SD card"),
+    h("div", { className: "muted small", style: { marginTop: 8, textAlign: "center" } }, "Downloads a ZIP. The card shows live progress on the MMI."),
+    chromium
+      ? h("button", { type: "button", className: "btn2", disabled: building, onClick: () => runBuild("folder") }, "Write to a folder instead (the SD card)")
+      : h("div", { className: "muted small", style: { marginTop: 6, textAlign: "center" } }, "Writing straight to a card needs Chrome or Edge."),
+    building && h("div", { style: { marginTop: 12 } },
+      h("div", { className: "muted small mono" }, buildProgress.label + " \u00b7 " + buildProgress.pct + "%"),
+      h("div", { className: "bar" }, h("div", { style: { width: buildProgress.pct + "%" } }))),
+    buildState === "error" && h("div", { className: "failbox", role: "alert" }, buildError),
+    (buildState === "done-sd" || buildState === "done-zip") && buildStats && h("div", { className: "result" },
+      h("div", { className: "green", style: { fontWeight: 600 } }, buildState === "done-sd" ? "Written to the folder" : "ZIP ready"),
+      h("div", { className: "muted mono", style: { fontSize: 11, marginTop: 2 } }, buildStats.fileCount + " files \u00b7 " + formatMB(buildStats.totalBytes)),
+      h("ol", null, steps.map((s, n) => h("li", { key: n }, s)))),
+    builtWifi && h("div", { className: "note-a" },
+      (builtWifi.mode === "folder" ? "The card now holds" : "This ZIP contains") + " the Wi-Fi keys for " + builtWifi.count +
+      " network" + (builtWifi.count === 1 ? "" : "s") + ", which is enough to join " + (builtWifi.count === 1 ? "it" : "them") +
+      ". The installer deletes hotspot.conf from the card, but deleted files can linger, so reformat the card afterwards." +
+      (builtWifi.mode === "folder" ? "" : " Delete the ZIP once the card is made.") +
+      " The passphrases were cleared from this page."),
+    h("details", { className: "cli" },
+      h("summary", null, "Build it from the command line instead"),
+      h("pre", { className: "mono" }, cliCommand),
+      h("button", { type: "button", className: "link", style: { marginTop: 6 }, onClick: () => { navigator.clipboard?.writeText(cliCommand); } }, "Copy the command"),
+      selected.has("wifi-sta") && h("div", { style: { marginTop: 6 } }, "The command line does not write hotspot.conf or options; see the wifi-sta README."))
+  );
+
+  const catalog = h("main", { className: "catalog" },
+    h("div", { className: "caps" }, "SD card builder"),
+    h("div", { className: "rule" }),
+    h("h1", { style: { fontSize: 22, fontWeight: 600 } }, "Build a card for your MMI"),
+    h("p", { className: "muted", style: { fontSize: 13, margin: "4px 0 22px" } }, "Pick your car, choose modules, then build a ZIP for an empty FAT32 card."),
+    sections.length === 0
+      ? h("div", { className: "empty" }, "No modules match \u201C" + query.trim() + "\u201D.")
+      : sections.map((s) => h("section", { key: s.cat, className: "section", "aria-label": CAT_LABELS[s.cat] },
+          h("div", { className: "caps" }, CAT_LABELS[s.cat]),
+          h("div", { className: "rule", style: { width: 24, margin: "6px 0 10px" } }),
+          h("div", { className: "grid" }, s.items.map(renderCard))))
+  );
+
+  const splash = h("div", { className: "splash" },
+    h("div", null,
+      h("div", { className: "caps", style: { marginBottom: 8 } }, "MMI preview (800 \u00d7 480 at " + Math.round(PREVIEW_SCALE * 100) + "%)"),
+      h("div", { style: { width: pw, maxWidth: "100%", aspectRatio: MMI_W + " / " + MMI_H, background: "#000", borderRadius: 8, border: "1px solid var(--line2)", position: "relative", overflow: "hidden" } },
+        processedUrl ? h("img", { src: processedUrl, alt: "Splash screen preview", style: { width: "100%", height: "100%", display: "block" } }) :
+          h("div", { className: "muted mono", style: { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 } }, "No image loaded")
       ),
-      React.createElement("a", { href: repoUrl, target: "_blank", rel: "noopener", style: { color: "#555", fontSize: 11, fontFamily: "IBM Plex Mono", textDecoration: "none", padding: "5px 10px", border: "1px solid #252528", borderRadius: 5, marginRight: 8 } }, "GitHub \u2197"),
-      React.createElement("div", { style: { display: "flex", gap: 1, background: "#151518", borderRadius: 8, padding: 3 } },
-        [{ id: "modules", label: "Modules" }, { id: "splash", label: "Splash Screen" }, { id: "build", label: "Build SD" }].map(t =>
-          React.createElement("button", { key: t.id, onClick: () => setTab(t.id), style: { padding: "7px 18px", borderRadius: 6, border: "none", background: tab === t.id ? "#c41e3a" : "transparent", color: tab === t.id ? "#fff" : "#777", fontSize: 12, fontWeight: 600, cursor: "pointer" } }, t.label)
-        )
+      sourceImg && h("div", { className: "box", style: { marginTop: 10, fontSize: 12 } },
+        h("div", { style: { display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) 48px", gap: "8px 10px", alignItems: "center" } },
+          h("span", { className: "muted" }, "Zoom"),
+          h("input", { type: "range", min: 0.5, max: 3, step: 0.01, value: zoom, "aria-label": "Zoom", onChange: (e) => setZoom(parseFloat(e.target.value)) }),
+          h("span", { className: "mono small" }, zoom.toFixed(2) + "\u00d7"),
+          h("span", { className: "muted" }, "X"),
+          h("input", { type: "range", min: -300, max: 300, step: 1, value: panX, "aria-label": "Move left or right", onChange: (e) => setPanX(parseInt(e.target.value)) }),
+          h("span", { className: "mono small" }, panX),
+          h("span", { className: "muted" }, "Y"),
+          h("input", { type: "range", min: -200, max: 200, step: 1, value: panY, "aria-label": "Move up or down", onChange: (e) => setPanY(parseInt(e.target.value)) }),
+          h("span", { className: "mono small" }, panY)
+        ),
+        h("button", { type: "button", className: "btn2", style: { width: "auto", display: "inline-block", padding: "4px 10px" }, onClick: () => { setZoom(1); setPanX(0); setPanY(0); } }, "Reset")
       )
     ),
-
-    React.createElement("div", { style: { maxWidth: 1200, margin: "0 auto", padding: 20 } },
-
-      // MODULES TAB
-      tab === "modules" && React.createElement("div", null,
-        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" } },
-          React.createElement("span", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Model"),
-          ...MODELS.map(m => React.createElement("button", { key: m.id, onClick: () => setModel(m.id), style: { padding: "5px 12px", borderRadius: 5, fontSize: 11, fontWeight: 500, cursor: "pointer", border: model === m.id ? "1px solid #c41e3a" : "1px solid #252528", background: model === m.id ? "rgba(196,30,58,0.1)" : "#111114", color: model === m.id ? "#e84a6a" : "#777" } }, m.label)),
-          React.createElement("div", { style: { flex: 1 } }),
-          React.createElement("button", { onClick: selectAll, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "All"),
-          React.createElement("button", { onClick: selectNone, style: { padding: "4px 10px", borderRadius: 4, border: "1px solid #252528", background: "#111114", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "None")
-        ),
-        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 8 } },
-          // Primary modules (Start Here) rendered full-width at top
-          ...MODULES_DISPLAY.filter(m => m.primary).map(m => {
-            const isSel = selected.has(m.id);
-            return React.createElement("div", { key: m.id, onClick: () => toggle(m.id), style: { gridColumn: "1 / -1", padding: "14px 16px", borderRadius: 7, cursor: "pointer", border: isSel ? "1px solid #c41e3a" : "1px solid #2a4a2a", background: isSel ? "rgba(196,30,58,0.05)" : "rgba(0,80,30,0.08)", transition: "all 0.15s" } },
-              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
-                React.createElement("div", { style: { width: 16, height: 16, borderRadius: 3, border: isSel ? "none" : "1px solid #4a4", background: isSel ? "#c41e3a" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#fff", fontWeight: 700, flexShrink: 0 } }, isSel ? "\u2713" : ""),
-                React.createElement("div", { style: { flex: 1 } },
-                  React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: "#4a4", display: "flex", alignItems: "center", gap: 6 } },
-                    "\u25B6 START HERE \u2014 ", m.name),
-                  React.createElement("div", { style: { fontSize: 11, color: "#888", marginTop: 2 } }, m.desc)
-                )
-              )
-            );
-          }),
-          // Regular modules in grid
-          ...MODULES_DISPLAY.filter(m => !m.primary).map(m => {
-            const isSel = selected.has(m.id);
-            const isExp = expandedMod === m.id;
-            return React.createElement("div", { key: m.id, onClick: () => toggle(m.id), style: { padding: "11px 12px", borderRadius: 7, cursor: "pointer", border: isSel ? "1px solid #c41e3a" : "1px solid #1e1e22", background: isSel ? "rgba(196,30,58,0.05)" : "#111114", transition: "all 0.15s" } },
-              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: isExp ? 6 : 0 } },
-                React.createElement("div", { style: { width: 14, height: 14, borderRadius: 3, border: isSel ? "none" : "1px solid #333", background: isSel ? "#c41e3a" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700, flexShrink: 0 } }, isSel ? "\u2713" : ""),
-                React.createElement("div", { style: { flex: 1, minWidth: 0 } },
-                  React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: isSel ? "#fff" : "#bbb", display: "flex", alignItems: "center", gap: 6 } },
-                    React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
-                    m.name,
-                    m.status === "alpha" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#451a03", color: "#fbbf24", fontFamily: "IBM Plex Mono" } }, "alpha"), m.status === "tested" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#052e16", color: "#4ade80", fontFamily: "IBM Plex Mono" } }, "tested"), m.status === "design" && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#818cf8", fontFamily: "IBM Plex Mono" } }, "design"), m.cliOnly && React.createElement("span", { style: { fontSize: 9, padding: "1px 5px", borderRadius: 3, background: "#1e1b4b", color: "#c084fc", fontFamily: "IBM Plex Mono" } }, "CLI only")
-                  ),
-                  React.createElement("div", { style: { fontSize: 11, color: "#666", marginTop: 1 } }, m.desc)
-                ),
-                React.createElement("button", { onClick: (e) => { e.stopPropagation(); setExpandedMod(isExp ? null : m.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 16, padding: "0 4px" } }, isExp ? "\u25BE" : "\u25B8")
-              ),
-              isExp && React.createElement("div", { style: { fontSize: 11, color: "#888", padding: "6px 0 0 22px", borderTop: "1px solid #1a1a1e", paddingTop: 8, marginTop: 6, lineHeight: 1.5 } },
-                m.detail,
-                m.payloadUrl && React.createElement("div", { style: { marginTop: 8 } },
-                  React.createElement("a", { href: m.payloadUrl, target: "_blank", rel: "noopener", onClick: (e) => e.stopPropagation(), style: { color: "#e84a6a", fontFamily: "IBM Plex Mono", fontSize: 10 } }, "Download payload ZIP")
-                ),
-                m.id === "google-earth" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
-                  React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Script to run"),
-                  React.createElement("select", { value: geScript, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setGeScript(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
-                    React.createElement("option", { value: "ge_deploy_oncar.sh" }, "\u{1F4E1} Deploy (install Google Earth)"),
-                    React.createElement("option", { value: "ge_deploy_v6.sh" }, "\u{1F6F0}\uFE0F Deploy (v6 StreetView Test)"),
-                    React.createElement("option", { value: "ge_probe.sh" }, "\u{1F50D} Probe (safe, read-only)"),
-                    React.createElement("option", { value: "ge_restore.sh" }, "\u21A9 Restore (revert all changes)")
-                  )
-                ),
-                m.id === "lte-setup" && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", background: "#0a0a0c", borderRadius: 6, border: "1px solid #1e1e22" } },
-                  React.createElement("div", { style: { fontSize: 10, color: "#fbbf24", fontFamily: "IBM Plex Mono", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" } }, "Configuration"),
-                  React.createElement("select", { value: lteMode, onClick: (e) => e.stopPropagation(), onChange: (e) => { e.stopPropagation(); setLteMode(e.target.value); }, style: { width: "100%", padding: "7px 8px", borderRadius: 5, border: "1px solid #2a2a35", background: "#111114", color: "#e0ddd8", fontSize: 12, fontFamily: "IBM Plex Mono", cursor: "pointer", outline: "none" } },
-                    React.createElement("option", { value: "lte_setup.sh" }, "\u{1F50C} DHCP Fair Mode \u2014 Standard ASIX (88172/772/772A)"),
-                    React.createElement("option", { value: "lte_static.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 Standard ASIX adapter"),
-                    React.createElement("option", { value: "lte_static_772d.sh" }, "\u{1F50C} Static 172.16.42.1 \u2014 AX88772D")
-                  )
-                ),
-                m.prereq && React.createElement("div", { style: { marginTop: 4, fontSize: 10, color: "#e84a6a", fontFamily: "IBM Plex Mono" } }, "Requires: " + m.prereq)
-              )
-            );
-          })
-        ),
-        React.createElement("div", { style: { marginTop: 16, display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#111114", border: "1px solid #1e1e22", borderRadius: 7 } },
-          React.createElement("div", { style: { fontSize: 12, color: "#888" } }, React.createElement("span", { style: { color: "#e0ddd8", fontWeight: 600, fontFamily: "IBM Plex Mono" } }, selected.size), " module" + (selected.size !== 1 ? "s" : "") + " selected"),
-          React.createElement("div", { style: { flex: 1 } }),
-          React.createElement("button", { onClick: () => setTab("build"), style: { padding: "8px 20px", borderRadius: 6, border: "none", background: selected.size > 0 ? "linear-gradient(135deg, #c41e3a, #8b0000)" : "#252528", color: selected.size > 0 ? "#fff" : "#555", fontSize: 12, fontWeight: 700, cursor: selected.size > 0 ? "pointer" : "default", boxShadow: selected.size > 0 ? "0 3px 10px rgba(196,30,58,0.25)" : "none" } }, "Build SD Card \u2192")
-        )
-      ),
-
-      // SPLASH TAB  (unchanged)
-      tab === "splash" && React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, alignItems: "start" } },
-        React.createElement("div", null,
-          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "MMI Preview (800 \u00d7 480 @ " + Math.round(PREVIEW_SCALE * 100) + "%)"),
-          React.createElement("div", { style: { width: pw, height: ph, background: "#000", borderRadius: 8, border: "2px solid #1e1e22", position: "relative", overflow: "hidden" } },
-            processedUrl ? React.createElement("img", { src: processedUrl, style: { width: pw, height: ph, display: "block" } }) :
-              React.createElement("div", { style: { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#333", fontSize: 13, fontFamily: "IBM Plex Mono" } }, "No image loaded")
-          ),
-          sourceImg && React.createElement("div", { style: { marginTop: 10, padding: 10, borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", fontSize: 11 } },
-            React.createElement("div", { style: { display: "grid", gridTemplateColumns: "auto 1fr auto", gap: "6px 10px", alignItems: "center" } },
-              React.createElement("span", { style: { color: "#888", fontFamily: "IBM Plex Mono" } }, "Zoom"),
-              React.createElement("input", { type: "range", min: 0.5, max: 3, step: 0.01, value: zoom, onChange: (e) => setZoom(parseFloat(e.target.value)) }),
-              React.createElement("span", { style: { color: "#bbb", fontFamily: "IBM Plex Mono", fontSize: 10 } }, zoom.toFixed(2) + "\u00d7"),
-              React.createElement("span", { style: { color: "#888", fontFamily: "IBM Plex Mono" } }, "X"),
-              React.createElement("input", { type: "range", min: -300, max: 300, step: 1, value: panX, onChange: (e) => setPanX(parseInt(e.target.value)) }),
-              React.createElement("span", { style: { color: "#bbb", fontFamily: "IBM Plex Mono", fontSize: 10 } }, panX),
-              React.createElement("span", { style: { color: "#888", fontFamily: "IBM Plex Mono" } }, "Y"),
-              React.createElement("input", { type: "range", min: -200, max: 200, step: 1, value: panY, onChange: (e) => setPanY(parseInt(e.target.value)) }),
-              React.createElement("span", { style: { color: "#bbb", fontFamily: "IBM Plex Mono", fontSize: 10 } }, panY)
-            ),
-            React.createElement("button", { onClick: () => { setZoom(1); setPanX(0); setPanY(0); }, style: { padding: "3px 8px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer" } }, "Reset")
-          )
-        ),
-        React.createElement("div", null,
-          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Source Image"),
-          React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", onChange: (e) => handleFile(e.target.files[0]), style: { display: "none" } }),
-          React.createElement("button", { onClick: () => fileRef.current?.click(), style: { padding: "11px 14px", borderRadius: 7, border: "1px dashed #3a3a3e", background: "#111114", color: "#bbb", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center" } }, sourceImg ? "\u21BB Replace Image" : "\u2B06 Upload Image"),
-          sourceImg && React.createElement("div", { style: { marginTop: 8, padding: "8px 10px", borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", fontSize: 11, color: "#888" } },
-            React.createElement("div", { style: { fontFamily: "IBM Plex Mono" } }, sourceImg.width + " \u00d7 " + sourceImg.height)
-          ),
-          React.createElement("div", { style: { fontSize: 10, color: "#555", marginTop: 14, marginBottom: 8, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Export"),
-          processedUrl && React.createElement("button", { onClick: () => { const a = document.createElement("a"); a.href = processedUrl; a.download = "startup_generic.png"; a.click(); setExported(true); if (!selected.has("splash-screen")) { const s = new Set(selected); s.add("splash-screen"); setSelected(s); } }, style: { padding: "12px 14px", borderRadius: 7, border: "none", background: exported ? "linear-gradient(135deg, #166534, #0a3d1f)" : "linear-gradient(135deg, #c41e3a, #8b0000)", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: exported ? "none" : "0 3px 10px rgba(196,30,58,0.25)" } }, exported ? "\u2713 Downloaded" : "\u2193 Export startup_generic.png"),
-          React.createElement("div", { style: { marginTop: 12, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Notes"),
-            React.createElement("ul", { style: { margin: 0, padding: "0 0 0 14px", fontSize: 11, color: "#888", lineHeight: 1.7 } },
-              React.createElement("li", null, "Exported PNG goes in splashscreens/ on SD"),
-              React.createElement("li", null, "Auto-selects 'Splash Screen' module"),
-              React.createElement("li", null, "Replaces factory boot logo on install")
-            )
-          )
-        )
-      ),
-
-      // BUILD TAB
-      tab === "build" && React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "start" } },
-        React.createElement("div", null,
-          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 10, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Selected Modules (" + selected.size + ")"),
-          selected.size === 0
-            ? React.createElement("div", { style: { padding: 20, borderRadius: 8, background: "#111114", border: "1px solid #1e1e22", textAlign: "center" } },
-                React.createElement("div", { style: { color: "#555", fontSize: 13 } }, "No modules selected"),
-                React.createElement("button", { onClick: () => setTab("modules"), style: { marginTop: 10, padding: "6px 14px", borderRadius: 5, border: "1px solid #2a2a2e", background: "#151518", color: "#888", fontSize: 11, cursor: "pointer" } }, "\u2190 Select Modules")
-              )
-            : React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
-                MODULES_DISPLAY.filter(m => selected.has(m.id)).map(m =>
-                  React.createElement("div", { key: m.id, style: { padding: "8px 12px", borderRadius: 6, background: "#111114", border: "1px solid #1e1e22", display: "flex", alignItems: "center", gap: 8 } },
-                    React.createElement("div", { style: { width: 6, height: 6, borderRadius: "50%", background: CAT_COLORS[m.category], flexShrink: 0 } }),
-                    React.createElement("span", { style: { fontSize: 12, fontFamily: "IBM Plex Mono", fontWeight: 500, flex: 1 } }, m.name),
-                    React.createElement("button", { onClick: () => toggle(m.id), style: { background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: 14, padding: 0 } }, "\u00d7")
-                  )
-                )
-              ),
-          React.createElement("div", { style: { marginTop: 14, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "SD Card Structure"),
-            React.createElement("pre", { style: { fontSize: 10, color: "#777", fontFamily: "IBM Plex Mono", margin: 0, lineHeight: 1.5, whiteSpace: "pre" } }, sdTree())
-          )
-        ),
-        React.createElement("div", null,
-          React.createElement("div", { style: { fontSize: 10, color: "#555", marginBottom: 10, fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.12em" } }, "Build"),
-
-          // Primary build actions
-          React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
-            // Write directly to SD (Chrome/Edge)
-            React.createElement("button", {
-              onClick: handleWriteToSd,
-              disabled: selected.size === 0 || buildState === "building",
-              title: chromium ? "Pick a folder (your SD card), write all files directly" : "Chrome/Edge only — use Download ZIP instead",
-              style: {
-                padding: "14px 16px", borderRadius: 8, border: "none",
-                background: buildState === "done-sd" ? "linear-gradient(135deg, #166534, #0a3d1f)" :
-                            (!chromium || selected.size === 0 || buildState === "building") ? "#1a1a1e" :
-                            "linear-gradient(135deg, #c41e3a, #8b0000)",
-                color: buildState === "done-sd" ? "#fff" :
-                       (!chromium || selected.size === 0 || buildState === "building") ? "#444" : "#fff",
-                fontSize: 14, fontWeight: 700,
-                cursor: (chromium && selected.size > 0 && buildState !== "building") ? "pointer" : "default",
-                boxShadow: (chromium && selected.size > 0 && buildState === "idle") ? "0 4px 14px rgba(196,30,58,0.3)" : "none"
-              }
-            },
-              buildState === "done-sd" ? "\u2713 Written to SD card" :
-              buildState === "building" ? "\u27F3 " + (buildProgress.label || "Building...") :
-              !chromium ? "\u26a0 Write to SD (Chrome/Edge only)" :
-              "\u2193 Write to SD Card..."
-            ),
-
-            // Download as ZIP (universal)
-            React.createElement("button", {
-              onClick: handleDownloadZip,
-              disabled: selected.size === 0 || buildState === "building",
-              style: {
-                padding: "12px 16px", borderRadius: 8, border: "1px solid #2a2a2e",
-                background: buildState === "done-zip" ? "rgba(22,101,52,0.15)" : "#151518",
-                color: buildState === "done-zip" ? "#4ade80" : selected.size > 0 ? "#bbb" : "#555",
-                fontSize: 13, fontWeight: 600,
-                cursor: (selected.size > 0 && buildState !== "building") ? "pointer" : "default"
-              }
-            },
-              buildState === "done-zip" ? "\u2713 ZIP downloaded" :
-              buildState === "building" ? "\u27F3 Building..." :
-              "\u2193 Download ZIP"
-            ),
-
-            // Progress bar (only while building)
-            buildState === "building" && React.createElement("div", { style: { padding: 10, borderRadius: 6, background: "#111114", border: "1px solid #1e1e22" } },
-              React.createElement("div", { style: { fontSize: 10, color: "#888", fontFamily: "IBM Plex Mono", marginBottom: 5 } }, buildProgress.label + " \u00b7 " + buildProgress.pct + "%"),
-              React.createElement("div", { style: { height: 4, background: "#0a0a0c", borderRadius: 2, overflow: "hidden" } },
-                React.createElement("div", { style: { height: "100%", width: buildProgress.pct + "%", background: "linear-gradient(90deg, #c41e3a, #e84a6a)", transition: "width 0.2s" } })
-              )
-            ),
-
-            // Error
-            buildState === "error" && React.createElement("div", { style: { padding: 10, borderRadius: 6, background: "rgba(185,28,28,0.08)", border: "1px solid rgba(185,28,28,0.3)" } },
-              React.createElement("div", { style: { fontSize: 11, color: "#fca5a5", fontFamily: "IBM Plex Mono", wordBreak: "break-word" } }, "\u26A0 " + buildError)
-            ),
-
-            // Success details
-            (buildState === "done-sd" || buildState === "done-zip") && buildStats && React.createElement("div", { style: { padding: 12, borderRadius: 7, background: "rgba(22,101,52,0.08)", border: "1px solid rgba(22,101,52,0.2)" } },
-              React.createElement("div", { style: { fontSize: 12, color: "#4ade80", fontWeight: 600, marginBottom: 6 } }, buildState === "done-sd" ? "Written to SD card" : "ZIP ready"),
-              React.createElement("div", { style: { fontSize: 10, color: "#888", fontFamily: "IBM Plex Mono", marginBottom: 8 } }, buildStats.fileCount + " files \u00b7 " + Math.round(buildStats.totalBytes / 1024) + " KB"),
-              React.createElement("ol", { style: { margin: 0, padding: "0 0 0 16px", fontSize: 11, color: "#888", lineHeight: 1.7 } },
-                buildState === "done-zip" && React.createElement("li", null, "Extract ZIP to the root of a FAT32 32GB SDHC card"),
-                buildState === "done-sd" && React.createElement("li", null, "SD card must be FAT32 32GB SDHC"),
-                React.createElement("li", null, "Boot MMI fully (wait 3+ min)"),
-                React.createElement("li", null, "Insert SD card, wait 30 sec"),
-                React.createElement("li", null, "Remove card, reboot MMI"),
-                React.createElement("li", null, React.createElement("span", null, "Open GEM: "), React.createElement("code", { style: { color: "#e84a6a", fontSize: 10 } }, "CAR + BACK"), " (C7)")
-              )
-            )
-          ),
-
-          // CLI reference card (keep for power users)
-          React.createElement("div", { style: { marginTop: 14, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", marginBottom: 6 } }, "Or use the CLI"),
-            React.createElement("pre", { style: { background: "#0a0a0c", borderRadius: 6, padding: 10, fontSize: 11, fontFamily: "IBM Plex Mono", color: "#e84a6a", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", border: "1px solid #1a1a1e" } },
-              "python builder/build_sd.py" + (selected.size === MODULES_DISPLAY.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"
-            ),
-            React.createElement("button", { onClick: () => { navigator.clipboard?.writeText("python builder/build_sd.py" + (selected.size === MODULES_DISPLAY.length ? " --all" : [...selected].map(id => " -m " + id).join("")) + " -o F:\\"); }, style: { marginTop: 8, padding: "4px 10px", borderRadius: 4, border: "1px solid #2a2a2e", background: "#151518", color: "#777", fontSize: 10, cursor: "pointer", fontFamily: "IBM Plex Mono" } }, "Copy command")
-          ),
-
-          React.createElement("div", { style: { marginTop: 12, padding: 12, borderRadius: 7, background: "#111114", border: "1px solid #1e1e22" } },
-            React.createElement("div", { style: { fontSize: 10, color: "#555", fontFamily: "IBM Plex Mono", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 } }, "Platform Family"),
-            React.createElement("div", { style: { fontSize: 10, color: "#666", lineHeight: 1.7, fontFamily: "IBM Plex Mono" } },
-              "All vehicles share the Harman HN+ platform: QNX 6.3.2, SH4 CPU, copie_scr.sh autorun.",
-              React.createElement("br"),
-              React.createElement("span", { style: { color: "#e84a6a" } }, "Audi"), " → EscRsa (2-byte patch) · ",
-              React.createElement("span", { style: { color: "#3b82f6" } }, "VW"), " → BouncyCastle (1-byte patch) · ",
-              React.createElement("span", { style: { color: "#f59e0b" } }, "Porsche"), " → PagSWAct (RSA-64 derived)",
-              React.createElement("br"),
-              "RSA key (1024-bit, e=17) shared across all brands."
-            )
-          )
+    h("div", null,
+      h("div", { className: "caps", style: { marginBottom: 8 } }, "Source image"),
+      h("input", { ref: fileRef, type: "file", accept: "image/*", onChange: (e) => handleFile(e.target.files[0]), style: { display: "none" } }),
+      h("button", { type: "button", className: "btn2", style: { marginTop: 0, padding: "11px 14px", borderStyle: "dashed", color: "var(--text)", fontSize: 13 }, onClick: () => fileRef.current?.click() }, sourceImg ? "Replace the image" : "Upload an image"),
+      sourceImg && h("div", { className: "box mono small muted", style: { marginTop: 8 } }, sourceImg.width + " \u00d7 " + sourceImg.height),
+      h("div", { className: "caps", style: { marginTop: 18, marginBottom: 8 } }, "Export"),
+      processedUrl && h("button", { type: "button", className: "btn", style: { marginTop: 0, background: exported ? "#166534" : undefined }, onClick: () => { const a = document.createElement("a"); a.href = processedUrl; a.download = "startup_generic.png"; a.click(); setExported(true); if (!selected.has("splash-screen")) { const s = new Set(selected); s.add("splash-screen"); setSelected(s); } } }, exported ? "\u2713 Downloaded" : "Export startup_generic.png"),
+      h("div", { className: "box", style: { marginTop: 12 } },
+        h("div", { className: "caps", style: { marginBottom: 6 } }, "Notes"),
+        h("ul", { className: "small muted", style: { margin: 0, padding: "0 0 0 14px", lineHeight: 1.7 } },
+          h("li", null, "The exported PNG goes in splashscreens/ on the card"),
+          h("li", null, "Exporting adds the Splash screen module to your card"),
+          h("li", null, "It replaces the factory boot logo on install")
         )
       )
+    )
+  );
+
+  return h("div", { style: { minHeight: "100vh" } },
+    h("header", { className: "hdr" },
+      h("div", { className: "hdr-row" },
+        h("div", { className: "logo", "aria-hidden": "true" },
+          h("span", { style: { height: 14, background: "#8a8a90" } }),
+          h("span", { style: { height: 20, background: "#c41e3a" } }),
+          h("span", { style: { height: 16, background: "#c41e3a" } })),
+        h("span", { className: "name" }, "MMI3G-TOOLKIT"),
+        h("span", { className: "grow" }),
+        h("nav", { className: "tabs", "aria-label": "Sections" },
+          [{ id: "modules", label: "Modules" }, { id: "splash", label: "Splash screen" }].map((t) =>
+            h("button", { key: t.id, type: "button", className: tab === t.id ? "on" : "", "aria-current": tab === t.id ? "page" : undefined, onClick: () => setTab(t.id) }, t.label))),
+        h("a", { className: "gh", href: repoUrl, target: "_blank", rel: "noopener" }, "GitHub \u2197")
+      ),
+      tab === "modules" && h("div", { className: "hdr-row" },
+        h("input", { type: "search", className: "search", placeholder: "Search modules", "aria-label": "Search modules",
+          value: query, spellCheck: false, onChange: (e) => setQuery(e.target.value) }),
+        h("div", { className: "chips", role: "group", "aria-label": "Your car" },
+          h("span", { className: "caps", style: { marginRight: 4 } }, "Your car"),
+          MODELS.map((m) => h("button", { key: m.id, type: "button", className: "chip" + (model === m.id ? " on" : ""), "aria-pressed": model === m.id ? "true" : "false", onClick: () => setModel(m.id) }, m.label)))
+      )
     ),
-    React.createElement("canvas", { ref: canvasRef, style: { display: "none" } })
+    tab === "modules" && h("div", { className: "layout" }, catalog, panel),
+    tab === "modules" && h("div", { className: "mbar" },
+      h("div", { className: "grow small" }, selected.size + " on your card \u00b7 " + sizeText),
+      h("button", { type: "button", className: "btn", onClick: () => panelRef.current && panelRef.current.scrollIntoView({ behavior: "smooth" }) }, "Review and build")),
+    tab === "splash" && splash,
+    h("canvas", { ref: canvasRef, style: { display: "none" } })
   );
 }
 
