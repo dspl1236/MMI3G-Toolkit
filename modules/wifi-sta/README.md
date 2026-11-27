@@ -38,8 +38,10 @@ following passed:
 **Without the OpenSSH installation** it ran on a second unit (an A6,
 `HN+R_US_AU_K0942_3`) on 2026-11-26, with the module's own `jitter-egd`
 and DrGER's LTE `dhcp-up`: joined in 16 s, leased 17 s later, internet and
-Google Earth over the phone. **Not yet run on a unit:** more than one
-network in `hotspot.conf`, and telnet over the hotspot (both below).
+Google Earth over the phone; then, with two networks configured, it
+joined the home network at start-up (wired adapter out) and admitted
+telnet from it. **Not yet run on a unit:** the switch from one network to
+the other, and the `inbound` list beyond telnet (both below).
 
 In the car, the owner reported these working on 2026-10-31, but nothing
 was logged from them:
@@ -134,21 +136,45 @@ reachable only from the hotspot's own subnet). At start-up it waits for
 OpenSSH to come up before switching. Without OpenSSH there is no SSH
 over the hotspot.
 
-## Telnet over the hotspot (optional)
+## Ping, telnet and other ports from the network (optional)
 
-By default the station admits nothing from the hotspot but the DHCP
-server's replies. The unit's factory telnet is a root login with no
-password, so admitting it gives a root shell to everyone on that network:
-choose it only for a network that is yours alone, such as your own phone's
-hotspot. To choose it, create the empty file
+By default the station admits nothing from its network but the DHCP
+server's replies: the unit does not even answer ping there. Everything the
+unit starts itself (Google Earth, online services, DNS) goes out and gets
+its replies either way.
 
-    /mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot
+To admit more, list it in `/mnt/efs-persist/wifi-sta/gem/inbound`, one
+entry per line (`#` starts a comment):
 
-(for example over the wired adapter: `touch` that path). From the next
-station start the station admits telnet (port 23) from the lease's own
-subnet to the lease's address, and moves the rule with each new lease;
-`sta-mode.sh status` shows it. Delete the file to stop it from the next
-start.
+    icmp        # ping
+    tcp 23      # telnet
+    tcp 2021    # another TCP port; udp <port> for UDP
+
+or put a `wifi-sta/options` file on the card (below), which writes it.
+From the next station start each entry is admitted from the lease's own
+subnet only, to the lease's address, and moves with each new lease;
+`sta-mode.sh status` shows the list. Lines it cannot use are skipped and
+reported; at most 16 entries.
+
+The unit's factory telnet is a root login with no password, so admitting
+`tcp 23` gives a root shell to everyone on that network: list it only for
+networks that are yours alone, such as your own phone's hotspot. The
+older marker `/mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot` still
+works and means `tcp 23`.
+
+## Options on the card (optional)
+
+A `wifi-sta/options` file on the card (the web builder writes one) sets
+the start-up choice and the inbound list when the card runs:
+
+    start-up=client     # join the networks at every start-up (or: ap)
+    allow=icmp
+    allow=tcp 23
+    allow=none          # admit nothing; overrides the allow= lines
+
+Any `allow=` line replaces the unit's inbound list (and the
+`telnet-on-hotspot` marker); without one the list stays as it is. An
+unknown line stops the card before it changes anything.
 
 ## More than one network
 
@@ -157,7 +183,7 @@ phone's hotspot and the home network; `wpa_supplicant` joins whichever it
 finds (add `priority=` lines to prefer one). A lease belongs to the
 network it came from: when the supplicant joins a different network, the
 station gives up the old address and its default route and asks for a new
-lease, and the SSH and telnet rules follow it. At start-up the station
+lease, and the SSH and inbound rules follow it. At start-up the station
 still stays off while the wired adapter (en5) is present.
 
 ## If something goes wrong

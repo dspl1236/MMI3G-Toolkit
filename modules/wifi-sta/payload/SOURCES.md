@@ -26,10 +26,12 @@ one; `sta-install.sh` pins the new `sta-mode.sh` and lists the upstream one
 the README, "DrGER's LTE set-up is accepted too".
 `sta-mode.sh` and `sta-install.sh` also accept 1 to 4 networks in the
 hotspot configuration, and `sta-mode.sh` asks for a new lease when the
-supplicant joins a different network than the lease came from; with
-`/mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot` present it admits telnet
-from the lease's subnet. `hotspot.conf.example` says so. See the README,
-"More than one network" and "Telnet over the hotspot".
+supplicant joins a different network than the lease came from; it
+admits from the lease's subnet what `/mnt/efs-persist/wifi-sta/gem/inbound`
+lists (ping, TCP and UDP ports), and telnet while
+`/mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot` exists.
+`hotspot.conf.example` says so. See the README, "More than one network"
+and "Ping, telnet and other ports from the network".
 
 The Marvell firmware is redistributed under `LICENCE.Marvell`. It may be
 used only with Marvell silicon (the head unit's 88W8688), and must not be

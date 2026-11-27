@@ -1308,7 +1308,7 @@
             "files": [
                 {
                     "path": "README.md",
-                    "size": 9625
+                    "size": 10716
                 },
                 {
                     "path": "module.json",
@@ -1344,7 +1344,7 @@
                 },
                 {
                     "path": "payload/SOURCES.md",
-                    "size": 3042
+                    "size": 3146
                 },
                 {
                     "path": "payload/WifiClient.esd",
@@ -1400,11 +1400,11 @@
                 },
                 {
                     "path": "payload/sta-install.sh",
-                    "size": 20048
+                    "size": 20077
                 },
                 {
                     "path": "payload/sta-mode.sh",
-                    "size": 52940
+                    "size": 55335
                 },
                 {
                     "path": "payload/wpa_supplicant",
@@ -1412,7 +1412,7 @@
                 },
                 {
                     "path": "scripts/wifi_sta_run.sh",
-                    "size": 9274
+                    "size": 13400
                 }
             ]
         }

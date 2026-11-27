@@ -21,8 +21,8 @@
 # After the start, a keeper stays in the background until the restart (or a
 # stop). Every 10 s it restarts wpa_supplicant or dhcp.client if one has
 # exited, and keeps an sshd and the en6 SSH rule bound to the current lease.
-# When $telnet_marker exists at the start, it also admits telnet from the
-# hotspot's own subnet to the lease's address (the factory root login).
+# It admits from the station's own network (the lease's subnet) only what
+# the owner lists in $inbound_file (and telnet if $telnet_marker exists).
 # The sshd is the OpenSSH installation's (qnx632-openssh) and runs only while
 # that installation is running; without it the station has no SSH. The
 # supplicant's random source, jitter-egd, is that installation's when it
@@ -62,12 +62,16 @@ sta_lan=6
 pf_label=mmi_sta_en6
 ssh_label=mmi_sta_ssh
 ssh_port=2222
-# Telnet from the hotspot's own subnet to the lease's address, only while
-# $telnet_marker exists (the owner's choice: the factory inetd's telnet is a
-# root login with no password, so anyone on that network gets a root shell).
-telnet_label=mmi_sta_telnet
-telnet_port=23
+# What the station admits from its own network (the lease's subnet) to the
+# lease's address, beyond the DHCP replies: the owner's choice, one entry per
+# line of $inbound_file ("icmp" for ping, "tcp <port>", "udp <port>"; "#"
+# starts a comment), read at each start. $telnet_marker, if present, adds
+# "tcp 23". The factory telnet is a root login with no password: admitting it
+# gives a root shell to everyone on that network.
+inbound_label=mmi_sta_in
+inbound_file=/mnt/efs-persist/wifi-sta/gem/inbound
 telnet_marker=/mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot
+inbound_max=16
 # The configuration may list this many networks (the phone's hotspot, the
 # home network, ...); the supplicant joins whichever it finds.
 conf_networks=4
@@ -250,9 +254,10 @@ station_default_only() {
 # The filter rules carry one of three labels. $pf_label: on en6, the DHCP
 # server's replies in and everything else blocked, loaded before the
 # interface exists. $ssh_label: SSH from the lease's subnet to its address,
-# replaced whenever the lease changes. $telnet_label: the same for telnet,
-# only when the owner has chosen it ($telnet_marker). Filter rules only, loaded and checked
-# as radio-reattach.sh does, so NAT and states are untouched. Each returns
+# replaced whenever the lease changes. $inbound_label: the same for each
+# entry the owner has chosen ($inbound_file, $telnet_marker). Filter rules
+# only, loaded and checked as radio-reattach.sh does, so NAT and states are
+# untouched. Each returns
 # non-zero, with the rules as they were, on any failure; pf.err says why.
 pf_load() {
     pfctl -n -R -f "$state/pf.next" >> "$state/pf.err" 2>&1 || return 1
@@ -260,7 +265,7 @@ pf_load() {
             pfctl -sr > "$state/pf.verified" 2>> "$state/pf.err" &&
             [ "$(grep -c "label \"$pf_label\"" "$state/pf.verified")" = "$1" ] &&
             [ "$(grep -c "label \"$ssh_label\"" "$state/pf.verified")" = "$2" ] &&
-            [ "$(grep -c "label \"$telnet_label\"" "$state/pf.verified")" = "${3:-0}" ]; then
+            [ "$(grep -c "label \"$inbound_label\"" "$state/pf.verified")" = "${3:-0}" ]; then
         return 0
     fi
     echo "loaded rules did not verify; restoring the previous set" >> "$state/pf.err"
@@ -270,7 +275,7 @@ pf_load() {
 sta_pf_enable() {
     : > "$state/pf.err"
     pfctl -sr > "$state/pf.current" 2>> "$state/pf.err" || return 1
-    [ "$(grep -c -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$telnet_label\"" "$state/pf.current")" = 0 ] ||
+    [ "$(grep -c -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$inbound_label\"" "$state/pf.current")" = 0 ] ||
         { echo "rules already present" >> "$state/pf.err"; return 1; }
     [ "$(grep -c '^pass out ' "$state/pf.current")" = 1 ] ||
         { echo "no single 'pass out' rule to insert before" >> "$state/pf.err"; return 1; }
@@ -308,36 +313,48 @@ ssh_pf() {
         esac
         echo "$pf_line"
     done < "$state/pf.current" > "$state/pf.next"
-    pf_load 2 "$sp_want" "$(grep -c "label \"$telnet_label\"" "$state/pf.current")"
+    pf_load 2 "$sp_want" "$(grep -c "label \"$inbound_label\"" "$state/pf.current")"
 }
-# telnet_pf "addr bits" puts the telnet rule before en6's first rule, in
-# place of any earlier one (a lease on another network).
-telnet_pf() {
+# inbound_pf "addr bits" puts one rule per $inbound entry before en6's
+# first rule, from the lease's subnet to its address, in place of any
+# earlier ones (a lease on another network).
+inbound_pf() {
     : > "$state/pf.err"
     pfctl -sr > "$state/pf.current" 2>> "$state/pf.err" || return 1
     [ "$(grep -c "label \"$pf_label\"" "$state/pf.current")" = 2 ] ||
         { echo "the $sta_if rules are not in place" >> "$state/pf.err"; return 1; }
     set -- $1
-    tp_rule="pass in quick on $sta_if inet proto tcp from $(network_of "$1" "$2")/$2 to $1 port = $telnet_port flags S/SA keep state label \"$telnet_label\""
-    tp_first=yes
+    ip_from=$(network_of "$1" "$2")/$2
+    ip_to=$1
+    ip_n=0
+    for ip_e in $inbound; do
+        case $ip_e in
+            icmp) echo "pass in quick on $sta_if inet proto icmp from $ip_from to $ip_to icmp-type echoreq keep state label \"$inbound_label\"" ;;
+            tcp:*) echo "pass in quick on $sta_if inet proto tcp from $ip_from to $ip_to port = ${ip_e#tcp:} flags S/SA keep state label \"$inbound_label\"" ;;
+            udp:*) echo "pass in quick on $sta_if inet proto udp from $ip_from to $ip_to port = ${ip_e#udp:} keep state label \"$inbound_label\"" ;;
+            *) continue ;;
+        esac
+        ip_n=$((ip_n + 1))
+    done > "$state/inbound.rules"
+    ip_first=yes
     while IFS= read -r pf_line; do
-        case $pf_line in *"label \"$telnet_label\""*) continue;; esac
+        case $pf_line in *"label \"$inbound_label\""*) continue;; esac
         case $pf_line in
             *"label \"$pf_label\""*)
-                [ "$tp_first" = yes ] && echo "$tp_rule"
-                tp_first=no;;
+                [ "$ip_first" = yes ] && cat "$state/inbound.rules"
+                ip_first=no;;
         esac
         echo "$pf_line"
     done < "$state/pf.current" > "$state/pf.next"
-    pf_load 2 "$(grep -c "label \"$ssh_label\"" "$state/pf.current")" 1
+    pf_load 2 "$(grep -c "label \"$ssh_label\"" "$state/pf.current")" "$(grep -c . "$state/inbound.rules")"
 }
 # All three labels out, whatever is there.
 sta_pf_disable() {
     : > "$state/pf.err"
     pfctl -sr > "$state/pf.current" 2>> "$state/pf.err" || return 1
-    [ "$(grep -c -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$telnet_label\"" "$state/pf.current")" != 0 ] ||
+    [ "$(grep -c -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$inbound_label\"" "$state/pf.current")" != 0 ] ||
         return 0
-    grep -v -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$telnet_label\"" "$state/pf.current" > "$state/pf.next"
+    grep -v -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$inbound_label\"" "$state/pf.current" > "$state/pf.next"
     pf_load 0 0 0
 }
 
@@ -434,6 +451,41 @@ dhcp_stop() {
     log "dhcp.client stopped."
 }
 
+# inbound_read: $inbound = the admitted entries ("icmp", "tcp:23", ...),
+# from $telnet_marker and $inbound_file; lines it cannot use are reported
+# and skipped.
+inbound_read() {
+    inbound=
+    [ -f "$telnet_marker" ] && inbound=tcp:23
+    [ -f "$inbound_file" ] || return 0
+    while read -r in_proto in_port in_rest; do
+        case $in_proto in ''|'#'*) continue;; esac
+        case $in_proto in
+            icmp) in_entry=icmp ;;
+            tcp|udp)
+                case $in_port in
+                    [1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9]) ;;
+                    *) say "inbound: skipped \"$in_proto $in_port\" (needs a port 1-65535)"; continue ;;
+                esac
+                [ "$in_port" -le 65535 ] ||
+                    { say "inbound: skipped \"$in_proto $in_port\" (needs a port 1-65535)"; continue; }
+                in_entry=$in_proto:$in_port ;;
+            *) say "inbound: skipped \"$in_proto\" (icmp, tcp <port> or udp <port>)"; continue ;;
+        esac
+        case " $inbound " in *" $in_entry "*) continue;; esac
+        set -- $inbound
+        [ $# -lt "$inbound_max" ] ||
+            { say "inbound: more than $inbound_max entries; skipped \"$in_proto $in_port\""; continue; }
+        inbound="${inbound:+$inbound }$in_entry"
+    done < "$inbound_file"
+    return 0
+}
+
+# "ping, tcp 23, udp 5353" for the log and status.
+inbound_words() {
+    echo $inbound | sed -e 's/icmp/ping/' -e 's/:/ /g' -e 's/ \([a-z]\)/, \1/g'
+}
+
 # --- start: preflight (in the session) ---------------------------------------------
 preflight() {
     [ "$(uname -s)" = QNX ] || refuse "run this on the MMI."
@@ -451,7 +503,7 @@ preflight() {
     else
         ssh=no
     fi
-    if [ -f "$telnet_marker" ]; then telnet=yes; else telnet=no; fi
+    inbound_read
     [ "$(sum_of "$driver")" = "$driver_sum" ] ||
         refuse "$driver is not the reviewed factory object ($(sum_of "$driver"))."
     [ "$(sum_of "$dhcp_client")" = "$dhcp_client_sum" ] ||
@@ -512,8 +564,8 @@ preflight() {
     ! sed -n 's/^ *[0-9][0-9]* //p' "$state/pidin.txt" | grep -q "dhcp\.client .* -i $sta_if *\$" ||
         refuse "a dhcp.client for $sta_if is already running."
     pfctl -sr > "$state/pf.check" 2>&1 || refuse "pfctl -sr failed: $(cat "$state/pf.check")"
-    [ "$(grep -c -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$telnet_label\"" "$state/pf.check")" = 0 ] ||
-        refuse "rules labelled $pf_label, $ssh_label or $telnet_label are loaded; run sta-mode.sh stop first."
+    [ "$(grep -c -e "label \"$pf_label\"" -e "label \"$ssh_label\"" -e "label \"$inbound_label\"" "$state/pf.check")" = 0 ] ||
+        refuse "rules labelled $pf_label, $ssh_label or $inbound_label are loaded; run sta-mode.sh stop first."
     [ "$(grep -c '^pass out ' "$state/pf.check")" = 1 ] ||
         refuse "the filter rules have no single 'pass out' rule to insert before."
     pfctl -sn > "$state/nat.check" 2>&1 || refuse "pfctl -sn failed."
@@ -631,11 +683,11 @@ cmd_start() {
     echo "$conf" > "$lock/conf"
     echo "$ap_mac" > "$lock/ap_mac"
     echo "$ssh" > "$lock/ssh"
-    echo "$telnet" > "$lock/telnet"
+    echo "$inbound" > "$lock/inbound"
     echo "$egd" > "$lock/egd"
     echo "$egd_bin" > "$lock/egd_bin"
     echo starting > "$state/phase"
-    rm -f "$state/verdict" "$state/stop.verdict" "$state/bound" "$state/sshd.pid" "$state/telnet.bound" \
+    rm -f "$state/verdict" "$state/stop.verdict" "$state/bound" "$state/sshd.pid" "$state/inbound.bound" \
         "$state/lease.net" \
         "$state/dhcp.pid" "$state/wpa.pid" "$state/keeper.pid"
     : >> "$log_file"
@@ -665,7 +717,7 @@ load_lock() {
     conf=$(cat "$lock/conf" 2>/dev/null)
     ap_mac=$(cat "$lock/ap_mac" 2>/dev/null)
     ssh=$(cat "$lock/ssh" 2>/dev/null)
-    telnet=$(cat "$lock/telnet" 2>/dev/null)
+    inbound=$(cat "$lock/inbound" 2>/dev/null)
     egd=$(cat "$lock/egd" 2>/dev/null)
     egd_bin=$(cat "$lock/egd_bin" 2>/dev/null)
 }
@@ -787,7 +839,7 @@ changed() {
 }
 
 # Gives up the current lease: stops the client, deletes en6's address and
-# the default route through en6. The SSH and telnet rules follow the next
+# the default route through en6. The SSH and inbound rules follow the next
 # lease.
 lease_drop() {
     dhcp_stop
@@ -899,13 +951,13 @@ converge() {
                 fi
             fi
         fi
-        if [ "$telnet" = yes ] && [ "$(cat "$state/telnet.bound" 2>/dev/null)" != "$lease" ]; then
-            if telnet_pf "$lease"; then
-                echo "$lease" > "$state/telnet.bound"
-                log "pf: telnet to ${lease%% *}:$telnet_port from its /${lease#* } admitted (label $telnet_label)."
+        if [ -n "$inbound" ] && [ "$(cat "$state/inbound.bound" 2>/dev/null)" != "$lease" ]; then
+            if inbound_pf "$lease"; then
+                echo "$lease" > "$state/inbound.bound"
+                log "pf: $(inbound_words) to ${lease%% *} from its /${lease#* } admitted (label $inbound_label)."
             else
-                changed telnet "$(cat "$state/pf.err")" &&
-                    log "pf: the telnet rule could not be loaded: $(cat "$state/pf.err")"
+                changed inbound "$(cat "$state/pf.err")" &&
+                    log "pf: the inbound rules could not be loaded: $(cat "$state/pf.err")"
             fi
         fi
         if ! nat_present; then
@@ -945,9 +997,9 @@ start_checks() {
             [ "$(cat "$state/bound" 2>/dev/null)" = "$lease" ] && alive "$state/sshd.pid" ||
                 missing="$missing no sshd on the lease;"
         fi
-        if [ "$telnet" = yes ]; then
-            [ "$(cat "$state/telnet.bound" 2>/dev/null)" = "$lease" ] ||
-                missing="$missing no telnet rule on the lease;"
+        if [ -n "$inbound" ]; then
+            [ "$(cat "$state/inbound.bound" 2>/dev/null)" = "$lease" ] ||
+                missing="$missing no inbound rules on the lease;"
         fi
     fi
 }
@@ -970,8 +1022,8 @@ keeper() {
                 else
                     sshd_note="with no SSH (the OpenSSH installation is not running)"
                 fi
-                if [ "$telnet" = yes ]; then
-                    sshd_note="$sshd_note; telnet from its /${lease#* } is admitted"
+                if [ -n "$inbound" ]; then
+                    sshd_note="$sshd_note; $(inbound_words) from its /${lease#* } admitted"
                 fi
                 log "RESULT: $sta_if joined the hotspot with WPA2-PSK, leased ${lease%% *} as the only default route with resolv.conf naming $(echo $sc_servers), translates <natRangeTable>, $sshd_note."
                 verdict OK
@@ -1190,11 +1242,12 @@ cmd_status() {
     else
         bad PARTIAL "no sshd on the lease"
     fi
-    if [ "$(cat "$lock/telnet" 2>/dev/null)" = yes ]; then
-        say "telnet: admitted from the hotspot to $(sed -e 's/ .*//' "$state/telnet.bound" 2>/dev/null):$telnet_port"
-        [ "$(cat "$state/telnet.bound" 2>/dev/null)" = "${lease:-}" ] || bad PARTIAL "the telnet rule is not on the current lease"
+    inbound=$(cat "$lock/inbound" 2>/dev/null)
+    if [ -n "$inbound" ]; then
+        say "inbound: $(inbound_words) admitted from its network to $(sed -e 's/ .*//' "$state/inbound.bound" 2>/dev/null)"
+        [ "$(cat "$state/inbound.bound" 2>/dev/null)" = "${lease:-}" ] || bad PARTIAL "the inbound rules are not on the current lease"
     else
-        say "telnet: not admitted from the hotspot (no $telnet_marker at the start)"
+        say "inbound: nothing admitted from its network but DHCP replies ($inbound_file, $telnet_marker)"
     fi
     if routes_now; then
         say "default routes: $(echo $(default_routes | sed -e 's/^default //' -e 's/$/;/'))"

@@ -18,8 +18,18 @@
 #      delete it from the card
 #   5. add the WifiClient GEM screen
 #   6. add the start-up block to /mnt/efs-system/lsd/lsd.sh
-#   An earlier install is upgraded in place; its hotspot configuration and
-#   its GEM start-up choice stay.
+#   7. if wifi-sta/options is on the card, apply it (see below)
+#   An earlier install is upgraded in place; its hotspot configuration,
+#   its GEM start-up choice and its inbound list stay unless the options
+#   change them.
+# wifi-sta/options (optional; the web builder writes it), one per line:
+#   start-up=client      join the networks at every start-up (or: ap)
+#   allow=icmp           admit ping from the station's own network
+#   allow=tcp 23         admit a TCP (or udp) port from it; 23 is the
+#                        factory telnet, a root login with no password
+#   allow=none           admit nothing but DHCP replies
+#   Any allow= line replaces the unit's inbound list (and the older
+#   telnet-on-hotspot marker); with none, the list stays as it is.
 # Remove: put an empty file wifi-sta/REMOVE on the card. The LAN-mode
 #   flag stays (wifi-sta/lan-mode.sh disable removes it).
 #
@@ -43,6 +53,7 @@ unset LD_PRELOAD
 ksh=/bin/ksh
 pay="${SDPATH}/wifi-sta"
 card_conf="${pay}/hotspot.conf"
+card_options="${pay}/options"
 remove_flag="${pay}/REMOVE"
 sums="${pay}/CKSUMS"
 run=/fs/tmpfs
@@ -50,6 +61,9 @@ persistence=/mnt/persistence
 efs_system=/mnt/efs-system
 marker=/mnt/efs-persist/wifi-sta/gem/client-at-start-up
 gem_dir=/mnt/efs-persist/wifi-sta/gem
+inbound_file=$gem_dir/inbound
+telnet_marker=$gem_dir/telnet-on-hotspot
+inbound_max=16
 flag=/HBpersistence/DLinkReplacesPPP
 # The factory files the station was validated with, on one unit (9411,
 # HN+R_US_AU_K0942_3, MU 1038). sta-mode.sh refuses to start without them.
@@ -143,9 +157,86 @@ check_unit() {
     [ -d "$persistence" ] || fail "${persistence} is absent (no HDD); nothing was changed"
 }
 
+# read_options: checks wifi-sta/options and sets opt_startup (client, ap or
+# empty) and opt_allow (the inbound lines, "none", or empty). Changes
+# nothing; fails on any line it does not know.
+read_options() {
+    opt_startup=
+    opt_allow=
+    opt_n=0
+    [ -f "$card_options" ] || return 0
+    while IFS= read -r o_line; do
+        o_line=${o_line%%#*}
+        set -- $o_line
+        [ $# -gt 0 ] || continue
+        o_line="$*"
+        case $o_line in
+            start-up=client|start-up=ap)
+                opt_startup=${o_line#start-up=} ;;
+            allow=none)
+                opt_allow=none ;;
+            allow=icmp)
+                o_entry=icmp ;;
+            "allow=tcp "*|"allow=udp "*)
+                set -- ${o_line#allow=}
+                [ $# = 2 ] || fail "options: \"$o_line\" needs one port; nothing was changed by the options"
+                case $2 in
+                    [1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9]) ;;
+                    *) fail "options: \"$o_line\": the port must be 1-65535; nothing was changed by the options" ;;
+                esac
+                [ "$2" -le 65535 ] || fail "options: \"$o_line\": the port must be 1-65535; nothing was changed by the options"
+                o_entry="$1 $2" ;;
+            *) fail "options: unknown line \"$o_line\" in ${card_options}; nothing was changed by the options" ;;
+        esac
+        case $o_line in
+            allow=icmp|"allow=tcp "*|"allow=udp "*)
+                [ "$opt_allow" != none ] || continue
+                opt_n=$((opt_n + 1))
+                [ "$opt_n" -le "$inbound_max" ] || fail "options: more than $inbound_max allow= lines; nothing was changed by the options"
+                opt_allow="${opt_allow:+$opt_allow
+}$o_entry" ;;
+        esac
+    done < "$card_options"
+    # allow=none anywhere wins over the other allow= lines.
+    grep -q '^[ 	]*allow=none[ 	]*\(#.*\)*$' "$card_options" && opt_allow=none
+    return 0
+}
+
+apply_options() {
+    [ -f "$card_options" ] || return 0
+    say "options from ${card_options}"
+    case $opt_startup in
+        client) : > "$marker" || fail "could not write $marker"
+            say "start-up: join the networks at every start-up" ;;
+        ap) rm -f "$marker"
+            say "start-up: the car's access point" ;;
+    esac
+    case $opt_allow in
+        '') say "inbound: unchanged" ;;
+        none)
+            rm -f "$inbound_file" "$telnet_marker"
+            say "inbound: nothing admitted but DHCP replies" ;;
+        *)
+            echo "$opt_allow" > "$inbound_file.new.$$" && chmod 644 "$inbound_file.new.$$" &&
+                mv -f "$inbound_file.new.$$" "$inbound_file" ||
+                { rm -f "$inbound_file.new.$$"; fail "could not write $inbound_file"; }
+            rm -f "$telnet_marker"
+            say "inbound: $(echo $opt_allow | sed -e 's/icmp/ping/' -e 's/ \([a-z]\)/, \1/g') admitted from the station's own network"
+            case "
+$opt_allow
+" in
+                *"
+tcp 23
+"*) say "WARNING: telnet (tcp 23) is a root login with no password for everyone on that network" ;;
+            esac ;;
+    esac
+    say "these take effect at the next station start"
+}
+
 install_all() {
     check_card
     check_unit
+    read_options
     say "train: $(cat /dev/shmem/sw_trainname.txt 2>/dev/null)"
     # gem-install.sh does not remount; the factory start-up mounts it
     # read-write, so this only makes sure.
@@ -210,6 +301,7 @@ install_all() {
     if [ "$marker_was" = present ] && [ ! -f "$marker" ] && [ -d "$gem_dir" ]; then
         : > "$marker" && say "GEM start-up choice kept: hotspot client"
     fi
+    apply_options
 
     step sta-install.sh status
     step gem-install.sh status
@@ -228,6 +320,9 @@ remove_all() {
     mount -uw "$efs_system" 2>/dev/null
     step sta-install.sh unhook || fail "sta-install.sh unhook"
     step sta-install.sh remove || fail "sta-install.sh remove"
+    # The owner's inbound choices first, so the GEM removal can take the
+    # directory.
+    rm -f "$inbound_file" "$telnet_marker"
     step gem-install.sh remove || fail "gem-install.sh remove"
     step lan-mode.sh status
     say "RESULT: OK, removed. The LAN-mode flag stays; restart the unit."
