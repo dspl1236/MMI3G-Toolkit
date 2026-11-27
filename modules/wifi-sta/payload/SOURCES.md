@@ -18,6 +18,19 @@ READMEs. The research, evidence and validation limits are in
 | `sd8688_helper.bin` | `1538620194 2616` | linux-firmware `mrvl/sd8688_helper.bin` | `LICENSES/LICENCE.Marvell` |
 | `sta-mode.sh`, `sta-boot.sh`, `boot-launch.sh`, `sta-install.sh`, `gem-install.sh`, `lan-mode.sh`, `WifiClient.esd`, `gem.sh` | see `CKSUMS` | mmi3g-wifi-sta `wifi-sta/` | GPL-2.0-only |
 
+**Changed here from `0e27791`:** `sta-mode.sh`, `lan-mode.sh` and
+`sta-install.sh` (and this module's `scripts/wifi_sta_run.sh`) also accept
+DrGER's LTE `dhcp-up` (`1601281849 792`) where they checked for the factory
+one; `sta-install.sh` pins the new `sta-mode.sh` and lists the upstream one
+(`2285213847 47091`) as an earlier build, so an installed copy upgrades. See
+the README, "DrGER's LTE set-up is accepted too".
+`sta-mode.sh` and `sta-install.sh` also accept 1 to 4 networks in the
+hotspot configuration, and `sta-mode.sh` asks for a new lease when the
+supplicant joins a different network than the lease came from; with
+`/mnt/efs-persist/wifi-sta/gem/telnet-on-hotspot` present it admits telnet
+from the lease's subnet. `hotspot.conf.example` says so. See the README,
+"More than one network" and "Telnet over the hotspot".
+
 The Marvell firmware is redistributed under `LICENCE.Marvell`. It may be
 used only with Marvell silicon (the head unit's 88W8688), and must not be
 reverse engineered.

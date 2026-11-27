@@ -1,5 +1,5 @@
 {
-    "generated": "2026-11-13",
+    "generated": "2026-11-26",
     "branch": "main",
     "raw_url_base": "https://raw.githubusercontent.com/dspl1236/MMI3G-Toolkit/main/",
     "core_files": {
@@ -1308,15 +1308,15 @@
             "files": [
                 {
                     "path": "README.md",
-                    "size": 7288
+                    "size": 9625
                 },
                 {
                     "path": "module.json",
-                    "size": 2171
+                    "size": 2343
                 },
                 {
                     "path": "payload/CKSUMS",
-                    "size": 805
+                    "size": 807
                 },
                 {
                     "path": "payload/LICENSES/GPL-2.0.txt",
@@ -1344,7 +1344,7 @@
                 },
                 {
                     "path": "payload/SOURCES.md",
-                    "size": 2209
+                    "size": 3042
                 },
                 {
                     "path": "payload/WifiClient.esd",
@@ -1368,7 +1368,7 @@
                 },
                 {
                     "path": "payload/hotspot.conf.example",
-                    "size": 724
+                    "size": 795
                 },
                 {
                     "path": "payload/jitter-egd",
@@ -1376,7 +1376,7 @@
                 },
                 {
                     "path": "payload/lan-mode.sh",
-                    "size": 8045
+                    "size": 8324
                 },
                 {
                     "path": "payload/mv8688-ctl",
@@ -1400,11 +1400,11 @@
                 },
                 {
                     "path": "payload/sta-install.sh",
-                    "size": 19774
+                    "size": 20048
                 },
                 {
                     "path": "payload/sta-mode.sh",
-                    "size": 47091
+                    "size": 52940
                 },
                 {
                     "path": "payload/wpa_supplicant",
@@ -1412,7 +1412,7 @@
                 },
                 {
                     "path": "scripts/wifi_sta_run.sh",
-                    "size": 8759
+                    "size": 9274
                 }
             ]
         }

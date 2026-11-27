@@ -59,6 +59,9 @@ dhcp_client=/usr/sbin/dhcp.client
 dhcp_client_sum='263280565 57048'
 dhcp_up=/etc/dhcp/dhcp-up
 dhcp_up_sum='3046797907 6292'
+# DrGER's LTE dhcp-up (20230218), which many 3G+ units run instead; it gives a
+# lease's name servers to resolv.conf as the station needs (see sta-mode.sh).
+dhcp_up_drger_sum='1601281849 792'
 # Seconds per step; every step finishes well inside this on a healthy unit.
 budget=300
 
@@ -126,13 +129,17 @@ check_card() {
 
 check_unit() {
     [ "$(uname -s)" = QNX ] || fail "run this on the MMI"
-    for f in "$driver $driver_sum" "$dhcp_client $dhcp_client_sum" "$dhcp_up $dhcp_up_sum"; do
+    for f in "$driver $driver_sum" "$dhcp_client $dhcp_client_sum"; do
         set -- $f
         if [ "$(sum_of "$1")" != "$2 $3" ]; then
             fail "$1 is $(sum_of "$1"), not the $2 $3 the station was validated with; this firmware is not supported, nothing was changed"
         fi
     done
-    say "the factory driver, dhcp.client and dhcp-up are the validated ones"
+    case "$(sum_of "$dhcp_up")" in
+        "$dhcp_up_sum") say "the factory driver, dhcp.client and dhcp-up are the validated ones" ;;
+        "$dhcp_up_drger_sum") say "the factory driver and dhcp.client are the validated ones; dhcp-up is DrGER's LTE one (accepted)" ;;
+        *) fail "$dhcp_up is $(sum_of "$dhcp_up"), neither the factory $dhcp_up_sum nor DrGER's LTE $dhcp_up_drger_sum; nothing was changed" ;;
+    esac
     [ -d "$persistence" ] || fail "${persistence} is absent (no HDD); nothing was changed"
 }
 

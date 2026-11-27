@@ -20,6 +20,6 @@ then
  MUVER="MMI3GP"
  SWTRAIN="$(cat /dev/shmem/sw_trainname.txt)"
 fi
-mount -u $SDPATH
+mount -uw $SDPATH || mount -u $SDPATH
 cd $SDPATH
 exec ksh ./run.sh $SDPATH

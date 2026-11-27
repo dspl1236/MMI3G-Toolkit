@@ -102,7 +102,7 @@ class Installer(unittest.TestCase):
 case "{name} $1" in
     "sta-install.sh status") echo "wifi-sta: state: ${{MOCK_STA_STATE:-absent}}"
         [ -n "${{MOCK_OLD_HOOK-}}" ] && echo "{self.STATUS_OLD}"
-        [ -n "${{MOCK_CONF_PRESENT-}}" ] && echo "wifi-sta: wpa-hotspot.conf: present, root, mode 600, one WPA-PSK network"
+        [ -n "${{MOCK_CONF_PRESENT-}}" ] && echo "wifi-sta: wpa-hotspot.conf: present, root, mode 600, 1 WPA-PSK network(s)"
         exit 0;;
     "gem-install.sh status") echo "wifi-gem: state: ${{MOCK_GEM_STATE:-absent}}"; exit 0;;
     "sta-install.sh conf") cat > "{b}/conf.received"; exit ${{MOCK_CONF_RC:-0}};;
@@ -119,7 +119,7 @@ exit 0
         self.tool('cksum', '#!/bin/sh\ncase $1 in\n'
                   f'    {self.factory["devnp-mv8688uap.so"]}) echo "${{MOCK_DRIVER_SUM:-1022510863 93538}} $1";;\n'
                   f'    {self.factory["dhcp.client"]}) echo "263280565 57048 $1";;\n'
-                  f'    {self.factory["dhcp-up"]}) echo "3046797907 6292 $1";;\n'
+                  f'    {self.factory["dhcp-up"]}) echo "${{MOCK_DHCP_UP_SUM:-3046797907 6292}} $1";;\n'
                   '    *) exec /usr/bin/cksum "$@";;\nesac\n')
         text = RUN.read_text()
         shell = os.environ.get('MMI_TEST_SHELL', '/bin/sh')
@@ -207,6 +207,22 @@ exit 0
         out = self.run_it(MOCK_DRIVER_SUM='1 2')
         self.assertIn('this firmware is not supported, nothing was changed', out.stdout)
         self.assertEqual(self.steps(), [])
+        self.assertFalse(self.calls.exists())
+
+    def test_drgers_lte_dhcp_up_is_accepted(self):
+        # A unit with DrGER's LTE set-up: his dhcp-up, and the flag already set.
+        self.flag.write_text('')
+        out = self.run_it(MOCK_DHCP_UP_SUM='1601281849 792', MOCK_CONF_PRESENT='1')
+        self.assertIn("dhcp-up is DrGER's LTE one (accepted)", out.stdout, out.stdout)
+        self.assertIn('RESULT: OK, installed.', out.stdout, out.stdout)
+        self.assertEqual(self.steps(), [
+            f'sta-install.sh install {self.pay}', f'gem-install.sh install {self.pay}',
+            'sta-install.sh hook'])
+
+    def test_any_other_dhcp_up_changes_nothing(self):
+        out = self.run_it(MOCK_DHCP_UP_SUM='12345 678')
+        self.assertIn("neither the factory", out.stdout, out.stdout)
+        self.assertIn('nothing was changed', out.stdout)
         self.assertFalse(self.calls.exists())
 
     def test_a_damaged_card_changes_nothing(self):
