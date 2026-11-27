@@ -85,14 +85,11 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| **system-info** | ✅ Tested | One-shot system reporter — full MMI state dump to SD |
+| **system-info** | ✅ Tested | One-shot system reporter — full MMI state dump to SD: identity and variant, credentials, persistence and shared memory, nav database and maps, HDD, processes and logs (it absorbed password-finder, variant-dump, persistence-dump and map-parser) |
 | **gem-activator** ⚠️ | ✅ Tested | GEM infrastructure setup. **Setting the enable bit requires VCDS/ODIS** — adaptation 5F channel 6 = 1 |
 | **gauges-dashboard** | ✅ Tested | Live telemetry — battery voltage, GPS, system info, data logging |
 | **dtc-checker** | ✅ Tested | Read and display diagnostic trouble codes from the GEM |
 | **gemmi-dump** | ✅ Tested | Extract Google Earth (GEMMI) binaries to SD for analysis |
-| **password-finder** | ✅ Tested | Dump stored Wi-Fi/hotspot passwords, Bluetooth keys, Audi Connect credentials |
-| **variant-dump** | ✅ Tested | Comprehensive per3 adaptation dump — 90+ values to SD |
-| **map-parser** | ✅ Tested | Extract nav database descriptor, FSC activation state, map metadata |
 | **nav-unblocker** | ✅ Ready | Bypass nav database activation (Keldo/DrGER2 method) |
 | **usb-net** ⚠️ | ✅ Ready | Universal ASIX USB-Ethernet for MMI3G+/RNS-850 — modern 772B/772C adapters; **supersedes `lte-setup`** (**requires hardware**) |
 | **lte-setup** | 🗑️ Deprecated | Superseded by **`usb-net`** — LTE via USB Ethernet |
@@ -101,7 +98,6 @@ See [docs/SUPPORTED_VEHICLES.md](docs/SUPPORTED_VEHICLES.md) for full details.
 | **jvm-extract** | ✅ Ready | Extract J9 JVM and UI framework for reverse engineering |
 | **game-loader** | ✅ Ready | Java game launcher — run games on the MMI's J9 JVM |
 | **splash-screen** | ✅ Ready | Custom boot splash screen with image formatter app |
-| **persistence-dump** | ✅ Ready | Dump persistence data and configuration |
 | **dns-refresh-probe** | 🧪 Alpha | One-shot route/DNS diagnostic that rewrites `/etc/resolv.conf` to the SD override or gateway and logs before/after checks |
 | **google-earth** | 🧪 Alpha | Google Earth restoration — probe, enable, deploy, restore. [GEMMI binaries](https://github.com/dspl1236/MMI3G-Toolkit/releases/tag/v1.0-gemmi) auto-included from GitHub Release |
 | **google-earth-gemmi-wrappers** | 🧪 Alpha | Install legacy `/scripts/GEMMI/*.sh` controls expected by the OEM Google Earth screen |
@@ -223,17 +219,13 @@ MMI3G-Toolkit/
 │   ├── copie_scr_plain.sh       # Launcher template (auto-encoded)
 │   ├── platform.sh              # QNX shims, variant detection, logstamp + module-completion/timeout helpers
 │   └── uninstall.sh             # Universal uninstaller
-├── modules/                     # 26 modules
+├── modules/                     # 24 modules
 │   ├── system-info/             # One-shot system state dump to SD
 │   ├── gem-activator/           # engdefs/ setup (enable bit still needs VCDS)
 │   ├── gauges-dashboard/        # Live telemetry — voltage, GPS, data logging
 │   ├── dtc-checker/             # Read diagnostic trouble codes
 │   ├── gemmi-dump/              # Extract GEMMI/Google Earth binaries
 │   ├── google-earth/            # Google Earth restoration (probe/enable/deploy/restore)
-│   ├── password-finder/         # Dump stored Wi-Fi/BT/Audi Connect credentials
-│   ├── variant-dump/            # Per3 adaptation dump (90+ values)
-│   ├── map-parser/              # Nav database + FSC state extractor
-│   ├── persistence-dump/        # Persistence data dump
 │   ├── nav-unblocker/           # Nav database activation bypass
 │   ├── lte-setup/               # LTE via USB Ethernet (deprecated -> usb-net)
 │   ├── wifi-sta/                # Wi-Fi client (station mode) to a phone hotspot (alpha)
@@ -312,7 +304,7 @@ Community PRs are actively merged — thanks to **daredoole** for web app builde
 This project builds on years of community research:
 
 - **[DrGER2](https://github.com/DrGER2)** — MMI3G+ research pioneer. His repositories (MMI3G-Info, MMI3G-Navdb-Unblocker, MMI3GP-LAN-Setup, copie_src.sh, MMI3G-HDD-Prep-Tool, MMI3G-CRC32Sum, GEMMI-Monitor) are the foundation this toolkit extends
-- **[jilleb](https://github.com/jilleb)** — MIB1/MIB2 toolbox author. The mib1-toolbox and mib2-toolbox screen layouts inspired the `password-finder`, `variant-dump`, `map-parser`, and `long-coding` modules in this toolkit
+- **[jilleb](https://github.com/jilleb)** — MIB1/MIB2 toolbox author. The mib1-toolbox and mib2-toolbox screen layouts inspired the `system-info` report sections (formerly the `password-finder`, `variant-dump` and `map-parser` modules) and the `long-coding` module in this toolkit
 - **[megusta1337](https://github.com/megusta1337)** — copie_scr.sh decryption research
 - **[cmbsolutions](https://github.com/cmbsolutions)** — copie_scr.sh encoding tools
 - **[romangarms](https://github.com/romangarms)** — Java-on-Audi-MMI-3G JVM research

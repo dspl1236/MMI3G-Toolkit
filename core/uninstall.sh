@@ -50,6 +50,7 @@ for pattern in \
     "MapParser*.esd" \
     "NavUnblocker*.esd" \
     "PasswordFinder*.esd" \
+    "PersistDump*.esd" \
     "RegionAuditMain.esd" \
     "Scanner*.esd" \
     "ScannerEngine1.esd" \
@@ -99,6 +100,7 @@ for d in \
     NetDiag \
     PasswordFinder \
     Per3Reader \
+    PersistDump \
     RegionAudit \
     Scanner \
     Splash \

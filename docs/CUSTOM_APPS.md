@@ -16,7 +16,7 @@ to understand what you're hooking into.
 
 | Mechanism | Language | Persistence | Effort | Example |
 |-----------|----------|-------------|--------|---------|
-| 1. SD script | shell | Per-insertion | Easy | `system-info`, `variant-dump` |
+| 1. SD script | shell | Per-insertion | Easy | `system-info`, `wifi-sta` |
 | 2. Flash-persistent script | shell | Across reboots | Easy | `nav-unblocker` |
 | 3. GEM screen | Java + XML | Across reboots | Medium | `gauges-dashboard`, `long-coding` |
 | 4. OSGi bundle | Java | Across reboots | Hard | `per3-reader` |

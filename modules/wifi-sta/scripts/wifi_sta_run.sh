@@ -323,6 +323,7 @@ install_all() {
     step gem-install.sh status
     step lan-mode.sh status
     say "RESULT: OK, installed."
+    [ -z "${FORGE_NOTE:-}" ] || echo "Wi-Fi client installed: restart the MMI" > "$FORGE_NOTE" 2>/dev/null
     if [ "$restart_for_flag" = yes ]; then
         say "Restart the unit: the LAN-mode flag and the GEM screen take effect at the next start-up."
     else

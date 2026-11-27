@@ -36,7 +36,7 @@ mmi_run_bounded "${MMI_CMD_BUDGET}" pidin ar > "${OUT}/processes.txt" 2>/dev/nul
 ## Status
 
 - **Hardened:** `system-info` (PR #15, self-contained), and `google-earth`,
-  `gemmi-dump`, `dns-refresh-probe`, `persistence-dump` (via the shared helpers).
+  `gemmi-dump`, `dns-refresh-probe` (via the shared helpers).
 - **Out of scope:** modules that do not show `running.png` can't get stuck on the
   screen; install/write modules that already use `trap … EXIT INT TERM` for
   rollback (`per3-*`, `nav-unblocker`, `lte-setup`, `splash-screen`, …) are a

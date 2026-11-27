@@ -61,7 +61,6 @@ class ModuleContractTests(unittest.TestCase):
         display_ids = re.findall(r'\{\s*id:\s*"([^"]+)"', display_block)
         explicitly_hidden = {
             'can-diag',
-            'persistence-dump',
             'region-audit',
         }
         # Every displayed module is buildable (dtc-checker had no module.json
