@@ -12,9 +12,11 @@ class PagesWorkflowTests(unittest.TestCase):
         cls.source = PAGES_WORKFLOW.read_text(encoding='utf-8')
 
     def test_pages_workflow_mirrors_p0824_payload_without_committing_zip(self):
-        self.assertIn('build_type=workflow', self.source)
-        self.assertIn('actions/deploy-pages@v4', self.source)
-        self.assertIn('actions/upload-pages-artifact@v3', self.source)
+        # deploy-pages@v4 could not find upload-pages-artifact@v3's artifact
+        # (every deploy 2026-11-17..26 failed); the settings call always got 403.
+        self.assertNotIn('build_type=workflow', self.source)
+        self.assertIn('actions/deploy-pages@v5', self.source)
+        self.assertIn('actions/upload-pages-artifact@v5', self.source)
         self.assertIn('gh release download v1.0-gemmi-p0824', self.source)
         self.assertIn('gemmi_p0824_eu_vw.zip', self.source)
         self.assertIn('9823685', self.source)
